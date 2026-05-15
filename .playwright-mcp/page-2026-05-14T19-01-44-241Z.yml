@@ -1,0 +1,179 @@
+- generic [ref=e3]:
+  - region "Notifications alt+T"
+  - generic [ref=e5]:
+    - complementary [ref=e6]:
+      - generic [ref=e7]:
+        - img [ref=e10]
+        - generic [ref=e12]:
+          - generic [ref=e13]: T1D Companion
+          - generic [ref=e14]: Pattern aware, safety first
+      - navigation [ref=e16]:
+        - link "Dashboard" [ref=e17] [cursor=pointer]:
+          - /url: /dashboard
+          - img [ref=e18]
+          - text: Dashboard
+        - link "Glucose" [ref=e23] [cursor=pointer]:
+          - /url: /glucose
+          - img [ref=e24]
+          - text: Glucose
+        - link "Events" [ref=e26] [cursor=pointer]:
+          - /url: /events
+          - img [ref=e27]
+          - text: Events
+        - link "Patterns" [ref=e29] [cursor=pointer]:
+          - /url: /patterns
+          - img [ref=e30]
+          - text: Patterns
+        - link "AI chat" [ref=e32] [cursor=pointer]:
+          - /url: /chat
+          - img [ref=e33]
+          - text: AI chat
+        - link "Settings" [ref=e36] [cursor=pointer]:
+          - /url: /settings
+          - img [ref=e37]
+          - text: Settings
+      - generic [ref=e40]:
+        - generic [ref=e41]:
+          - generic [ref=e42]:
+            - img [ref=e43]
+            - text: Safety mode
+          - paragraph [ref=e46]: Educational insights only. No autonomous dosing or treatment changes.
+        - generic [ref=e47]:
+          - generic [ref=e48]:
+            - generic [ref=e49]: Demo workspace
+            - generic [ref=e50]:
+              - img [ref=e51]
+              - text: v0.1.0 running
+          - button "Out" [ref=e53] [cursor=pointer]
+    - main [ref=e54]:
+      - generic [ref=e55]:
+        - generic [ref=e57]:
+          - generic [ref=e58]:
+            - generic [ref=e59]:
+              - generic [ref=e60]: Service running
+              - generic [ref=e62]: Demo data active
+              - generic [ref=e63]: Updated 8:01 PM
+            - heading "See the rhythm behind the numbers." [level=1] [ref=e64]
+            - paragraph [ref=e65]: A sensor-agnostic Type 1 companion for CGM context, real-life events, and plain-language pattern discovery.
+            - generic [ref=e66]:
+              - button "Log event" [ref=e67] [cursor=pointer]:
+                - img [ref=e68]
+                - text: Log event
+              - button "Ask AI" [ref=e69] [cursor=pointer]:
+                - img [ref=e70]
+                - text: Ask AI
+          - generic [ref=e73]:
+            - generic [ref=e74]:
+              - generic [ref=e75]: Current signal
+              - generic [ref=e76]: in range
+            - generic [ref=e77]:
+              - generic [ref=e78]:
+                - generic [ref=e79]: "180"
+                - generic [ref=e80]: mg/dL from manual
+              - generic [ref=e81]:
+                - generic [ref=e82]: "+38"
+                - generic [ref=e83]: since previous
+        - generic [ref=e84]:
+          - generic [ref=e85]:
+            - generic [ref=e86]: Live dashboard
+            - heading "Personal pattern cockpit" [level=2] [ref=e88]
+          - generic [ref=e89]:
+            - button "1D" [ref=e90] [cursor=pointer]
+            - button "3D" [ref=e91] [cursor=pointer]
+            - button "7D" [ref=e92] [cursor=pointer]
+            - button "14D" [ref=e93] [cursor=pointer]
+        - generic [ref=e94]:
+          - generic [ref=e95]:
+            - generic [ref=e97]:
+              - generic [ref=e98]:
+                - paragraph [ref=e99]: Current glucose
+                - generic [ref=e100]: "180"
+                - generic [ref=e101]: mg/dL
+              - img [ref=e103]
+            - generic [ref=e106]:
+              - img [ref=e107]
+              - text: 38 mg/dL since last reading
+          - generic [ref=e111]:
+            - generic [ref=e112]:
+              - paragraph [ref=e113]: Time in range
+              - generic [ref=e114]: 98%
+              - generic [ref=e115]: Target 70 to 180
+            - img [ref=e117]
+          - generic [ref=e122]:
+            - generic [ref=e123]:
+              - paragraph [ref=e124]: Below range
+              - generic [ref=e125]: 0%
+              - generic [ref=e126]: Under 70
+            - img [ref=e128]
+          - generic [ref=e133]:
+            - generic [ref=e134]:
+              - paragraph [ref=e135]: Above range
+              - generic [ref=e136]: 2%
+              - generic [ref=e137]: Over 180
+            - img [ref=e139]
+        - generic [ref=e142]:
+          - generic [ref=e143]:
+            - generic [ref=e144]:
+              - generic [ref=e145]:
+                - heading "Glucose trace" [level=3] [ref=e146]
+                - paragraph [ref=e147]: Target band, excursions, and sensor cadence.
+              - button "Add reading" [ref=e148] [cursor=pointer]:
+                - img [ref=e149]
+                - text: Add reading
+            - img [ref=e152]
+          - generic [ref=e153]:
+            - generic [ref=e154]:
+              - generic [ref=e155]:
+                - heading "Quick log" [level=3] [ref=e156]
+                - img [ref=e157]
+              - generic [ref=e159]:
+                - generic [ref=e160]:
+                  - paragraph [ref=e161]: Capture context fast
+                  - button "Collapse quick log" [ref=e162] [cursor=pointer]:
+                    - img [ref=e163]
+                - generic [ref=e166]:
+                  - button "Glucose Manual reading" [ref=e167] [cursor=pointer]:
+                    - img [ref=e169]
+                    - generic [ref=e171]:
+                      - generic [ref=e172]: Glucose
+                      - generic [ref=e173]: Manual reading
+                  - button "Meal Carbs and notes" [ref=e174] [cursor=pointer]:
+                    - img [ref=e176]
+                    - generic [ref=e179]:
+                      - generic [ref=e180]: Meal
+                      - generic [ref=e181]: Carbs and notes
+                  - button "Insulin Dose record" [ref=e182] [cursor=pointer]:
+                    - img [ref=e184]
+                    - generic [ref=e191]:
+                      - generic [ref=e192]: Insulin
+                      - generic [ref=e193]: Dose record
+                  - button "Exercise Duration and intensity" [ref=e194] [cursor=pointer]:
+                    - img [ref=e196]
+                    - generic [ref=e204]:
+                      - generic [ref=e205]: Exercise
+                      - generic [ref=e206]: Duration and intensity
+            - generic [ref=e207]:
+              - generic [ref=e208]:
+                - img [ref=e209]
+                - heading "Safety boundary" [level=3] [ref=e212]
+              - paragraph [ref=e213]: The assistant explains patterns and escalates urgent language. It will not dose, diagnose, or replace clinical advice.
+        - generic [ref=e214]:
+          - heading "Recent events" [level=3] [ref=e216]
+          - generic [ref=e222]:
+            - heading "Pattern notes" [level=3] [ref=e223]
+            - generic [ref=e224]:
+              - generic [ref=e225]:
+                - img [ref=e227]
+                - generic [ref=e230]:
+                  - paragraph [ref=e231]: Food timing signal
+                  - paragraph [ref=e232]: High-fat meals often peak later, usually around the third hour.
+              - generic [ref=e233]:
+                - img [ref=e235]
+                - generic [ref=e237]:
+                  - paragraph [ref=e238]: Overnight watch
+                  - paragraph [ref=e239]: One gentle low trend appears this week between 02:00 and 04:00.
+              - generic [ref=e240]:
+                - img [ref=e242]
+                - generic [ref=e244]:
+                  - paragraph [ref=e245]: Exercise effect
+                  - paragraph [ref=e246]: Moderate runs are followed by a typical 30 to 40 mg/dL drop.

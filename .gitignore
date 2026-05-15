@@ -1,0 +1,52 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.venv/
+venv/
+ENV/
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Databases / runtime state
+*.db
+*.sqlite
+*.sqlite3
+redis-data/
+postgres-data/
+
+# Node / frontend
+node_modules/
+frontend/node_modules/
+frontend/dist/
+dist/
+build/
+.next/
+.vite/
+
+# Logs
+*.log
+logs/
+
+# OS / editor
+.DS_Store
+.vscode/
+.idea/
+
+# Playwright/browser artifacts
+playwright-report/
+test-results/
+
+# Pi runtime/session state (keep project-local skills/prompts tracked)
+.pi/sessions/
+.pi/tmp/

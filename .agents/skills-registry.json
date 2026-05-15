@@ -1,0 +1,522 @@
+{
+  "version": "2.0.0",
+  "description": "Lazy-loadable skills registry for T1D Companion AI agents. Skills are loaded on-demand only when needed, reducing initial context window bloat.",
+  "lastUpdated": "2026-05-15",
+  "skills": {
+    "impeccable": {
+      "name": "impeccable",
+      "title": "Professional Frontend Polish",
+      "description": "Professional frontend design & polish. Covers UX review, visual hierarchy, accessibility, responsive design, typography, spacing, layout, color, motion, micro-interactions. Best for production-grade interface refinement.",
+      "category": "design",
+      "subcategory": "ui-polish",
+      "priority": "high",
+      "file": "impeccable/SKILL.md",
+      "size": "large",
+      "tokenEstimate": 1500,
+      "triggers": [
+        "polish",
+        "refine",
+        "improve design",
+        "visual hierarchy",
+        "accessibility",
+        "responsive design",
+        "make it look professional",
+        "production-grade",
+        "interface polish",
+        "production",
+        "professional"
+      ],
+      "intentPatterns": [
+        "review.*ui",
+        "polish.*design",
+        "improve.*interface",
+        "refactor.*component.*design",
+        ".*polish.*",
+        ".*refine.*",
+        ".*professional.*"
+      ],
+      "recommended": true,
+      "examples": [
+        "Review this component's visual hierarchy",
+        "Polish the UI to production quality",
+        "Improve accessibility of this form"
+      ],
+      "useWhen": "Need professional-grade UI refinement, visual polish, or comprehensive design review",
+      "aliases": [
+        "impeccable",
+        "polish",
+        "refine",
+        "professional-polish"
+      ]
+    },
+    "design-taste-frontend": {
+      "name": "design-taste-frontend",
+      "title": "Frontend Design Taste Evaluation",
+      "description": "Frontend taste evaluation system. Covers design system consistency, visual feedback, UI polish enforcement. Specializes in interface design critique and consistency assessment.",
+      "category": "design",
+      "subcategory": "evaluation",
+      "priority": "medium",
+      "file": "design-taste-frontend/SKILL.md",
+      "size": "medium",
+      "tokenEstimate": 800,
+      "triggers": [
+        "design taste",
+        "visual feedback",
+        "evaluate design",
+        "design critique",
+        "consistency check"
+      ],
+      "intentPatterns": [
+        "evaluate.*design",
+        "critique.*ui",
+        "design.*consistency"
+      ],
+      "recommended": false,
+      "examples": [
+        "Evaluate the design taste of this component",
+        "Provide feedback on visual consistency"
+      ],
+      "useWhen": "Need objective design evaluation and consistency feedback",
+      "aliases": [
+        "design-taste",
+        "taste-check",
+        "design-feedback"
+      ]
+    },
+    "minimalist-ui": {
+      "name": "minimalist-ui",
+      "title": "Minimalist Interface Design",
+      "description": "Clean editorial-style interfaces. Warm monochrome palette, typographic contrast, flat bento grids, muted pastels. No gradients, no heavy shadows. Ideal for medical/health applications requiring clarity.",
+      "category": "design",
+      "subcategory": "style-system",
+      "priority": "critical",
+      "file": "minimalist-ui/SKILL.md",
+      "size": "medium",
+      "tokenEstimate": 1000,
+      "triggers": [
+        "minimalist",
+        "clean ui",
+        "medical interface",
+        "health app",
+        "uncluttered",
+        "warm monochrome",
+        "dashboard",
+        "interface",
+        "ui",
+        "screen",
+        "layout"
+      ],
+      "intentPatterns": [
+        "build.*minimalist.*",
+        "clean.*design.*medical",
+        "health.*app.*ui",
+        ".*dashboard.*",
+        ".*interface.*",
+        "minimal.*ui"
+      ],
+      "recommended": true,
+      "examples": [
+        "Build a minimalist health tracking interface",
+        "Create clean medical dashboard UI"
+      ],
+      "useWhen": "Building health/medical interfaces requiring clarity and uncluttered design",
+      "aliases": [
+        "minimalist-ui",
+        "minimalist",
+        "clean-ui",
+        "simple-ui",
+        "medical-ui",
+        "health-ui"
+      ]
+    },
+    "industrial-brutalist-ui": {
+      "name": "industrial-brutalist-ui",
+      "title": "Industrial Brutalist UI",
+      "description": "Raw mechanical interfaces fusing Swiss typographic print with military terminal aesthetics. Rigid grids, extreme type scale contrast, utilitarian color, analog degradation effects. For data-heavy dashboards needing authoritative, utilitarian feel.",
+      "category": "design",
+      "subcategory": "style-system",
+      "priority": "medium",
+      "file": "industrial-brutalist-ui/SKILL.md",
+      "size": "medium",
+      "tokenEstimate": 950,
+      "triggers": [
+        "brutalist",
+        "data dashboard",
+        "utilitarian",
+        "terminal style",
+        "heavy data",
+        "rigid grid",
+        "dashboard",
+        "data",
+        "analytics",
+        "report"
+      ],
+      "intentPatterns": [
+        "data.*intensive.*dashboard",
+        "brutalist.*ui",
+        "terminal.*style.*interface",
+        ".*dashboard.*",
+        ".*data.*",
+        ".*analytics.*",
+        ".*report.*"
+      ],
+      "recommended": false,
+      "examples": [
+        "Create an industrial data dashboard",
+        "Build heavy-duty analytics interface"
+      ],
+      "useWhen": "Building data-dense dashboards requiring maximum information density",
+      "aliases": [
+        "industrial",
+        "brutalist",
+        "data-dashboard",
+        "heavy-dashboard"
+      ]
+    },
+    "brandkit": {
+      "name": "brandkit",
+      "title": "Brand Consistency Toolkit",
+      "description": "Premium brand-kit image generation and design system creation. Creates high-end brand-guidelines boards, logo systems, identity decks, visual world presentations. Optimized for minimalist, cinematic, editorial, dark-tech, luxury brand systems.",
+      "category": "design",
+      "subcategory": "brand-system",
+      "priority": "medium",
+      "file": "brandkit/SKILL.md",
+      "size": "large",
+      "tokenEstimate": 1800,
+      "triggers": [
+        "brand kit",
+        "design system",
+        "identity",
+        "brand guidelines",
+        "logo system",
+        "visual tokens"
+      ],
+      "intentPatterns": [
+        "create.*design.*system",
+        "brand.*guidelines",
+        "visual.*identity.*system"
+      ],
+      "recommended": true,
+      "examples": [
+        "Create a design system with tokens",
+        "Build brand guidelines for the app"
+      ],
+      "useWhen": "Establishing comprehensive brand identity and design token system",
+      "aliases": [
+        "brandkit",
+        "design-system",
+        "brand-system",
+        "tokens"
+      ]
+    },
+    "high-end-visual-design": {
+      "name": "high-end-visual-design",
+      "title": "High-End Visual Design",
+      "description": "Teaches premium visual design standards. Defines exact fonts, spacing, shadows, card structures, and animations that make interfaces feel expensive. Blocks common defaults that make AI designs look cheap or generic.",
+      "category": "design",
+      "subcategory": "aesthetics",
+      "priority": "low",
+      "file": "high-end-visual-design/SKILL.md",
+      "size": "medium",
+      "tokenEstimate": 1200,
+      "triggers": [
+        "premium",
+        "high-end",
+        "luxury",
+        "expensive look",
+        "polished aesthetics"
+      ],
+      "intentPatterns": [
+        "make.*premium",
+        "high.*end.*design",
+        "luxury.*interface"
+      ],
+      "recommended": false,
+      "examples": [
+        "Design premium luxury interface",
+        "Make this look high-end and expensive"
+      ],
+      "useWhen": "Creating public-facing consumer apps requiring premium aesthetics",
+      "aliases": [
+        "high-end",
+        "luxury",
+        "premium-design"
+      ]
+    },
+    "redesign-existing-projects": {
+      "name": "redesign-existing-projects",
+      "title": "Legacy UI Modernization",
+      "description": "Upgrades existing websites and apps to premium quality. Audits current design, identifies generic AI patterns, and applies high-end design standards without breaking functionality. Works with any CSS framework or vanilla CSS.",
+      "category": "design",
+      "subcategory": "refactoring",
+      "priority": "low",
+      "file": "redesign-existing-projects/SKILL.md",
+      "size": "medium",
+      "tokenEstimate": 1100,
+      "triggers": [
+        "redesign",
+        "modernize",
+        "upgrade ui",
+        "refactor design",
+        "legacy interface"
+      ],
+      "intentPatterns": [
+        "redesign.*existing",
+        "modernize.*legacy",
+        "upgrade.*interface"
+      ],
+      "recommended": false,
+      "examples": [
+        "Redesign this legacy admin panel",
+        "Modernize the old UI"
+      ],
+      "useWhen": "Refactoring or modernizing existing interfaces while preserving functionality",
+      "aliases": [
+        "redesign",
+        "modernize",
+        "upgrade-ui"
+      ]
+    },
+    "stitch-design-taste": {
+      "name": "stitch-design-taste",
+      "title": "Semantic Design System Integration",
+      "description": "Semantic Design System Skill for integrating multiple design approaches. Generates agent-friendly DESIGN.md files that enforce premium, anti-generic UI standards \u2014 strict typography, calibrated color, asymmetric layouts, perpetual micro-motion, hardware-accelerated performance.",
+      "category": "design",
+      "subcategory": "integration",
+      "priority": "low",
+      "file": "stitch-design-taste/SKILL.md",
+      "size": "medium",
+      "tokenEstimate": 900,
+      "triggers": [
+        "stitch",
+        "integrate design",
+        "merge styles",
+        "design system integration",
+        "semantic design"
+      ],
+      "intentPatterns": [
+        "merge.*design.*approach",
+        "integrate.*style",
+        "stitch.*component"
+      ],
+      "recommended": false,
+      "examples": [
+        "Stitch together these two design approaches",
+        "Integrate minimalist and brutalist styles"
+      ],
+      "useWhen": "Combining multiple design systems or style approaches cohesively",
+      "aliases": [
+        "stitch",
+        "merge-design",
+        "integrate-styles"
+      ]
+    },
+    "image-to-code": {
+      "name": "image-to-code",
+      "title": "Image to Frontend Code Converter",
+      "description": "Elite website image-to-code skill. Must generate design image first, deeply analyze it, then implement website to match as closely as possible. Prefers large, readable section-specific images over compressed boards. Avoids cards-inside-cards, keeps hero clean and spacious.",
+      "category": "image",
+      "subcategory": "generation",
+      "priority": "medium",
+      "file": "image-to-code/SKILL.md",
+      "size": "large",
+      "tokenEstimate": 2000,
+      "triggers": [
+        "convert image",
+        "screenshot to code",
+        "design to implementation",
+        "mockup to code",
+        "Figma to frontend"
+      ],
+      "intentPatterns": [
+        "convert.*image.*code",
+        "screenshot.*implement",
+        "design.*build.*website"
+      ],
+      "recommended": false,
+      "examples": [
+        "Convert this design mockup to working code",
+        "Implement this screenshot as a webpage"
+      ],
+      "useWhen": "Converting visual designs or mockups into production-ready frontend code",
+      "aliases": [
+        "image-to-code",
+        "screenshot-to-code",
+        "mockup-to-code",
+        "design-to-code"
+      ]
+    },
+    "imagegen-frontend-web": {
+      "name": "imagegen-frontend-web",
+      "title": "Frontend Web Design Image Generator",
+      "description": "Elite frontend image-direction skill. Generates ONE separate horizontal image per section for landing pages. Enforces composition variety, background-image freedom, varied CTAs, varied hero scales. Optimized for developers to accurately recreate designs.",
+      "category": "image",
+      "subcategory": "generation",
+      "priority": "low",
+      "file": "imagegen-frontend-web/SKILL.md",
+      "size": "medium",
+      "tokenEstimate": 1500,
+      "triggers": [
+        "generate landing page",
+        "web design image",
+        "landing page sections",
+        "website mockup"
+      ],
+      "intentPatterns": [
+        "generate.*landing.*page",
+        "create.*web.*design.*image",
+        "design.*website.*sections"
+      ],
+      "recommended": false,
+      "examples": [
+        "Generate landing page section images",
+        "Create website design mockups"
+      ],
+      "useWhen": "Creating visual references for landing pages or marketing websites",
+      "aliases": [
+        "web-images",
+        "landing-page-images",
+        "website-mockup"
+      ]
+    },
+    "imagegen-frontend-mobile": {
+      "name": "imagegen-frontend-mobile",
+      "title": "Mobile App UI Image Generator",
+      "description": "Elite mobile app image-generation skill for premium app-native screen concepts and flows. Prioritizes clean hierarchy, readable text, multi-screen consistency, controlled color palettes, textured surfaces, tasteful custom iconography. Screens shown inside premium phone mockups.",
+      "category": "image",
+      "subcategory": "generation",
+      "priority": "low",
+      "file": "imagegen-frontend-mobile/SKILL.md",
+      "size": "medium",
+      "tokenEstimate": 1400,
+      "triggers": [
+        "mobile app",
+        "iOS screen",
+        "Android UI",
+        "phone mockup",
+        "app concept"
+      ],
+      "intentPatterns": [
+        "design.*mobile.*app",
+        "create.*app.*screen",
+        "mobile.*interface.*concept"
+      ],
+      "recommended": false,
+      "examples": [
+        "Design mobile health tracking screens",
+        "Create app concept with phone mockups"
+      ],
+      "useWhen": "Designing mobile app interfaces or screen flows",
+      "aliases": [
+        "mobile-images",
+        "app-screens",
+        "phone-mockup"
+      ]
+    },
+    "gpt-taste": {
+      "name": "gpt-taste",
+      "title": "GPT-Enhanced Design Taste & Motion",
+      "description": "Elite UX/UI & GSAP Motion Engineer skill. Enforces Python-driven true randomization for layout variance, strict AIDA page structure, wide editorial typography, gapless bento grids, strict GSAP ScrollTriggers (pinning, stacking, scrubbing), inline micro-images, massive section spacing.",
+      "category": "design",
+      "subcategory": "advanced-aesthetics",
+      "priority": "low",
+      "file": "gpt-taste/SKILL.md",
+      "size": "large",
+      "tokenEstimate": 1600,
+      "triggers": [
+        "GSAP animation",
+        "scroll trigger",
+        "editorial layout",
+        "advanced motion",
+        "AIDA structure"
+      ],
+      "intentPatterns": [
+        "add.*scroll.*animation",
+        "implement.*GSAP",
+        "editorial.*layout"
+      ],
+      "recommended": false,
+      "examples": [
+        "Add advanced scroll animations",
+        "Create editorial-style layout with motion"
+      ],
+      "useWhen": "Building content-rich sites with advanced scroll-triggered animations",
+      "aliases": [
+        "gpt-taste",
+        "advanced-motion",
+        "gsap",
+        "editorial-layout"
+      ]
+    },
+    "full-output-enforcement": {
+      "name": "full-output-enforcement",
+      "title": "Complete Code Generation Enforcer",
+      "description": "Overrides default LLM truncation behavior. Enforces complete code generation, bans placeholder patterns, handles token-limit splits cleanly. Apply to any task requiring exhaustive, unabridged output. Banned patterns: '// ...', '// TODO', 'for brevity', 'the rest follows', etc.",
+      "category": "utility",
+      "subcategory": "output-control",
+      "priority": "critical",
+      "file": "full-output-enforcement/SKILL.md",
+      "size": "small",
+      "tokenEstimate": 600,
+      "triggers": [
+        "full",
+        "complete",
+        "entire",
+        "implementation",
+        "code",
+        "build",
+        "create",
+        "develop",
+        "file",
+        "no placeholders"
+      ],
+      "intentPatterns": [
+        "implement.*full",
+        "complete.*code",
+        "entire.*file",
+        "build.*",
+        "create.*",
+        "develop.*",
+        ".*implementation",
+        ".*generate.*"
+      ],
+      "recommended": true,
+      "examples": [
+        "Provide complete implementation",
+        "Generate full file with all sections"
+      ],
+      "useWhen": "Every task requiring complete, production-ready code without placeholders",
+      "aliases": [
+        "full-output",
+        "complete-code",
+        "no-placeholders",
+        "full-implementation"
+      ]
+    }
+  },
+  "categories": {
+    "design": {
+      "name": "Design & UI",
+      "description": "Skills for interface design, visual polish, and aesthetics"
+    },
+    "image": {
+      "name": "Image Generation",
+      "description": "Skills for creating visual mockups and design references"
+    },
+    "utility": {
+      "name": "Utility",
+      "description": "General-purpose utility skills"
+    }
+  },
+  "routing": {
+    "confidenceThreshold": 0.25,
+    "maxSkillsPerRequest": 3,
+    "fallbackSkill": "full-output-enforcement",
+    "explicitDetection": true
+  },
+  "metadata": {
+    "totalSkills": 13,
+    "recommendedSkills": 5,
+    "totalCategories": 3
+  }
+}

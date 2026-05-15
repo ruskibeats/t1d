@@ -1,0 +1,441 @@
+"""Conversational AI API endpoints."""
+
+import asyncio
+
+from fastapi import APIRouter, Depends
+from fastapi.responses import StreamingResponse
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.core.database import get_db
+from app.core.security import require_active_user
+from app.db.models import Conversation as ConversationModel
+from app.db.models import ConversationMessage as ConversationMessageModel
+from app.db.models import User
+from app.models.chat import (
+    ChatRequest,
+    ChatResponse,
+    ConversationResponse,
+    SafetyCheck,
+    SafetyCheckRequest,
+    StreamingChunk,
+)
+
+router = APIRouter()
+
+
+@router.post("/chat", response_model=ChatResponse)
+async def chat(
+    request: ChatRequest,
+    session: AsyncSession = Depends(get_db),
+    user: User = Depends(require_active_user),
+) -> ChatResponse:
+    """Chat with AI assistant about diabetes data and patterns.
+    
+    Args:
+        request: Chat request with user message
+        session: Database session
+        user: Current authenticated user
+        
+    Returns:
+        ChatResponse: AI response
+    """
+    from datetime import datetime
+
+    # Get or create conversation
+    conversation = None
+    if request.conversation_id:
+        result = await session.execute(
+            select(ConversationModel).where(
+                ConversationModel.id == request.conversation_id,
+                ConversationModel.user_id == user.id,
+            )
+        )
+        conversation = result.scalar_one_or_none()
+
+    if not conversation:
+        conversation = ConversationModel(
+            user_id=user.id,
+            title=request.message[:50] + "..." if len(request.message) > 50 else request.message,
+        )
+        session.add(conversation)
+        await session.commit()
+        await session.refresh(conversation)
+
+    # Save user message
+    user_message = ConversationMessageModel(
+        conversation_id=conversation.id,
+        role="user",
+        content=request.message,
+    )
+    session.add(user_message)
+    await session.commit()
+    await session.refresh(user_message)
+
+    # Build context (simplified - would include glucose data and patterns)
+    context = _build_context(session, user, request)
+
+    # Generate AI response (simulated - would use LLM in production)
+    ai_response = _generate_ai_response(request.message, context, user)
+
+    # Save AI response
+    ai_message = ConversationMessageModel(
+        conversation_id=conversation.id,
+        role="assistant",
+        content=ai_response,
+        extra_data={"context_used": context.get("summary", {})} if context else None,
+    )
+    session.add(ai_message)
+
+    # Update conversation
+    conversation.title = request.message[:50] + "..." if len(request.message) > 50 else request.message
+    conversation.updated_at = datetime.utcnow()
+
+    await session.commit()
+    await session.refresh(ai_message)
+    await session.refresh(conversation)
+
+    return ChatResponse(
+        response=ai_response,
+        conversation_id=conversation.id,
+        message_id=ai_message.id,
+        timestamp=ai_message.timestamp,
+        context_used=context,
+        sources=["glucose_history", "context_events", "pattern_analysis"] if context else [],
+        streaming=False,
+    )
+
+
+@router.post("/chat/stream")
+async def chat_stream(
+    request: ChatRequest,
+    session: AsyncSession = Depends(get_db),
+    user: User = Depends(require_active_user),
+) -> StreamingResponse:
+    """Stream chat response.
+    
+    Args:
+        request: Chat request
+        session: Database session
+        user: Current authenticated user
+        
+    Returns:
+        StreamingResponse: Streaming response
+    """
+    async def generate():
+        # Get or create conversation
+        conversation = None
+        if request.conversation_id:
+            result = await session.execute(
+                select(ConversationModel).where(
+                    ConversationModel.id == request.conversation_id,
+                    ConversationModel.user_id == user.id,
+                )
+            )
+            conversation = result.scalar_one_or_none()
+
+        if not conversation:
+            conversation = ConversationModel(
+                user_id=user.id,
+                title=request.message[:50] + "..." if len(request.message) > 50 else request.message,
+            )
+            session.add(conversation)
+            await session.commit()
+            await session.refresh(conversation)
+
+        # Save user message
+        from datetime import datetime
+        user_message = ConversationMessageModel(
+            conversation_id=conversation.id,
+            role="user",
+            content=request.message,
+        )
+        session.add(user_message)
+        await session.commit()
+        await session.refresh(user_message)
+
+        # Build context
+        context = _build_context(session, user, request)
+
+        # Stream response (simulated)
+        response_text = _generate_ai_response(request.message, context, user)
+        words = response_text.split()
+
+        full_response = ""
+        for i, word in enumerate(words):
+            full_response += word + " "
+            chunk = StreamingChunk(
+                chunk=word + " ",
+                conversation_id=conversation.id,
+                message_id=user_message.id + 1,  # Will be ID of AI message
+                is_complete=(i == len(words) - 1),
+            )
+            yield f"data: {chunk.model_dump_json()}\n\n"
+            await asyncio.sleep(0.05)  # Simulate streaming
+
+        # Save complete AI response
+        ai_message = ConversationMessageModel(
+            conversation_id=conversation.id,
+            role="assistant",
+            content=full_response.strip(),
+            extra_data={"context_used": context.get("summary", {}), "streamed": True},
+        )
+        session.add(ai_message)
+
+        conversation.updated_at = datetime.utcnow()
+        await session.commit()
+        await session.refresh(ai_message)
+
+        # Send final completion message
+        final_chunk = StreamingChunk(
+            chunk="",
+            conversation_id=conversation.id,
+            message_id=ai_message.id,
+            is_complete=True,
+        )
+        yield f"data: {final_chunk.model_dump_json()}\n\n"
+
+    return StreamingResponse(generate(), media_type="text/event-stream")
+
+
+@router.get("/conversations", response_model=list[ConversationResponse])
+async def get_conversations(
+    skip: int = 0,
+    limit: int = 50,
+    session: AsyncSession = Depends(get_db),
+    user: User = Depends(require_active_user),
+) -> list[ConversationResponse]:
+    """Get conversation history."""
+    result = await session.execute(
+        select(ConversationModel)
+        .where(ConversationModel.user_id == user.id)
+        .offset(skip)
+        .limit(limit)
+        .order_by(ConversationModel.updated_at.desc())
+    )
+    conversations = result.scalars().all()
+
+    return [ConversationResponse.model_validate(c) for c in conversations]
+
+
+@router.get("/conversations/{conversation_id}", response_model=ConversationResponse)
+async def get_conversation(
+    conversation_id: int,
+    session: AsyncSession = Depends(get_db),
+    user: User = Depends(require_active_user),
+) -> ConversationResponse:
+    """Get specific conversation."""
+    from app.db.models import Conversation as ConversationModel
+
+    result = await session.execute(
+        select(ConversationModel)
+        .where(
+            ConversationModel.id == conversation_id,
+            ConversationModel.user_id == user.id,
+        )
+    )
+    conversation = result.scalar_one_or_none()
+
+    if not conversation:
+        from fastapi import HTTPException
+        raise HTTPException(status_code=404, detail="Conversation not found")
+
+    return ConversationResponse.model_validate(conversation)
+
+
+@router.get("/conversations/{conversation_id}/messages")
+async def get_messages(
+    conversation_id: int,
+    skip: int = 0,
+    limit: int = 100,
+    session: AsyncSession = Depends(get_db),
+    user: User = Depends(require_active_user),
+):
+    """Get messages from conversation."""
+    from app.db.models import Conversation as ConversationModel
+    from app.db.models import ConversationMessage as ConversationMessageModel
+
+    result = await session.execute(
+        select(ConversationModel)
+        .where(
+            ConversationModel.id == conversation_id,
+            ConversationModel.user_id == user.id,
+        )
+    )
+    conversation = result.scalar_one_or_none()
+
+    if not conversation:
+        from fastapi import HTTPException
+        raise HTTPException(status_code=404, detail="Conversation not found")
+
+    result = await session.execute(
+        select(ConversationMessageModel)
+        .where(ConversationMessageModel.conversation_id == conversation_id)
+        .offset(skip)
+        .limit(limit)
+        .order_by(ConversationMessageModel.timestamp)
+    )
+    messages = result.scalars().all()
+
+    from app.models.chat import ChatMessageResponse
+    return [ChatMessageResponse.model_validate(m) for m in messages]
+
+
+@router.post("/safety/check")
+async def check_safety(
+    request: SafetyCheckRequest,
+    session: AsyncSession = Depends(get_db),
+    user: User = Depends(require_active_user),
+) -> SafetyCheck:
+    """Check content for safety issues.
+    
+    Args:
+        request: Safety check request
+        session: Database session
+        user: Current authenticated user
+        
+    Returns:
+        SafetyCheck: Safety check result
+    """
+    # Basic safety checks - would use LLM moderation in production
+    unsafe_keywords = ["emergency", "urgent", "help", "suicide", "kill"]
+
+    content_lower = request.content.lower()
+    reasons = []
+
+    if any(keyword in content_lower for keyword in unsafe_keywords):
+        reasons.append("Contains safety-related keywords")
+
+    if request.strict_mode:
+        if len(request.content) > 1000:
+            reasons.append("Content too long")
+
+    is_safe = len(reasons) == 0
+    requires_moderation = not is_safe
+
+    return SafetyCheck(
+        is_safe=is_safe,
+        safety_level="safe" if is_safe else ("warning" if len(reasons) == 1 else "unsafe"),
+        reasons=reasons if reasons else None,
+        requires_moderation=requires_moderation,
+    )
+
+
+def _build_context(session, user, request):
+    """Build context for AI response."""
+    from datetime import datetime, timedelta
+
+    from app.db.models import ContextEvent, GlucoseReading
+
+    context = {
+        "user_profile": {
+            "timezone": user.timezone,
+            "diabetes_type": user.diabetes_type,
+            "target_range": f"{user.target_range_low}-{user.target_range_high} mg/dL",
+        },
+        "recent_glucose": {},
+        "recent_events": [],
+        "summary": {},
+    }
+
+    if request.include_glucose_data:
+        # Get recent glucose data
+        cutoff = datetime.utcnow() - timedelta(hours=24)
+        result = session.execute(
+            select(GlucoseReading)
+            .where(
+                GlucoseReading.user_id == user.id,
+                GlucoseReading.timestamp >= cutoff,
+            )
+            .order_by(GlucoseReading.timestamp.desc())
+            .limit(10)
+        )
+        readings = result.scalars().all()
+
+        if readings:
+            context["recent_glucose"] = {
+                "count": len(readings),
+                "latest": readings[0].glucose_value,
+                "range": f"{min(r.glucose_value for r in readings)}-{max(r.glucose_value for r in readings)} mg/dL",
+            }
+
+    if request.context_type in ["recent", "full"]:
+        # Get recent events
+        cutoff = datetime.utcnow() - timedelta(days=7)
+        result = session.execute(
+            select(ContextEvent)
+            .where(
+                ContextEvent.user_id == user.id,
+                ContextEvent.timestamp >= cutoff,
+            )
+            .order_by(ContextEvent.timestamp.desc())
+            .limit(20)
+        )
+        events = result.scalars().all()
+
+        context["recent_events"] = [
+            {
+                "type": e.event_type,
+                "timestamp": e.timestamp.isoformat(),
+                "description": e.description or e.event_type,
+            }
+            for e in events
+        ]
+
+    return context
+
+
+def _generate_ai_response(message, context, user):
+    """Generate AI response (simplified for now)."""
+    # This is a simplified version - production would use LLM
+
+    message_lower = message.lower()
+
+    if "spike" in message_lower or "high" in message_lower:
+        return (
+            f"Looking at your recent data, I can help you understand potential causes of high glucose. "
+            f"Common factors include meals, missed insulin, stress, or illness. "
+            f"Your target range is {user.target_range_low}-{user.target_range_high} mg/dL. "
+            f"Consider checking your recent meals and insulin doses, and review any stress or activity changes. "
+            f"Would you like me to look at your recent glucose readings and events to identify patterns?"
+        )
+    elif "low" in message_lower or "hypo" in message_lower:
+        return (
+            f"Low glucose levels can be concerning. Your target range is {user.target_range_low}-{user.target_range_high} mg/dL. "
+            f"Common causes include too much insulin, delayed meals, or increased activity. "
+            f"Review your recent insulin doses and meals, and consider whether activity levels were higher than usual. "
+            f"Always follow your healthcare team's guidance for treating lows."
+        )
+    elif "meal" in message_lower or "food" in message_lower or "eat" in message_lower:
+        return (
+            "Meals significantly impact glucose levels. Factors include carb content, timing of insulin, and food composition. "
+            "High-fat meals can cause delayed rises, while protein can have varying effects. "
+            "If you're seeing patterns with certain meals, reviewing carb counts and pre-bolus timing may help. "
+            "Would you like to explore your meal-related patterns?"
+        )
+    elif "pattern" in message_lower or "trend" in message_lower:
+        return (
+            "I can help identify patterns in your data! Common patterns include: "
+            "post-meal spikes (1-2 hours after eating), overnight lows, dawn phenomenon (early morning rises), "
+            "and exercise effects. Reviewing your data across several days can reveal consistent trends. "
+            "What time period would you like me to analyze?"
+        )
+    elif "help" in message_lower or "what can" in message_lower:
+        return (
+            "I'm here to help you understand your diabetes data! I can: "
+            "1) Review your glucose patterns and trends, "
+            "2) Explore relationships between meals, insulin, activity and glucose, "
+            "3) Identify high or low glucose patterns, "
+            "4) Summarize your data for clinic visits. "
+            "Remember: I provide educational insights, not medical advice. "
+            "Always consult your healthcare team for treatment decisions. What would you like to explore?"
+        )
+    else:
+        return (
+            f"I can help you understand patterns in your diabetes data and how factors like meals, "
+            f"insulin, activity, and stress relate to your glucose levels. "
+            f"Your target range is {user.target_range_low}-{user.target_range_high} mg/dL. "
+            f"Ask me about specific patterns, recent events, or glucose trends. "
+            f"Remember: I provide educational insights based on your data, not medical advice. "
+            f"What would you like to know?"
+        )
