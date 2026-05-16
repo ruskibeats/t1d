@@ -1,13 +1,16 @@
 /** @jsxImportSource @emotion/react */
 import { Outlet, NavLink } from 'react-router-dom'
 import { useAuth } from '@/contexts/AuthContext'
-import { Activity, BarChart3, Bot, Calendar, LayoutDashboard, Menu, Settings, ShieldCheck, Sparkles, X } from 'lucide-react'
+import { Activity, BarChart3, Bot, Calendar, Dumbbell, LayoutDashboard, Menu, Moon, Settings, ShieldCheck, Sparkles, Utensils, X } from 'lucide-react'
 import { useState } from 'react'
 import { cn } from '@/lib/utils'
 
 const navItems = [
   { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
   { to: '/glucose', icon: Activity, label: 'Glucose' },
+  { to: '/food', icon: Utensils, label: 'Food' },
+  { to: '/exercise', icon: Dumbbell, label: 'Exercise' },
+  { to: '/sleep', icon: Moon, label: 'Sleep' },
   { to: '/events', icon: Calendar, label: 'Events' },
   { to: '/patterns', icon: BarChart3, label: 'Patterns' },
   { to: '/chat', icon: Bot, label: 'AI chat' },

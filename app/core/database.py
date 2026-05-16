@@ -79,8 +79,8 @@ class DatabaseManager:
                 await session.rollback()
                 raise
 
-    def get_session(self) -> AsyncSession:
-        """Get new database session (for dependency injection).
+    def create_session(self) -> AsyncSession:
+        """Create a new standalone database session (for dependency injection).
         
         Returns:
             AsyncSession: New database session
@@ -122,7 +122,7 @@ async def init_db() -> None:
             SELECT EXISTS (
                 SELECT FROM information_schema.tables 
                 WHERE table_schema = 'public' 
-                AND table_name = 'users'
+                AND table_name = 'tbl_users'
             )
         """))
         tables_exist = result.scalar()

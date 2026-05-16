@@ -18,6 +18,19 @@ from sqlalchemy.orm import Mapped, relationship
 
 from app.db.base import Base
 
+# Forward references for health metrics models
+# (imported here so Alembic autogenerate discovers them)
+from app.metrics.models import HealthMetric, HealthDailyAggregate  # noqa: F401
+# Forward references for food models
+# (imported here so Alembic autogenerate discovers them)
+from app.food.models import Food, FoodEntry  # noqa: F401
+from app.exercise.models import ExerciseEntry, ExerciseEntrySet  # noqa: F401
+from app.sleep.models import SleepEntry, SleepStage  # noqa: F401
+from app.measurements.models import CustomMeasurement  # noqa: F401
+from app.fasting.models import FastingEntry  # noqa: F401
+from app.mood.models import MoodEntry  # noqa: F401
+from app.water.models import WaterEntry  # noqa: F401
+
 
 class User(Base):
     """User model for authentication and personalization."""
@@ -44,10 +57,6 @@ class User(Base):
     target_range_low: Mapped[float] = Column(Float, default=70, nullable=False)
     target_range_high: Mapped[float] = Column(Float, default=180, nullable=False)
 
-    # Metadata
-    created_at: Mapped[datetime] = Column(DateTime, default=datetime.utcnow, nullable=False)
-    updated_at: Mapped[datetime] = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
-
     # Relationships
     glucose_readings: Mapped[list["GlucoseReading"]] = relationship(
         "GlucoseReading",
@@ -63,6 +72,82 @@ class User(Base):
     )
     conversations: Mapped[list["Conversation"]] = relationship(
         "Conversation",
+        back_populates="user",
+        cascade="all, delete-orphan",
+        lazy="selectin",
+    )
+
+    # Health metrics (new unified store)
+    health_metrics: Mapped[list["HealthMetric"]] = relationship(
+        "HealthMetric",
+        back_populates="user",
+        cascade="all, delete-orphan",
+        lazy="selectin",
+    )
+    health_daily_aggregates: Mapped[list["HealthDailyAggregate"]] = relationship(
+        "HealthDailyAggregate",
+        back_populates="user",
+        cascade="all, delete-orphan",
+        lazy="selectin",
+    )
+
+    # Food domain
+    foods: Mapped[list["Food"]] = relationship(
+        "Food",
+        back_populates="user",
+        cascade="all, delete-orphan",
+        lazy="selectin",
+    )
+    food_entries: Mapped[list["FoodEntry"]] = relationship(
+        "FoodEntry",
+        back_populates="user",
+        cascade="all, delete-orphan",
+        lazy="selectin",
+    )
+
+    # Exercise domain
+    exercise_entries: Mapped[list["ExerciseEntry"]] = relationship(
+        "ExerciseEntry",
+        back_populates="user",
+        cascade="all, delete-orphan",
+        lazy="selectin",
+    )
+
+    # Measurements domain
+    custom_measurements: Mapped[list["CustomMeasurement"]] = relationship(
+        "CustomMeasurement",
+        back_populates="user",
+        cascade="all, delete-orphan",
+        lazy="selectin",
+    )
+
+    # Fasting domain
+    fasting_entries: Mapped[list["FastingEntry"]] = relationship(
+        "FastingEntry",
+        back_populates="user",
+        cascade="all, delete-orphan",
+        lazy="selectin",
+    )
+
+    # Mood domain
+    mood_entries: Mapped[list["MoodEntry"]] = relationship(
+        "MoodEntry",
+        back_populates="user",
+        cascade="all, delete-orphan",
+        lazy="selectin",
+    )
+
+    # Water domain
+    water_entries: Mapped[list["WaterEntry"]] = relationship(
+        "WaterEntry",
+        back_populates="user",
+        cascade="all, delete-orphan",
+        lazy="selectin",
+    )
+
+    # Sleep domain
+    sleep_entries: Mapped[list["SleepEntry"]] = relationship(
+        "SleepEntry",
         back_populates="user",
         cascade="all, delete-orphan",
         lazy="selectin",

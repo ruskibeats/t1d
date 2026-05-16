@@ -10,6 +10,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "pi-subagents": "^0.24.2"
+    "@juicesharp/rpiv-todo": "^1.7.0",
+    "pi-intercom": "^0.6.0",
+    "pi-subagents": "^0.24.3"
   }
 }

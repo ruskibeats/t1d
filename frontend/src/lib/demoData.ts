@@ -139,3 +139,24 @@ export const demoOvernight = [
     lowest_value: 64,
   },
 ]
+
+export const demoSleepEntries = [
+  {
+    id: 1001, user_id: 1,
+    start_time: new Date(now - 8 * 60 * 60_000).toISOString(),
+    end_time: new Date(now - 0.6 * 60 * 60_000).toISOString(),
+    duration_minutes: 442,
+    efficiency: 88,
+    score: 82,
+    source: 'garmin',
+  },
+  {
+    id: 1002, user_id: 1,
+    start_time: new Date(now - 32 * 60 * 60_000).toISOString(),
+    end_time: new Date(now - 24.5 * 60 * 60_000).toISOString(),
+    duration_minutes: 380,
+    efficiency: 82,
+    score: 75,
+    source: 'manual',
+  },
+]

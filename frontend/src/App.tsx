@@ -10,6 +10,10 @@ import { PatternsPage } from './pages/Patterns'
 import { ChatPage } from './pages/Chat'
 import { SettingsPage } from './pages/Settings'
 import { LoginPage } from './pages/Login'
+import { SleepLogPage } from './pages/SleepLog'
+import { HealthMetricsPage } from './pages/HealthMetrics'
+import { FoodLogPage } from './pages/FoodLog'
+import { ExerciseLogPage } from './pages/ExerciseLog'
 import './App.css'
 
 const queryClient = new QueryClient()
@@ -30,6 +34,10 @@ function App() {
                   <Route path="/events" element={<EventsPage />} />
                   <Route path="/patterns" element={<PatternsPage />} />
                   <Route path="/chat" element={<ChatPage />} />
+                  <Route path="/sleep" element={<SleepLogPage />} />
+                  <Route path="/health-metrics" element={<HealthMetricsPage />} />
+                  <Route path="/food" element={<FoodLogPage />} />
+                  <Route path="/exercise" element={<ExerciseLogPage />} />
                   <Route path="/settings" element={<SettingsPage />} />
                 </Route>
               </Routes>

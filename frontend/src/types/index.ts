@@ -101,3 +101,25 @@ export interface UserCreate {
   first_name?: string
   last_name?: string
 }
+
+export interface SleepEntry {
+  id: number
+  user_id: number
+  start_time: string
+  end_time?: string
+  duration_minutes?: number
+  efficiency?: number
+  score?: number
+  source?: string
+  stages?: SleepStage[]
+  created_at?: string
+  updated_at?: string
+}
+
+export interface SleepStage {
+  id: number
+  entry_id: number
+  stage_type: 'deep' | 'light' | 'rem' | 'awake'
+  duration_minutes?: number
+  start_time?: string
+}

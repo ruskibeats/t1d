@@ -9,7 +9,7 @@ from __future__ import annotations
 import asyncio
 import logging
 from datetime import datetime, timedelta, timezone
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 from celery import Celery
 from sqlalchemy import select
@@ -562,7 +562,3 @@ async def check_celery_health() -> Dict[str, Any]:
 
 # ---------------------------------------------------------------------------
 # Pydantic Models
-# ---------------------------------------------------------------------------
-
-from pydantic import BaseModel, Field
-from typing import Any

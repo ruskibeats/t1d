@@ -195,6 +195,15 @@ def create_app() -> FastAPI:
                 "events": "/api/v1/events",
                 "patterns": "/api/v1/patterns",
                 "chat": "/api/v1/chat",
+                "metrics": "/api/v1/metrics",
+                "food": "/api/v1/food",
+                "exercise": "/api/v1/exercise",
+                "sleep": "/api/v1/sleep",
+                "measurements": "/api/v1/measurements",
+                "fasting": "/api/v1/fasting",
+                "mood": "/api/v1/mood",
+                "water": "/api/v1/water",
+                "garmin_webhook": "/api/v1/garmin/webhook",
             },
         }
 
@@ -214,10 +223,23 @@ def create_app() -> FastAPI:
         auth,
         chat,
         events,
+        exercise,
+        fasting,
+        fitbit,
+        food,
+        garmin,
         glucose,
         glucose_ext,
+        measurements,
+        metrics,
+        mood,
         patterns,
+        polar,
+        sleep,
+        strava,
         users,
+        water,
+        withings,
     )
 
     app.include_router(auth.router, prefix="/auth", tags=["Authentication"])
@@ -227,7 +249,15 @@ def create_app() -> FastAPI:
     app.include_router(events.router, prefix="/api/v1", tags=["Context Events"])
     app.include_router(patterns.router, prefix="/api/v1", tags=["Patterns"])
     app.include_router(chat.router, prefix="/api/v1", tags=["Conversational AI"])
-
+    app.include_router(food.route, prefix="/api/v1", tags=["Food"])
+    app.include_router(exercise.route, prefix="/api/v1", tags=["Exercise"])
+    app.include_router(sleep.route, prefix="/api/v1", tags=["Sleep"])
+    app.include_router(measurements.route, prefix="/api/v1", tags=["Measurements"])
+    app.include_router(fasting.route, prefix="/api/v1", tags=["Fasting"])
+    app.include_router(mood.route, prefix="/api/v1", tags=["Mood"])
+    app.include_router(water.route, prefix="/api/v1", tags=["Water"])
+    # ── New unified metrics endpoint ──
+    app.include_router(metrics.route, prefix="/api/v1", tags=["Unified Health Metrics"])
     logger.info("Application setup complete")
 
     return app

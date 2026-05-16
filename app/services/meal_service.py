@@ -14,6 +14,7 @@ from typing import Any, Dict, List, Optional
 
 import httpx
 from pydantic import BaseModel, Field, field_validator
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.models import ContextEvent
 

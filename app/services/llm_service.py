@@ -32,7 +32,8 @@ class LLMProvider(str, Enum):
     
     OPENAI = "openai"
     ANTHROPIC = "anthropic"
-    OPENROUTER = "openrouter"  # NEW: Unified access to many models
+    OPENROUTER = "openrouter"
+    MINIMAX = "minimax"
 
 
 class ConversationTurn(BaseModel):
@@ -100,7 +101,9 @@ class LLMService:
         if self.provider == LLMProvider.OPENAI:
             return "gpt-4o-mini"
         elif self.provider == LLMProvider.OPENROUTER:
-            return "openai/gpt-4o-mini"  # OpenRouter format: "provider/model"
+            return "openai/gpt-4o-mini"
+        elif self.provider == LLMProvider.MINIMAX:
+            return "minimax/minimax-m2.5"
         return "claude-3-5-haiku-20241022"
     
     # -------------------------------------------------------------------
@@ -265,12 +268,17 @@ Recent Events ({len(rag_context.recent_events)} events in last {len(rag_context.
                     prompt += f" ({event['carbs_grams']}g carbs)"
                 prompt += "\n"
         
-        prompt += """
+        # Add condition-specific safety guardrails
+        from app.ai.safety import SafetyScaffold
+        safety_scaffold = SafetyScaffold()
+        guardrails = safety_scaffold.build_guardrails(condition="general_medical", severity="warning")
+        guardrails_text = "\n".join([f"- {g}" for g in guardrails])
+        
+        prompt += f"""
 SAFETY RULES:
-- NEVER provide insulin dosing recommendations
-- NEVER tell users to change their treatment plan
-- ALWAYS recommend consulting healthcare providers for medical decisions
-- If users describe emergency symptoms (severe lows, DKA symptoms), emphasize seeking immediate medical help
+{guardrails_text}
+"""
+        prompt += """
 - Use phrases like "educational insights suggest", "patterns indicate", "consider discussing with your care team"
 
 RESPONSE STYLE:
@@ -331,7 +339,10 @@ Ready to help!"""
             Response with text and metadata
         """
         # Safety check first
-        if self._contains_emergency_keywords(message):
+        from app.ai.safety import SafetyScaffold
+        safety_scaffold = SafetyScaffold()
+        safety_result = safety_scaffold.validate(message, {"source": "user"})
+        if not safety_result["is_safe"]:
             return {
                 "response": (
                     "I'm concerned about what you're describing. "
@@ -395,6 +406,8 @@ Ready to help!"""
             return await self._call_openai(messages, max_tokens, stream)
         elif self.provider == LLMProvider.OPENROUTER:
             return await self._call_openrouter(messages, max_tokens, stream)
+        elif self.provider == LLMProvider.MINIMAX:
+            return await self._call_minimax(messages, max_tokens, stream)
         else:
             return await self._call_anthropic(messages, max_tokens, stream)
     
@@ -539,28 +552,55 @@ Ready to help!"""
                 self.logger.error(f"OpenRouter API error: {e.response.text}")
                 raise LLMServiceError(f"OpenRouter API error: {e.response.text}")
     
+    async def _call_minimax(self, messages: List[Dict], max_tokens: int, stream: bool) -> Dict[str, Any]:
+        """Call MiniMax API via OpenRouter (free tier).
+        
+        MiniMax M2.5 is a strong open-weight model available
+        at no cost through OpenRouter.
+        """
+        api_key = self.api_key or self._get_openrouter_key()
+        
+        async with httpx.AsyncClient(timeout=60.0) as client:
+            try:
+                response = await client.post(
+                    "https://openrouter.ai/api/v1/chat/completions",
+                    headers={
+                        "Authorization": f"Bearer {api_key}",
+                        "Content-Type": "application/json",
+                        "HTTP-Referer": "https://github.com/russell-taylor/T1D-Companion",
+                    },
+                    json={
+                        "model": self.model,
+                        "messages": messages,
+                        "max_tokens": max_tokens,
+                        "temperature": 0.7,
+                        "stream": stream,
+                    },
+                )
+                response.raise_for_status()
+                data = response.json()
+                
+                content = data["choices"][0]["message"]["content"]
+                tokens = data["usage"]["total_tokens"]
+                
+                return {
+                    "response": content,
+                    "tokens_used": tokens,
+                    "model": self.model,
+                    "provider": "minimax",
+                    "streamed": stream,
+                    "safety_flagged": False,
+                }
+                
+            except httpx.HTTPStatusError as e:
+                self.logger.error(f"MiniMax API error: {e.response.text}")
+                raise LLMServiceError(f"MiniMax API error: {e.response.text}")
+    
     # -------------------------------------------------------------------
     # Helper Methods
     # -------------------------------------------------------------------
     
-    def _contains_emergency_keywords(self, text: str) -> bool:
-        """Check if text contains emergency keywords.
-        
-        Args:
-            text: Text to check
-            
-        Returns:
-            True if emergency keywords found
-        """
-        emergency_keywords = [
-            "emergency", "urgent", "help", "can't wake", "unconscious",
-            "severe", "crisis", "911", "emergency room", "hospital",
-            "kill myself", "suicide", "end it", "give up", "severe low",
-            "can't breathe", "chest pain", "confused", "seizure",
-        ]
-        
-        text_lower = text.lower()
-        return any(keyword in text_lower for keyword in emergency_keywords)
+
     
     async def _get_conversation_history(
         self,
