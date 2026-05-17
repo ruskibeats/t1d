@@ -53,7 +53,6 @@ services:
       redis:
         condition: service_healthy
     restart: unless-stopped
-    # Note: In production build we use the CMD from Dockerfile (no reload)
 
   frontend:
     image: nginx:alpine
@@ -67,5 +66,53 @@ services:
       - app
     restart: unless-stopped
 
+  # ── Nightscout CGM Stack (for Freestyle Libre / any CGM) ──
+  nightscout-mongo:
+    image: mongo:7
+    container_name: t1d-ns-mongo
+    volumes:
+      - mongo_data:/data/db
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  nightscout:
+    image: nightscout/cgm-remote-monitor:latest
+    container_name: t1d-nightscout
+    ports:
+      - "4000:1337"
+    environment:
+      - MONGO_CONNECTION=mongodb://nightscout-mongo:27017/nightscout
+      - API_SECRET=Skimmer69tom1Z!!!
+      - DISPLAY_UNITS=mg/dL
+      - THEME=colors
+      - ENABLE=careportal boluscalc food bwp cage iage treatment
+      - TIME_FORMAT=24
+      - HEARTBEAT=true
+      - INSECURE_USE_HTTP=true
+    depends_on:
+      nightscout-mongo:
+        condition: service_started
+    restart: unless-stopped
+
+  libre-bridge:
+    image: timoschlueter/nightscout-librelink-up:latest
+    container_name: t1d-libre-bridge
+    environment:
+      - LINK_UP_USERNAME=tomm.batchelor@gmail.com
+      - LINK_UP_PASSWORD=reJvy7-totzov-tabmes
+      - NIGHTSCOUT_URL=nightscout:1337
+      - NIGHTSCOUT_DISABLE_HTTPS=true
+      - NIGHTSCOUT_API_TOKEN=33274f285cbd93f143073902dd484a357ac2dd6d
+      - LINK_UP_REGION=EU2
+      - LOG_LEVEL=info
+    depends_on:
+      - nightscout
+    restart: unless-stopped
+
 volumes:
   postgres_data:
+  mongo_data:
