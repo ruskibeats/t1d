@@ -1,7 +1,7 @@
 /** @jsxImportSource @emotion/react */
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Activity, Brain, Clock3, Droplets, Moon, Plus, ShieldCheck, Sparkles, TrendingDownIcon, TrendingUpIcon, Utensils } from 'lucide-react'
+import { Activity, AlertTriangle, Brain, Clock3, Droplets, Moon, Plus, ShieldCheck, Sparkles, TrendingDownIcon, TrendingUpIcon, Utensils } from 'lucide-react'
 import { format } from 'date-fns'
 import { Card } from '@/components/ui/Card'
 import { StatCard } from '@/components/ui/StatCard'
@@ -11,6 +11,7 @@ import { QuickLog } from '@/components/dashboard/QuickLog'
 import { GlucoseChart } from '@/components/charts/GlucoseChart'
 import { useGlucose } from '@/hooks/useGlucose'
 import { useEvents } from '@/hooks/useEvents'
+import { useInsights } from '@/hooks/useInsights'
 import { cn } from '@/lib/utils'
 
 const ranges = [
@@ -20,17 +21,38 @@ const ranges = [
   { label: '14D', value: '14d' },
 ] as const
 
-const insightCards = [
-  { icon: Utensils, title: 'Food timing signal', body: 'High-fat meals often peak later, usually around the third hour.', tone: 'amber' },
-  { icon: Moon, title: 'Overnight watch', body: 'One gentle low trend appears this week between 02:00 and 04:00.', tone: 'coral' },
-  { icon: Activity, title: 'Exercise effect', body: 'Moderate runs are followed by a typical 30 to 40 mg/dL drop.', tone: 'mint' },
-]
+const severityColors: Record<string, string> = {
+  low: 'bg-[oklch(0.72_0.15_178/0.18)] text-[oklch(0.86_0.11_178)]',
+  moderate: 'bg-[oklch(0.85_0.12_85/0.18)] text-[oklch(0.85_0.12_85)]',
+  high: 'bg-[oklch(0.76_0.15_72/0.18)] text-[oklch(0.86_0.12_72)]',
+}
+
+const patternIcons: Record<string, typeof Utensils> = {
+  time_of_day_spike: Clock3,
+  time_of_day_low: Moon,
+  meal_spike: Utensils,
+  trend: Activity,
+  positive: Sparkles,
+}
+
+interface InsightItem {
+  type: string
+  severity: string
+  description: string
+  recommendation?: string
+  [key: string]: any
+}
 
 export function Dashboard() {
   const navigate = useNavigate()
   const { readings, stats, demoMode, fetchReadings } = useGlucose()
   const { events, loading: eventsLoading } = useEvents()
+  const { insights, loading: insightsLoading, predictMeal } = useInsights()
   const [timeRange, setTimeRange] = useState<'1d' | '3d' | '7d' | '14d'>('3d')
+  const [showPreMeal, setShowPreMeal] = useState(false)
+  const [preMealFood, setPreMealFood] = useState('')
+  const [preMealResult, setPreMealResult] = useState<any>(null)
+  const [preMealLoading, setPreMealLoading] = useState(false)
 
   useEffect(() => {
     fetchReadings(timeRange)
@@ -39,6 +61,19 @@ export function Dashboard() {
   const latestReading = readings[0]
   const trend = readings.length >= 2 ? readings[0].glucose_value - readings[1].glucose_value : 0
   const status = !latestReading ? 'no data' : latestReading.glucose_value < 70 ? 'low' : latestReading.glucose_value > 180 ? 'high' : 'in range'
+
+  const allInsights: InsightItem[] = [
+    ...(insights?.time_of_day_patterns || []),
+    ...(insights?.meal_patterns || []),
+  ]
+
+  const handlePreMeal = async () => {
+    if (!preMealFood.trim()) return
+    setPreMealLoading(true)
+    const result = await predictMeal(preMealFood.trim(), latestReading?.glucose_value)
+    setPreMealResult(result)
+    setPreMealLoading(false)
+  }
 
   return (
     <div className="page-shell space-y-7">
@@ -57,7 +92,10 @@ export function Dashboard() {
               A sensor-agnostic Type 1 companion for CGM context, real-life events, and plain-language pattern discovery.
             </p>
             <div className="mt-7 flex flex-wrap gap-3">
-              <Button size="lg" className="bg-[oklch(0.72_0.15_178)] text-[oklch(0.18_0.04_255)] hover:bg-[oklch(0.78_0.14_178)]" onClick={() => navigate('/events')}>
+              <Button size="lg" className="bg-[oklch(0.72_0.15_178)] text-[oklch(0.18_0.04_255)] hover:bg-[oklch(0.78_0.14_178)]" onClick={() => setShowPreMeal(true)}>
+                <Utensils className="h-4 w-4" /> About to eat
+              </Button>
+              <Button size="lg" variant="outline" className="border-[oklch(1_0_0/0.16)] bg-[oklch(1_0_0/0.08)] text-[oklch(0.96_0.012_245)] hover:bg-[oklch(1_0_0/0.13)]" onClick={() => navigate('/events')}>
                 <Plus className="h-4 w-4" /> Log event
               </Button>
               <Button size="lg" variant="outline" className="border-[oklch(1_0_0/0.16)] bg-[oklch(1_0_0/0.08)] text-[oklch(0.96_0.012_245)] hover:bg-[oklch(1_0_0/0.13)]" onClick={() => navigate('/chat')}>
@@ -86,6 +124,60 @@ export function Dashboard() {
           </div>
         </div>
       </section>
+
+      {showPreMeal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <Card className="w-full max-w-lg p-6">
+            <h2 className="text-xl font-black tracking-[-0.03em]">What are you about to eat?</h2>
+            <p className="mt-2 text-sm text-[oklch(0.48_0.035_255)]">I'll analyze your history with this food and give you personalized insights.</p>
+            <div className="mt-4 flex gap-2">
+              <input
+                type="text"
+                value={preMealFood}
+                onChange={(e) => setPreMealFood(e.target.value)}
+                placeholder="e.g. pizza, pasta, sandwich..."
+                className="flex-1 rounded-xl border border-[oklch(0.86_0.02_250)] bg-[oklch(0.98_0.01_245)] px-4 py-3 text-sm font-medium outline-none focus:border-[oklch(0.72_0.15_178)]"
+                onKeyDown={(e) => e.key === 'Enter' && handlePreMeal()}
+              />
+              <Button onClick={handlePreMeal} disabled={preMealLoading || !preMealFood.trim()}>
+                {preMealLoading ? 'Analyzing...' : 'Analyze'}
+              </Button>
+            </div>
+            {preMealResult && (
+              <div className="mt-4 space-y-3">
+                <div className="rounded-xl bg-[oklch(0.94_0.03_245)] p-4">
+                  <p className="text-sm font-medium leading-6 text-[oklch(0.24_0.04_255)]">{preMealResult.prediction || preMealResult.message}</p>
+                </div>
+                {preMealResult.current_status && (
+                  <div className="rounded-xl bg-[oklch(0.72_0.15_178/0.1)] p-4">
+                    <p className="text-sm font-medium leading-6 text-[oklch(0.24_0.04_255)]">{preMealResult.current_status}</p>
+                  </div>
+                )}
+                {preMealResult.tips && preMealResult.tips.length > 0 && (
+                  <div className="space-y-2">
+                    <p className="text-xs font-black uppercase tracking-[0.14em] text-[oklch(0.48_0.035_255)]">Tips</p>
+                    {preMealResult.tips.map((tip: string, i: number) => (
+                      <div key={i} className="flex gap-2 text-sm text-[oklch(0.44_0.035_255)]">
+                        <span className="text-[oklch(0.72_0.15_178)]">•</span>
+                        <span>{tip}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {preMealResult.recommendation && (
+                  <div className="rounded-xl border border-[oklch(0.86_0.02_250)] p-4">
+                    <p className="text-sm leading-6 text-[oklch(0.44_0.035_255)]">{preMealResult.recommendation}</p>
+                  </div>
+                )}
+                <p className="text-xs italic text-[oklch(0.48_0.035_255)]">{preMealResult.disclaimer}</p>
+              </div>
+            )}
+            <div className="mt-4 flex justify-end">
+              <Button variant="outline" onClick={() => { setShowPreMeal(false); setPreMealFood(''); setPreMealResult(null); }}>Close</Button>
+            </div>
+          </Card>
+        </div>
+      )}
 
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
@@ -151,22 +243,37 @@ export function Dashboard() {
         </Card>
 
         <Card className="p-5">
-          <h3 className="mb-4 text-lg font-black tracking-[-0.03em]">Pattern notes</h3>
+          <div className="mb-4 flex items-center justify-between">
+            <h3 className="text-lg font-black tracking-[-0.03em]">AI Insights</h3>
+            {insightsLoading && <span className="text-xs text-[oklch(0.48_0.035_255)]">Analyzing...</span>}
+          </div>
           <div className="space-y-3">
-            {insightCards.map((card) => {
-              const Icon = card.icon
+            {allInsights.length === 0 && !insightsLoading && (
+              <p className="text-sm text-[oklch(0.48_0.035_255)]">
+                Keep logging your meals and glucose data. The AI will detect patterns and share insights here.
+              </p>
+            )}
+            {allInsights.map((insight, i) => {
+              const Icon = patternIcons[insight.type] || AlertTriangle
               return (
-                <div key={card.title} className="panel-subtle flex gap-3 p-4">
-                  <div className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-[oklch(0.94_0.03_245)]">
-                    <Icon className="h-5 w-5 text-[oklch(0.48_0.12_255)]" />
+                <div key={i} className="panel-subtle flex gap-3 p-4">
+                  <div className={cn('grid h-10 w-10 shrink-0 place-items-center rounded-2xl', severityColors[insight.severity] || 'bg-[oklch(0.94_0.03_245)]')}>
+                    <Icon className="h-5 w-5" />
                   </div>
                   <div>
-                    <p className="font-black tracking-[-0.02em] text-[oklch(0.24_0.04_255)]">{card.title}</p>
-                    <p className="mt-1 text-sm leading-5 text-[oklch(0.48_0.035_255)]">{card.body}</p>
+                    <p className="text-sm leading-5 text-[oklch(0.36_0.035_255)]">{insight.description}</p>
+                    {insight.recommendation && (
+                      <p className="mt-2 text-xs leading-5 text-[oklch(0.44_0.035_255)]">{insight.recommendation}</p>
+                    )}
                   </div>
                 </div>
               )
             })}
+            {typeof insights?.summary === 'string' && allInsights.length > 0 && (
+              <div className="mt-2 rounded-xl bg-[oklch(0.72_0.15_178/0.08)] p-3">
+                <p className="text-xs leading-5 text-[oklch(0.44_0.035_255)]">{insights.summary}</p>
+              </div>
+            )}
           </div>
         </Card>
       </div>

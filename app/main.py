@@ -232,6 +232,7 @@ def create_app() -> FastAPI:
         garmin,
         glucose,
         glucose_ext,
+        insights,
         measurements,
         metrics,
         mood,
@@ -251,6 +252,7 @@ def create_app() -> FastAPI:
     app.include_router(glucose_ext.router, prefix="/api/v1", tags=["Glucose Data"])
     app.include_router(events.router, prefix="/api/v1", tags=["Context Events"])
     app.include_router(patterns.router, prefix="/api/v1", tags=["Patterns"])
+    app.include_router(insights.router, prefix="/api/v1/insights", tags=["Insights"])
     app.include_router(chat.router, prefix="/api/v1", tags=["Conversational AI"])
     app.include_router(food.route, prefix="/api/v1", tags=["Food"])
     app.include_router(exercise.route, prefix="/api/v1", tags=["Exercise"])
