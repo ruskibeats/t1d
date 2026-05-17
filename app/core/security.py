@@ -3,15 +3,19 @@
 from datetime import UTC, datetime, timedelta
 
 from fastapi import Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 from passlib.context import CryptContext
-from pydantic import BaseModel, EmailStr, field_validator
+from pydantic import BaseModel, ConfigDict, EmailStr, field_validator
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import get_settings
 from app.core.database import get_db
 from app.db.models import User
+
+# OAuth2 scheme for token extraction
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
 # Password hashing
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -67,8 +71,7 @@ class UserResponse(BaseModel):
     is_verified: bool
     created_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class UserUpdate(BaseModel):
@@ -232,7 +235,7 @@ async def authenticate_user(
 
 async def get_current_user(
     session: AsyncSession = Depends(get_db),
-    token: str | None = None,
+    token: str = Depends(oauth2_scheme),
 ) -> User:
     """Get current authenticated user from token.
     

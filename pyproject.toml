@@ -1,61 +1,104 @@
 [build-system]
-requires = [ "hatchling",]
+requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "t1d-companion"
-version = "0.1.0"
-description = "A sensor-agnostic conversational AI companion for Type 1 Diabetes"
+name = "t1d"
+version = "1.0.0"
+description = ""
+authors = [
+    { name = "Your Name", email = "you@example.com" },
+]
+dependencies = [
+    "fastapi>=0.104.0",
+    "uvicorn[standard]>=0.24.0",
+    "sqlalchemy>=2.0.0",
+    "alembic>=1.12.0",
+    "pydantic>=2.5.0",
+    "pydantic-settings>=2.0.0",
+    "python-jose[cryptography]>=3.3.0",
+    "passlib[bcrypt]>=1.7.4",
+    "python-multipart>=0.0.6",
+    "httpx>=0.25.0",
+    "python-dotenv>=1.0.0",
+    "pandas>=2.1.0",
+    "numpy>=1.24.0",
+    "requests>=2.31.0",
+    "celery>=5.3.0",
+    "redis>=5.0.0",
+    "openai>=1.0.0",
+    "anthropic>=0.25.0",
+    "python-slugify>=8.0.0",
+    "pyyaml>=6.0",
+    "python-json-logger>=2.0.0",
+    "email-validator>=2.0.0",
+]
 readme = "README.md"
 requires-python = ">=3.11"
-license = "MIT"
-classifiers = [ "Development Status :: 3 - Alpha", "Intended Audience :: End Users/Desktop", "License :: OSI Approved :: MIT License", "Programming Language :: Python :: 3", "Programming Language :: Python :: 3.11", "Programming Language :: Python :: 3.12",]
-dependencies = [ "fastapi>=0.104.0", "uvicorn[standard]>=0.24.0", "sqlalchemy>=2.0.0", "alembic>=1.12.0", "pydantic>=2.5.0", "pydantic-settings>=2.0.0", "python-jose[cryptography]>=3.3.0", "passlib[bcrypt]>=1.7.4", "python-multipart>=0.0.6", "httpx>=0.25.0", "python-dotenv>=1.0.0", "pandas>=2.1.0", "numpy>=1.24.0", "requests>=2.31.0", "celery>=5.3.0", "redis>=5.0.0", "openai>=1.0.0", "anthropic>=0.25.0", "python-slugify>=8.0.0", "pyyaml>=6.0", "python-json-logger>=2.0.0",
-    "email-validator>=2.0.0",]
-[[project.authors]]
-name = "Russell Batchelor"
-email = "russell@example.com"
+license = { file = "LICENSE" }
+keywords = []
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: End Users/Desktop",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
 
-[project.optional-dependencies]
-dev = [ "pytest>=7.4.0", "pytest-asyncio>=0.21.0", "pytest-cov>=4.1.0", "ruff>=0.1.0", "mypy>=1.5.0", "black>=23.0.0", "isort>=5.12.0", "httpx>=0.25.0",]
+[project.urls]
+Homepage = "https://github.com/your-username/t1d"
+Documentation = "https://github.com/your-username/t1d#readme"
+Issues = "https://github.com/your-username/t1d/issues"
+Source = "https://github.com/your-username/t1d"
 
 [project.scripts]
-t1d = "app.main:app"
+t1d = "app.main:run"
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.0",
+    "pytest-asyncio>=0.21.0",
+    "pytest-cov>=4.1.0",
+    "ruff>=0.1.0",
+    "mypy>=1.5.0",
+    "black>=23.0.0",
+    "isort>=5.12.0",
+    "httpx>=0.25.0",
+]
 
 [tool.ruff]
-line-length = 88
-target-version = "py311"
-select = [ "E", "W", "F", "I", "B", "C4", "UP",]
-ignore = [ "E203", "E501",]
+line-length = 120
+select = ["E", "W", "F", "I", "B", "C4", "UP"]
+ignore = ["E203", "E501"]
 
 [tool.mypy]
-python_version = "3.11"
-warn_return_any = true
-warn_unused_configs = true
-disallow_untyped_defs = true
-disallow_incomplete_defs = true
-check_untyped_defs = true
-disallow_untyped_decorators = true
-no_implicit_optional = true
-warn_redundant_casts = true
-warn_unused_ignores = true
-warn_no_return = true
+strict = true
+ignore_missing_imports = true
 
 [tool.black]
-line-length = 88
-target-version = [ "py311",]
+line-length = 120
+target-version = ["py311"]
 
 [tool.isort]
 profile = "black"
-line_length = 88
+line_length = 120
+known_first_party = ["app"]
 
-[tool.pytest.ini_options]
-testpaths = [ "tests",]
-asyncio_mode = "auto"
-asyncio_default_fixture_loop_scope = "function"
+[tool.pytest]
+minversion = "6.0"
+addopts = ["--doctest-modules"]
+pythonpath = ["app"]
+testpaths = ["tests"]
+
+filterwarnings = [
+    "ignore::DeprecationWarning:sqlalchemy.*",
+    "ignore::DeprecationWarning:pythonjsonlogger.*",
+    "ignore::DeprecationWarning:passlib.*",
+]
 
 [tool.ruff.lint.isort]
-known-first-party = [ "app",]
+known-first-party = ["app"]
 
 [tool.hatch.build.targets.wheel]
-packages = [ "app",]
+packages = ["app"]

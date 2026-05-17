@@ -8,6 +8,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.water.models import WaterEntry
 from app.water.schemas import WaterEntryCreate
+from app.metrics.types import MetricType
+from app.services.metric_writer import write_metric_if_present
 
 
 class WaterService:
@@ -19,6 +21,7 @@ class WaterService:
         self.db.add(model)
         await self.db.flush()
         await self.db.refresh(model)
+        await write_metric_if_present(self.db, user_id, MetricType.WATER, model.amount_ml, "ml", model.logged_at, model.source)
         return model
 
     async def list(

@@ -294,7 +294,10 @@ class DexcomService:
                 GlucoseReading.timestamp >= start_date,
             )
         )
-        existing_timestamps = {r[0] for r in existing.scalars()}
+        existing_timestamps = {
+            ts.replace(tzinfo=None) if ts.tzinfo else ts
+            for ts in existing.scalars().all()
+        }
         
         # Fetch from Dexcom
         raw_readings = await self.get_glucose_readings(
@@ -317,7 +320,9 @@ class DexcomService:
                 reading_time = datetime.fromisoformat(
                     raw.get("systemTime", "").replace("Z", "+00:00")
                 )
-                if reading_time in existing_timestamps:
+                # Normalize to naive UTC for comparison with SQLite-stored timestamps
+                reading_time_naive = reading_time.replace(tzinfo=None)
+                if reading_time_naive in existing_timestamps:
                     continue
                 
                 # Convert mg/dL to mmol/L if needed
@@ -330,7 +335,7 @@ class DexcomService:
                 reading = GlucoseReading(
                     user_id=user.id,
                     glucose_value=value_mg_dl,
-                    glucose_unit="mg/dL",
+                    glucose_units="mg/dL",
                     timestamp=reading_time,
                     reading_type="sensor",
                     source="dexcom",

@@ -4,7 +4,7 @@ import os
 from typing import Any, Dict, List, Optional
 from urllib.parse import quote_plus
 
-from pydantic import BaseModel, EmailStr, PostgresDsn
+from pydantic import BaseModel, ConfigDict, EmailStr, Field, PostgresDsn
 from pydantic_settings import BaseSettings
 
 
@@ -46,9 +46,9 @@ class Settings(BaseSettings):
     access_token_expire_minutes: int = 60 * 24 * 7  # 7 days
 
     # Database
-    database_url: str = os.getenv(
-        "DATABASE_URL",
-        "postgresql+asyncpg://postgres:postgres@localhost:5432/t1d_companion",
+    database_url: str = Field(
+        default="postgresql+asyncpg://postgres:postgres@localhost:5432/t1d_companion",
+        validation_alias="DATABASE_URL",
     )
 
     # Redis (for Celery/Caching)
@@ -71,6 +71,9 @@ class Settings(BaseSettings):
     # Anthropic
     anthropic_api_key: str | None = os.getenv("ANTHROPIC_API_KEY")
     anthropic_model: str = os.getenv("ANTHROPIC_MODEL", "claude-3-5-haiku-20241022")
+
+    # USDA FoodData Central
+    usda_api_key: str | None = os.getenv("USDA_API_KEY")
 
     # CORS
     cors_origins: list[str] = ["http://localhost:3000", "http://localhost:8000"]
@@ -97,11 +100,40 @@ class Settings(BaseSettings):
     openrouter_api_key: Optional[str] = os.getenv("OPENROUTER_API_KEY")
     openrouter_referer: str = os.getenv("OPENROUTER_REFERER", "T1D-Companion")
 
-    class Config:
-        case_sensitive = True
-        env_file = ".env"
-        env_file_encoding = "utf-8"
-        extra = "ignore"
+    # LLM provider pool (comma-separated, format: "provider/model:free")
+    # Used for automatic fallback rotation when primary provider fails
+    llm_provider_pool: str = os.getenv(
+        "LLM_PROVIDER_POOL",
+        "",
+    )
+
+    model_config = ConfigDict(
+        case_sensitive=True,
+        env_file=".env",
+        env_file_encoding="utf-8",
+        extra="ignore",
+    )
+
+    def parse_provider_pool(self) -> list[tuple[str, str]]:
+        """Parse llm_provider_pool into list of (provider, model) tuples."""
+        if not self.llm_provider_pool:
+            return []
+        entries = []
+        for item in self.llm_provider_pool.split(","):
+            item = item.strip()
+            if not item:
+                continue
+            # format: "provider/model" — split on first /
+            if "/" in item:
+                provider, model = item.split("/", 1)
+                # openrouter prefix means openrouter provider
+                if provider == "openrouter":
+                    entries.append(("openrouter", model))
+                else:
+                    entries.append((provider, model))
+            else:
+                entries.append((self.llm_provider, item))
+        return entries
 
     # Derived properties
     @property

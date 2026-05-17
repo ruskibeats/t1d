@@ -2,7 +2,7 @@
 
 
 from fastapi import HTTPException, status
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 
 class T1DException(Exception):
@@ -79,8 +79,7 @@ class ErrorResponse(BaseModel):
     detail: dict | None = None
     timestamp: str | None = None
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 def create_http_exception(status_code: int, detail: str, headers: dict | None = None) -> HTTPException:

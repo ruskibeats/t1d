@@ -1,12 +1,31 @@
 """Service layer for food domain with multi-provider search."""
 
-from typing import Optional
+from typing import Any, Dict, List, Optional
 
 from sqlalchemy import desc, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.food.models import Food, FoodEntry
 from app.food.schemas import FoodCreate, FoodEntryCreate
+from app.metrics.types import MetricType
+from app.services.metric_writer import write_metric_if_present
+
+
+def _parse_serving_size(value: str | float | None) -> float | None:
+    """Parse serving size string into a float.
+    
+    OpenFoodFacts returns values like "100 g" or "1 cup (240ml)".
+    Extract the leading number.
+    """
+    if value is None:
+        return None
+    if isinstance(value, (int, float)):
+        return float(value)
+    import re
+    match = re.match(r"(\d+\.?\d*)", str(value).strip())
+    if match:
+        return float(match.group(1))
+    return None
 
 
 class FoodService:
@@ -56,8 +75,118 @@ class FoodService:
         return list(result.scalars().all())
 
     # ------------------------------------------------------------------
-    # Multi-Provider Food Search (P5-04)
+    # Multi-Provider Food Search
     # ------------------------------------------------------------------
+
+    async def _search_local_foods(self, user_id: int, query: str, limit: int = 10):
+        """Search only the local Food table. Returns list of Food ORM objects."""
+        from app.food.models import Food
+        from sqlalchemy import select
+        
+        result = await self.db.execute(
+            select(Food).where(
+                Food.user_id == user_id,
+                Food.name.ilike(f"%{query}%"),
+            ).limit(limit)
+        )
+        return list(result.scalars().all())
+
+    async def search_external_foods(
+        self,
+        session: AsyncSession,
+        user_id: int,
+        query: str,
+        use_external: bool = True,
+    ) -> List[Dict[str, Any]]:
+        """Search for foods across local DB and external providers.
+        
+        Priority: local DB → OpenFoodFacts → USDA
+        External results are cached in the local Food table.
+        
+        Returns list of dicts with normalized nutrition fields.
+        """
+        from app.food.models import Food
+        from sqlalchemy import select
+        
+        results = []
+        
+        # 1. Search local DB
+        local = await session.execute(
+            select(Food).where(
+                Food.user_id == user_id,
+                Food.name.ilike(f"%{query}%"),
+            ).limit(10)
+        )
+        for food in local.scalars():
+            results.append({
+                "source": "local",
+                "name": food.name,
+                "carbs_per_100g": food.carbs,
+                "protein_per_100g": food.protein,
+                "fat_per_100g": food.fat,
+                "calories_per_100g": food.calories,
+                "serving_size": food.serving_size,
+            })
+        
+        if not use_external:
+            return results
+        
+        # 2. Search OpenFoodFacts
+        from app.food.providers.openfoodfacts import OpenFoodFactsClient
+        off_client = OpenFoodFactsClient()
+        off_results = await off_client.search_by_name(query, page_size=5)
+        
+        for product in off_results:
+            results.append({
+                "source": "openfoodfacts",
+                "name": product.name,
+                "brand": product.brand,
+                "barcode": product.barcode,
+                "carbs_per_100g": product.carbs_per_100g,
+                "protein_per_100g": product.protein_per_100g,
+                "fat_per_100g": product.fat_per_100g,
+                "calories_per_100g": product.calories_per_100g,
+                "serving_size": product.serving_size,
+            })
+            
+            # Cache in local DB
+            cached = Food(
+                user_id=user_id,
+                name=product.name,
+                brand_name=product.brand,
+                barcode=product.barcode,
+                carbs=product.carbs_per_100g,
+                protein=product.protein_per_100g,
+                fat=product.fat_per_100g,
+                calories=product.calories_per_100g,
+                serving_size=_parse_serving_size(product.serving_size),
+                source="openfoodfacts",
+            )
+            session.add(cached)
+        
+        # 3. Search USDA (if API key configured)
+        from app.food.providers.usda import USDAClient
+        usda_client = USDAClient()
+        if usda_client.api_key:
+            usda_results = await usda_client.search_by_name(query, page_size=5)
+            
+            for item in usda_results:
+                results.append({
+                    "source": "usda",
+                    "name": item.name,
+                    "brand": item.brand,
+                    "fdc_id": item.fdc_id,
+                    "carbs_per_100g": item.carbs_per_100g,
+                    "protein_per_100g": item.protein_per_100g,
+                    "fat_per_100g": item.fat_per_100g,
+                    "calories_per_100g": item.calories_per_100g,
+                    "serving_size": item.serving_size,
+                })
+        
+        if results:
+            await session.commit()
+        
+        return results
 
     async def search_all_providers(
         self,
@@ -85,7 +214,7 @@ class FoodService:
 
         # 1. Personal foods (highest priority)
         if include_personal:
-            personal = await self.search_foods(user_id, query, limit=limit)
+            personal = await self._search_local_foods(user_id, query, limit=limit)
             results.extend(personal)
 
         # 2. OpenFoodFacts
@@ -143,6 +272,12 @@ class FoodService:
         self.db.add(entry)
         await self.db.flush()
         await self.db.refresh(entry)
+        await write_metric_if_present(self.db, user_id, MetricType.CALORIES, entry.calories, "kcal", entry.entry_date, entry.source)
+        await write_metric_if_present(self.db, user_id, MetricType.PROTEIN, entry.protein, "g", entry.entry_date, entry.source)
+        await write_metric_if_present(self.db, user_id, MetricType.CARBS, entry.carbs, "g", entry.entry_date, entry.source)
+        await write_metric_if_present(self.db, user_id, MetricType.FAT, entry.fat, "g", entry.entry_date, entry.source)
+        await write_metric_if_present(self.db, user_id, MetricType.FIBER, entry.fiber, "g", entry.entry_date, entry.source)
+        await write_metric_if_present(self.db, user_id, MetricType.GLYCEMIC_LOAD, entry.glycemic_load, "score", entry.entry_date, entry.source)
         return entry
 
     async def list_entries(

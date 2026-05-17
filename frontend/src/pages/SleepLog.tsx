@@ -49,6 +49,22 @@ export function SleepLogPage() {
         <StatCard title="Avg quality" value={avgScore as string} subtitle="/10" icon={Star} variant={parseInt(avgScore as string) >= 7 ? 'success' : 'warning'} />
       </div>
 
+      {entries.length > 0 && entries.some((e: any) => e.deep_minutes || e.light_minutes || e.rem_minutes || e.awake_minutes) && (
+        <Card className="p-5">
+          <h3 className="mb-4 text-lg font-black tracking-[-0.03em]">Sleep stages (latest)</h3>
+          <div className="grid grid-cols-4 gap-3">
+            {['deep', 'rem', 'light', 'awake'].map(stage => {
+              const latest = entries.find((e: any) => (e as any)[`${stage}_minutes`])
+              const val = latest ? (latest as any)[`${stage}_minutes`] : 0
+              return <div key={stage} className="rounded-xl bg-[oklch(0.96_0.02_245)] p-3 text-center">
+                <p className="text-2xl font-black">{val}m</p>
+                <p className="text-xs font-bold capitalize">{stage}</p>
+              </div>
+            })}
+          </div>
+        </Card>
+      )}
+
       {showForm && (
         <Card className="p-5 space-y-4">
           <h3 className="font-black">Log sleep entry</h3>

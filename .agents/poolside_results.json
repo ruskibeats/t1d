@@ -1,0 +1,56 @@
+{
+  "poolside/laguna-xs.2:free": {
+    "T1": {
+      "score": 2,
+      "tokens": 183,
+      "has_tool_fmt": true
+    },
+    "T2": {
+      "score": 2,
+      "tokens": 186,
+      "has_tool_fmt": true
+    },
+    "T3": {
+      "score": 2,
+      "tokens": 209,
+      "has_tool_fmt": true
+    },
+    "T4": {
+      "score": 2,
+      "tokens": 324,
+      "has_tool_fmt": true
+    },
+    "T5": {
+      "score": 2,
+      "tokens": 460,
+      "has_tool_fmt": true
+    }
+  },
+  "poolside/laguna-m.1:free": {
+    "T1": {
+      "score": 2,
+      "tokens": 241,
+      "has_tool_fmt": true
+    },
+    "T2": {
+      "score": 2,
+      "tokens": 2082,
+      "has_tool_fmt": true
+    },
+    "T3": {
+      "score": 2,
+      "tokens": 180,
+      "has_tool_fmt": true
+    },
+    "T4": {
+      "score": 2,
+      "tokens": 2074,
+      "has_tool_fmt": true
+    },
+    "T5": {
+      "score": 2,
+      "tokens": 447,
+      "has_tool_fmt": true
+    }
+  }
+}

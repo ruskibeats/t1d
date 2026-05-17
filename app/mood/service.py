@@ -6,6 +6,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.mood.models import MoodEntry
 from app.mood.schemas import MoodEntryCreate
+from app.metrics.types import MetricType
+from app.services.metric_writer import write_metric_if_present
 
 
 class MoodService:
@@ -17,6 +19,7 @@ class MoodService:
         self.db.add(entry)
         await self.db.flush()
         await self.db.refresh(entry)
+        await write_metric_if_present(self.db, user_id, MetricType.MOOD_SCORE, entry.score, "score", entry.logged_at, entry.source)
         return entry
 
     async def get_entry(self, user_id: int, entry_id: int) -> Optional[MoodEntry]:

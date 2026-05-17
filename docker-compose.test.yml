@@ -1,0 +1,17 @@
+services:
+  t1d-test-db:
+    image: postgres:16-alpine
+    container_name: t1d-test-db
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: t1d_test
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d t1d_test"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s

@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom'
 import { formatDistanceToNow } from 'date-fns'
 import { Bed, Dumbbell, FileText, Flame, Syringe, Utensils } from 'lucide-react'
 import { ContextEvent } from '@/types'
@@ -18,6 +19,7 @@ const eventMeta: Record<string, { icon: React.ElementType; tone: string; label: 
 }
 
 export function RecentEvents({ events, loading }: RecentEventsProps) {
+  const navigate = useNavigate()
   if (loading) {
     return (
       <div className="space-y-3">
@@ -34,7 +36,7 @@ export function RecentEvents({ events, loading }: RecentEventsProps) {
         <FileText className="mx-auto mb-3 h-10 w-10 text-[oklch(0.62_0.06_255)]" />
         <p className="font-black tracking-[-0.02em]">No events yet</p>
         <p className="mx-auto mt-1 max-w-sm text-sm text-[oklch(0.48_0.035_255)]">Meals, movement, sleep, and stress make the glucose story easier to understand.</p>
-        <Button variant="outline" size="sm" className="mt-4">Log first event</Button>
+        <Button variant="outline" size="sm" className="mt-4" onClick={() => navigate('/events')}>Log first event</Button>
       </div>
     )
   }

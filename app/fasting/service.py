@@ -6,6 +6,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.fasting.models import FastingEntry
 from app.fasting.schemas import FastingEntryCreate
+from app.metrics.types import MetricType
+from app.services.metric_writer import write_metric_if_present
 
 
 class FastingService:
@@ -17,6 +19,7 @@ class FastingService:
         self.db.add(entry)
         await self.db.flush()
         await self.db.refresh(entry)
+        await write_metric_if_present(self.db, user_id, MetricType.FASTING_DURATION, entry.duration_minutes, "minutes", entry.start_time, entry.source)
         return entry
 
     async def get_entry(self, user_id: int, entry_id: int) -> Optional[FastingEntry]:

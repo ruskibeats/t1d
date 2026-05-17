@@ -1,6 +1,7 @@
 """Main FastAPI application entry point."""
 
 from contextlib import asynccontextmanager
+from datetime import datetime, timezone
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -40,6 +41,7 @@ async def lifespan(app: FastAPI):
     global coordinator
     coordinator = AgentCoordinator()
     await coordinator.startup()
+    app.state.coordinator = coordinator
 
     logger.info("T1D Companion started successfully!")
     logger.info(f"Environment: {settings.environment}")
@@ -215,7 +217,7 @@ def create_app() -> FastAPI:
             "status": "healthy",
             "service": settings.app_title,
             "version": settings.version,
-            "timestamp": __import__("datetime").datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
         }
 
     # Include routers
@@ -241,6 +243,7 @@ def create_app() -> FastAPI:
         water,
         withings,
     )
+    from app.api import environment, heart, blood_pressure, activity, vitals, body_composition, lifestyle, body_battery
 
     app.include_router(auth.router, prefix="/auth", tags=["Authentication"])
     app.include_router(users.router, prefix="/api/v1", tags=["Users"])
@@ -256,6 +259,20 @@ def create_app() -> FastAPI:
     app.include_router(fasting.route, prefix="/api/v1", tags=["Fasting"])
     app.include_router(mood.route, prefix="/api/v1", tags=["Mood"])
     app.include_router(water.route, prefix="/api/v1", tags=["Water"])
+    app.include_router(environment.router, prefix="/api/v1", tags=["Environment"])
+    app.include_router(heart.route, prefix="/api/v1", tags=["Heart Rate"])
+    app.include_router(blood_pressure.route, prefix="/api/v1", tags=["Blood Pressure"])
+    app.include_router(activity.route, prefix="/api/v1", tags=["Activity"])
+    app.include_router(vitals.route, prefix="/api/v1", tags=["Vitals"])
+    app.include_router(body_composition.route, prefix="/api/v1", tags=["Body Composition"])
+    app.include_router(lifestyle.route, prefix="/api/v1", tags=["Lifestyle"])
+    app.include_router(body_battery.route, prefix="/api/v1", tags=["Body Battery"])
+    # ── External ingestion providers ──
+    app.include_router(fitbit.route, prefix="/api/v1", tags=["Fitbit"])
+    app.include_router(garmin.route, prefix="/api/v1", tags=["Garmin"])
+    app.include_router(polar.route, prefix="/api/v1", tags=["Polar"])
+    app.include_router(strava.route, prefix="/api/v1", tags=["Strava"])
+    app.include_router(withings.route, prefix="/api/v1", tags=["Withings"])
     # ── New unified metrics endpoint ──
     app.include_router(metrics.route, prefix="/api/v1", tags=["Unified Health Metrics"])
     logger.info("Application setup complete")

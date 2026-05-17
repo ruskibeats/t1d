@@ -71,11 +71,37 @@ class LLMService:
     in the user's actual glucose data and patterns.
     """
     
+    @staticmethod
+    def parse_provider_pool(pool_str: str, default_provider: str = "openrouter") -> list[tuple[str, str]]:
+        """Parse comma-separated provider/model string into list of tuples.
+        
+        Args:
+            pool_str: Comma-separated, e.g. "openrouter/deepseek/deepseek-v4-flash:free,openrouter/owl-alpha"
+            default_provider: Provider to use when only model is specified
+            
+        Returns:
+            List of (provider, model) tuples
+        """
+        if not pool_str or not pool_str.strip():
+            return []
+        entries = []
+        for item in pool_str.split(","):
+            item = item.strip()
+            if not item:
+                continue
+            if "/" in item:
+                provider, model = item.split("/", 1)
+                entries.append((provider, model))
+            else:
+                entries.append((default_provider, item))
+        return entries
+
     def __init__(
         self,
         provider: Optional[LLMProvider] = None,
         api_key: Optional[str] = None,
         model: Optional[str] = None,
+        provider_pool: Optional[list[tuple[str, str]]] = None,
     ):
         """Initialize LLM service.
         
@@ -83,6 +109,7 @@ class LLMService:
             provider: LLM provider (if None, uses config)
             api_key: API key (if None, uses env var)
             model: Model name (if None, uses default for provider)
+            provider_pool: List of (provider, model) fallback pool
         """
         from app.config import get_settings
         config = get_settings()
@@ -93,6 +120,7 @@ class LLMService:
         self.provider = provider
         self.api_key = api_key or config.openrouter_api_key
         self.model = model or config.llm_model or self._get_default_model()
+        self.provider_pool = provider_pool if provider_pool is not None else config.parse_provider_pool()
         self.pattern_service = PatternService()
         self.logger = logging.getLogger(f"{__name__}.LLMService")
     
@@ -313,6 +341,126 @@ Ready to help!"""
         return history
     
     # -------------------------------------------------------------------
+    # Rule-Based Fallback Response
+    # -------------------------------------------------------------------
+    
+    async def _rule_based_response(
+        self,
+        message: str,
+        rag_context: RAGContext,
+    ) -> Dict[str, Any]:
+        """Generate a rule-based response when no LLM provider is available.
+        
+        Uses the RAG context to provide informative, grounded responses
+        without calling any external API.
+        """
+        message_lower = message.lower()
+        profile = rag_context.user_profile or {}
+        glucose = rag_context.recent_glucose
+        events = rag_context.recent_events
+        patterns = rag_context.pattern_summary
+        
+        parts = []
+        
+        # Glucose query
+        if any(word in message_lower for word in ["glucose", "blood sugar", "reading", "bg", "number"]):
+            if glucose:
+                latest = glucose[0]
+                parts.append(f"Your most recent glucose reading was {latest['value']} mg/dL")
+                if latest.get('trend'):
+                    parts.append(f"trending {latest['trend']}")
+                parts.append(f"at {latest['timestamp'][:16]}.")
+                
+                if len(glucose) > 1:
+                    values = [g['value'] for g in glucose[:10]]
+                    avg = sum(values) / len(values)
+                    parts.append(f"Your average over the last {len(values)} readings is {avg:.0f} mg/dL.")
+            else:
+                parts.append("I don't have any recent glucose readings for you yet.")
+        
+        # Pattern/TIR query
+        elif any(word in message_lower for word in ["pattern", "trend", "time in range", "tir", "a1c", "average"]):
+            if patterns:
+                tir = patterns.get("time_in_range_percentage", 0)
+                a1c = patterns.get("estimated_a1c", 0)
+                avg_glucose = patterns.get("average_glucose", 0)
+                parts.append(f"Over the last 14 days:")
+                parts.append(f"- Time in range (70-180 mg/dL): {tir:.1f}%")
+                parts.append(f"- Estimated A1C: {a1c}")
+                parts.append(f"- Average glucose: {avg_glucose:.0f} mg/dL")
+                
+                spikes = patterns.get("post_meal_spike_count", 0)
+                if spikes:
+                    parts.append(f"- Post-meal spikes detected: {spikes}")
+                
+                overnight = patterns.get("overnight_low_count", 0)
+                if overnight:
+                    parts.append(f"- Overnight low events: {overnight}")
+            else:
+                parts.append("I don't have enough data to analyze patterns yet. Keep logging your readings!")
+        
+        # Meal/food query
+        elif any(word in message_lower for word in ["meal", "food", "eat", "carb", "spike after"]):
+            meals = [e for e in events if e.get("type") == "meal"]
+            if meals:
+                parts.append(f"You've logged {len(meals)} meals in the last 14 days.")
+                recent_meal = meals[0]
+                if recent_meal.get("carbs_grams"):
+                    parts.append(f"Your most recent meal had {recent_meal['carbs_grams']}g carbs at {recent_meal['timestamp'][:16]}.")
+                
+                if patterns and patterns.get("post_meal_spike_count", 0) > 0:
+                    parts.append(f"I've detected {patterns['post_meal_spike_count']} post-meal spikes. Consider discussing meal timing and carb counting with your care team.")
+            else:
+                parts.append("I don't see any recent meal logs. Try logging your meals to see how they affect your glucose.")
+        
+        # Insulin query
+        elif any(word in message_lower for word in ["insulin", "dose", "bolus", "basal", "unit"]):
+            parts.append("I can see your insulin data, but I can't provide dosing recommendations.")
+            parts.append("Always follow your healthcare team's guidance for insulin dosing.")
+            insulin_events = [e for e in events if e.get("type") == "insulin"]
+            if insulin_events:
+                parts.append(f"You have {len(insulin_events)} insulin entries logged.")
+        
+        # Exercise query
+        elif any(word in message_lower for word in ["exercise", "activity", "workout", "walk", "run"]):
+            exercises = [e for e in events if e.get("type") == "exercise"]
+            if exercises:
+                parts.append(f"You've logged {len(exercises)} exercise sessions recently.")
+                parts.append("Exercise can lower glucose during and after activity. Monitor closely and carry fast-acting glucose.")
+            else:
+                parts.append("I don't see any recent exercise logs. Regular activity can help with glucose management.")
+        
+        # Help/general query
+        elif any(word in message_lower for word in ["help", "what can", "how do", "hello", "hi"]):
+            parts.append("I'm your T1D Companion! I can help you understand patterns in your diabetes data.")
+            parts.append("Try asking me about:")
+            parts.append("- Your recent glucose readings and trends")
+            parts.append("- Time in range and estimated A1C")
+            parts.append("- Post-meal spikes and patterns")
+            parts.append("- How meals, exercise, and insulin relate to your glucose")
+            parts.append("Remember: I provide educational insights, not medical advice. Always consult your healthcare team for treatment decisions.")
+        
+        # Fallback for unrecognized queries
+        else:
+            parts.append("I can help you understand patterns in your diabetes data.")
+            if glucose:
+                parts.append(f"Your latest glucose was {glucose[0]['value']} mg/dL.")
+            if patterns:
+                parts.append(f"Your time in range is {patterns.get('time_in_range_percentage', 0):.1f}%.")
+            parts.append("Try asking about your glucose trends, patterns, meals, or exercise.")
+        
+        response = " ".join(parts)
+        
+        return {
+            "response": response,
+            "tokens_used": 0,
+            "model": "rule-based-fallback",
+            "provider": "fallback",
+            "streamed": False,
+            "safety_flagged": False,
+        }
+    
+    # -------------------------------------------------------------------
     # LLM Query Methods
     # -------------------------------------------------------------------
     
@@ -373,23 +521,47 @@ Ready to help!"""
             {"role": "user", "content": message},
         ]
         
-        # Call LLM
+        # Call LLM with provider rotation fallback
+        last_error = None
+        
+        # Try primary provider first
         try:
             if stream:
-                # For streaming, would use async generator
-                # Simplified for now
                 response = await self._call_llm(messages, max_tokens, stream=False)
                 return {
                     **response,
-                    "streamed": False,  # Would be True in production
+                    "streamed": False,
                 }
             else:
                 response = await self._call_llm(messages, max_tokens, stream=False)
                 return response
-                
-        except Exception as e:
-            self.logger.error(f"LLM generation failed: {e}")
-            raise LLMServiceError(f"Failed to generate response: {str(e)}")
+        except (LLMServiceError, Exception) as e:
+            last_error = e
+            self.logger.warning(f"Primary LLM call failed: {e}")
+        
+        # Try provider pool fallbacks
+        if self.provider_pool:
+            orig_provider, orig_model, orig_key = self.provider, self.model, self.api_key
+            for pool_provider, pool_model in self.provider_pool:
+                self.logger.info(f"Trying fallback provider {pool_provider}/{pool_model}")
+                try:
+                    self.provider = LLMProvider(pool_provider)
+                    self.model = pool_model
+                    if pool_provider in ("openrouter", "minimax"):
+                        self.api_key = self._get_openrouter_key() or orig_key
+                    
+                    response = await self._call_llm(messages, max_tokens, stream=False)
+                    self.provider, self.model, self.api_key = orig_provider, orig_model, orig_key
+                    return response
+                except (LLMServiceError, Exception) as e2:
+                    self.logger.warning(f"Fallback provider {pool_provider}/{pool_model} failed: {e2}")
+                    last_error = e2
+                    self.provider, self.model, self.api_key = orig_provider, orig_model, orig_key
+                    continue
+        
+        # All providers failed — use rule-based fallback
+        self.logger.warning(f"All providers failed, using rule-based fallback: {last_error}")
+        return await self._rule_based_response(message, rag_context)
     
     async def _call_llm(self, messages: List[Dict], max_tokens: int, stream: bool) -> Dict[str, Any]:
         """Call the LLM API.
@@ -403,12 +575,24 @@ Ready to help!"""
             LLM response
         """
         if self.provider == LLMProvider.OPENAI:
+            key = self._get_openai_key()
+            if not key:
+                raise LLMServiceError("No OpenAI API key configured")
             return await self._call_openai(messages, max_tokens, stream)
         elif self.provider == LLMProvider.OPENROUTER:
+            key = self._get_openrouter_key()
+            if not key:
+                raise LLMServiceError("No OpenRouter API key configured")
             return await self._call_openrouter(messages, max_tokens, stream)
         elif self.provider == LLMProvider.MINIMAX:
+            key = self._get_openrouter_key()
+            if not key:
+                raise LLMServiceError("No OpenRouter API key configured")
             return await self._call_minimax(messages, max_tokens, stream)
         else:
+            key = self._get_anthropic_key()
+            if not key:
+                raise LLMServiceError("No Anthropic API key configured")
             return await self._call_anthropic(messages, max_tokens, stream)
     
     async def _call_openai(self, messages: List[Dict], max_tokens: int, stream: bool) -> Dict[str, Any]:
@@ -644,23 +828,31 @@ Ready to help!"""
         
         return turns
     
-    def _get_openai_key(self) -> str:
+    def _get_openai_key(self) -> Optional[str]:
         """Get OpenAI API key from environment."""
         import os
         key = os.getenv("OPENAI_API_KEY")
         if not key:
-            raise LLMServiceError("OpenAI API key not configured")
-        return key
+            try:
+                from app.config import get_settings
+                key = get_settings().openai_api_key
+            except Exception:
+                pass
+        return key  # Can be None - fallback will handle it
     
-    def _get_anthropic_key(self) -> str:
+    def _get_anthropic_key(self) -> Optional[str]:
         """Get Anthropic API key from environment."""
         import os
         key = os.getenv("ANTHROPIC_API_KEY")
         if not key:
-            raise LLMServiceError("Anthropic API key not configured")
-        return key
+            try:
+                from app.config import get_settings
+                key = get_settings().anthropic_api_key
+            except Exception:
+                pass
+        return key  # Can be None - fallback will handle it
     
-    def _get_openrouter_key(self) -> str:
+    def _get_openrouter_key(self) -> Optional[str]:
         """Get OpenRouter API key from environment or config."""
         import os
         from app.config import get_settings
@@ -675,8 +867,11 @@ Ready to help!"""
             # Fallback to OpenAI key if available
             key = os.getenv("OPENAI_API_KEY")
         if not key:
-            raise LLMServiceError("OpenRouter API key not configured. Set OPENROUTER_API_KEY env var or configure in settings.")
-        return key
+            try:
+                key = get_settings().openai_api_key
+            except Exception:
+                pass
+        return key  # Can be None - fallback will handle it
     
     # -------------------------------------------------------------------
     # Summarization

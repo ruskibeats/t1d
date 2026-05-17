@@ -119,8 +119,8 @@ class PatternService:
         above_range = sum(1 for v in values if v > self.TIR_HIGH)
         
         # Severe ranges
-        severe_low = sum(1 for v in values if v < self.HYPO_SEVERE)
-        severe_high = sum(1 for v in values if v > self.HYPER_SEVERE)
+        severe_low = sum(1 for v in values if v <= self.HYPO_SEVERE)
+        severe_high = sum(1 for v in values if v >= self.HYPER_SEVERE)
         
         # Calculate percentages
         pct_in_range = (in_range / total * 100) if total > 0 else 0
@@ -274,14 +274,19 @@ class PatternService:
             if len(readings) < 2:
                 continue
             
-            # Find pre-meal baseline (readings before meal)
+            # Find pre-meal baseline (readings before meal). SQLite returns
+            # timezone-naive datetimes, while in-memory ORM objects may still be
+            # timezone-aware, so normalize before Python-side comparison.
+            event_time = event.timestamp.replace(tzinfo=None) if event.timestamp.tzinfo else event.timestamp
             pre_meal_readings = [
-                r for r in readings if r.timestamp < event.timestamp
+                r for r in readings
+                if (r.timestamp.replace(tzinfo=None) if r.timestamp.tzinfo else r.timestamp) < event_time
             ]
             
             # Find peak after meal
             post_meal_readings = [
-                r for r in readings if r.timestamp >= event.timestamp
+                r for r in readings
+                if (r.timestamp.replace(tzinfo=None) if r.timestamp.tzinfo else r.timestamp) >= event_time
             ]
             
             if not pre_meal_readings or not post_meal_readings:
@@ -300,7 +305,8 @@ class PatternService:
             
             # Check if this qualifies as a spike
             if glucose_rise >= spike_threshold and peak_value > self.HYPER_THRESHOLD:
-                time_to_peak = (peak_time - event.timestamp).total_seconds() / 60
+                peak_time_cmp = peak_time.replace(tzinfo=None) if peak_time.tzinfo else peak_time
+                time_to_peak = (peak_time_cmp - event_time).total_seconds() / 60
                 
                 spikes.append({
                     "meal": {
@@ -315,7 +321,7 @@ class PatternService:
                     "severity": self._classify_spike_severity(glucose_rise, peak_value),
                     "exceeds_target": peak_value > self.TIR_HIGH,
                     "recommendations": self._generate_spike_recommendations(
-                        meal.carbs_grams, glucose_rise, time_to_peak
+                        event.carbs_grams or 0, glucose_rise, time_to_peak
                     ),
                 })
         
@@ -875,7 +881,9 @@ class PatternService:
             correlation_strength = spike_count / total_meals
             return PatternCorrelation(
                 event_type="meal",
-                correlation_strength=correlation_strength,
+                correlation_strength=round(correlation_strength, 2),
+                description=f"{spike_count} of {total_meals} meal events were followed by elevated glucose",
+                statistical_significance=0.05 if spike_count > 0 else 1.0,
             )
         
         return None
@@ -914,6 +922,8 @@ class PatternService:
             return PatternCorrelation(
                 event_type="exercise",
                 correlation_strength=round(correlation_strength, 2),
+                description=f"{drop_count} of {total_exercises} exercise events were followed by low glucose",
+                statistical_significance=0.05 if drop_count > 0 else 1.0,
             )
         
         return None

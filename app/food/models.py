@@ -68,6 +68,7 @@ class FoodEntry(Base):
     fiber: Mapped[Optional[float]] = mapped_column(Float)
     sugars: Mapped[Optional[float]] = mapped_column(Float)
     glycemic_index: Mapped[Optional[str]] = mapped_column(String(20))
+    glycemic_load: Mapped[Optional[float]] = mapped_column(Float)
     source: Mapped[str] = mapped_column(String(50), default="manual", nullable=False)
     meta: Mapped[Optional[dict[str, Any]]] = mapped_column("metadata", JSONB, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)

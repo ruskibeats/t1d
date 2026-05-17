@@ -275,11 +275,12 @@ class SafetyScaffold:
 
         # Dosing advice detection
         dosing_patterns = [
-            r"\btake\b.*\b\d+\s*(?:unit|u)\b",
-            r"\bgive\b.*\b\d+\s*(?:unit|u)\b",
-            r"\binject\b.*\b\d+\s*(?:unit|u)\b",
-            r"\bdose\b.*\b\d+\s*(?:unit|u)\b",
-            r"\b\d+\s*(?:unit|u)\s*of\s*insulin\b",
+            r"\btake\b\s+\d+\s*(?:units?|u)\b",
+            r"\bgive\b\s+\d+\s*(?:units?|u)\b",
+            r"\binject\b\s+\d+\s*(?:units?|u)\b",
+            r"\bdose\b\s+\d+\s*(?:units?|u)\b",
+            r"\b\d+\s*(?:units?|u)\s+of\s+insulin\b",
+            r"\b(?:take|give|inject)\b\s+(?:a\s+)?\d+\s*(?:unit|u)\b",
         ]
         for pattern in dosing_patterns:
             if re.search(pattern, text_lower):

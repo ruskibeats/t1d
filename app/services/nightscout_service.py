@@ -259,7 +259,7 @@ class NightscoutService:
                 GlucoseReading.timestamp >= start_date,
             )
         )
-        existing_timestamps = {r[0] for r in existing.scalars()}
+        existing_timestamps = set(existing.scalars().all())
         
         # Fetch from Nightscout
         raw_readings = await self.get_glucose_readings(
@@ -296,7 +296,7 @@ class NightscoutService:
                 reading = GlucoseReading(
                     user_id=user.id,
                     glucose_value=value_mg_dl,
-                    glucose_unit="mg/dL",
+                    glucose_units="mg/dL",
                     timestamp=reading_time,
                     reading_type="sensor",
                     source="nightscout",

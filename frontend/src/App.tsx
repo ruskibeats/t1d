@@ -11,9 +11,15 @@ import { ChatPage } from './pages/Chat'
 import { SettingsPage } from './pages/Settings'
 import { LoginPage } from './pages/Login'
 import { SleepLogPage } from './pages/SleepLog'
+import { FastingLogPage } from './pages/FastingLog'
+import { MoodLogPage } from './pages/MoodLog'
+import { WaterLogPage } from './pages/WaterLog'
+import { MeasurementsLogPage } from './pages/MeasurementsLog'
 import { HealthMetricsPage } from './pages/HealthMetrics'
 import { FoodLogPage } from './pages/FoodLog'
 import { ExerciseLogPage } from './pages/ExerciseLog'
+import { ActivityPage } from './pages/ActivityPage'
+import { VitalsPage } from './pages/VitalsPage'
 import './App.css'
 
 const queryClient = new QueryClient()
@@ -38,6 +44,12 @@ function App() {
                   <Route path="/health-metrics" element={<HealthMetricsPage />} />
                   <Route path="/food" element={<FoodLogPage />} />
                   <Route path="/exercise" element={<ExerciseLogPage />} />
+                  <Route path="/fasting" element={<FastingLogPage />} />
+                  <Route path="/measurements" element={<MeasurementsLogPage />} />
+                  <Route path="/mood" element={<MoodLogPage />} />
+                  <Route path="/water" element={<WaterLogPage />} />
+                  <Route path="/activity" element={<ActivityPage />} />
+                  <Route path="/vitals" element={<VitalsPage />} />
                   <Route path="/settings" element={<SettingsPage />} />
                 </Route>
               </Routes>

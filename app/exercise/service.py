@@ -6,6 +6,8 @@ from typing import List, Optional
 
 from app.exercise.models import ExerciseEntry, ExerciseEntrySet
 from app.exercise.schemas import ExerciseEntryCreate, ExerciseEntrySetCreate
+from app.metrics.types import MetricType
+from app.services.metric_writer import write_metric_if_present
 
 
 class ExerciseService:
@@ -17,6 +19,8 @@ class ExerciseService:
         self.db.add(entry)
         await self.db.flush()
         await self.db.refresh(entry)
+        await write_metric_if_present(self.db, user_id, MetricType.EXERCISE_MINUTES, entry.duration_minutes, "minutes", entry.start_time, entry.source)
+        await write_metric_if_present(self.db, user_id, MetricType.EXERCISE_CALORIES, entry.calories, "kcal", entry.start_time, entry.source)
         return entry
 
     async def get_entry(self, user_id: int, entry_id: int) -> Optional[ExerciseEntry]:

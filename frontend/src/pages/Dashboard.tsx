@@ -1,5 +1,6 @@
 /** @jsxImportSource @emotion/react */
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Activity, Brain, Clock3, Droplets, Moon, Plus, ShieldCheck, Sparkles, TrendingDownIcon, TrendingUpIcon, Utensils } from 'lucide-react'
 import { format } from 'date-fns'
 import { Card } from '@/components/ui/Card'
@@ -26,6 +27,7 @@ const insightCards = [
 ]
 
 export function Dashboard() {
+  const navigate = useNavigate()
   const { readings, stats, demoMode, fetchReadings } = useGlucose()
   const { events, loading: eventsLoading } = useEvents()
   const [timeRange, setTimeRange] = useState<'1d' | '3d' | '7d' | '14d'>('3d')
@@ -36,7 +38,7 @@ export function Dashboard() {
 
   const latestReading = readings[0]
   const trend = readings.length >= 2 ? readings[0].glucose_value - readings[1].glucose_value : 0
-  const status = latestReading?.glucose_value < 70 ? 'low' : latestReading?.glucose_value > 180 ? 'high' : 'in range'
+  const status = !latestReading ? 'no data' : latestReading.glucose_value < 70 ? 'low' : latestReading.glucose_value > 180 ? 'high' : 'in range'
 
   return (
     <div className="page-shell space-y-7">
@@ -55,10 +57,10 @@ export function Dashboard() {
               A sensor-agnostic Type 1 companion for CGM context, real-life events, and plain-language pattern discovery.
             </p>
             <div className="mt-7 flex flex-wrap gap-3">
-              <Button size="lg" className="bg-[oklch(0.72_0.15_178)] text-[oklch(0.18_0.04_255)] hover:bg-[oklch(0.78_0.14_178)]">
+              <Button size="lg" className="bg-[oklch(0.72_0.15_178)] text-[oklch(0.18_0.04_255)] hover:bg-[oklch(0.78_0.14_178)]" onClick={() => navigate('/events')}>
                 <Plus className="h-4 w-4" /> Log event
               </Button>
-              <Button size="lg" variant="outline" className="border-[oklch(1_0_0/0.16)] bg-[oklch(1_0_0/0.08)] text-[oklch(0.96_0.012_245)] hover:bg-[oklch(1_0_0/0.13)]">
+              <Button size="lg" variant="outline" className="border-[oklch(1_0_0/0.16)] bg-[oklch(1_0_0/0.08)] text-[oklch(0.96_0.012_245)] hover:bg-[oklch(1_0_0/0.13)]" onClick={() => navigate('/chat')}>
                 <Brain className="h-4 w-4" /> Ask AI
               </Button>
             </div>
@@ -117,7 +119,7 @@ export function Dashboard() {
               <h3 className="text-lg font-black tracking-[-0.03em]">Glucose trace</h3>
               <p className="text-sm font-medium text-[oklch(0.48_0.035_255)]">Target band, excursions, and sensor cadence.</p>
             </div>
-            <Button variant="outline"><Plus className="h-4 w-4" /> Add reading</Button>
+            <Button variant="outline" onClick={() => navigate('/glucose')}><Plus className="h-4 w-4" /> Add reading</Button>
           </div>
           <div className="p-3 md:p-5">
             <GlucoseChart readings={readings} timeRange={timeRange} />

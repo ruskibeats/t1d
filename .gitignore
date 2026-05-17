@@ -50,3 +50,9 @@ test-results/
 # Pi runtime/session state (keep project-local skills/prompts tracked)
 .pi/sessions/
 .pi/tmp/
+
+# Playwright
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/playwright/.auth/

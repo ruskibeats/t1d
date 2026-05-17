@@ -1,5 +1,6 @@
 /** @jsxImportSource @emotion/react */
 import { useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Activity, ArrowDownIcon, ArrowUpIcon, DatabaseZap, PlusIcon } from 'lucide-react'
 import { format } from 'date-fns'
 import { Card } from '@/components/ui/Card'
@@ -15,6 +16,7 @@ function statusFor(value: number) {
 }
 
 export function GlucosePage() {
+  const navigate = useNavigate()
   const { readings, stats, loading, demoMode, fetchReadings } = useGlucose()
 
   useEffect(() => {
@@ -38,7 +40,11 @@ export function GlucosePage() {
           <h1 className="mt-2 text-4xl font-black tracking-[-0.06em] text-[oklch(0.22_0.04_255)]">Glucose readings</h1>
           <p className="mt-2 max-w-2xl text-sm leading-6 text-[oklch(0.48_0.035_255)]">Review raw CGM and manual entries. {demoMode ? 'Demo data is shown until the backend has readings.' : 'Live data is connected.'}</p>
         </div>
-        <Button><PlusIcon className="h-4 w-4" /> Add reading</Button>
+        <Button onClick={() => {
+            const readingInput = document.querySelector<HTMLInputElement>('[data-add-reading]')
+            if (readingInput) readingInput.focus()
+            else navigate('/glucose?add=true')
+          }}><PlusIcon className="h-4 w-4" /> Add reading</Button>
       </div>
 
       <Card className="overflow-hidden">

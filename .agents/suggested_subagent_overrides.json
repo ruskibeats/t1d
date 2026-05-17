@@ -1,0 +1,117 @@
+{
+  "_comment": "Suggested subagent model overrides for pi-subagents. Copy the subagents block into .pi/settings.json or ~/.pi/agent/settings.json",
+  "subagents": {
+    "agentOverrides": {
+      "worker": {
+        "model": "openrouter/openai/gpt-4o-mini",
+        "fallbackModels": [
+          "openrouter/poolside/laguna-xs.2:free",
+          "openrouter/anthropic/claude-3-5-haiku"
+        ]
+      },
+      "reviewer": {
+        "model": "openrouter/anthropic/claude-3-5-haiku",
+        "fallbackModels": [
+          "openrouter/nvidia/nemotron-3-super-120b-a12b:free",
+          "openrouter/poolside/laguna-m.1:free"
+        ]
+      },
+      "scout": {
+        "model": "openrouter/openai/gpt-4o-mini",
+        "fallbackModels": [
+          "openrouter/poolside/laguna-xs.2:free",
+          "openrouter/nvidia/nemotron-nano-9b-v2:free"
+        ]
+      },
+      "planner": {
+        "model": "openrouter/openai/gpt-4o",
+        "fallbackModels": [
+          "openrouter/anthropic/claude-3-5-haiku",
+          "openrouter/poolside/laguna-m.1:free"
+        ]
+      },
+      "oracle": {
+        "model": "openrouter/openai/gpt-4o",
+        "fallbackModels": [
+          "openrouter/openai/gpt-4o-mini"
+        ]
+      },
+      "researcher": {
+        "model": "openrouter/openai/gpt-4o-mini",
+        "fallbackModels": [
+          "openrouter/minimax/minimax-m2.5:free"
+        ]
+      },
+      "context-builder": {
+        "model": "openrouter/anthropic/claude-3-5-haiku",
+        "fallbackModels": [
+          "openrouter/nvidia/nemotron-nano-9b-v2:free"
+        ]
+      },
+      "delegate": {
+        "model": "openrouter/openai/gpt-4o-mini",
+        "fallbackModels": [
+          "openrouter/anthropic/claude-3-5-haiku"
+        ]
+      }
+    }
+  },
+  "_free_models": {
+    "_comment": "Free models that worked in testing. poolside models are now recommended for primary work.",
+    "poolside/laguna-xs.2:free": {
+      "score": "10/10",
+      "role": "PRIMARY worker",
+      "pros": ["131k context", "fast response", "perfect tool obedience", "all tests passed"],
+      "cons": [],
+      "provider": "Poolside"
+    },
+    "poolside/laguna-m.1:free": {
+      "score": "10/10",
+      "role": "PRIMARY worker",
+      "pros": ["131k context", "detailed output", "perfect tool obedience", "all tests passed"],
+      "cons": [],
+      "provider": "Poolside"
+    },
+    "nvidia/nemotron-3-super-120b-a12b:free": {
+      "score": "6/10",
+      "role": "reviewer/scout",
+      "pros": ["1M context", "passes validation loop", "stays focused"],
+      "cons": ["slow (54s avg)", "poor pattern copying", "weak tool obedience"],
+      "provider": "Crucible"
+    },
+    "nvidia/nemotron-nano-9b-v2:free": {
+      "score": "4/10",
+      "role": "simple code gen",
+      "pros": ["fast (18s avg)", "multi-file", "validation loop"],
+      "cons": ["reasoning-only output sometimes", "loses focus under pressure"],
+      "provider": "Unknown"
+    },
+    "z-ai/glm-4.5-air:free": {
+      "score": "4/10",
+      "role": "multi-file implementation",
+      "pros": ["131k context", "multi-file", "validation loop"],
+      "cons": ["very slow (66s avg)", "reasoning-only output", "loses focus"],
+      "provider": "Unknown"
+    },
+    "minimax/minimax-m2.5:free": {
+      "score": "4/10",
+      "role": "validation/analysis",
+      "pros": ["204k context", "validation loop", "stays focused"],
+      "cons": ["partial rate limiting", "weak multi-file"],
+      "provider": "OpenInference"
+    }
+  },
+  "_rate_limited": {
+    "_comment": "These models returned 429 on every request during testing. Likely need BYOK.",
+    "qwen/qwen3-coder:free": {"provider": "Venice", "retry_after": "6-12s"},
+    "qwen/qwen3-next-80b-a3b-instruct:free": {"provider": "Venice", "retry_after": "14-25s"},
+    "meta-llama/llama-3.3-70b-instruct:free": {"provider": "Venice", "retry_after": "14-25s"},
+    "nousresearch/hermes-3-llama-3.1-405b:free": {"provider": "Venice", "retry_after": "2-30s"},
+    "google/gemma-4-26b-a4b-it:free": {"provider": "Google AI Studio", "retry_after": "5s"}
+  },
+  "_broken": {
+    "_comment": "These models returned null/garbage content on free tier.",
+    "deepseek/deepseek-v4-flash:free": {"issue": "Returns null content with garbled reasoning", "provider": "Crucible"},
+    "tencent/hy3-preview": {"issue": "Reasoning-only - content field always empty", "provider": "Tencent"}
+  }
+}

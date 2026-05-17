@@ -1,6 +1,6 @@
 """Extended glucose API endpoints - sync and meal linking."""
 
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Dict, List
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -52,7 +52,7 @@ async def sync_dexcom(
         )
 
         # Update last sync timestamp
-        user.last_glucose_sync = datetime.utcnow()
+        user.last_glucose_sync = datetime.now(timezone.utc)
         await session.commit()
 
         return {
@@ -78,27 +78,27 @@ async def sync_nightscout(
     session: AsyncSession = Depends(get_db),
     user: User = Depends(require_active_user),
 ) -> Dict[str, Any]:
-    """Manually trigger Nightscout sync."""
+    """Manually trigger Nightscout sync using user's Nightscout configuration."""
     from app.config import get_settings
 
-    settings = get_settings()
-    ns_url = getattr(settings, "NIGHTSCOUT_URL", None)
+    ns_url = user.nightscout_url
+    ns_token = user.nightscout_api_token
 
     if not ns_url:
         raise HTTPException(
             status_code=400,
-            detail="Nightscout URL not configured",
+            detail="Nightscout not configured. Set up Nightscout in your profile first.",
         )
 
     try:
         nightscout = NightscoutService(
             base_url=ns_url,
-            api_token=getattr(settings, "NIGHTSCOUT_API_TOKEN", None),
+            api_token=ns_token,
         )
 
         new_readings = await nightscout.sync_recent_data(session, user)
 
-        user.last_glucose_sync = datetime.utcnow()
+        user.last_nightscout_sync = datetime.now(timezone.utc)
         await session.commit()
 
         return {

@@ -2,7 +2,7 @@
 
 from datetime import datetime
 
-from pydantic import BaseModel, ConfigDict, EmailStr, Field
+from pydantic import BaseModel, ConfigDict, EmailStr, Field, model_validator
 
 
 class UserBase(BaseModel):
@@ -40,10 +40,20 @@ class UserResponse(UserBase):
     created_at: datetime = Field(..., description="Account creation timestamp")
     last_glucose_sync: datetime | None = Field(None, description="Last glucose sync timestamp")
     dexcom_connected: bool = Field(False, description="Whether Dexcom is connected")
+    first_name: str | None = Field(None, description="User first name")
+    last_name: str | None = Field(None, description="User last name")
 
     model_config = ConfigDict(
         from_attributes=True,
     )
+
+    @model_validator(mode='after')
+    def split_full_name(self):
+        if self.full_name and not self.first_name:
+            parts = self.full_name.split(' ', 1)
+            self.first_name = parts[0]
+            self.last_name = parts[1] if len(parts) > 1 else None
+        return self
 
 
 class UserLogin(BaseModel):
@@ -59,3 +69,12 @@ class Token(BaseModel):
     access_token: str = Field(..., description="JWT access token")
     token_type: str = Field("bearer", description="Token type")
     expires_in: int = Field(..., description="Token expiration time in seconds")
+
+
+class LoginResponse(BaseModel):
+    """Login response model — token + user data."""
+
+    access_token: str = Field(..., description="JWT access token")
+    token_type: str = Field("bearer", description="Token type")
+    expires_in: int = Field(..., description="Token expiration time in seconds")
+    user: UserResponse = Field(..., description="User profile")

@@ -6,6 +6,8 @@ from typing import List, Optional
 
 from app.sleep.models import SleepEntry, SleepStage
 from app.sleep.schemas import SleepEntryCreate, SleepStageCreate
+from app.metrics.types import MetricType
+from app.services.metric_writer import write_metric_if_present
 
 
 class SleepService:
@@ -17,6 +19,12 @@ class SleepService:
         self.db.add(entry)
         await self.db.flush()
         await self.db.refresh(entry)
+        await write_metric_if_present(self.db, user_id, MetricType.SLEEP_HOURS, (entry.duration_minutes / 60) if entry.duration_minutes else None, "hours", entry.start_time, entry.source)
+        await write_metric_if_present(self.db, user_id, MetricType.SLEEP_SCORE, entry.quality_score, "score", entry.start_time, entry.source)
+        await write_metric_if_present(self.db, user_id, MetricType.SLEEP_DEEP, entry.deep_minutes, "minutes", entry.start_time, entry.source)
+        await write_metric_if_present(self.db, user_id, MetricType.SLEEP_LIGHT, entry.light_minutes, "minutes", entry.start_time, entry.source)
+        await write_metric_if_present(self.db, user_id, MetricType.SLEEP_REM, entry.rem_minutes, "minutes", entry.start_time, entry.source)
+        await write_metric_if_present(self.db, user_id, MetricType.SLEEP_AWAKE, entry.awake_minutes, "minutes", entry.start_time, entry.source)
         return entry
 
     async def get_entry(self, user_id: int, entry_id: int) -> Optional[SleepEntry]:

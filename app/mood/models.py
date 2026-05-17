@@ -29,7 +29,6 @@ class MoodEntry(Base):
     user: Mapped["User"] = relationship(back_populates="mood_entries")
 
     __table_args__ = (
-        Index("ix_mood_entries_user_id", "user_id"),
         Index("ix_mood_entries_logged_at", "logged_at"),
         Index("ix_mood_entries_user_score", "user_id", "score"),
     )

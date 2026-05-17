@@ -1,103 +1,106 @@
-"""USDA FoodData Central food database integration.
+"""USDA FoodData Central API client.
 
-Provides search capabilities against the USDA FoodData Central API.
+US government nutrition database.
+API docs: https://fdc.nal.usda.gov/api-guide.html
+Requires free API key from: https://fdc.nal.usda.gov/api-key-signup.html
 """
 
-from typing import Optional
+from __future__ import annotations
+
+import logging
+from typing import Any, Dict, List, Optional
 
 import httpx
+from pydantic import BaseModel, Field
 
-from app.food.schemas import FoodCreate
+logger = logging.getLogger(__name__)
+
+USDA_BASE_URL = "https://api.nal.usda.gov/fdc/v1"
 
 
-class USDAProvider:
-    """Client for the USDA FoodData Central API.
+class USDAFoodItem(BaseModel):
+    """Parsed USDA food item."""
+    
+    name: str = Field(..., description="Food description")
+    brand: str | None = Field(None, description="Brand owner")
+    fdc_id: int = Field(..., description="USDA FDC ID")
+    carbs_per_100g: float | None = Field(None, description="Carbohydrates per 100g")
+    protein_per_100g: float | None = Field(None, description="Protein per 100g")
+    fat_per_100g: float | None = Field(None, description="Fat per 100g")
+    calories_per_100g: float | None = Field(None, description="Calories per 100g (kcal)")
+    serving_size: float | None = Field(None, description="Serving size in grams")
+    serving_unit: str | None = Field(None, description="Serving unit")
+    food_category: str | None = Field(None, description="Food category")
 
-    Searches the USDA food database by name. Requires an API key from
-    https://fdc.nal.usda.gov/api-key-signup.html
-    The "DEMO_KEY" is rate-limited to 1 request/second.
-    """
 
-    SEARCH_URL = "https://api.nal.usda.gov/fdc/v1/foods/search"
-
-    # Mapping of USDA nutrient names to our field names
-    NUTRIENT_MAP: dict[str, str] = {
-        "Carbohydrates, by difference": "carbs",
-        "Carbohydrate, by difference": "carbs",
-        "Protein": "protein",
-        "Total lipid (fat)": "fat",
-        "Total fat": "fat",
-        "Energy": "calories",
-        "Fiber, total dietary": "fiber",
-        "Fiber": "fiber",
-        "Sugars, total including NLEA": "sugars",
-        "Total Sugars": "sugars",
-        "Sodium, Na": "sodium",
-    }
-
-    def __init__(self, api_key: str = "DEMO_KEY", timeout: float = 15.0):
-        self.api_key = api_key
-        self.timeout = timeout
-
-    async def search_usda(self, query: str, page_size: int = 10) -> list[FoodCreate]:
-        """Search USDA food database by name.
-
+class USDAClient:
+    """Client for USDA FoodData Central API."""
+    
+    def __init__(self, api_key: str | None = None):
+        from app.config import get_settings
+        self.api_key = api_key or get_settings().usda_api_key
+    
+    async def search_by_name(
+        self,
+        query: str,
+        page_size: int = 10,
+    ) -> List[USDAFoodItem]:
+        """Search for foods by name.
+        
         Args:
-            query: Search term.
-            page_size: Maximum results per page.
-
+            query: Search term (e.g., "chicken breast", "brown rice")
+            page_size: Number of results to return
+            
         Returns:
-            List of FoodCreate objects.
+            List of parsed food items
         """
-        async with httpx.AsyncClient(timeout=self.timeout) as client:
-            response = await client.get(
-                self.SEARCH_URL,
-                params={
-                    "query": query,
-                    "api_key": self.api_key,
-                    "pageSize": page_size,
-                    "dataType": ["Foundation", "SR Legacy", "Branded"],
-                },
-            )
-            response.raise_for_status()
-            data = response.json()
-
-        foods = data.get("foods", [])
-        results = []
-        for food in foods:
-            parsed = self._parse_food(food)
-            if parsed is not None:
-                results.append(parsed)
-        return results
-
-    def _parse_food(self, food: dict) -> Optional[FoodCreate]:
-        """Parse a single USDA food item into FoodCreate."""
-        description = food.get("description")
-        if not description:
-            return None
-
-        nutrients: dict[str, float] = {}
-        for nutrient in food.get("foodNutrients", []):
-            name = nutrient.get("nutrientName") or nutrient.get("name", "")
-            value = nutrient.get("value")
-            for usda_name, our_field in self.NUTRIENT_MAP.items():
-                if usda_name.lower() in name.lower():
-                    if value is not None:
-                        nutrients[our_field] = float(value)
-                    break
-
-        return FoodCreate(
-            name=str(description)[:255],
-            brand_name=food.get("brandName") or food.get("brandOwner"),
-            barcode=str(food.get("fdcId", "")),
-            serving_size=100.0,
-            serving_unit="g",
-            calories=nutrients.get("calories"),
-            protein=nutrients.get("protein"),
-            carbs=nutrients.get("carbs"),
-            fat=nutrients.get("fat"),
-            fiber=nutrients.get("fiber"),
-            sugars=nutrients.get("sugars"),
-            sodium=nutrients.get("sodium"),
-            source="usda",
-        )
+        if not self.api_key:
+            logger.warning("USDA API key not configured")
+            return []
+        
+        url = f"{USDA_BASE_URL}/foods/search"
+        params = {
+            "query": query,
+            "pageSize": page_size,
+            "api_key": self.api_key,
+        }
+        
+        try:
+            async with httpx.AsyncClient(timeout=15.0) as client:
+                response = await client.get(url, params=params)
+                response.raise_for_status()
+                data = response.json()
+            
+            foods = data.get("foods", [])
+            results = []
+            
+            for item in foods:
+                try:
+                    # Extract nutrients
+                    nutrients = {n["nutrientName"]: n["value"] for n in item.get("foodNutrients", [])}
+                    
+                    food = USDAFoodItem(
+                        name=item.get("description", "Unknown"),
+                        brand=item.get("brandOwner", None),
+                        fdc_id=item.get("fdcId", 0),
+                        carbs_per_100g=nutrients.get("Carbohydrate, by difference"),
+                        protein_per_100g=nutrients.get("Protein"),
+                        fat_per_100g=nutrients.get("Total lipid (fat)"),
+                        calories_per_100g=nutrients.get("Energy"),
+                        serving_size=item.get("servingSize"),
+                        serving_unit=item.get("servingSizeUnit"),
+                        food_category=item.get("foodCategory", None),
+                    )
+                    results.append(food)
+                except Exception as e:
+                    logger.debug(f"Skipping malformed USDA food item: {e}")
+                    continue
+            
+            return results
+            
+        except httpx.HTTPStatusError as e:
+            logger.error(f"USDA search failed: {e}")
+            return []
+        except Exception as e:
+            logger.error(f"USDA error: {e}")
+            return []

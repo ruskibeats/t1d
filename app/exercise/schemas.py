@@ -3,7 +3,7 @@
 from datetime import datetime
 from typing import Any, Optional, List
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 
 class ExerciseEntryCreate(BaseModel):
@@ -31,8 +31,7 @@ class ExerciseEntryResponse(BaseModel):
     created_at: datetime
     updated_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class ExerciseEntrySetCreate(BaseModel):
@@ -52,12 +51,10 @@ class ExerciseEntrySetResponse(BaseModel):
     distance: Optional[float]
     duration_seconds: Optional[int]
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class ExerciseEntryWithSets(ExerciseEntryResponse):
     sets: List[ExerciseEntrySetResponse] = []
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)

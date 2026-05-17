@@ -30,6 +30,14 @@ from app.measurements.models import CustomMeasurement  # noqa: F401
 from app.fasting.models import FastingEntry  # noqa: F401
 from app.mood.models import MoodEntry  # noqa: F401
 from app.water.models import WaterEntry  # noqa: F401
+from app.environment.models import EnvironmentEntry  # noqa: F401
+from app.heart.models import HeartRateEntry  # noqa: F401
+from app.blood_pressure.models import BloodPressureEntry  # noqa: F401
+from app.activity.models import ActivityEntry  # noqa: F401
+from app.vitals.models import VitalEntry  # noqa: F401
+from app.body_composition.models import BodyCompositionEntry  # noqa: F401
+from app.lifestyle.models import LifestyleEntry  # noqa: F401
+from app.body_battery.models import BodyBatteryEntry  # noqa: F401
 
 
 class User(Base):
@@ -153,6 +161,70 @@ class User(Base):
         lazy="selectin",
     )
 
+    # Environment domain
+    environment_entries: Mapped[list["EnvironmentEntry"]] = relationship(
+        "EnvironmentEntry",
+        back_populates="user",
+        cascade="all, delete-orphan",
+        lazy="selectin",
+    )
+
+    # Heart rate domain
+    heart_rate_entries: Mapped[list["HeartRateEntry"]] = relationship(
+        "HeartRateEntry",
+        back_populates="user",
+        cascade="all, delete-orphan",
+        lazy="selectin",
+    )
+
+    # Blood pressure domain
+    blood_pressure_entries: Mapped[list["BloodPressureEntry"]] = relationship(
+        "BloodPressureEntry",
+        back_populates="user",
+        cascade="all, delete-orphan",
+        lazy="selectin",
+    )
+
+    # Activity domain
+    activity_entries: Mapped[list["ActivityEntry"]] = relationship(
+        "ActivityEntry",
+        back_populates="user",
+        cascade="all, delete-orphan",
+        lazy="selectin",
+    )
+
+    # Vitals domain
+    vital_entries: Mapped[list["VitalEntry"]] = relationship(
+        "VitalEntry",
+        back_populates="user",
+        cascade="all, delete-orphan",
+        lazy="selectin",
+    )
+
+    # Body composition domain
+    body_composition_entries: Mapped[list["BodyCompositionEntry"]] = relationship(
+        "BodyCompositionEntry",
+        back_populates="user",
+        cascade="all, delete-orphan",
+        lazy="selectin",
+    )
+
+    # Lifestyle domain
+    lifestyle_entries: Mapped[list["LifestyleEntry"]] = relationship(
+        "LifestyleEntry",
+        back_populates="user",
+        cascade="all, delete-orphan",
+        lazy="selectin",
+    )
+
+    # Body battery domain
+    body_battery_entries: Mapped[list["BodyBatteryEntry"]] = relationship(
+        "BodyBatteryEntry",
+        back_populates="user",
+        cascade="all, delete-orphan",
+        lazy="selectin",
+    )
+
     # Metadata
     created_at: Mapped[datetime] = Column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at: Mapped[datetime] = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
@@ -162,6 +234,12 @@ class User(Base):
     dexcom_access_token: Mapped[str | None] = Column(String(2048), nullable=True)
     dexcom_refresh_token: Mapped[str | None] = Column(String(2048), nullable=True)
     dexcom_expires_at: Mapped[datetime | None] = Column(DateTime, nullable=True)
+
+    # Nightscout configuration
+    nightscout_url: Mapped[str | None] = Column(String(512), nullable=True)
+    nightscout_api_token: Mapped[str | None] = Column(String(255), nullable=True)
+    nightscout_connected: Mapped[bool] = Column(Boolean, default=False, nullable=False)
+    last_nightscout_sync: Mapped[datetime | None] = Column(DateTime, nullable=True)
 
     # Indexes
     __table_args__ = (

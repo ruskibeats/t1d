@@ -41,9 +41,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = async (email: string, password: string) => {
     try {
-      const response = await axios.post('/auth/login-with-email', { email, password })
+      const params = new URLSearchParams()
+      params.append('username', email)
+      params.append('password', password)
+      const response = await axios.post('/auth/login', params, {
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      })
       const { access_token, user: userData } = response.data
-      const nextUser = userData ?? { id: 1, email }
+      const nextUser = userData ?? { id: 1, email, first_name: '', last_name: '' }
 
       localStorage.setItem('t1d_token', access_token)
       localStorage.setItem('t1d_user', JSON.stringify(nextUser))

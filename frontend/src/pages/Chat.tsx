@@ -45,6 +45,8 @@ export function ChatPage() {
   ])
   const [input, setInput] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const [conversations, setConversations] = useState<any[]>([])
+  const [activeConversationId, setActiveConversationId] = useState<number | undefined>(undefined)
   const [showPredictor, setShowPredictor] = useState(false)
   const [predictGlucose, setPredictGlucose] = useState(120)
   const [predictCarbs, setPredictCarbs] = useState(45)
@@ -57,6 +59,26 @@ export function ChatPage() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
 
+  useEffect(() => {
+    axios.get('/api/v1/conversations').then((res) => setConversations(res.data ?? [])).catch(() => undefined)
+  }, [])
+
+  const loadConversation = async (conversationId: number) => {
+    const res = await axios.get(`/api/v1/conversations/${conversationId}/messages`)
+    setActiveConversationId(conversationId)
+    setMessages((res.data ?? []).map((m: any) => ({
+      id: m.id,
+      role: m.role,
+      content: m.content,
+      timestamp: m.timestamp,
+    })))
+  }
+
+  const refreshConversations = async () => {
+    const res = await axios.get('/api/v1/conversations')
+    setConversations(res.data ?? [])
+  }
+
   const handleSend = async () => {
     if (!input.trim() || isLoading) return
 
@@ -67,16 +89,46 @@ export function ChatPage() {
     setIsLoading(true)
 
     try {
-      const response = await axios.post('/api/v1/chat', {
-        message: outgoing,
-        conversation_id: undefined,
-        context_type: 'recent',
-        include_patterns: true,
-        include_glucose_data: true,
-        stream: false,
-      })
+      const assistantId = Date.now() + 1
+      setMessages(prev => [...prev, { id: assistantId, role: 'assistant', content: '', timestamp: new Date().toISOString() }])
 
-      setMessages(prev => [...prev, { id: Date.now() + 1, role: 'assistant', content: response.data.response, timestamp: new Date().toISOString() }])
+      const token = localStorage.getItem('token') || localStorage.getItem('access_token')
+      const response = await fetch('/api/v1/chat/stream', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({
+          message: outgoing,
+          conversation_id: activeConversationId,
+          context_type: 'recent',
+          include_patterns: true,
+          include_glucose_data: true,
+          stream: true,
+        }),
+      })
+      if (!response.ok || !response.body) throw new Error('stream failed')
+      const reader = response.body.getReader()
+      const decoder = new TextDecoder()
+      let buffer = ''
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+        buffer += decoder.decode(value, { stream: true })
+        const events = buffer.split('\n\n')
+        buffer = events.pop() ?? ''
+        for (const event of events) {
+          const line = event.split('\n').find((l) => l.startsWith('data: '))
+          if (!line) continue
+          const payload = JSON.parse(line.slice(6))
+          if (payload.conversation_id && !activeConversationId) setActiveConversationId(payload.conversation_id)
+          if (payload.chunk) {
+            setMessages(prev => prev.map(m => m.id === assistantId ? { ...m, content: m.content + payload.chunk } : m))
+          }
+        }
+      }
+      await refreshConversations()
     } catch (error) {
       setMessages(prev => [...prev, {
         id: Date.now() + 1,
@@ -115,12 +167,17 @@ export function ChatPage() {
       </section>
 
       <Card className="mx-auto flex h-[680px] max-w-5xl flex-col overflow-hidden">
-        <div className="flex items-center justify-between border-b border-[oklch(0.89_0.018_250)] p-5">
+        <div className="flex items-center justify-between gap-4 border-b border-[oklch(0.89_0.018_250)] p-5">
           <div className="flex items-center gap-3">
             <div className="grid h-11 w-11 place-items-center rounded-2xl bg-[oklch(0.94_0.035_255)] text-[oklch(0.42_0.13_255)]"><Brain className="h-5 w-5" /></div>
             <div><h2 className="font-black tracking-[-0.03em]">AI companion</h2><p className="text-sm font-semibold text-[oklch(0.48_0.035_255)]">Pattern-aware chat</p></div>
           </div>
-          <span className="chip">v0.1.0</span>
+          <div className="flex max-w-sm gap-2 overflow-x-auto">
+            <button className="chip" onClick={() => { setActiveConversationId(undefined); setMessages([{ id: 1, role: 'assistant', content: 'I can help explain patterns in your CGM and event timeline. I will keep this educational and will not suggest dosing changes.', timestamp: new Date().toISOString() }]) }}>New</button>
+            {conversations.slice(0, 5).map((conversation) => (
+              <button key={conversation.id} className="chip max-w-[140px] truncate" onClick={() => loadConversation(conversation.id)}>{conversation.title || `Chat ${conversation.id}`}</button>
+            ))}
+          </div>
         </div>
 
         <div className="flex-1 space-y-5 overflow-y-auto p-5">

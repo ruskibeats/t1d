@@ -13,6 +13,30 @@ from sqlalchemy.ext.asyncio import (
 
 from app.config import get_settings
 
+# Apply SQLite compatibility patches for PostgreSQL types
+import sqlalchemy.dialects.postgresql.json as pg_json
+from sqlalchemy import types as sa_types
+
+class JSONBCompat(sa_types.JSON):
+    __visit_name__ = 'JSONB'
+
+pg_json.JSONB = JSONBCompat
+sa_types.JSONB = JSONBCompat
+
+from sqlalchemy.dialects.sqlite.base import SQLiteTypeCompiler
+
+def _visit_jsonb(self, type_, **kw):
+    return self.visit_JSON(type_, **kw)
+SQLiteTypeCompiler.visit_JSONB = _visit_jsonb
+
+def _visit_enum(self, type_, **kw):
+    return self.visit_VARCHAR(type_, **kw)
+SQLiteTypeCompiler.visit_enum = _visit_enum
+
+def _visit_biginteger(self, type_, **kw):
+    return self.visit_INTEGER(type_, **kw)
+SQLiteTypeCompiler.visit_BigInteger = _visit_biginteger
+
 
 class DatabaseManager:
     """Manages database engine and sessions."""
@@ -117,19 +141,36 @@ async def init_db() -> None:
 
     # Create tables if they don't exist
     async with db_manager.engine.begin() as conn:
-        # Check if tables exist
-        result = await conn.execute(text("""
-            SELECT EXISTS (
-                SELECT FROM information_schema.tables 
-                WHERE table_schema = 'public' 
-                AND table_name = 'tbl_users'
-            )
-        """))
-        tables_exist = result.scalar()
+        # Check if tables exist (SQLite-compatible)
+        if settings.database_url.startswith("sqlite"):
+            result = await conn.execute(text(
+                "SELECT name FROM sqlite_master WHERE type='table' AND name='tbl_users'"
+            ))
+            tables_exist = result.scalar() is not None
+        else:
+            result = await conn.execute(text("""
+                SELECT EXISTS (
+                    SELECT FROM information_schema.tables 
+                    WHERE table_schema = 'public' 
+                    AND table_name = 'tbl_users'
+                )
+            """))
+            tables_exist = result.scalar()
 
         if not tables_exist:
             print("Creating database tables...")
-            await conn.run_sync(Base.metadata.create_all)
+            # Create tables one at a time to handle duplicate index errors in SQLite
+            # (some models define both index=True AND explicit Index() with same name)
+            if settings.database_url.startswith("sqlite"):
+                for table in Base.metadata.sorted_tables:
+                    try:
+                        await conn.run_sync(table.create, checkfirst=True)
+                    except Exception as e:
+                        if "already exists" in str(e):
+                            continue
+                        raise
+            else:
+                await conn.run_sync(Base.metadata.create_all)
             print("Database tables created.")
         else:
             print("Database tables already exist.")
@@ -140,34 +181,29 @@ async def init_db() -> None:
 
 async def run_migrations() -> None:
     """Run pending Alembic migrations."""
+    from app.config import get_settings
+    settings = get_settings()
+    # Skip Alembic for SQLite (tables created via create_all)
+    if settings.database_url.startswith("sqlite"):
+        print("SQLite: skipping Alembic migrations.")
+        return
     try:
-
         from alembic.config import Config
-
         from alembic import command
-
         alembic_cfg = Config("alembic.ini")
-
-        # Get current revision
         from alembic.script import ScriptDirectory
         script = ScriptDirectory.from_config(alembic_cfg)
-
-        # Get database revision
         from sqlalchemy import text
         async with db_manager.engine.begin() as conn:
             result = await conn.execute(text("SELECT version_num FROM alembic_version"))
             db_revision = result.scalar()
-
-        # Get head revision
         head_revision = script.get_current_head()
-
         if db_revision != head_revision:
             print(f"Migrating from {db_revision} to {head_revision}...")
             command.upgrade(alembic_cfg, "head")
             print("Migrations applied.")
         else:
             print("Database is up to date.")
-
     except Exception as e:
         print(f"Note: Alembic migrations check skipped: {e}")
 

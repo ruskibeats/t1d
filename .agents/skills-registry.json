@@ -1,7 +1,7 @@
 {
   "version": "2.0.0",
   "description": "Lazy-loadable skills registry for T1D Companion AI agents. Skills are loaded on-demand only when needed, reducing initial context window bloat.",
-  "lastUpdated": "2026-05-16",
+  "lastUpdated": "2026-05-17",
   "skills": {
     "impeccable": {
       "name": "impeccable",
@@ -47,7 +47,8 @@
         "polish",
         "refine",
         "professional-polish"
-      ]
+      ],
+      "path": ".agents/skills/impeccable/SKILL.md"
     },
     "design-taste-frontend": {
       "name": "design-taste-frontend",
@@ -81,7 +82,8 @@
         "design-taste",
         "taste-check",
         "design-feedback"
-      ]
+      ],
+      "path": ".agents/skills/design-taste-frontend/SKILL.md"
     },
     "minimalist-ui": {
       "name": "minimalist-ui",
@@ -127,7 +129,8 @@
         "simple-ui",
         "medical-ui",
         "health-ui"
-      ]
+      ],
+      "path": ".agents/skills/minimalist-ui/SKILL.md"
     },
     "industrial-brutalist-ui": {
       "name": "industrial-brutalist-ui",
@@ -171,7 +174,8 @@
         "brutalist",
         "data-dashboard",
         "heavy-dashboard"
-      ]
+      ],
+      "path": ".agents/skills/industrial-brutalist-ui/SKILL.md"
     },
     "brandkit": {
       "name": "brandkit",
@@ -207,7 +211,8 @@
         "design-system",
         "brand-system",
         "tokens"
-      ]
+      ],
+      "path": ".agents/skills/brandkit/SKILL.md"
     },
     "high-end-visual-design": {
       "name": "high-end-visual-design",
@@ -241,7 +246,8 @@
         "high-end",
         "luxury",
         "premium-design"
-      ]
+      ],
+      "path": ".agents/skills/high-end-visual-design/SKILL.md"
     },
     "redesign-existing-projects": {
       "name": "redesign-existing-projects",
@@ -275,12 +281,13 @@
         "redesign",
         "modernize",
         "upgrade-ui"
-      ]
+      ],
+      "path": ".agents/skills/redesign-existing-projects/SKILL.md"
     },
     "stitch-design-taste": {
       "name": "stitch-design-taste",
       "title": "Semantic Design System Integration",
-      "description": "Semantic Design System Skill for integrating multiple design approaches. Generates agent-friendly DESIGN.md files that enforce premium, anti-generic UI standards \u2014 strict typography, calibrated color, asymmetric layouts, perpetual micro-motion, hardware-accelerated performance.",
+      "description": "Semantic Design System Skill for integrating multiple design approaches. Generates agent-friendly DESIGN.md files that enforce premium, anti-generic UI standards — strict typography, calibrated color, asymmetric layouts, perpetual micro-motion, hardware-accelerated performance.",
       "category": "design",
       "subcategory": "integration",
       "priority": "low",
@@ -309,7 +316,8 @@
         "stitch",
         "merge-design",
         "integrate-styles"
-      ]
+      ],
+      "path": ".agents/skills/stitch-design-taste/SKILL.md"
     },
     "image-to-code": {
       "name": "image-to-code",
@@ -344,7 +352,8 @@
         "screenshot-to-code",
         "mockup-to-code",
         "design-to-code"
-      ]
+      ],
+      "path": ".agents/skills/image-to-code/SKILL.md"
     },
     "imagegen-frontend-web": {
       "name": "imagegen-frontend-web",
@@ -377,7 +386,8 @@
         "web-images",
         "landing-page-images",
         "website-mockup"
-      ]
+      ],
+      "path": ".agents/skills/imagegen-frontend-web/SKILL.md"
     },
     "imagegen-frontend-mobile": {
       "name": "imagegen-frontend-mobile",
@@ -411,7 +421,8 @@
         "mobile-images",
         "app-screens",
         "phone-mockup"
-      ]
+      ],
+      "path": ".agents/skills/imagegen-frontend-mobile/SKILL.md"
     },
     "gpt-taste": {
       "name": "gpt-taste",
@@ -446,7 +457,8 @@
         "advanced-motion",
         "gsap",
         "editorial-layout"
-      ]
+      ],
+      "path": ".agents/skills/gpt-taste/SKILL.md"
     },
     "full-output-enforcement": {
       "name": "full-output-enforcement",
@@ -491,7 +503,8 @@
         "complete-code",
         "no-placeholders",
         "full-implementation"
-      ]
+      ],
+      "path": ".agents/skills/full-output-enforcement/SKILL.md"
     },
     "improve-codebase-architecture": {
       "name": "improve-codebase-architecture",
@@ -500,15 +513,32 @@
       "category": "engineering",
       "subcategory": "architecture",
       "priority": "high",
-      "file": "improve-codebase-architecture/SKILL.md",
+      "file": "engineering/improve-codebase-architecture/SKILL.md",
       "size": "large",
       "tokenEstimate": 1500,
-      "triggers": ["refactor", "architecture", "deepen", "module boundary", "tight coupling"],
-      "intentPatterns": ["improve.*architecture", "refactor.*codebase", "deepen.*module"],
+      "triggers": [
+        "refactor",
+        "architecture",
+        "deepen",
+        "module boundary",
+        "tight coupling"
+      ],
+      "intentPatterns": [
+        "improve.*architecture",
+        "refactor.*codebase",
+        "deepen.*module"
+      ],
       "recommended": true,
-      "examples": ["Refactor the data-ingestion pipeline", "Improve agent codebase architecture"],
+      "examples": [
+        "Refactor the data-ingestion pipeline",
+        "Improve agent codebase architecture"
+      ],
       "useWhen": "Reviewing codebase architecture and finding refactoring opportunities",
-      "aliases": ["improve-architecture", "refactor-codebase"]
+      "aliases": [
+        "improve-architecture",
+        "refactor-codebase"
+      ],
+      "path": ".agents/skills/engineering/improve-codebase-architecture/SKILL.md"
     },
     "prototype": {
       "name": "prototype",
@@ -517,15 +547,31 @@
       "category": "engineering",
       "subcategory": "prototyping",
       "priority": "high",
-      "file": "prototype/SKILL.md",
+      "file": "engineering/prototype/SKILL.md",
       "size": "medium",
       "tokenEstimate": 900,
-      "triggers": ["prototype", "throwaway", "mock up", "explore design"],
-      "intentPatterns": ["prototype.*this", "try.*design.*option", "sanity.*check.*model"],
+      "triggers": [
+        "prototype",
+        "throwaway",
+        "mock up",
+        "explore design"
+      ],
+      "intentPatterns": [
+        "prototype.*this",
+        "try.*design.*option",
+        "sanity.*check.*model"
+      ],
       "recommended": true,
-      "examples": ["Prototype a glucose trend visualization", "Mock up the meal-log interface"],
+      "examples": [
+        "Prototype a glucose trend visualization",
+        "Mock up the meal-log interface"
+      ],
       "useWhen": "Exploring design options or validating state models before committing to code",
-      "aliases": ["prototype", "throwaway-prototype"]
+      "aliases": [
+        "prototype",
+        "throwaway-prototype"
+      ],
+      "path": ".agents/skills/engineering/prototype/SKILL.md"
     },
     "tdd": {
       "name": "tdd",
@@ -534,15 +580,33 @@
       "category": "engineering",
       "subcategory": "testing",
       "priority": "high",
-      "file": "tdd/SKILL.md",
+      "file": "engineering/tdd/SKILL.md",
       "size": "large",
       "tokenEstimate": 1400,
-      "triggers": ["tdd", "test-first", "red-green", "unit test", "test coverage"],
-      "intentPatterns": ["test.*first", "red.*green.*refactor", "tdd.*loop"],
+      "triggers": [
+        "tdd",
+        "test-first",
+        "red-green",
+        "unit test",
+        "test coverage"
+      ],
+      "intentPatterns": [
+        "test.*first",
+        "red.*green.*refactor",
+        "tdd.*loop"
+      ],
       "recommended": true,
-      "examples": ["Build the pattern detection module using TDD", "Add test coverage for the SafetyAgent"],
+      "examples": [
+        "Build the pattern detection module using TDD",
+        "Add test coverage for the SafetyAgent"
+      ],
       "useWhen": "Building features or fixing bugs using test-first development",
-      "aliases": ["tdd", "test-first", "red-green-refactor"]
+      "aliases": [
+        "tdd",
+        "test-first",
+        "red-green-refactor"
+      ],
+      "path": ".agents/skills/engineering/tdd/SKILL.md"
     },
     "triage": {
       "name": "triage",
@@ -551,15 +615,30 @@
       "category": "engineering",
       "subcategory": "workflow",
       "priority": "medium",
-      "file": "triage/SKILL.md",
+      "file": "engineering/triage/SKILL.md",
       "size": "medium",
       "tokenEstimate": 800,
-      "triggers": ["triage", "issue", "bug report", "feature request"],
-      "intentPatterns": ["triage.*issue", "create.*issue", "manage.*bug"],
+      "triggers": [
+        "triage",
+        "issue",
+        "bug report",
+        "feature request"
+      ],
+      "intentPatterns": [
+        "triage.*issue",
+        "create.*issue",
+        "manage.*bug"
+      ],
       "recommended": false,
-      "examples": ["Triage the open issues for this sprint"],
+      "examples": [
+        "Triage the open issues for this sprint"
+      ],
       "useWhen": "Managing incoming bugs, feature requests, and issue workflow",
-      "aliases": ["triage", "issue-triage"]
+      "aliases": [
+        "triage",
+        "issue-triage"
+      ],
+      "path": ".agents/skills/engineering/triage/SKILL.md"
     },
     "diagnose": {
       "name": "diagnose",
@@ -568,15 +647,34 @@
       "category": "engineering",
       "subcategory": "debugging",
       "priority": "high",
-      "file": "diagnose/SKILL.md",
+      "file": "engineering/diagnose/SKILL.md",
       "size": "medium",
       "tokenEstimate": 950,
-      "triggers": ["diagnose", "debug", "bug", "broken", "throw", "performance regression"],
-      "intentPatterns": ["diagnose.*", "debug.*bug", "fix.*performance"],
+      "triggers": [
+        "diagnose",
+        "debug",
+        "bug",
+        "broken",
+        "throw",
+        "performance regression"
+      ],
+      "intentPatterns": [
+        "diagnose.*",
+        "debug.*bug",
+        "fix.*performance"
+      ],
       "recommended": true,
-      "examples": ["Diagnose the slow glucose data ingestion", "Debug the pattern detection false positives"],
+      "examples": [
+        "Diagnose the slow glucose data ingestion",
+        "Debug the pattern detection false positives"
+      ],
       "useWhen": "Fixing hard bugs or performance regressions in a disciplined way",
-      "aliases": ["diagnose", "debug-bug", "fix-bug"]
+      "aliases": [
+        "diagnose",
+        "debug-bug",
+        "fix-bug"
+      ],
+      "path": ".agents/skills/engineering/diagnose/SKILL.md"
     },
     "to-prd": {
       "name": "to-prd",
@@ -585,15 +683,30 @@
       "category": "engineering",
       "subcategory": "documentation",
       "priority": "medium",
-      "file": "to-prd/SKILL.md",
+      "file": "engineering/to-prd/SKILL.md",
       "size": "small",
       "tokenEstimate": 500,
-      "triggers": ["PRD", "requirements", "product spec", "feature doc"],
-      "intentPatterns": ["create.*PRD", "write.*requirements", "document.*feature"],
+      "triggers": [
+        "PRD",
+        "requirements",
+        "product spec",
+        "feature doc"
+      ],
+      "intentPatterns": [
+        "create.*PRD",
+        "write.*requirements",
+        "document.*feature"
+      ],
       "recommended": false,
-      "examples": ["Turn the chat about meal tracking into a PRD"],
+      "examples": [
+        "Turn the chat about meal tracking into a PRD"
+      ],
       "useWhen": "Creating a formal Product Requirements Document from conversation",
-      "aliases": ["to-prd", "prd-generator"]
+      "aliases": [
+        "to-prd",
+        "prd-generator"
+      ],
+      "path": ".agents/skills/engineering/to-prd/SKILL.md"
     },
     "zoom-out": {
       "name": "zoom-out",
@@ -602,15 +715,30 @@
       "category": "engineering",
       "subcategory": "exploration",
       "priority": "medium",
-      "file": "zoom-out/SKILL.md",
+      "file": "engineering/zoom-out/SKILL.md",
       "size": "small",
       "tokenEstimate": 400,
-      "triggers": ["zoom out", "overview", "big picture", "how does this fit"],
-      "intentPatterns": ["zoom.*out", "broader.*context", "overview.*codebase"],
+      "triggers": [
+        "zoom out",
+        "overview",
+        "big picture",
+        "how does this fit"
+      ],
+      "intentPatterns": [
+        "zoom.*out",
+        "broader.*context",
+        "overview.*codebase"
+      ],
       "recommended": false,
-      "examples": ["Zoom out and explain how the DataIngestionAgent fits in"],
+      "examples": [
+        "Zoom out and explain how the DataIngestionAgent fits in"
+      ],
       "useWhen": "Needing a high-level perspective on unfamiliar code",
-      "aliases": ["zoom-out", "big-picture"]
+      "aliases": [
+        "zoom-out",
+        "big-picture"
+      ],
+      "path": ".agents/skills/engineering/zoom-out/SKILL.md"
     },
     "grill-with-docs": {
       "name": "grill-with-docs",
@@ -619,15 +747,30 @@
       "category": "engineering",
       "subcategory": "design",
       "priority": "high",
-      "file": "grill-with-docs/SKILL.md",
+      "file": "engineering/grill-with-docs/SKILL.md",
       "size": "medium",
       "tokenEstimate": 1000,
-      "triggers": ["grill", "stress-test", "challenge plan", "documentation"],
-      "intentPatterns": ["stress.*test.*plan", "challenge.*design", "grill.*me"],
+      "triggers": [
+        "grill",
+        "stress-test",
+        "challenge plan",
+        "documentation"
+      ],
+      "intentPatterns": [
+        "stress.*test.*plan",
+        "challenge.*design",
+        "grill.*me"
+      ],
       "recommended": true,
-      "examples": ["Grill my plan for the new pattern analysis module"],
+      "examples": [
+        "Grill my plan for the new pattern analysis module"
+      ],
       "useWhen": "Stress-testing a plan against the project's documented decisions and domain language",
-      "aliases": ["grill-with-docs", "stress-test-plan"]
+      "aliases": [
+        "grill-with-docs",
+        "stress-test-plan"
+      ],
+      "path": ".agents/skills/engineering/grill-with-docs/SKILL.md"
     },
     "handoff": {
       "name": "handoff",
@@ -636,15 +779,30 @@
       "category": "productivity",
       "subcategory": "handoff",
       "priority": "high",
-      "file": "handoff/SKILL.md",
+      "file": "productivity/handoff/SKILL.md",
       "size": "small",
       "tokenEstimate": 400,
-      "triggers": ["handoff", "pass to", "agent context", "next agent"],
-      "intentPatterns": ["handoff.*to.*agent", "pass.*to.*another.*agent"],
+      "triggers": [
+        "handoff",
+        "pass to",
+        "agent context",
+        "next agent"
+      ],
+      "intentPatterns": [
+        "handoff.*to.*agent",
+        "pass.*to.*another.*agent"
+      ],
       "recommended": true,
-      "examples": ["Create a handoff for the SafetyAgent review"],
+      "examples": [
+        "Create a handoff for the SafetyAgent review"
+      ],
       "useWhen": "Passing conversation context or work-in-progress to another agent",
-      "aliases": ["handoff", "agent-handoff", "pass-context"]
+      "aliases": [
+        "handoff",
+        "agent-handoff",
+        "pass-context"
+      ],
+      "path": ".agents/skills/productivity/handoff/SKILL.md"
     },
     "write-a-skill": {
       "name": "write-a-skill",
@@ -653,15 +811,31 @@
       "category": "productivity",
       "subcategory": "skill-creation",
       "priority": "high",
-      "file": "write-a-skill/SKILL.md",
+      "file": "productivity/write-a-skill/SKILL.md",
       "size": "medium",
       "tokenEstimate": 700,
-      "triggers": ["write a skill", "create skill", "new skill", "agent skill"],
-      "intentPatterns": ["create.*skill", "write.*new.*skill", "build.*agent.*skill"],
+      "triggers": [
+        "write a skill",
+        "create skill",
+        "new skill",
+        "agent skill"
+      ],
+      "intentPatterns": [
+        "create.*skill",
+        "write.*new.*skill",
+        "build.*agent.*skill"
+      ],
       "recommended": true,
-      "examples": ["Write a skill for hypoglycemia pattern detection"],
+      "examples": [
+        "Write a skill for hypoglycemia pattern detection"
+      ],
       "useWhen": "Creating a new reusable skill for the agent system",
-      "aliases": ["write-skill", "create-skill", "new-skill"]
+      "aliases": [
+        "write-skill",
+        "create-skill",
+        "new-skill"
+      ],
+      "path": ".agents/skills/productivity/write-a-skill/SKILL.md"
     },
     "grill-me": {
       "name": "grill-me",
@@ -670,15 +844,30 @@
       "category": "productivity",
       "subcategory": "design",
       "priority": "medium",
-      "file": "grill-me/SKILL.md",
+      "file": "productivity/grill-me/SKILL.md",
       "size": "small",
       "tokenEstimate": 400,
-      "triggers": ["grill me", "interview me", "stress-test", "design review"],
-      "intentPatterns": ["grill.*me", "interview.*about.*plan", "stress.*test.*design"],
+      "triggers": [
+        "grill me",
+        "interview me",
+        "stress-test",
+        "design review"
+      ],
+      "intentPatterns": [
+        "grill.*me",
+        "interview.*about.*plan",
+        "stress.*test.*design"
+      ],
       "recommended": false,
-      "examples": ["Grill me on the new chat endpoint design"],
+      "examples": [
+        "Grill me on the new chat endpoint design"
+      ],
       "useWhen": "Stress-testing a plan or design through Socratic questioning",
-      "aliases": ["grill-me", "design-interview"]
+      "aliases": [
+        "grill-me",
+        "design-interview"
+      ],
+      "path": ".agents/skills/productivity/grill-me/SKILL.md"
     },
     "git-guardrails-claude-code": {
       "name": "git-guardrails-claude-code",
@@ -687,15 +876,31 @@
       "category": "misc",
       "subcategory": "git-safety",
       "priority": "high",
-      "file": "git-guardrails-claude-code/SKILL.md",
+      "file": "misc/git-guardrails-claude-code/SKILL.md",
       "size": "small",
       "tokenEstimate": 400,
-      "triggers": ["git guardrails", "git safety", "block git", "dangerous git"],
-      "intentPatterns": ["prevent.*git.*push", "block.*git.*command", "git.*safety"],
+      "triggers": [
+        "git guardrails",
+        "git safety",
+        "block git",
+        "dangerous git"
+      ],
+      "intentPatterns": [
+        "prevent.*git.*push",
+        "block.*git.*command",
+        "git.*safety"
+      ],
       "recommended": true,
-      "examples": ["Set up git guardrails in this repo"],
+      "examples": [
+        "Set up git guardrails in this repo"
+      ],
       "useWhen": "Protecting the repository from destructive git commands during agent sessions",
-      "aliases": ["git-guardrails", "git-safety", "block-git-destructive"]
+      "aliases": [
+        "git-guardrails",
+        "git-safety",
+        "block-git-destructive"
+      ],
+      "path": ".agents/skills/misc/git-guardrails-claude-code/SKILL.md"
     },
     "setup-pre-commit": {
       "name": "setup-pre-commit",
@@ -704,15 +909,31 @@
       "category": "misc",
       "subcategory": "tooling",
       "priority": "medium",
-      "file": "setup-pre-commit/SKILL.md",
+      "file": "misc/setup-pre-commit/SKILL.md",
       "size": "small",
       "tokenEstimate": 500,
-      "triggers": ["pre-commit", "husky", "lint-staged", "commit hooks"],
-      "intentPatterns": ["setup.*pre-commit", "configure.*husky", "add.*lint.*staged"],
+      "triggers": [
+        "pre-commit",
+        "husky",
+        "lint-staged",
+        "commit hooks"
+      ],
+      "intentPatterns": [
+        "setup.*pre-commit",
+        "configure.*husky",
+        "add.*lint.*staged"
+      ],
       "recommended": false,
-      "examples": ["Set up pre-commit hooks for formatting and type checking"],
+      "examples": [
+        "Set up pre-commit hooks for formatting and type checking"
+      ],
       "useWhen": "Adding commit-time formatting, type checking, and testing to a repo",
-      "aliases": ["pre-commit", "husky-setup", "lint-staged-setup"]
+      "aliases": [
+        "pre-commit",
+        "husky-setup",
+        "lint-staged-setup"
+      ],
+      "path": ".agents/skills/misc/setup-pre-commit/SKILL.md"
     },
     "scaffold-exercises": {
       "name": "scaffold-exercises",
@@ -721,83 +942,29 @@
       "category": "misc",
       "subcategory": "scaffolding",
       "priority": "low",
-      "file": "scaffold-exercises/SKILL.md",
+      "file": "misc/scaffold-exercises/SKILL.md",
       "size": "small",
       "tokenEstimate": 400,
-      "triggers": ["scaffold", "exercise", "course", "problem set"],
-      "intentPatterns": ["scaffold.*exercise", "create.*problem.*set"],
+      "triggers": [
+        "scaffold",
+        "exercise",
+        "course",
+        "problem set"
+      ],
+      "intentPatterns": [
+        "scaffold.*exercise",
+        "create.*problem.*set"
+      ],
       "recommended": false,
-      "examples": ["Scaffold exercises for the pattern detection module"],
+      "examples": [
+        "Scaffold exercises for the pattern detection module"
+      ],
       "useWhen": "Creating structured exercise or course material",
-      "aliases": ["scaffold-exercises", "course-scaffold"]
-    },
-    "design-an-interface": {
-      "name": "design-an-interface",
-      "title": "Design an Interface",
-      "description": "Generate multiple radically different interface designs for a module using parallel sub-agents. Based on 'Design It Twice' from A Philosophy of Software Design.",
-      "category": "deprecated",
-      "subcategory": "design",
-      "priority": "low",
-      "file": "design-an-interface/SKILL.md",
-      "size": "medium",
-      "tokenEstimate": 800,
-      "triggers": ["design interface", "design it twice", "compare designs", "module api"],
-      "intentPatterns": ["design.*interface", "explore.*design.*option", "compare.*module.*shape"],
-      "recommended": false,
-      "examples": ["Design two different API shapes for the ingestion module"],
-      "useWhen": "Exploring multiple interface designs for a module before committing",
-      "aliases": ["design-interface", "design-twice"]
-    },
-    "qa": {
-      "name": "qa",
-      "title": "QA Session",
-      "description": "Interactive QA session where user reports bugs or issues conversationally, and the agent files GitHub issues. Explores the codebase for context and domain language.",
-      "category": "deprecated",
-      "subcategory": "testing",
-      "priority": "low",
-      "file": "qa/SKILL.md",
-      "size": "large",
-      "tokenEstimate": 1100,
-      "triggers": ["qa", "bug report", "file issue", "quality assurance", "testing session"],
-      "intentPatterns": ["report.*bug", "qa.*session", "file.*issue.*conversational"],
-      "recommended": false,
-      "examples": ["Run a QA session for the new chat endpoint"],
-      "useWhen": "Reporting bugs and filing GitHub issues conversationally",
-      "aliases": ["qa-session", "bug-reporting"]
-    },
-    "request-refactor-plan": {
-      "name": "request-refactor-plan",
-      "title": "Request Refactor Plan",
-      "description": "Create a detailed refactor plan with tiny commits via user interview, then file it as a GitHub issue. Breaks refactors into safe incremental steps.",
-      "category": "deprecated",
-      "subcategory": "planning",
-      "priority": "low",
-      "file": "request-refactor-plan/SKILL.md",
-      "size": "medium",
-      "tokenEstimate": 600,
-      "triggers": ["refactor plan", "refactoring", "tiny commits", "incremental"],
-      "intentPatterns": ["plan.*refactor", "refactoring.*RFC", "break.*refactor.*steps"],
-      "recommended": false,
-      "examples": ["Plan the DataIngestionAgent refactor with incremental commits"],
-      "useWhen": "Planning a refactor with safe, incremental, testable steps",
-      "aliases": ["refactor-plan", "refactoring-rfc"]
-    },
-    "ubiquitous-language": {
-      "name": "ubiquitous-language",
-      "title": "Ubiquitous Language Glossary",
-      "description": "Extract a DDD-style ubiquitous language glossary from the current conversation, flagging ambiguities and proposing canonical terms.",
-      "category": "deprecated",
-      "subcategory": "documentation",
-      "priority": "low",
-      "file": "ubiquitous-language/SKILL.md",
-      "size": "medium",
-      "tokenEstimate": 800,
-      "triggers": ["ubiquitous language", "glossary", "domain terms", "terminology", "DDD"],
-      "intentPatterns": ["define.*domain.*term", "build.*glossary", "canonical.*terminology"],
-      "recommended": false,
-      "examples": ["Extract domain terms from the pattern analysis conversation"],
-      "useWhen": "Formalizing domain terminology into a consistent glossary",
-      "aliases": ["ubiquitous-language", "domain-glossary"]
+      "aliases": [
+        "scaffold-exercises",
+        "course-scaffold"
+      ],
+      "path": ".agents/skills/misc/scaffold-exercises/SKILL.md"
     },
     "setup-matt-pocock-skills": {
       "name": "setup-matt-pocock-skills",
@@ -806,15 +973,31 @@
       "category": "engineering",
       "subcategory": "setup",
       "priority": "high",
-      "file": "setup-matt-pocock-skills/SKILL.md",
+      "file": "engineering/setup-matt-pocock-skills/SKILL.md",
       "size": "large",
       "tokenEstimate": 1000,
-      "triggers": ["setup skills", "engineering setup", "issue tracker", "triage labels", "matt pocock"],
-      "intentPatterns": ["setup.*skill.*dependencies", "configure.*issue.*tracker", "setup.*engineering.*skills"],
+      "triggers": [
+        "setup skills",
+        "engineering setup",
+        "issue tracker",
+        "triage labels",
+        "matt pocock"
+      ],
+      "intentPatterns": [
+        "setup.*skill.*dependencies",
+        "configure.*issue.*tracker",
+        "setup.*engineering.*skills"
+      ],
       "recommended": true,
-      "examples": ["Set up engineering skill dependencies for this repo"],
+      "examples": [
+        "Set up engineering skill dependencies for this repo"
+      ],
       "useWhen": "Configuring per-repo settings before using engineering skills for the first time",
-      "aliases": ["setup-engineering", "init-skills"]
+      "aliases": [
+        "setup-engineering",
+        "init-skills"
+      ],
+      "path": ".agents/skills/engineering/setup-matt-pocock-skills/SKILL.md"
     },
     "to-issues": {
       "name": "to-issues",
@@ -823,15 +1006,33 @@
       "category": "engineering",
       "subcategory": "workflow",
       "priority": "high",
-      "file": "to-issues/SKILL.md",
+      "file": "engineering/to-issues/SKILL.md",
       "size": "medium",
       "tokenEstimate": 700,
-      "triggers": ["to issues", "break down", "implementation tickets", "create issues", "vertical slices"],
-      "intentPatterns": ["convert.*plan.*issue", "create.*implementation.*ticket", "break.*work.*issue"],
+      "triggers": [
+        "to issues",
+        "break down",
+        "implementation tickets",
+        "create issues",
+        "vertical slices"
+      ],
+      "intentPatterns": [
+        "convert.*plan.*issue",
+        "create.*implementation.*ticket",
+        "break.*work.*issue"
+      ],
       "recommended": true,
-      "examples": ["Convert the meal tracking PRD into issues", "Break the pattern analysis plan into implementable tickets"],
+      "examples": [
+        "Convert the meal tracking PRD into issues",
+        "Break the pattern analysis plan into implementable tickets"
+      ],
       "useWhen": "Breaking a plan or spec into independently-grabbable implementation issues",
-      "aliases": ["to-issues", "plan-to-issues", "issue-breakdown"]
+      "aliases": [
+        "to-issues",
+        "plan-to-issues",
+        "issue-breakdown"
+      ],
+      "path": ".agents/skills/engineering/to-issues/SKILL.md"
     },
     "review": {
       "name": "review",
@@ -840,15 +1041,31 @@
       "category": "in-progress",
       "subcategory": "code-review",
       "priority": "high",
-      "file": "review/SKILL.md",
+      "file": "in-progress/review/SKILL.md",
       "size": "medium",
       "tokenEstimate": 700,
-      "triggers": ["review", "code review", "diff review", "pull request"],
-      "intentPatterns": ["review.*branch", "review.*PR", "review.*changes.*since"],
+      "triggers": [
+        "review",
+        "code review",
+        "diff review",
+        "pull request"
+      ],
+      "intentPatterns": [
+        "review.*branch",
+        "review.*PR",
+        "review.*changes.*since"
+      ],
       "recommended": true,
-      "examples": ["Review the changes since main branch"],
+      "examples": [
+        "Review the changes since main branch"
+      ],
       "useWhen": "Reviewing code changes against coding standards and original spec",
-      "aliases": ["review", "code-review", "pr-review"]
+      "aliases": [
+        "review",
+        "code-review",
+        "pr-review"
+      ],
+      "path": ".agents/skills/in-progress/review/SKILL.md"
     },
     "writing-beats": {
       "name": "writing-beats",
@@ -857,15 +1074,30 @@
       "category": "in-progress",
       "subcategory": "writing",
       "priority": "medium",
-      "file": "writing-beats/SKILL.md",
+      "file": "in-progress/writing-beats/SKILL.md",
       "size": "medium",
       "tokenEstimate": 500,
-      "triggers": ["writing beats", "article beats", "narrative", "choose your own adventure"],
-      "intentPatterns": ["shape.*article.*beat", "write.*narrative", "pivot.*article"],
+      "triggers": [
+        "writing beats",
+        "article beats",
+        "narrative",
+        "choose your own adventure"
+      ],
+      "intentPatterns": [
+        "shape.*article.*beat",
+        "write.*narrative",
+        "pivot.*article"
+      ],
       "recommended": false,
-      "examples": ["Shape my T1D journey into a narrative article"],
+      "examples": [
+        "Shape my T1D journey into a narrative article"
+      ],
       "useWhen": "Assembling raw material into a narrative, beat-by-beat article",
-      "aliases": ["writing-beats", "article-beats"]
+      "aliases": [
+        "writing-beats",
+        "article-beats"
+      ],
+      "path": ".agents/skills/in-progress/writing-beats/SKILL.md"
     },
     "writing-fragments": {
       "name": "writing-fragments",
@@ -874,15 +1106,32 @@
       "category": "in-progress",
       "subcategory": "writing",
       "priority": "medium",
-      "file": "writing-fragments/SKILL.md",
+      "file": "in-progress/writing-fragments/SKILL.md",
       "size": "medium",
       "tokenEstimate": 650,
-      "triggers": ["fragments", "raw material", "ideate", "writing ideas", "brainstorm"],
-      "intentPatterns": ["develop.*idea.*before.*structure", "mine.*fragment", "raw.*material.*writing"],
+      "triggers": [
+        "fragments",
+        "raw material",
+        "ideate",
+        "writing ideas",
+        "brainstorm"
+      ],
+      "intentPatterns": [
+        "develop.*idea.*before.*structure",
+        "mine.*fragment",
+        "raw.*material.*writing"
+      ],
       "recommended": false,
-      "examples": ["Help me develop ideas for an article about CGMs"],
+      "examples": [
+        "Help me develop ideas for an article about CGMs"
+      ],
       "useWhen": "Capturing raw writing ideas and fragments before imposing structure",
-      "aliases": ["writing-fragments", "idea-mining", "raw-material"]
+      "aliases": [
+        "writing-fragments",
+        "idea-mining",
+        "raw-material"
+      ],
+      "path": ".agents/skills/in-progress/writing-fragments/SKILL.md"
     },
     "writing-shape": {
       "name": "writing-shape",
@@ -891,15 +1140,31 @@
       "category": "in-progress",
       "subcategory": "writing",
       "priority": "medium",
-      "file": "writing-shape/SKILL.md",
+      "file": "in-progress/writing-shape/SKILL.md",
       "size": "medium",
       "tokenEstimate": 600,
-      "triggers": ["shape article", "draft opening", "raw material", "publishable"],
-      "intentPatterns": ["shape.*material.*article", "turn.*notes.*article", "polish.*draft"],
+      "triggers": [
+        "shape article",
+        "draft opening",
+        "raw material",
+        "publishable"
+      ],
+      "intentPatterns": [
+        "shape.*material.*article",
+        "turn.*notes.*article",
+        "polish.*draft"
+      ],
       "recommended": false,
-      "examples": ["Shape my notes about pattern detection into an article"],
+      "examples": [
+        "Shape my notes about pattern detection into an article"
+      ],
       "useWhen": "Turning raw notes, fragments, or rough drafts into a publishable article",
-      "aliases": ["writing-shape", "shape-article", "polish-draft"]
+      "aliases": [
+        "writing-shape",
+        "shape-article",
+        "polish-draft"
+      ],
+      "path": ".agents/skills/in-progress/writing-shape/SKILL.md"
     },
     "migrate-to-shoehorn": {
       "name": "migrate-to-shoehorn",
@@ -908,15 +1173,30 @@
       "category": "misc",
       "subcategory": "testing",
       "priority": "low",
-      "file": "migrate-to-shoehorn/SKILL.md",
+      "file": "misc/migrate-to-shoehorn/SKILL.md",
       "size": "large",
       "tokenEstimate": 1000,
-      "triggers": ["shoehorn", "type assertion", "partial test data", "as migration"],
-      "intentPatterns": ["migrate.*as.*shoehorn", "replace.*as.*assertion", "partial.*test.*data"],
+      "triggers": [
+        "shoehorn",
+        "type assertion",
+        "partial test data",
+        "as migration"
+      ],
+      "intentPatterns": [
+        "migrate.*as.*shoehorn",
+        "replace.*as.*assertion",
+        "partial.*test.*data"
+      ],
       "recommended": false,
-      "examples": ["Migrate the test files to use shoehorn instead of as"],
+      "examples": [
+        "Migrate the test files to use shoehorn instead of as"
+      ],
       "useWhen": "Replacing `as` type assertions in tests with type-safe shoehorn alternatives",
-      "aliases": ["migrate-shoehorn", "shoehorn-migration"]
+      "aliases": [
+        "migrate-shoehorn",
+        "shoehorn-migration"
+      ],
+      "path": ".agents/skills/misc/migrate-to-shoehorn/SKILL.md"
     },
     "edit-article": {
       "name": "edit-article",
@@ -925,15 +1205,33 @@
       "category": "personal",
       "subcategory": "writing",
       "priority": "medium",
-      "file": "edit-article/SKILL.md",
+      "file": "personal/edit-article/SKILL.md",
       "size": "small",
       "tokenEstimate": 300,
-      "triggers": ["edit article", "improve writing", "revise", "tighten prose", "restructure"],
-      "intentPatterns": ["edit.*article", "improve.*clarity", "restructure.*section", "tighten.*prose"],
+      "triggers": [
+        "edit article",
+        "improve writing",
+        "revise",
+        "tighten prose",
+        "restructure"
+      ],
+      "intentPatterns": [
+        "edit.*article",
+        "improve.*clarity",
+        "restructure.*section",
+        "tighten.*prose"
+      ],
       "recommended": true,
-      "examples": ["Edit this article about CGM trends for clarity"],
+      "examples": [
+        "Edit this article about CGM trends for clarity"
+      ],
       "useWhen": "Editing and revising article drafts for clarity and flow",
-      "aliases": ["edit-article", "article-editing", "prose-polish"]
+      "aliases": [
+        "edit-article",
+        "article-editing",
+        "prose-polish"
+      ],
+      "path": ".agents/skills/personal/edit-article/SKILL.md"
     },
     "obsidian-vault": {
       "name": "obsidian-vault",
@@ -942,15 +1240,32 @@
       "category": "personal",
       "subcategory": "note-taking",
       "priority": "medium",
-      "file": "obsidian-vault/SKILL.md",
+      "file": "personal/obsidian-vault/SKILL.md",
       "size": "medium",
       "tokenEstimate": 500,
-      "triggers": ["obsidian", "vault", "note", "wikilink", "index note"],
-      "intentPatterns": ["search.*obsidian", "create.*note.*vault", "manage.*obsidian.*vault"],
+      "triggers": [
+        "obsidian",
+        "vault",
+        "note",
+        "wikilink",
+        "index note"
+      ],
+      "intentPatterns": [
+        "search.*obsidian",
+        "create.*note.*vault",
+        "manage.*obsidian.*vault"
+      ],
       "recommended": false,
-      "examples": ["Find notes about Dexcom integration in Obsidian"],
+      "examples": [
+        "Find notes about Dexcom integration in Obsidian"
+      ],
       "useWhen": "Working with Obsidian vault notes, wikilinks, and index notes",
-      "aliases": ["obsidian-vault", "obsidian-notes", "vault-search"]
+      "aliases": [
+        "obsidian-vault",
+        "obsidian-notes",
+        "vault-search"
+      ],
+      "path": ".agents/skills/personal/obsidian-vault/SKILL.md"
     },
     "caveman": {
       "name": "caveman",
@@ -959,15 +1274,341 @@
       "category": "productivity",
       "subcategory": "communication",
       "priority": "medium",
-      "file": "caveman/SKILL.md",
+      "file": "productivity/caveman/SKILL.md",
       "size": "small",
       "tokenEstimate": 400,
-      "triggers": ["caveman", "caveman mode", "less tokens", "be brief", "terse"],
-      "intentPatterns": ["caveman.*mode", "talk.*like.*caveman", "less.*token", "be.*brief"],
+      "triggers": [
+        "caveman",
+        "caveman mode",
+        "less tokens",
+        "be brief",
+        "terse"
+      ],
+      "intentPatterns": [
+        "caveman.*mode",
+        "talk.*like.*caveman",
+        "less.*token",
+        "be.*brief"
+      ],
       "recommended": true,
-      "examples": ["Enter caveman mode for the rest of this session"],
+      "examples": [
+        "Enter caveman mode for the rest of this session"
+      ],
       "useWhen": "Wanting ultra-compressed, token-efficient responses",
-      "aliases": ["caveman", "caveman-mode", "token-saver"]
+      "aliases": [
+        "caveman",
+        "caveman-mode",
+        "token-saver"
+      ],
+      "path": ".agents/skills/productivity/caveman/SKILL.md"
+    },
+    "context-mode": {
+      "aliases": [
+        "context-mode",
+        "ctx-mode",
+        "large-output-handling"
+      ],
+      "category": "productivity",
+      "name": "context-mode",
+      "path": ".agents/skills/context-mode/skills/context-mode/SKILL.md",
+      "file": "context-mode/skills/context-mode/SKILL.md",
+      "priority": "critical",
+      "description": "Use context-mode tools (ctx_execute, ctx_execute_file) instead of Bash/cat when processing large outputs. Triggers: \"analyze logs\", \"summarize output\", \"process data\", \"parse JSON\", \"filter results\", \"extract errors\", \"check build output\", \"analyze dependencies\", \"process API response\", \"large file analysis\", \"page snapshot\", \"browser snapshot\", \"DOM structure\", \"inspect page\", \"accessibility tree\", \"Playwright snapshot\", \"run tests\", \"test output\", \"coverage report\", \"git log\", \"recent commits\", \"diff between branches\", \"list containers\", \"pod status\", \"disk usage\", \"fetch docs\", \"API reference\", \"index documentation\", \"call API\", \"check response\", \"query results\", \"find TODOs\", \"count lines\", \"codebase statistics\", \"security audit\", \"outdated packages\", \"dependency tree\", \"cloud resources\", \"CI/CD output\". Also triggers on ANY MCP tool output that may exceed 20 lines. Subagent routing is handled automatically via PreToolUse hook.",
+      "triggers": [
+        "analyze logs",
+        "summarize output",
+        "process data",
+        "parse JSON",
+        "filter results",
+        "extract errors",
+        "check build output",
+        "analyze dependencies",
+        "process API response",
+        "large file analysis",
+        "page snapshot",
+        "browser snapshot",
+        "DOM structure",
+        "inspect page",
+        "accessibility tree",
+        "Playwright snapshot",
+        "run tests",
+        "test output",
+        "coverage report",
+        "git log",
+        "recent commits",
+        "diff between branches",
+        "list containers",
+        "pod status",
+        "disk usage",
+        "fetch docs",
+        "API reference",
+        "index documentation",
+        "call API",
+        "check response",
+        "query results",
+        "find TODOs",
+        "count lines",
+        "codebase statistics",
+        "security audit",
+        "outdated packages",
+        "dependency tree",
+        "cloud resources",
+        "CI/CD output",
+        "large output"
+      ],
+      "intentPatterns": [
+        "analyze.*log",
+        "summarize.*output",
+        "process.*data",
+        "parse.*json",
+        "filter.*result",
+        "extract.*error",
+        "check.*build.*output",
+        "analyze.*dependenc(ies|y)",
+        "process.*API.*response",
+        "large.*file.*analysis",
+        "(page|browser).*snapshot",
+        "DOM.*structure",
+        "inspect.*page",
+        "accessibility.*tree",
+        "playwright.*snapshot",
+        "run.*test",
+        "test.*output",
+        "coverage.*report",
+        "git.*log",
+        "recent.*commit",
+        "diff.*between.*branch",
+        "list.*container",
+        "pod.*status",
+        "disk.*usage",
+        "fetch.*doc",
+        "API.*reference",
+        "index.*documentation",
+        "call.*API",
+        "check.*response",
+        "query.*result",
+        "find.*todo",
+        "count.*line",
+        "codebase.*statistic",
+        "security.*audit",
+        "outdated.*package",
+        "dependency.*tree",
+        "cloud.*resource",
+        "CI/CD.*output",
+        "large.*output",
+        "any.*MCP.*tool.*output.*exceed.*20.*lines"
+      ],
+      "tokenEstimate": 1500,
+      "title": "Context Mode Helper",
+      "useWhen": "Processing large command outputs or file contents to save tokens and improve context management.",
+      "recommended": true,
+      "size": "medium",
+      "subcategory": "context-management",
+      "examples": [
+        "Use context-mode to analyze the log file",
+        "Process the large JSON output with ctx_execute"
+      ]
+    },
+    "ctx-insight": {
+      "aliases": [
+        "ctx insight",
+        "context insight"
+      ],
+      "category": "productivity",
+      "name": "ctx-insight",
+      "path": ".agents/skills/context-mode/skills/ctx-insight/SKILL.md",
+      "file": "context-mode/skills/ctx-insight/SKILL.md",
+      "priority": "medium",
+      "description": "Open the context-mode Insight analytics dashboard in the browser. Shows personal metrics: session activity, tool usage, error rate, parallel work patterns, project focus, and actionable insights. First run installs dependencies (~30s). Subsequent runs open instantly. Trigger: /context-mode:ctx-insight",
+      "triggers": [
+        "ctx-insight",
+        "context-mode insight",
+        "analytics dashboard",
+        "session metrics"
+      ],
+      "intentPatterns": [
+        "open.*insight.*dashboard",
+        "show.*session.*metrics",
+        "view.*analytics"
+      ],
+      "tokenEstimate": 500,
+      "title": "Context Mode Insight Dashboard",
+      "useWhen": "Analyzing personal session metrics, tool usage, and overall productivity with context-mode.",
+      "recommended": false,
+      "size": "small",
+      "subcategory": "analytics",
+      "examples": [
+        "Open the context-mode insight dashboard"
+      ]
+    },
+    "ctx-upgrade": {
+      "aliases": [
+        "ctx upgrade",
+        "context upgrade"
+      ],
+      "category": "utility",
+      "name": "ctx-upgrade",
+      "path": ".agents/skills/context-mode/skills/ctx-upgrade/SKILL.md",
+      "file": "context-mode/skills/ctx-upgrade/SKILL.md",
+      "priority": "medium",
+      "description": "Update context-mode from GitHub and fix hooks/settings. Pulls latest, builds, installs, updates npm global, configures hooks. Trigger: /context-mode:ctx-upgrade",
+      "triggers": [
+        "ctx-upgrade",
+        "update context-mode",
+        "upgrade context-mode"
+      ],
+      "intentPatterns": [
+        "update.*context.*mode",
+        "upgrade.*context.*mode",
+        "fix.*context.*mode.*hook"
+      ],
+      "tokenEstimate": 500,
+      "title": "Context Mode Upgrade",
+      "useWhen": "Updating context-mode to the latest version and fixing any related hooks or settings.",
+      "recommended": false,
+      "size": "small",
+      "subcategory": "maintenance",
+      "examples": [
+        "Upgrade context-mode to the latest version"
+      ]
+    },
+    "ctx-stats": {
+      "aliases": [
+        "ctx stats",
+        "context stats"
+      ],
+      "category": "utility",
+      "name": "ctx-stats",
+      "path": ".agents/skills/context-mode/skills/ctx-stats/SKILL.md",
+      "file": "context-mode/skills/ctx-stats/SKILL.md",
+      "priority": "medium",
+      "description": "Show how much context window context-mode saved this session. Displays token consumption, context savings ratio, and per-tool breakdown. Read-only — shows stats only, no reset capability. To wipe the knowledge base entirely, use ctx_purge instead. Trigger: /context-mode:ctx-stats",
+      "triggers": [
+        "ctx-stats",
+        "context-mode stats",
+        "token usage",
+        "context savings"
+      ],
+      "intentPatterns": [
+        "show.*context.*mode.*stat",
+        "display.*token.*consumption",
+        "check.*context.*saving"
+      ],
+      "tokenEstimate": 500,
+      "title": "Context Mode Stats",
+      "useWhen": "Viewing context window token savings and usage statistics for the current session.",
+      "recommended": false,
+      "size": "small",
+      "subcategory": "telemetry",
+      "examples": [
+        "Show context-mode stats"
+      ]
+    },
+    "ctx-doctor": {
+      "aliases": [
+        "ctx doctor",
+        "context doctor"
+      ],
+      "category": "utility",
+      "name": "ctx-doctor",
+      "path": ".agents/skills/context-mode/skills/ctx-doctor/SKILL.md",
+      "file": "context-mode/skills/ctx-doctor/SKILL.md",
+      "priority": "high",
+      "description": "Run context-mode diagnostics. Checks runtimes, hooks, FTS5, plugin registration, npm and marketplace versions. Trigger: /context-mode:ctx-doctor",
+      "triggers": [
+        "ctx-doctor",
+        "context-mode doctor",
+        "diagnose context-mode",
+        "context-mode diagnostics"
+      ],
+      "intentPatterns": [
+        "run.*context.*mode.*diagnostic",
+        "check.*runtime.*hook",
+        "verify.*plugin.*registration"
+      ],
+      "tokenEstimate": 500,
+      "title": "Context Mode Doctor",
+      "useWhen": "Troubleshooting context-mode issues by running diagnostics on its environment, hooks, and versions.",
+      "recommended": false,
+      "size": "small",
+      "subcategory": "diagnostics",
+      "examples": [
+        "Run context-mode doctor"
+      ]
+    },
+    "ctx-purge": {
+      "aliases": [
+        "ctx purge",
+        "context purge"
+      ],
+      "category": "utility",
+      "name": "ctx-purge",
+      "path": ".agents/skills/context-mode/skills/ctx-purge/SKILL.md",
+      "file": "context-mode/skills/ctx-purge/SKILL.md",
+      "priority": "critical",
+      "description": "Purge the context-mode knowledge base. Permanently deletes all indexed content and resets session stats. This is destructive and cannot be undone. Trigger: /context-mode:ctx-purge",
+      "triggers": [
+        "ctx-purge",
+        "purge context-mode",
+        "clear knowledge base",
+        "reset session data"
+      ],
+      "intentPatterns": [
+        "purge.*context.*mode",
+        "delete.*indexed.*content",
+        "reset.*session.*stat"
+      ],
+      "tokenEstimate": 800,
+      "title": "Context Mode Purge Knowledge Base",
+      "useWhen": "Permanently deleting indexed content and resetting session statistics for context-mode.",
+      "recommended": false,
+      "size": "medium",
+      "subcategory": "maintenance",
+      "examples": [
+        "Purge the context-mode knowledge base",
+        "Reset all context-mode data for this project"
+      ]
+    },
+    "context-mode-ops": {
+      "aliases": [
+        "ctx ops",
+        "context ops"
+      ],
+      "category": "engineering",
+      "name": "context-mode-ops",
+      "path": ".agents/skills/context-mode/.claude/skills/context-mode-ops/SKILL.md",
+      "file": "context-mode/.claude/skills/context-mode-ops/SKILL.md",
+      "priority": "critical",
+      "description": "Manage context-mode GitHub issues, PRs, releases, and marketing with parallel subagent army. Orchestrates 10-20 dynamic agents per task. Use when triaging issues, reviewing PRs, releasing versions, writing LinkedIn posts, announcing releases, fixing bugs, merging contributions, validating ENV vars, testing adapters, or syncing branches.",
+      "triggers": [
+        "context-mode ops",
+        "triage issue",
+        "review PR",
+        "release version",
+        "fix bug",
+        "merge contribution",
+        "validate env vars",
+        "test adapters",
+        "sync branches",
+        "manage context-mode"
+      ],
+      "intentPatterns": [
+        "manage.*github.*issue",
+        "triage.*issue",
+        "review.*pr",
+        "release.*version",
+        "coordinate.*agent.*army"
+      ],
+      "tokenEstimate": 4000,
+      "title": "Context Mode Operations with Subagent Army",
+      "useWhen": "Orchestrating complex multi-agent workflows for context-mode project maintenance, including issue triage, PR review, releases, and marketing.",
+      "recommended": true,
+      "size": "large",
+      "subcategory": "orchestration",
+      "examples": [
+        "Triage context-mode issues with subagents",
+        "Manage context-mode release process"
+      ]
     }
   },
   "categories": {

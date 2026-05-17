@@ -3,7 +3,7 @@
 from datetime import datetime
 from typing import Any, Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 
 class FoodCreate(BaseModel):
@@ -45,8 +45,7 @@ class FoodResponse(BaseModel):
     created_at: datetime
     updated_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class FoodSearchResult(BaseModel):
@@ -66,8 +65,7 @@ class FoodSearchResult(BaseModel):
     source_provider: str = "manual"  # "personal", "openfoodfacts", "usda"
     food_id: Optional[int] = None
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class FoodEntryCreate(BaseModel):
@@ -87,6 +85,7 @@ class FoodEntryCreate(BaseModel):
     fiber: Optional[float] = None
     sugars: Optional[float] = None
     glycemic_index: Optional[str] = None
+    glycemic_load: Optional[float] = None
     source: str = "manual"
     meta: Optional[dict[str, Any]] = None
 
@@ -110,10 +109,10 @@ class FoodEntryResponse(BaseModel):
     fiber: Optional[float]
     sugars: Optional[float]
     glycemic_index: Optional[str]
+    glycemic_load: Optional[float]
     source: str
     meta: Optional[dict[str, Any]]
     created_at: datetime
     updated_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)

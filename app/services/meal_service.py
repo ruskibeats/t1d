@@ -161,7 +161,7 @@ class MealLogCreate(BaseModel):
     """Request model for logging a meal."""
     
     timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
-    meal_items: List[MealLogItem] = Field(..., min_items=1)
+    meal_items: List[MealLogItem] = Field(..., min_length=1)
     notes: Optional[str] = Field(None, description="Additional notes")
     pre_bolus_taken: bool = Field(default=False, description="Was pre-bolus taken?")
     pre_bolus_minutes: Optional[int] = Field(None, description="Minutes before eating")

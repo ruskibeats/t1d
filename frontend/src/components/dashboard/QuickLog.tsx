@@ -1,18 +1,20 @@
 /** @jsxImportSource @emotion/react */
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Activity, Dumbbell, PlusIcon, Syringe, Utensils, XIcon } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { cn } from '@/lib/utils'
 
 const quickActions = [
-  { label: 'Glucose', icon: Activity, detail: 'Manual reading', tone: 'bg-[oklch(0.94_0.035_255)] text-[oklch(0.42_0.13_255)]' },
-  { label: 'Meal', icon: Utensils, detail: 'Carbs and notes', tone: 'bg-[oklch(0.96_0.04_75)] text-[oklch(0.45_0.1_63)]' },
-  { label: 'Insulin', icon: Syringe, detail: 'Dose record', tone: 'bg-[oklch(0.95_0.035_292)] text-[oklch(0.46_0.13_292)]' },
-  { label: 'Exercise', icon: Dumbbell, detail: 'Duration and intensity', tone: 'bg-[oklch(0.95_0.04_178)] text-[oklch(0.34_0.1_174)]' },
+  { label: 'Glucose', icon: Activity, detail: 'Manual reading', tone: 'bg-[oklch(0.94_0.035_255)] text-[oklch(0.42_0.13_255)]', route: '/glucose' },
+  { label: 'Meal', icon: Utensils, detail: 'Carbs and notes', tone: 'bg-[oklch(0.96_0.04_75)] text-[oklch(0.45_0.1_63)]', route: '/events' },
+  { label: 'Insulin', icon: Syringe, detail: 'Dose record', tone: 'bg-[oklch(0.95_0.035_292)] text-[oklch(0.46_0.13_292)]', route: '/events' },
+  { label: 'Exercise', icon: Dumbbell, detail: 'Duration and intensity', tone: 'bg-[oklch(0.95_0.04_178)] text-[oklch(0.34_0.1_174)]', route: '/events' },
 ]
 
 export function QuickLog() {
   const [expanded, setExpanded] = useState(true)
+  const navigate = useNavigate()
 
   if (!expanded) {
     return (
@@ -37,7 +39,7 @@ export function QuickLog() {
             <button
               key={action.label}
               className="panel-subtle flex items-center gap-3 p-3 text-left transition duration-200 hover:-translate-y-0.5 hover:shadow-signal"
-              onClick={() => console.info(`Quick log ${action.label}`)}
+              onClick={() => navigate(action.route)}
             >
               <div className={cn('grid h-10 w-10 place-items-center rounded-2xl', action.tone)}>
                 <Icon className="h-5 w-5" />

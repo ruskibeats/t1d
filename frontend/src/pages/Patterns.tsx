@@ -4,8 +4,12 @@ import axios from 'axios'
 import { Brain, Dumbbell, Moon, RefreshCw, Utensils } from 'lucide-react'
 import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
-import { demoExerciseImpacts, demoOvernight, demoPatternAnalysis, demoSpikes } from '@/lib/demoData'
 import { cn } from '@/lib/utils'
+
+const emptyPatternAnalysis = {
+  analysis: { grade: '—', tir: { percentage: 0, below_range: { percentage: 0 }, above_range: { percentage: 0 } }, estimated_a1c: null },
+  statistics: { average: 0, min_value: null, max_value: null, std_dev: null, total_readings: 0 },
+}
 
 const gradeStyles: Record<string, string> = {
   A: 'text-[oklch(0.43_0.13_178)]',
@@ -17,23 +21,13 @@ const gradeStyles: Record<string, string> = {
 
 export function PatternsPage() {
   const [loading, setLoading] = useState(false)
-  const [analysis, setAnalysis] = useState<any>(demoPatternAnalysis)
-  const [spikes, setSpikes] = useState<any[]>(demoSpikes)
-  const [overnight, setOvernight] = useState<any[]>(demoOvernight)
-  const [exercise, setExercise] = useState<any[]>(demoExerciseImpacts)
-  const [demoMode, setDemoMode] = useState(true)
+  const [analysis, setAnalysis] = useState<any>(emptyPatternAnalysis)
+  const [spikes, setSpikes] = useState<any[]>([])
+  const [overnight, setOvernight] = useState<any[]>([])
+  const [exercise, setExercise] = useState<any[]>([])
+
 
   const runAnalysis = async () => {
-    const token = localStorage.getItem('t1d_token')
-    if (!token || token.startsWith('demo-')) {
-      setAnalysis(demoPatternAnalysis)
-      setSpikes(demoSpikes)
-      setOvernight(demoOvernight)
-      setExercise(demoExerciseImpacts)
-      setDemoMode(true)
-      return
-    }
-
     setLoading(true)
     try {
       const [analysisRes, spikesRes, overnightRes, exerciseRes] = await Promise.all([
@@ -48,18 +42,16 @@ export function PatternsPage() {
         axios.post('/api/v1/patterns/exercise'),
       ])
 
-      setAnalysis(analysisRes.data ?? demoPatternAnalysis)
-      setSpikes(spikesRes.data?.spikes?.length ? spikesRes.data.spikes : demoSpikes)
-      setOvernight(overnightRes.data?.events?.length ? overnightRes.data.events : demoOvernight)
-      setExercise(exerciseRes.data?.impacts?.length ? exerciseRes.data.impacts : demoExerciseImpacts)
-      setDemoMode(false)
+      setAnalysis(analysisRes.data ?? emptyPatternAnalysis)
+      setSpikes(spikesRes.data?.spikes ?? [])
+      setOvernight(overnightRes.data?.events ?? [])
+      setExercise(exerciseRes.data?.impacts ?? [])
     } catch (error) {
-      console.info('Using local demo pattern analysis until the API has records.', error)
-      setAnalysis(demoPatternAnalysis)
-      setSpikes(demoSpikes)
-      setOvernight(demoOvernight)
-      setExercise(demoExerciseImpacts)
-      setDemoMode(true)
+      console.info('Pattern API unavailable or no records yet.', error)
+      setAnalysis(emptyPatternAnalysis)
+      setSpikes([])
+      setOvernight([])
+      setExercise([])
     } finally {
       setLoading(false)
     }
@@ -69,9 +61,9 @@ export function PatternsPage() {
     runAnalysis()
   }, [])
 
-  const tir = analysis?.analysis?.tir ?? demoPatternAnalysis.analysis.tir
-  const statistics = analysis?.statistics ?? demoPatternAnalysis.statistics
-  const grade = analysis?.analysis?.grade ?? 'B'
+  const tir = analysis?.analysis?.tir ?? emptyPatternAnalysis.analysis.tir
+  const statistics = analysis?.statistics ?? emptyPatternAnalysis.statistics
+  const grade = analysis?.analysis?.grade ?? '—'
 
   return (
     <div className="page-shell space-y-7">
@@ -79,7 +71,7 @@ export function PatternsPage() {
         <div>
           <div className="kicker"><span className="kicker-dot" /> Pattern engine</div>
           <h1 className="mt-2 text-4xl font-black tracking-[-0.06em] text-[oklch(0.22_0.04_255)]">Pattern analysis</h1>
-          <p className="mt-2 max-w-2xl text-sm leading-6 text-[oklch(0.48_0.035_255)]">Translate glucose, meals, movement, and nights into repeatable personal signals. {demoMode ? 'Showing demo insights.' : 'Live analysis complete.'}</p>
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-[oklch(0.48_0.035_255)]">Translate glucose, meals, movement, and nights into repeatable personal signals. Live analysis from your records.</p>
         </div>
         <Button onClick={runAnalysis} disabled={loading}>
           <RefreshCw className={cn('h-4 w-4', loading && 'animate-spin')} />

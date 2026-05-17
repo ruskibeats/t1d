@@ -1,17 +1,19 @@
 """SQLAlchemy base and shared utilities."""
 
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import DeclarativeBase
 
-# Base class for all models
-Base = declarative_base()
+
+class Base(DeclarativeBase):
+    """Base class for all models."""
+    pass
 
 
 def table_name_generator(name: str) -> str:
     """Generate table name from class name.
-    
+
     Args:
         name: Model class name
-        
+
     Returns:
         Table name in snake_case with 'tbl_' prefix
     """

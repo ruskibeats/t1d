@@ -1,6 +1,7 @@
 """Authentication API endpoints."""
 
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
+import logging
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
@@ -14,7 +15,9 @@ from app.core.security import (
     require_active_user,
 )
 from app.db.models import User
-from app.models.user import Token, UserCreate, UserLogin, UserResponse, UserUpdate
+from app.models.user import LoginResponse, Token, UserCreate, UserLogin, UserResponse, UserUpdate
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -72,11 +75,11 @@ async def register(
     return UserResponse.model_validate(user)
 
 
-@router.post("/login", response_model=Token)
+@router.post("/login", response_model=LoginResponse)
 async def login(
     form_data: OAuth2PasswordRequestForm = Depends(),
     session: AsyncSession = Depends(get_db),
-) -> Token:
+) -> LoginResponse:
     """Login with email and password.
     
     Args:
@@ -84,7 +87,7 @@ async def login(
         session: Database session
         
     Returns:
-        Token: Access token
+        LoginResponse: Access token + user data
         
     Raises:
         HTTPException: 401 if credentials are invalid
@@ -100,14 +103,20 @@ async def login(
             detail="User account is inactive",
         )
 
-    return create_user_token(user)
+    token = create_user_token(user)
+    return LoginResponse(
+        access_token=token.access_token,
+        token_type=token.token_type,
+        expires_in=token.expires_in,
+        user=UserResponse.model_validate(user),
+    )
 
 
-@router.post("/login-with-email", response_model=Token)
+@router.post("/login-with-email", response_model=LoginResponse)
 async def login_with_email(
     login_data: UserLogin,
     session: AsyncSession = Depends(get_db),
-) -> Token:
+) -> LoginResponse:
     """Login with email and password (JSON body).
     
     Args:
@@ -115,7 +124,7 @@ async def login_with_email(
         session: Database session
         
     Returns:
-        Token: Access token
+        LoginResponse: Access token + user data
         
     Raises:
         HTTPException: 401 if credentials are invalid
@@ -131,7 +140,13 @@ async def login_with_email(
             detail="User account is inactive",
         )
 
-    return create_user_token(user)
+    token = create_user_token(user)
+    return LoginResponse(
+        access_token=token.access_token,
+        token_type=token.token_type,
+        expires_in=token.expires_in,
+        user=UserResponse.model_validate(user),
+    )
 
 
 @router.get("/me", response_model=UserResponse)
@@ -187,7 +202,7 @@ async def update_current_user(
         if hasattr(user, field):
             setattr(user, field, value)
 
-    user.updated_at = datetime.utcnow()
+    user.updated_at = datetime.now(timezone.utc)
 
     await session.commit()
     await session.refresh(user)
@@ -196,6 +211,7 @@ async def update_current_user(
 
 
 @router.post("/dexcom/callback")
+# TODO: Add rate limiting (@limiter.limit("5/minute")) when slowapi is installed
 async def dexcom_callback(
     code: str,
     session: AsyncSession = Depends(get_db),
@@ -232,8 +248,8 @@ async def dexcom_callback(
         # Update user with Dexcom tokens
         user.dexcom_access_token = tokens.access_token
         user.dexcom_refresh_token = tokens.refresh_token
-        user.dexcom_expires_at = __import__('datetime').datetime.now(__import__('datetime').timezone.utc) + __import__('datetime').timedelta(seconds=tokens.expires_in)
-        user.updated_at = __import__('datetime').datetime.utcnow()
+        user.dexcom_expires_at = datetime.now(timezone.utc) + timedelta(seconds=tokens.expires_in)
+        user.updated_at = datetime.now(timezone.utc)
         
         await session.commit()
         await session.refresh(user)
@@ -275,7 +291,7 @@ async def dexcom_disconnect(
     user.dexcom_access_token = None
     user.dexcom_refresh_token = None
     user.dexcom_expires_at = None
-    user.updated_at = datetime.utcnow()
+    user.updated_at = datetime.now(timezone.utc)
     
     await session.commit()
     

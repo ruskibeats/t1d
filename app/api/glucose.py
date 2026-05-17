@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
 from app.core.security import require_active_user
-from app.db.models import User
+from app.db.models import User, GlucoseReading
 from app.models.glucose import (
     GlucoseReadingCreate,
     GlucoseReadingResponse,
@@ -16,7 +16,7 @@ from app.models.glucose import (
     GlucoseTrend,
 )
 
-router = APIRouter()
+router = APIRouter(prefix="/glucose", redirect_slashes=True)
 
 
 @router.get("/", response_model=list[GlucoseReadingResponse])
@@ -229,7 +229,12 @@ async def get_glucose_trend(
     )
     readings = result.scalars().all()
 
-    return [GlucoseTrend.model_validate(r) for r in readings]
+    # Convert ORM models to dict for Pydantic validation
+    return [GlucoseTrend.model_validate({
+        "timestamp": r.timestamp,
+        "glucose_value": r.glucose_value,
+        "trend": r.trend,
+    }) for r in readings]
 
 
 @router.get("/stats/", response_model=GlucoseStats)
@@ -251,15 +256,13 @@ async def get_glucose_statistics(
         GlucoseStats: Glucose statistics
     """
     from sqlalchemy import func, select
-
-    from app.db.models import GlucoseReading
+    import math
 
     # Build query
     query = select(
         func.avg(GlucoseReading.glucose_value).label("average"),
         func.min(GlucoseReading.glucose_value).label("min_value"),
         func.max(GlucoseReading.glucose_value).label("max_value"),
-        func.stddev(GlucoseReading.glucose_value).label("std_dev"),
         func.count(GlucoseReading.id).label("total_readings"),
     ).where(GlucoseReading.user_id == user.id)
 
@@ -275,6 +278,24 @@ async def get_glucose_statistics(
     target_low = user.target_range_low
     target_high = user.target_range_high
 
+    total = row.total_readings or 0
+
+    # Compute std_dev manually (not all DB engines support func.stddev)
+    std_dev = 0.0
+    if total > 0:
+        # Fetch all values to compute std deviation
+        values_result = await session.execute(
+            select(GlucoseReading.glucose_value).where(
+                GlucoseReading.user_id == user.id,
+            ).order_by(GlucoseReading.timestamp)
+        )
+        all_values = [v[0] for v in values_result.fetchall()]
+        mean = row.average or 0
+        if len(all_values) > 1:
+            variance = sum((v - mean) ** 2 for v in all_values) / len(all_values)
+            std_dev = math.sqrt(variance)
+
+    # Count in-range readings
     range_query = select(
         func.count(GlucoseReading.id)
     ).where(
@@ -289,34 +310,35 @@ async def get_glucose_statistics(
         range_query = range_query.where(GlucoseReading.timestamp <= end_time)
 
     range_result = await session.execute(range_query)
-    in_range_count = range_result.scalar()
+    in_range = range_result.scalar() or 0
 
-    total = row.total_readings or 0
-    in_range = in_range_count or 0
-    below = 0
-    above = 0
+    # Count below-range readings
+    below_query = select(func.count(GlucoseReading.id)).where(
+        GlucoseReading.user_id == user.id,
+        GlucoseReading.glucose_value < target_low,
+    )
+    if start_time:
+        below_query = below_query.where(GlucoseReading.timestamp >= start_time)
+    if end_time:
+        below_query = below_query.where(GlucoseReading.timestamp <= end_time)
 
-    if total > 0:
-        below_query = select(func.count(GlucoseReading.id)).where(
-            GlucoseReading.user_id == user.id,
-            GlucoseReading.glucose_value < target_low,
-        )
-        if start_time:
-            below_query = below_query.where(GlucoseReading.timestamp >= start_time)
-        if end_time:
-            below_query = below_query.where(GlucoseReading.timestamp <= end_time)
+    below_result = await session.execute(below_query)
+    below = below_result.scalar() or 0
+    above = max(0, total - in_range - below) if total > 0 else 0
 
-        below_result = await session.execute(below_query)
-        below = below_result.scalar() or 0
-        above = total - in_range - below
-
+    tir_pct = (in_range / total * 100) if total > 0 else 0
+    below_pct = (below / total * 100) if total > 0 else 0
+    above_pct = (above / total * 100) if total > 0 else 0
+    estimated_a1c = round(((row.average or 0) + 46.7) / 28.7, 1) if total > 0 else None
     return GlucoseStats(
-        average=row.average or 0,
-        min_value=row.min_value or 0,
-        max_value=row.max_value or 0,
-        std_dev=row.std_dev or 0,
-        time_in_range=(in_range / total * 100) if total > 0 else 0,
-        time_below_range=(below / total * 100) if total > 0 else 0,
-        time_above_range=(above / total * 100) if total > 0 else 0,
+        average=round(row.average or 0, 1),
+        min_value=row.min_value,
+        max_value=row.max_value,
+        std_dev=round(std_dev, 1),
         total_readings=total,
+        time_in_range={"percentage": round(tir_pct, 1), "count": in_range},
+        time_below_range={"percentage": round(below_pct, 1), "count": below},
+        time_above_range={"percentage": round(above_pct, 1), "count": above},
+        estimated_a1c=estimated_a1c,
+        grade="A" if tir_pct >= 70 else "B" if tir_pct >= 60 else "C" if tir_pct >= 50 else "D" if tir_pct >= 40 else "F",
     )

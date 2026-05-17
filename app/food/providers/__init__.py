@@ -1,6 +1,6 @@
 """Food provider integrations."""
 
-from app.food.providers.openfoodfacts import OpenFoodFactsProvider
-from app.food.providers.usda import USDAProvider
+from app.food.providers.openfoodfacts import OpenFoodFactsClient, OpenFoodFactsProduct
+from app.food.providers.usda import USDAClient, USDAFoodItem
 
-__all__ = ["OpenFoodFactsProvider", "USDAProvider"]
+__all__ = ["OpenFoodFactsClient", "OpenFoodFactsProduct", "USDAClient", "USDAFoodItem"]

@@ -1,5 +1,6 @@
 /** @jsxImportSource @emotion/react */
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Activity, Bed, CalendarIcon, Dumbbell, Flame, PlusIcon, Syringe, Utensils } from 'lucide-react'
 import { format } from 'date-fns'
 import { Card } from '@/components/ui/Card'
@@ -24,6 +25,7 @@ const icons: Record<string, React.ElementType> = {
 }
 
 export function EventsPage() {
+  const navigate = useNavigate()
   const [selectedType, setSelectedType] = useState<'all' | 'meal' | 'insulin' | 'exercise' | 'sleep'>('all')
   const { events, demoMode } = useEvents()
   const filtered = selectedType === 'all' ? events : events.filter((event) => event.event_type === selectedType)
@@ -36,7 +38,7 @@ export function EventsPage() {
           <h1 className="mt-2 text-4xl font-black tracking-[-0.06em] text-[oklch(0.22_0.04_255)]">Events</h1>
           <p className="mt-2 max-w-2xl text-sm leading-6 text-[oklch(0.48_0.035_255)]">Food, insulin, exercise, sleep, and stress give the AI enough context to explain what usually happens. {demoMode ? 'Demo entries are visible.' : 'Live entries connected.'}</p>
         </div>
-        <Button><PlusIcon className="h-4 w-4" /> New event</Button>
+        <Button onClick={() => navigate('/events?add=true')}><PlusIcon className="h-4 w-4" /> New event</Button>
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[320px_1fr]">
@@ -69,7 +71,7 @@ export function EventsPage() {
               <h2 className="text-lg font-black tracking-[-0.03em]">Timeline</h2>
               <p className="text-sm font-semibold text-[oklch(0.48_0.035_255)]">{filtered.length} entries in this view</p>
             </div>
-            <Button variant="outline" size="sm">Week view</Button>
+            <Button variant="outline" size="sm" onClick={() => navigate('/events?view=week')}>Week view</Button>
           </div>
 
           <div className="p-5">

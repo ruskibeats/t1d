@@ -3,7 +3,7 @@
 from datetime import datetime
 from typing import Any, Optional, List
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 
 class SleepEntryCreate(BaseModel):
@@ -27,8 +27,7 @@ class SleepEntryResponse(BaseModel):
     created_at: datetime
     updated_at: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class SleepStageCreate(BaseModel):
@@ -44,12 +43,10 @@ class SleepStageResponse(BaseModel):
     duration_minutes: int
     start_time: datetime
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class SleepEntryWithStages(SleepEntryResponse):
     stages: List[SleepStageResponse] = []
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)

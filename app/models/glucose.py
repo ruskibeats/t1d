@@ -57,13 +57,15 @@ class GlucoseStats(BaseModel):
     """Glucose statistics response model."""
 
     average: float = Field(..., description="Average glucose value")
-    min_value: float = Field(..., description="Minimum glucose value")
-    max_value: float = Field(..., description="Maximum glucose value")
-    std_dev: float = Field(..., description="Standard deviation")
-    time_in_range: float = Field(..., description="Time in range percentage", ge=0, le=100)
-    time_below_range: float = Field(..., description="Time below range percentage", ge=0, le=100)
-    time_above_range: float = Field(..., description="Time above range percentage", ge=0, le=100)
+    min_value: float | None = Field(None, description="Minimum glucose value")
+    max_value: float | None = Field(None, description="Maximum glucose value")
+    std_dev: float | None = Field(None, description="Standard deviation")
     total_readings: int = Field(..., description="Total number of readings")
+    time_in_range: dict = Field(default_factory=dict, description="Time in range stats")
+    time_below_range: dict = Field(default_factory=dict, description="Time below range stats")
+    time_above_range: dict = Field(default_factory=dict, description="Time above range stats")
+    estimated_a1c: float | None = Field(None, description="Estimated A1C")
+    grade: str | None = Field(None, description="Overall grade")
 
     model_config = ConfigDict(
         from_attributes=True,

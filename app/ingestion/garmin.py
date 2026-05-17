@@ -5,7 +5,7 @@ Supports activities, sleep, and body composition data.
 """
 
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any, Optional
 
 from app.core.logging_config import get_logger
@@ -43,7 +43,7 @@ class GarminIngestionService:
         metrics: list[HealthMetricCreate] = []
 
         start_time = datetime.fromisoformat(
-            activity_data.get("startTime", datetime.utcnow().isoformat())
+            activity_data.get("startTime", datetime.now(timezone.utc).isoformat())
         )
         duration_min = activity_data.get("duration", 0) / 60
         duration_s = activity_data.get("duration", 0)
@@ -108,7 +108,7 @@ class GarminIngestionService:
         """
         metrics: list[HealthMetricCreate] = []
 
-        start_time = datetime.fromisoformat(sleep_data.get("startTime", datetime.utcnow().isoformat()))
+        start_time = datetime.fromisoformat(sleep_data.get("startTime", datetime.now(timezone.utc).isoformat()))
         end_time = datetime.fromisoformat(sleep_data.get("endTime", start_time.isoformat()))
         duration_hours = (end_time - start_time).total_seconds() / 3600
         sleep_id = str(sleep_data.get("sleepId", "")) or str(sleep_data.get("startTime", ""))
@@ -158,7 +158,7 @@ class GarminIngestionService:
         """
         metrics: list[HealthMetricCreate] = []
 
-        timestamp = datetime.fromisoformat(body_data.get("timestamp", datetime.utcnow().isoformat()))
+        timestamp = datetime.fromisoformat(body_data.get("timestamp", datetime.now(timezone.utc).isoformat()))
         body_id = str(body_data.get("bodyCompositionId", "")) or str(body_data.get("timestamp", ""))
 
         weight = body_data.get("weight")

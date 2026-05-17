@@ -2,7 +2,7 @@
 
 import logging
 import sys
-from datetime import datetime
+from datetime import datetime, timezone
 from logging.config import dictConfig
 from typing import Any
 
@@ -81,7 +81,7 @@ class JSONFormatter(jsonlogger.JsonFormatter):
         """
         super().add_fields(log_record, record, message_dict)
 
-        log_record["timestamp"] = datetime.utcnow().isoformat()
+        log_record["timestamp"] = datetime.now(timezone.utc).isoformat()
         log_record["level"] = record.levelname
         log_record["logger"] = record.name
 

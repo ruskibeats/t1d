@@ -1,0 +1,22 @@
+{
+  "name": "pi-kitty-image",
+  "version": "1.0.0",
+  "description": "Renders screenshots inside Kitty terminal using native icat protocol.",
+  "tools": [
+    {
+      "name": "display_screenshot",
+      "description": "Renders a screenshot image inside the user's Kitty terminal.",
+      ",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "filePath": {
+            "type": "string",
+            "description": "Path to the screenshot image file"
+          }
+        },
+        "required": ["filePath"]
+      }
+    }
+  ]
+}

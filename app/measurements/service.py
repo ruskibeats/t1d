@@ -6,6 +6,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.measurements.models import CustomMeasurement
 from app.measurements.schemas import CustomMeasurementCreate
+from app.metrics.types import MetricType
+from app.services.metric_writer import write_metric_if_present
 
 
 class MeasurementService:
@@ -17,6 +19,14 @@ class MeasurementService:
         self.db.add(measurement)
         await self.db.flush()
         await self.db.refresh(measurement)
+        metric_type = {
+            "weight": MetricType.WEIGHT,
+            "body_fat_percent": MetricType.BODY_FAT_PERCENT,
+            "bmi": MetricType.BMI,
+            "waist_circumference": MetricType.WAIST_CIRCUMFERENCE,
+            "lean_mass": MetricType.LEAN_MASS,
+        }.get(measurement.metric_name, MetricType.CUSTOM)
+        await write_metric_if_present(self.db, user_id, metric_type, measurement.value, measurement.unit, measurement.measured_at, measurement.source, {"metric_name": measurement.metric_name})
         return measurement
 
     async def get_measurement(self, user_id: int, measurement_id: int) -> Optional[CustomMeasurement]:

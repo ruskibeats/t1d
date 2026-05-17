@@ -1,386 +1,319 @@
-# T1D Sensor-Agnostic Conversational AI Companion - Implementation Plan
+# T1D Companion — Implementation Plan
 
-## Context
-Building a sensor-agnostic conversational AI companion for Type 1 Diabetes that connects to CGM/sensor data, spots personal patterns, and helps users understand what usually happens in real life — meals, exercise, stress, alcohol, missed pre-bolus, sleep, illness — without replacing clinical advice or providing autonomous insulin dosing instructions.
+## Current State Assessment
 
-**Key Principle**: Position as a "data companion" not an "insulin dosing app" — avoid regulatory pitfalls while delivering genuine value through pattern recognition and conversational insights.
-
-## Approach
-1. **Subagent Architecture (Minimal Human Involvement)**: Design a multi-agent system using `pi-subagents` where specialized agents handle distinct domains (data ingestion, pattern analysis, conversational AI, safety monitoring) with autonomous coordination, reducing manual oversight to setup and periodic review
-2. **MVP Focus**: Start with Dexcom API integration (official, well-documented) or Nightscout (open-source alternative) for glucose data
-3. **Open-Source Meal Tracker Integration**: Connect with open-source meal tracking platforms (like OpenFoodFacts, MyFitnessPal public API, or custom meal databases) to provide nutritional metrics, carb counts, and comparative analysis — enriching glucose pattern context with food composition data
-4. **Context Layer**: Allow users to log meals, insulin, exercise, sleep, stress, alcohol, illness as contextual events
-5. **Pattern Engine**: Time-in-range analysis, post-meal spike detection, overnight lows, exercise effects, delayed high-fat meal patterns, and nutritional impact analysis
-6. **Conversational AI**: Natural language queries about personal history, "why did I spike?", "what usually happens after pizza?", nutritional insights, and summaries for clinic visits
-7. **Safety Guardrails**: Clear disclaimers, no autonomous dosing, user/clinician-provided rules as reference only, escalation to medical help when needed
-
-## Files to Modify / Create
-
-### Core Application Structure
-- `app/` - Main application directory
-  - `__init__.py` - App initialization
-  - `main.py` - FastAPI application entry point
-  - `config.py` - Configuration management (API keys, settings)
-  
-- `app/core/` - Core utilities and models
-  - `security.py` - Auth and security utilities
-  - `database.py` - Database connection and session management
-  - `models/` - Pydantic models for API schemas
-    - `user.py` - User models
-    - `glucose.py` - Glucose reading models
-    - `event.py` - Context event models (meal, insulin, exercise, etc.)
-    - `pattern.py` - Pattern detection result models
-    - `chat.py` - Chat/conversation models
-
-- `app/agents/` - Subagent system using pi-subagents for autonomous task coordination
-  - `__init__.py` - Agent system initialization
-  - `coordinator.py` - Main coordinator agent that delegates to specialists
-  - `data_ingestion_agent.py` - Handles CGM and meal tracker data sync
-  - `pattern_agent.py` - Pattern detection and analysis
-  - `conversation_agent.py` - Conversational AI and natural language processing
-  - `safety_agent.py` - Guardrails, content filtering, and emergency escalation
-  - `summary_agent.py` - Generates clinic-ready reports and summaries
-  
-- `app/api/` - API endpoints
-  - `__init__.py`
-  - `auth.py` - Authentication endpoints
-  - `users.py` - User management
-  - `glucose.py` - Glucose data ingestion and retrieval
-  - `events.py` - Context event CRUD
-  - `patterns.py` - Pattern detection and analysis
-  - `chat.py` - Conversational AI endpoints
-  - `webhooks/` - External service webhooks (Dexcom, Nightscout)
-    - `dexcom.py` - Dexcom OAuth and data sync
-
-- `app/services/` - Business logic
-  - `dexcom_service.py` - Dexcom API integration
-  - `nightscout_service.py` - Nightscout data sync
-  - `pattern_service.py` - Pattern detection algorithms
-  - `chat_service.py` - AI conversation handling
-  - `analysis_service.py` - Statistical analysis of glucose patterns
-  
-- `app/db/` - Database layer
-  - `__init__.py`
-  - `models.py` - SQLAlchemy ORM models
-  - `repositories/` - Repository pattern for data access
-    - `user_repository.py`
-    - `glucose_repository.py`
-    - `event_repository.py`
-    - `chat_repository.py`
-  - `migrations/` - Database migrations (Alembic)
-
-- `app/ai/` - AI/LLM integration
-  - `__init__.py`
-  - `conversation_engine.py` - Main conversational AI logic
-  - `prompt_templates.py` - Prompt templates for different query types
-  - `guardrails.py` - Safety guardrails and content filtering
-  - `pattern_summarizer.py` - Summarize patterns in natural language
-
-- `app/utils/` - Utilities
-  - `time_utils.py` - Time zone and datetime handling
-  - `glucose_utils.py` - Glucose-specific calculations (A1C, time-in-range, etc.)
-  - `validation.py` - Data validation helpers
-
-- `tests/` - Test suite
-  - `unit/` - Unit tests
-  - `integration/` - Integration tests
-  - `fixtures/` - Test fixtures
-
-- `infrastructure/` - Deployment and infrastructure
-  - `docker/` - Docker configuration
-    - `Dockerfile`
-    - `docker-compose.yml`
-  - `k8s/` - Kubernetes manifests
-  - `terraform/` - Infrastructure as code
-
-- `docs/` - Documentation
-  - `API.md` - API documentation
-  - `SETUP.md` - Setup and deployment guide
-  - `PRIVACY.md` - Privacy and data handling
-  - `SAFETY.md` - Safety guidelines and disclaimers
-
-- Configuration Files
-  - `.env.example` - Environment variable template
-  - `pyproject.toml` - Python project configuration
-  - `pytest.ini` - Test configuration
-  - `ruff.toml` - Linting configuration
-  - `mypy.ini` - Type checking configuration
-
-## Reuse - Existing Patterns and Utilities
-
-### From Project Memory/Context
-- **Python FastAPI patterns** (python-fastapi-development) - Async patterns, SQLAlchemy, Pydantic
-- **Prisma ORM patterns** (prisma-expert) - Schema design, migrations, query optimization (can adapt to SQLAlchemy)
-- **Node.js backend patterns** (nodejs-backend-patterns) - Scalable backend architecture
-- **Python patterns** (python-patterns) - Framework selection, async patterns, project structure
-- **Testing patterns** (python-testing-patterns) - pytest, fixtures, mocking, TDD
-
-### Relevant Agent Skills Available
-- **python-fastapi-development** - FastAPI backend with async patterns
-- **prisma-expert** - ORM and database patterns (adaptable)
-- **python-pro** - Modern Python 3.12+ features and ecosystem
-- **llm-ops** - RAG, embeddings, vector databases for potential future enhancements
-- **rag-implementation** - Retrieval-augmented generation patterns
-
-## Steps - Implementation Checklist
-
-### Phase 1: Foundation & Setup (Week 1-2)
-- [x] Initialize Python project with pyproject.toml
-- [x] Set up FastAPI application structure
-- [x] Install and configure pi-subagents for multi-agent coordination
-- [x] Create subagent definitions (coordinator, data ingestion, pattern analysis, conversation, safety)
-- [x] Configure PostgreSQL database with SQLAlchemy
-- [x] Implement user authentication (JWT, OAuth2)
-- [x] Set up Alembic for database migrations
-- [x] Create Docker configuration for local development
-- [x] Implement basic error handling and logging
-- [x] Set up testing framework (pytest)
-- [x] Configure linting (ruff) and type checking (mypy)
-
-### Phase 2: Data Ingestion & Storage (Week 3-4)
-- [ ] Implement Dexcom OAuth2 flow
-- [ ] Create Dexcom API client (glucose, calibration, alerts)
-- [ ] Implement Nightscout API client (alternative data source)
-- [ ] Build glucose data ingestion pipeline
-- [ ] Create database models for glucose readings, trends, alerts
-- [ ] Implement data validation and sanitization
-- [ ] Add webhook handlers for real-time data (if available)
-- [ ] Create API endpoints for manual data entry
-- [ ] Implement background sync jobs (Celery or similar)
-
-### Phase 3: Context Events & User Input (Week 5-6)
-- [ ] Design event schema (meal, insulin, exercise, sleep, stress, alcohol, illness)
-- [ ] Implement CRUD API for context events
-- [ ] Add photo/document upload for meal logging (optional)
-- [ ] Create validation for insulin dosage entries
-- [ ] Implement time-series data structure for efficient querying
-- [ ] Add tagging/categorization for events
-- [ ] Build UI components for event logging (if frontend included)
-
-### Phase 4: Pattern Detection Engine (Week 7-9)
-- [ ] Implement time-in-range (TIR) calculations (70-180 mg/dL)
-- [ ] Build post-meal spike detection (1-2 hour windows)
-- [ ] Create overnight hypoglycemia detection
-- [ ] Implement exercise impact analysis
-- [ ] Build delayed high-fat meal pattern recognition
-- [ ] Add correlation analysis (glucose vs. events)
-- [ ] Create statistical summaries (daily, weekly, monthly)
-- [ ] Implement trend detection algorithms
-- [ ] Add visualization data generation (charts, graphs)
-
-### Phase 5: Conversational AI Layer (Week 10-12)
-- [ ] Choose LLM (OpenAI GPT-4o-mini, Anthropic Claude 3.5 Haiku, or local)
-- [ ] Design prompt templates for different query types
-- [ ] Implement conversation history management
-- [ ] Build RAG system for user's historical data
-- [ ] Create pattern summarization in natural language
-- [ ] Implement safety guardrails and content filtering
-- [ ] Add medical disclaimer injection
-- [ ] Build escalation triggers (emergency keywords)
-- [ ] Create chat API endpoints
-- [ ] Implement streaming responses for better UX
-
-### Phase 6: Safety & Compliance (Week 13-14)
-- [ ] Write comprehensive safety disclaimers
-- [ ] Implement content moderation for user inputs
-- [ ] Add audit logging for all user actions
-- [ ] Create data retention and deletion policies
-- [ ] Implement GDPR/privacy compliance features
-- [ ] Add rate limiting and abuse prevention
-- [ ] Create monitoring and alerting (Sentry, Prometheus)
-- [ ] Implement backup and disaster recovery
-- [ ] Write incident response procedures
-
-### Phase 7: Frontend (Optional - Week 15-16)
-- [ ] Design responsive React frontend
-- [ ] Implement dashboard for glucose trends
-- [ ] Create event logging interface
-- [ ] Build chat interface
-- [ ] Add pattern visualization charts
-- [ ] Implement mobile-responsive design
-- [ ] Add offline capability (service workers)
-- [ ] Create print-friendly reports for clinic visits
-
-### Phase 8: Testing & Deployment (Week 17-18)
-- [ ] Write comprehensive test suite
-- [ ] Perform security audit
-- [ ] Conduct load testing
-- [ ] Deploy to staging environment
-- [ ] Beta testing with small user group
-- [ ] Iterate based on feedback
-- [ ] Deploy to production
-- [ ] Set up CI/CD pipeline
-- [ ] Create monitoring dashboards
-
-## Verification
-
-### Functional Testing
-- [ ] Dexcom OAuth flow works end-to-end
-- [ ] Glucose data syncs correctly (test with sample data)
-- [ ] Event CRUD operations validate properly
-- [ ] Pattern detection produces accurate results
-- [ ] AI responses are relevant and helpful
-- [ ] Safety guardrails block inappropriate requests
-- [ ] Emergency escalation works
-
-### Security Testing
-- [ ] Penetration test authentication
-- [ ] Verify API rate limiting
-- [ ] Test for SQL injection vulnerabilities
-- [ ] Validate input sanitization
-- [ ] Check for XSS vulnerabilities
-- [ ] Verify HTTPS enforcement
-- [ ] Audit third-party API integrations
-
-### Performance Testing
-- [ ] Glucose data queries under 100ms
-- [ ] Chat responses under 2s
-- [ ] Support 1000+ concurrent users
-- [ ] Handle 100MB+ of glucose data per user
-- [ ] Pattern analysis completes within 30s
-
-### Compliance Verification
-- [ ] Privacy policy reviewed by legal
-- [ ] Medical disclaimer prominently displayed
-- [ ] Data handling practices documented
-- [ ] User consent flow implemented
-- [ ] Data deletion/export features work
-
-## Regulatory Considerations
-
-### Key Points
-- **Not a Medical Device**: App does not provide dosing recommendations or replace clinical advice
-- **Educational Purpose**: Patterns and insights for awareness only
-- **User Responsibility**: Users must consult healthcare providers for treatment decisions
-- **Data Privacy**: HIPAA-compliant data handling if in US
-- **Liability Protection**: Clear terms of service and disclaimers
-- **Clinical Integration**: Option to export data for healthcare provider review
-
-### Suggested Disclaimers
-- "This app provides educational insights based on your data, not medical advice"
-- "Always consult your healthcare provider before making treatment decisions"
-- "Patterns shown are correlations, not causations"
-- "Individual results may vary; this is not a substitute for professional care"
-
-## Future Enhancements (Post-MVP)
-
-### Data Sources
-- Abbott FreeStyle Libre integration
-- Apple HealthKit aggregation
-- Fitbit/Google Health Connect
-- Manual entry optimization (voice, photo recognition)
-
-### AI Features
-- Predictive alerts (upcoming highs/lows)
-- Personalized meal suggestions
-- Integration with insulin pump data
-- Multi-user support (parents monitoring children)
-- Community features (anonymous pattern sharing)
-
-### Advanced Analytics
-- Machine learning for personalized predictions
-- Seasonal pattern detection
-- Medication effectiveness tracking
-- Quality of life scoring
-- Goal setting and progress tracking
-
-## Success Metrics
-
-### User Engagement
-- Daily active users: >40%
-- Weekly pattern checks: >60% of users
-- Chat usage: >3 interactions per session
-- Session duration: >5 minutes average
-
-### Health Outcomes (Long-term)
-- Time-in-range improvement: +5-10%
-- Hypoglycemia reduction: -20%
-- Post-meal spike reduction: -15%
-- User-reported understanding: +30%
-
-### Technical
-- API uptime: 99.9%
-- Response time: <2s for 95% of requests
-- Data sync latency: <15 minutes
-- User data export: 100% successful
-
-## Risk Mitigation
-
-### Technical Risks
-- **API Changes**: Dexcom/Nightscout API updates → Build abstraction layer
-- **Data Loss**: Implement comprehensive backup strategy
-- **Performance**: Start with small user base, scale gradually
-- **Security**: Regular audits, bug bounty program
-
-### Business Risks  
-- **Regulatory**: Clear positioning as educational tool, legal review
-- **Liability**: Comprehensive disclaimers, insurance
-- **User Trust**: Transparent data practices, open about limitations
-- **Competition**: Focus on conversational UX, not just data display
-
-### Adoption Risks
-- **Tech Complexity**: Simple onboarding, clear value proposition
-- **Clinical Pushback**: Emphasize patient education, provider collaboration
-- **Data Entry Burden**: Minimize required inputs, smart defaults
-
-## Budget Estimate (Indicative)
-
-### Development (3-4 months)
-- Backend development: $15,000-25,000
-- Frontend development: $8,000-15,000 (if included)
-- AI integration: $5,000-10,000
-- Testing & security: $5,000-8,000
-- **Total**: $33,000-58,000
-
-### Infrastructure (Monthly)
-- Cloud hosting: $200-500
-- Database: $100-300
-- LLM API: $300-1000 (depends on usage)
-- Monitoring: $100-200
-- **Total**: $700-2000/month
-
-### Ongoing (Monthly)
-- Maintenance & updates: $2000-4000
-- Customer support: $1000-3000
-- Legal/compliance: $500-1000
-- **Total**: $3500-8000/month
-
-## Team Requirements
-
-### Core Team
-- Backend developer (Python/FastAPI) - 1
-- Frontend developer (React) - 0.5-1 (optional)
-- AI/ML engineer - 0.5
-- DevOps engineer - 0.25
-- QA engineer - 0.5
-- Product manager - 0.25
-
-### Advisors
-- Endocrinologist (clinical review) - 1
-- Diabetes educator - 1
-- Legal counsel (healthcare) - 1
-
-## Immediate Next Steps
-
-1. **Confirm MVP scope** with stakeholders
-2. **Legal review** of concept and disclaimers
-3. **Technical feasibility** assessment (API access, data formats)
-4. **Create detailed technical specification**
-5. **Set up development environment**
-6. **Begin Phase 1 implementation**
-
-## Questions to Resolve
-
-- [ ] Confirm primary data source (Dexcom vs. Nightscout vs. both)
-- [ ] Determine LLM choice (OpenAI vs. Anthropic vs. local)
-- [ ] Clarify regulatory jurisdiction (US FDA, EU MDR, etc.)
-- [ ] Define target user segment (Type 1 only, Type 2 insulin users?)
-- [ ] Establish clinical advisory board
-- [ ] Confirm funding/budget availability
-- [ ] Set timeline and milestone expectations
+| Area | Status | Gap |
+|------|--------|-----|
+| Database schema (models.py) | ✅ Complete | — |
+| API routes (18 routers) | ✅ Complete | — |
+| Pydantic schemas | ✅ Complete | — |
+| Safety system (SafetyScaffold) | ✅ Complete | — |
+| Pattern detection engine | ✅ Complete | — |
+| LLM service (multi-provider) | ⚠️ Partial | No real provider configured by default |
+| Agent coordinator | ❌ Stubs | All 5 agents return placeholder data |
+| Chat endpoint | ❌ Fake | Keyword-matching instead of LLM calls |
+| RAG pipeline | ❌ Broken | Returns raw readings, no pattern summaries |
+| Tests | ❌ Near-zero | 1 file (safety only), no integration tests |
+| Frontend | ⚠️ Skeleton | Demo data only, no real API auth |
+| Sync/background tasks | ❌ Missing | No Celery, no periodic sync |
+| Food providers | ❌ Stubs | OpenFoodFacts/USDA not implemented |
+| Wearable ingestion | ❌ Stubs | Garmin/Fitbit/Polar/Strava/Withings are empty |
 
 ---
 
-**Last Updated**: 2026-05-13  
-**Version**: 1.0  
-**Status**: Planning phase - ready for implementation
+## Phase 1: Make the Chat Pipeline Real
+
+**Goal:** A user can register, log in, send a chat message, and get a real LLM response grounded in their data.
+
+### 1.1 Wire up the Agent Coordinator
+
+`app/agents/coordinator.py` — replace stubs with real delegation:
+
+- **`DataIngestionAgent.handle()`** → call `LLMService.retrieve_context()` to get real glucose readings, events, and pattern summaries from the DB
+- **`PatternAgent.handle()`** → call `PatternService.calculate_time_in_range()`, `detect_post_meal_spikes()`, `detect_overnight_hypoglycemia()` and return structured results
+- **`ConversationAgent.handle()`** → call `LLMService.generate_response()` with the real message + context + patterns
+- **`SummaryAgent.handle()`** → call `LLMService.summarize_patterns()` for natural language summaries
+- **`SafetyAgent`** → already works, delegates to `SafetyScaffold`
+
+Each agent's `handle()` should accept the same `dict` interface but delegate to the real service layer instead of returning placeholders.
+
+### 1.2 Fix the Chat Endpoint
+
+`app/api/chat.py` — replace the fake `_generate_ai_response()` keyword matcher:
+
+- Remove the hardcoded if/else keyword tree (`if "spike" in message_lower`...)
+- Replace with a call to `AgentCoordinator.process_chat_message()`
+- The endpoint already saves user/AI messages to the DB — keep that
+- The `_build_context()` helper already fetches real glucose and events — keep that, but also include pattern analysis results
+- Wire the streaming endpoint (`/chat/stream`) to use the same pipeline with SSE chunks from the LLM service
+
+### 1.3 Fix the RAG Pipeline
+
+`app/services/llm_service.py` — `retrieve_context()` should return pattern summaries, not just raw data:
+
+- After fetching glucose readings and events, call `PatternService.calculate_time_in_range()` and include the TIR summary
+- Call `PatternService.detect_post_meal_spikes()` and include spike count
+- Call `PatternService.detect_overnight_hypoglycemia()` and include overnight low count
+- The system prompt builder (`_build_system_prompt()`) already knows how to render pattern data — it just never receives it
+
+### 1.4 Default to a Working LLM Provider
+
+`app/config.py` + `app/services/llm_service.py`:
+
+- The default provider is `openrouter` but no API key is configured
+- Add a fallback chain: try configured provider → if no key, use a simple rule-based response generator that still uses the RAG context (so the pipeline works end-to-end without an API key)
+- This lets the system be testable without external dependencies
+
+### 1.5 Write Integration Tests for the Chat Pipeline
+
+`tests/test_chat_pipeline.py`:
+
+- Test the full flow: register → login → send chat message → get response
+- Use a test database (SQLite in-memory or test Postgres)
+- Mock the LLM provider to return deterministic responses
+- Verify: safety check runs, context is retrieved, response is saved to DB
+- Test emergency keyword detection triggers escalation
+- Test that dosing advice is blocked by post-LLM safety validation
+
+**Phase 1 Acceptance Criteria:**
+- [ ] `AgentCoordinator.process_chat_message()` runs the full pipeline with real services
+- [ ] Chat endpoint returns LLM-generated (or rule-based fallback) responses grounded in user data
+- [ ] RAG context includes pattern summaries, not just raw readings
+- [ ] Streaming endpoint works with the real pipeline
+- [ ] 10+ integration tests pass for the chat flow
+
+---
+
+## Phase 2: Test Coverage
+
+**Goal:** Core business logic has unit tests. Critical paths have integration tests.
+
+### 2.1 Unit Tests — Pattern Service
+
+`tests/test_pattern_service.py`:
+
+- `calculate_time_in_range()`: empty readings, all in range, all below, all above, mixed
+- `detect_post_meal_spikes()`: no meals, meal with no spike, meal with spike, multiple meals
+- `detect_overnight_hypoglycemia()`: no lows, single low, multiple nights
+- `analyze_exercise_impact()`: no exercise, exercise with drop, exercise with rise
+- Edge cases: single reading, duplicate timestamps, boundary values (exactly 70, 180 mg/dL)
+
+### 2.2 Unit Tests — Safety Scaffold
+
+`tests/ai/test_safety.py` — already exists, expand it:
+
+- Add tests for `_check_policy_violations()` (dosing advice detection, treatment plan changes)
+- Add tests for the assistant-source validation path
+- Add tests for all severity levels and condition combinations
+
+### 2.3 Unit Tests — LLM Service
+
+`tests/test_llm_service.py`:
+
+- `retrieve_context()`: verify correct DB queries, empty data handling
+- `_build_system_prompt()`: verify prompt includes user profile, patterns, events, safety rules
+- `_build_conversation_history()`: verify correct message formatting
+- Provider fallback chain: OpenAI → Anthropic → OpenRouter → rule-based
+- Mock all external HTTP calls (use `httpx.MockTransport` or `unittest.mock`)
+
+### 2.4 Unit Tests — Agent Coordinator
+
+`tests/test_agent_coordinator.py`:
+
+- `delegate_task()` routes to correct agent
+- `process_chat_message()` runs the full pipeline in order
+- Safety violation short-circuits the pipeline
+- Each agent's `handle()` delegates to the correct service
+
+### 2.5 Integration Tests — API Endpoints
+
+`tests/test_api_auth.py`: register, login, token refresh, protected endpoints
+`tests/test_api_glucose.py`: CRUD, pagination, trend calculation
+`tests/test_api_events.py`: CRUD for each event type (meal, insulin, exercise)
+`tests/test_api_patterns.py`: pattern analysis endpoint, export endpoint
+
+### 2.6 Integration Tests — Auth + Security
+
+- JWT creation, decoding, expiration
+- Password hashing and verification
+- Protected endpoint access control
+- Token refresh flow
+
+**Phase 2 Acceptance Criteria:**
+- [ ] 80%+ line coverage on `app/ai/safety.py`, `app/services/pattern_service.py`
+- [ ] 70%+ line coverage on `app/services/llm_service.py`, `app/agents/coordinator.py`
+- [ ] Integration tests for all CRUD endpoints
+- [ ] All tests pass with `pytest -x` (no external dependencies needed)
+
+---
+
+## Phase 3: Data Ingestion
+
+**Goal:** Real CGM data can flow into the system.
+
+### 3.1 Dexcom OAuth Flow
+
+`app/api/auth.py` + `app/services/dexcom_service.py`:
+
+- Implement the OAuth callback endpoint (`/auth/dexcom/callback`)
+- Store tokens in the `User` model (already has `dexcom_access_token`, `dexcom_refresh_token`, `dexcom_expires_at`)
+- Implement token refresh logic
+- Add a `/auth/dexcom/status` endpoint to check connection status
+
+### 3.2 Nightscout Integration
+
+`app/services/nightscout_service.py` — already implemented, needs:
+
+- API route for configuring Nightscout URL/token per user
+- Sync endpoint that calls `NightscoutService.sync_glucose_data()`
+- Store Nightscout credentials in the `User` model (add columns if needed)
+
+### 3.3 Background Sync
+
+`app/services/sync_service.py` — needs to be created:
+
+- Periodic task: every 5 minutes, sync CGM data for all connected users
+- Use `asyncio` with a simple loop (no Celery dependency needed for MVP)
+- On sync: fetch new readings → store → trigger pattern analysis
+- Add a `/api/v1/sync/trigger` endpoint for manual sync
+
+### 3.4 Food Database Integration
+
+`app/food/providers/openfoodfacts.py` + `app/food/providers/usda.py`:
+
+- Implement OpenFoodFacts API client (barcode search, name search)
+- Implement USDA FoodData Central API client
+- `FoodService.search()` queries personal DB first, then external providers
+- Cache external results in the `Food` table
+
+**Phase 3 Acceptance Criteria:**
+- [ ] Dexcom OAuth flow works end-to-end (with real credentials)
+- [ ] Nightscout sync works with a real Nightscout instance
+- [ ] Background sync runs and populates glucose readings
+- [ ] Food search returns results from external providers
+
+---
+
+## Phase 4: Frontend Integration
+
+**Goal:** The React frontend talks to the real backend.
+
+### 4.1 Auth Flow
+
+`frontend/src/contexts/AuthContext.tsx`:
+
+- Wire login/register to `POST /auth/login` and `POST /auth/register`
+- Store JWT in `localStorage` (already there)
+- Add token refresh logic
+- Add logout (clear token + redirect)
+
+### 4.2 Replace Demo Data with Real API Calls
+
+For each hook (`useGlucose`, `useEvents`, `useFood`, `useExercise`, `useSleep`):
+
+- Remove the demo data fallback (or keep it as dev-only mode)
+- Call the real API endpoints with the stored JWT
+- Handle loading/error states properly
+- Add pagination support
+
+### 4.3 Chat UI
+
+`frontend/src/pages/Chat.tsx`:
+
+- Wire to `POST /api/v1/chat` (blocking) or `/api/v1/chat/stream` (SSE)
+- Display conversation history from `GET /api/v1/conversations/{id}/messages`
+- Show loading state while waiting for response
+- Handle safety escalation messages (show emergency resources)
+
+### 4.4 Dashboard
+
+`frontend/src/pages/Dashboard.tsx`:
+
+- Show real glucose chart (last 24h) using `useGlucose`
+- Show recent events from `useEvents`
+- Show pattern summary (TIR, estimated A1C) from `GET /api/v1/patterns/tir`
+
+**Phase 4 Acceptance Criteria:**
+- [ ] User can register, log in, and see their data
+- [ ] Chat sends real messages and displays real responses
+- [ ] Dashboard shows real glucose chart and pattern summary
+- [ ] All pages handle loading/error states
+
+---
+
+## Phase 5: Polish & Hardening
+
+**Goal:** Production-ready quality.
+
+### 5.1 Error Handling
+
+- Consistent error responses across all endpoints (use the `ErrorResponse` model)
+- Proper HTTP status codes (400, 401, 403, 404, 422, 500)
+- Request validation with Pydantic (already mostly done)
+- Global exception handler in `main.py` (already done)
+
+### 5.2 Rate Limiting
+
+- Add rate limiting to chat endpoint (prevent abuse)
+- Add rate limiting to auth endpoints (prevent brute force)
+- Use `slowapi` or similar
+
+### 5.3 Input Validation
+
+- Validate glucose values (0–600 mg/dL range)
+- Validate carb values (0–500g)
+- Validate insulin units (0–100)
+- Validate timestamps (not in the future)
+
+### 5.4 Documentation
+
+- Update `SYSTEM.md` to reflect actual implementation
+- Add API usage examples to `README.md`
+- Add architecture decision records (`docs/adr/`) for key choices
+
+### 5.5 Deployment
+
+- Docker setup (already has `docker-compose.yml`)
+- Health check endpoints (already has `/health`)
+- Environment variable documentation
+- Database migration guide
+
+**Phase 5 Acceptance Criteria:**
+- [ ] All endpoints return consistent error responses
+- [ ] Rate limiting is active on sensitive endpoints
+- [ ] Input validation rejects invalid data with clear messages
+- [ ] Documentation matches actual behavior
+- [ ] Docker setup works with `docker compose up`
+
+---
+
+## Priority Order & Dependencies
+
+```
+Phase 1 (Chat Pipeline) ──→ Phase 2 (Tests)
+        │                        │
+        ▼                        ▼
+Phase 3 (Data Ingestion) ──→ Phase 4 (Frontend)
+        │
+        ▼
+Phase 5 (Polish)
+```
+
+**Phase 1 is the critical path.** Without a working chat pipeline, the system is a CRUD app with a fancy architecture diagram. Phases 1+2 can be done in parallel by different people. Phase 3 depends on Phase 1 (sync needs the DB schema and agent pipeline). Phase 4 depends on Phases 1+3 (frontend needs working APIs and data). Phase 5 is continuous.
+
+## Estimated Effort
+
+| Phase | Scope | Estimated Work |
+|-------|-------|---------------|
+| Phase 1 | Wire agents, fix chat, fix RAG | ~40% of total effort |
+| Phase 2 | Unit + integration tests | ~25% of total effort |
+| Phase 3 | CGM sync, food providers | ~20% of total effort |
+| Phase 4 | Frontend API integration | ~10% of total effort |
+| Phase 5 | Polish, error handling, deploy | ~5% of total effort |
+
+## Key Risks
+
+1. **LLM provider availability.** Mitigation: rule-based fallback in Phase 1 so the pipeline works without API keys.
+2. **Dexcom OAuth complexity.** Mitigation: Nightscout is simpler and can be implemented first.
+3. **Test database setup.** Mitigation: use SQLite in-memory for unit tests, test Postgres for integration tests.
+4. **Frontend-backend auth mismatch.** Mitigation: get the auth flow working first, then build features on top.
