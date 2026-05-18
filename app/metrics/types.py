@@ -3,6 +3,27 @@
 from enum import StrEnum
 
 
+class GraphEdgeType(StrEnum):
+    """Relationship types between health metric nodes.
+
+    Edges are observational evidence, not medical advice. They describe
+    temporal/correlational relationships that pattern detection found.
+    """
+
+    MEAL_TO_GLUCOSE_SPIKE = "meal_to_glucose_spike"
+    MEAL_TO_DELAYED_SPIKE = "meal_to_delayed_spike"
+    EXERCISE_TO_GLUCOSE_DROP = "exercise_to_glucose_drop"
+    EXERCISE_TO_GLUCOSE_RISE = "exercise_to_glucose_rise"
+    INSULIN_TO_GLUCOSE_CHANGE = "insulin_to_glucose_change"
+    SLEEP_TO_NEXT_DAY_GLUCOSE = "sleep_to_next_day_glucose"
+    STRESS_TO_GLUCOSE_RISE = "stress_to_glucose_rise"
+    HEART_RATE_TO_LOW_GLUCOSE = "heart_rate_to_low_glucose"
+    HYDRATION_TO_GLUCOSE_STABILITY = "hydration_to_glucose_stability"
+    CORRELATES_WITH = "correlates_with"
+    PRECEDES = "precedes"
+    SAME_EVENT_AS = "same_event_as"
+
+
 class MetricType(StrEnum):
     """All valid health metric type identifiers.
 

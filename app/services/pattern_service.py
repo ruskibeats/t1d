@@ -219,6 +219,7 @@ class PatternService:
         end_date: datetime,
         min_carbs: float = 30,
         spike_threshold: float = 50,  # mg/dL rise from pre-meal
+        persist_graph_edges: bool = True,
     ) -> List[Dict[str, Any]]:
         """Detect post-meal glucose spikes.
         
@@ -308,7 +309,7 @@ class PatternService:
                 peak_time_cmp = peak_time.replace(tzinfo=None) if peak_time.tzinfo else peak_time
                 time_to_peak = (peak_time_cmp - event_time).total_seconds() / 60
                 
-                spikes.append({
+                spike = {
                     "meal": {
                         "timestamp": event.timestamp,
                         "carbohydrates": event.carbs_grams,
@@ -323,10 +324,106 @@ class PatternService:
                     "recommendations": self._generate_spike_recommendations(
                         event.carbs_grams or 0, glucose_rise, time_to_peak
                     ),
-                })
+                }
+                spikes.append(spike)
+                if persist_graph_edges:
+                    await self._persist_meal_spike_edge(
+                        session=session,
+                        user_id=user_id,
+                        meal_time=event.timestamp,
+                        peak_time=peak_time,
+                        confidence=self._spike_confidence(glucose_rise, peak_value),
+                        evidence={
+                            "carbs_grams": event.carbs_grams,
+                            "food_name": event.description or "Meal",
+                            "pre_meal_baseline": round(pre_meal_avg, 1),
+                            "peak_value": round(peak_value, 1),
+                            "glucose_rise": round(glucose_rise, 1),
+                            "time_to_peak_minutes": round(time_to_peak),
+                            "severity": spike["severity"],
+                        },
+                    )
         
         return spikes
     
+    def _spike_confidence(self, glucose_rise: float, peak_value: float) -> float:
+        """Score confidence for a meal-to-spike edge."""
+        rise_component = min(max((glucose_rise - 50) / 100, 0), 1)
+        peak_component = min(max((peak_value - self.HYPER_THRESHOLD) / 100, 0), 1)
+        return round(0.5 + (rise_component * 0.3) + (peak_component * 0.2), 2)
+
+    async def _persist_meal_spike_edge(
+        self,
+        session: AsyncSession,
+        user_id: int,
+        meal_time: datetime,
+        peak_time: datetime,
+        confidence: float,
+        evidence: dict[str, Any],
+    ) -> None:
+        """Persist a graph edge for detected meal-to-glucose spike if nodes exist."""
+        try:
+            from app.metrics.graph_service import HealthGraphService
+            from app.metrics.models import HealthMetric
+            from app.metrics.schemas import HealthMetricEdgeCreate
+            from app.metrics.types import GraphEdgeType, MetricType
+
+            meal_metric = await self._nearest_metric(
+                session, user_id, [MetricType.CARBS, MetricType.CALORIES], meal_time, tolerance_minutes=30
+            )
+            glucose_metric = await self._nearest_metric(
+                session, user_id, [MetricType.BLOOD_GLUCOSE], peak_time, tolerance_minutes=20
+            )
+            if not meal_metric or not glucose_metric or meal_metric.id == glucose_metric.id:
+                return
+            delay = int((peak_time.replace(tzinfo=None) - meal_time.replace(tzinfo=None)).total_seconds())
+            await HealthGraphService(session).upsert_edge(
+                user_id,
+                HealthMetricEdgeCreate(
+                    source_metric_id=meal_metric.id,
+                    target_metric_id=glucose_metric.id,
+                    edge_type=GraphEdgeType.MEAL_TO_GLUCOSE_SPIKE,
+                    confidence=confidence,
+                    time_delay_seconds=delay,
+                    algorithm="pattern_service.post_meal_spike.v1",
+                    evidence=evidence,
+                ),
+            )
+        except Exception as e:
+            self.logger.warning(f"Failed to persist meal spike graph edge: {e}")
+
+    async def _nearest_metric(
+        self,
+        session: AsyncSession,
+        user_id: int,
+        metric_types: list,
+        target_time: datetime,
+        tolerance_minutes: int,
+    ):
+        """Find nearest HealthMetric of any given type around a timestamp."""
+        from app.metrics.models import HealthMetric
+
+        naive_target = target_time.replace(tzinfo=None) if target_time.tzinfo else target_time
+        start = naive_target - timedelta(minutes=tolerance_minutes)
+        end = naive_target + timedelta(minutes=tolerance_minutes)
+        result = await session.execute(
+            select(HealthMetric)
+            .where(
+                HealthMetric.user_id == user_id,
+                HealthMetric.type.in_(metric_types),
+                HealthMetric.measured_at >= start,
+                HealthMetric.measured_at <= end,
+            )
+            .order_by(HealthMetric.measured_at)
+        )
+        metrics = list(result.scalars().all())
+        if not metrics:
+            return None
+        return min(
+            metrics,
+            key=lambda m: abs(((m.measured_at.replace(tzinfo=None) if m.measured_at.tzinfo else m.measured_at) - naive_target).total_seconds()),
+        )
+
     def _classify_spike_severity(self, glucose_rise: float, peak_value: float) -> str:
         """Classify spike severity.
         

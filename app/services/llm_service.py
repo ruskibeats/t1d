@@ -51,6 +51,7 @@ class RAGContext(BaseModel):
     recent_events: List[Dict[str, Any]] = Field(default_factory=list)
     pattern_summary: Optional[Dict[str, Any]] = Field(None)
     user_profile: Optional[Dict[str, Any]] = Field(None)
+    graph_edges: List[Dict[str, Any]] = Field(default_factory=list)
 
 
 class LLMServiceError(Exception):
@@ -231,11 +232,34 @@ class LLMService:
                 "glucose_units": user.glucose_units,
             }
         
+        # Graph context: strongest recent relationships discovered by pattern analysis.
+        graph_edges: list[dict[str, Any]] = []
+        try:
+            from app.metrics.graph_service import HealthGraphService
+
+            graph_service = HealthGraphService(session)
+            edges = await graph_service.get_strongest_edges(user_id, limit=10)
+            graph_edges = [
+                {
+                    "edge_type": edge.edge_type.value if hasattr(edge.edge_type, "value") else str(edge.edge_type),
+                    "source_metric_id": edge.source_metric_id,
+                    "target_metric_id": edge.target_metric_id,
+                    "confidence": edge.confidence,
+                    "time_delay_seconds": edge.time_delay_seconds,
+                    "algorithm": edge.algorithm,
+                    "evidence": edge.evidence or {},
+                }
+                for edge in edges
+            ]
+        except Exception as e:
+            self.logger.warning(f"Could not retrieve graph context: {e}")
+
         return RAGContext(
             recent_glucose=recent_glucose,
             recent_events=recent_events,
             pattern_summary=pattern_summary,
             user_profile=user_profile,
+            graph_edges=graph_edges,
         )
     
     # -------------------------------------------------------------------
@@ -296,6 +320,26 @@ Recent Events ({len(rag_context.recent_events)} events in last {len(rag_context.
                     prompt += f" ({event['carbs_grams']}g carbs)"
                 prompt += "\n"
         
+        # Add graph relationships context
+        if rag_context.graph_edges:
+            prompt += f"""
+Recent Personal Relationship Evidence ({len(rag_context.graph_edges)} relationships):
+"""
+            for edge in rag_context.graph_edges[:5]:
+                delay = edge.get("time_delay_seconds")
+                delay_text = f", delay {round(delay / 60)} min" if delay else ""
+                evidence = edge.get("evidence") or {}
+                prompt += (
+                    f"- {edge['edge_type']}: metric {edge['source_metric_id']} → "
+                    f"metric {edge['target_metric_id']} "
+                    f"(confidence {edge['confidence']:.2f}{delay_text})"
+                )
+                if evidence:
+                    compact = {k: evidence[k] for k in list(evidence)[:3]}
+                    prompt += f" evidence={compact}"
+                prompt += "\n"
+            prompt += "These relationships are observational evidence only; never turn them into dosing or treatment instructions.\n"
+
         # Add condition-specific safety guardrails
         from app.ai.safety import SafetyScaffold
         safety_scaffold = SafetyScaffold()

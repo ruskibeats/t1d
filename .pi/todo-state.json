@@ -1,0 +1,262 @@
+{
+  "version": 2,
+  "items": [
+    {
+      "id": 1,
+      "item": "Create a hello.txt file in the project root",
+      "assigned": "@worker",
+      "tags": [
+        "test",
+        "simple"
+      ],
+      "status": "completed",
+      "createdAt": "2026-05-18T21:01:53.088Z",
+      "updatedAt": "2026-05-18T21:06:30.206Z",
+      "description": "Create a file called hello.txt in /root/t1d/ with the content \"Hello from subagent test\". Verify the file exists after creation.",
+      "branch": "main",
+      "project": "t1d",
+      "blockedBy": []
+    },
+    {
+      "id": 2,
+      "item": "List all Python files in the app directory",
+      "assigned": "@scout",
+      "tags": [
+        "test",
+        "simple"
+      ],
+      "status": "completed",
+      "createdAt": "2026-05-18T21:01:53.090Z",
+      "updatedAt": "2026-05-18T21:04:26.039Z",
+      "description": "Run `find app -name \"*.py\" | sort` and report the full list of Python files in the app directory.",
+      "branch": "main",
+      "project": "t1d",
+      "blockedBy": []
+    },
+    {
+      "id": 3,
+      "item": "Count lines of code in the project",
+      "assigned": "@researcher",
+      "tags": [
+        "test",
+        "simple"
+      ],
+      "status": "completed",
+      "createdAt": "2026-05-18T21:01:53.092Z",
+      "updatedAt": "2026-05-18T21:06:30.207Z",
+      "description": "Run `find . -name \"*.py\" -not -path \"./venv/*\" -not -path \"./node_modules/*\" | xargs wc -l` and report the total line count.",
+      "branch": "main",
+      "project": "t1d",
+      "blockedBy": []
+    },
+    {
+      "id": 4,
+      "item": "Create a goodbye.txt file in the project root",
+      "assigned": "@worker",
+      "tags": [
+        "test",
+        "simple"
+      ],
+      "status": "completed",
+      "createdAt": "2026-05-18T21:07:51.372Z",
+      "updatedAt": "2026-05-18T21:12:21.401Z",
+      "description": "Create a file called goodbye.txt in /root/t1d/ with the content \"Goodbye from subagent test\". Verify the file exists after creation.",
+      "branch": "main",
+      "project": "t1d",
+      "blockedBy": []
+    },
+    {
+      "id": 5,
+      "item": "List all test files in the tests directory",
+      "assigned": "@scout",
+      "tags": [
+        "test",
+        "simple"
+      ],
+      "status": "completed",
+      "createdAt": "2026-05-18T21:07:51.375Z",
+      "updatedAt": "2026-05-18T21:11:32.741Z",
+      "description": "Run `find /root/t1d/tests -name \"*.py\" | sort` and report the full list of test files.",
+      "branch": "main",
+      "project": "t1d",
+      "blockedBy": []
+    },
+    {
+      "id": 6,
+      "item": "Count total number of files in the project",
+      "assigned": "@researcher",
+      "tags": [
+        "test",
+        "simple"
+      ],
+      "status": "completed",
+      "createdAt": "2026-05-18T21:07:51.377Z",
+      "updatedAt": "2026-05-18T21:13:08.542Z",
+      "description": "Run `find /root/t1d -not -path \"./venv/*\" -not -path \"./node_modules/*\" -not -path \"./.git/*\" -not -path \"./.pi/*\" -type f | wc -l` and report the total file count.",
+      "branch": "main",
+      "project": "t1d",
+      "blockedBy": []
+    },
+    {
+      "id": 7,
+      "item": "Show the last 10 commits in the repo",
+      "assigned": "@scout",
+      "tags": [
+        "test",
+        "simple"
+      ],
+      "status": "completed",
+      "createdAt": "2026-05-18T21:07:51.378Z",
+      "updatedAt": "2026-05-18T21:10:48.496Z",
+      "description": "Run `git -C /root/t1d log --oneline -10` and report the output.",
+      "branch": "main",
+      "project": "t1d",
+      "blockedBy": []
+    },
+    {
+      "id": 8,
+      "item": "Create a timestamp file with current date",
+      "assigned": "@worker",
+      "tags": [
+        "test",
+        "simple"
+      ],
+      "status": "completed",
+      "createdAt": "2026-05-18T21:07:51.380Z",
+      "updatedAt": "2026-05-18T21:11:10.567Z",
+      "description": "Run `date` to get the current timestamp, then create /root/t1d/timestamp.txt with that value. Verify the file.",
+      "branch": "main",
+      "project": "t1d",
+      "blockedBy": []
+    },
+    {
+      "id": 10,
+      "item": "Create a notes.txt file with a short message",
+      "assigned": "@worker",
+      "tags": [
+        "test",
+        "simple"
+      ],
+      "status": "completed",
+      "createdAt": "2026-05-18T21:22:30.619Z",
+      "updatedAt": "2026-05-18T21:49:49.928Z",
+      "description": "Create `/root/t1d/notes.txt` with content \"Notes from subagent test run\". Verify the file exists.",
+      "branch": "main",
+      "project": "t1d",
+      "blockedBy": []
+    },
+    {
+      "id": 11,
+      "item": "List all .json files in the project",
+      "assigned": "@scout",
+      "tags": [
+        "test",
+        "simple"
+      ],
+      "status": "completed",
+      "createdAt": "2026-05-18T21:22:30.621Z",
+      "updatedAt": "2026-05-18T21:46:43.064Z",
+      "description": "Run `find /root/t1d -name \"*.json\" -not -path \"./venv/*\" -not -path \"./node_modules/*\" -not -path \"./.git/*\" | sort` and report the full list.",
+      "branch": "main",
+      "project": "t1d",
+      "blockedBy": []
+    },
+    {
+      "id": 12,
+      "item": "Count lines of code in the tests directory",
+      "assigned": "@researcher",
+      "tags": [
+        "test",
+        "simple"
+      ],
+      "status": "completed",
+      "createdAt": "2026-05-18T21:22:30.623Z",
+      "updatedAt": "2026-05-18T21:48:44.523Z",
+      "description": "Run `find /root/t1d/tests -name \"*.py\" | xargs wc -l` and report the total line count.",
+      "branch": "main",
+      "project": "t1d",
+      "blockedBy": []
+    },
+    {
+      "id": 13,
+      "item": "Create a README_extra.md file",
+      "assigned": "@worker",
+      "tags": [
+        "test",
+        "simple"
+      ],
+      "status": "completed",
+      "createdAt": "2026-05-18T21:22:30.625Z",
+      "updatedAt": "2026-05-18T21:49:18.217Z",
+      "description": "Create `/root/t1d/README_extra.md` with a short markdown heading and one paragraph. Verify the file.",
+      "branch": "main",
+      "project": "t1d",
+      "blockedBy": []
+    },
+    {
+      "id": 14,
+      "item": "Show disk usage of the project",
+      "assigned": "@worker",
+      "tags": [
+        "test",
+        "simple"
+      ],
+      "status": "completed",
+      "createdAt": "2026-05-18T21:22:30.627Z",
+      "updatedAt": "2026-05-18T21:48:20.040Z",
+      "description": "Run `du -sh /root/t1d/* | sort -rh | head -10` and report the output.",
+      "branch": "main",
+      "project": "t1d",
+      "blockedBy": []
+    },
+    {
+      "id": 18,
+      "item": "Set up pre-commit hooks for the frontend",
+      "tags": [
+        "chore",
+        "frontend"
+      ],
+      "status": "completed",
+      "createdAt": "2026-05-18T21:22:30.635Z",
+      "updatedAt": "2026-05-18T21:42:22.819Z",
+      "description": "Configure Husky + lint-staged for the frontend directory.",
+      "branch": "main",
+      "project": "t1d",
+      "blockedBy": [],
+      "activeForm": "Setting up pre-commit hooks with Husky + lint-staged"
+    },
+    {
+      "id": 20,
+      "item": "Audit the entire frontend for unused components",
+      "tags": [
+        "audit",
+        "frontend"
+      ],
+      "status": "completed",
+      "createdAt": "2026-05-18T21:24:48.540Z",
+      "updatedAt": "2026-05-18T21:34:14.636Z",
+      "description": "Scan the frontend/src directory and identify components/pages/hooks that are not imported or used anywhere. This audit will produce a list of candidates for cleanup.",
+      "branch": "main",
+      "project": "t1d",
+      "blockedBy": [],
+      "activeForm": "Auditing frontend for unused components"
+    },
+    {
+      "id": 21,
+      "item": "Review all API endpoints for missing validation",
+      "tags": [
+        "audit",
+        "backend",
+        "security"
+      ],
+      "status": "completed",
+      "createdAt": "2026-05-18T21:24:48.543Z",
+      "updatedAt": "2026-05-18T21:32:19.027Z",
+      "description": "Review every endpoint in app/api/ and identify which ones are missing input validation, error handling, or auth guards. This review will produce a list of endpoints needing fixes.",
+      "branch": "main",
+      "project": "t1d",
+      "blockedBy": []
+    }
+  ],
+  "nextId": 31
+}

@@ -260,6 +260,7 @@ class DataIngestionAgent(BaseAgent):
                     },
                     "events": rag_context.recent_events,
                     "patterns": rag_context.pattern_summary,
+                    "graph_edges": rag_context.graph_edges,
                     "user_profile": rag_context.user_profile,
                 }
             except Exception as e:

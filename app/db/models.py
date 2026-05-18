@@ -20,7 +20,7 @@ from app.db.base import Base
 
 # Forward references for health metrics models
 # (imported here so Alembic autogenerate discovers them)
-from app.metrics.models import HealthMetric, HealthDailyAggregate  # noqa: F401
+from app.metrics.models import HealthMetric, HealthMetricEdge, HealthDailyAggregate  # noqa: F401
 # Forward references for food models
 # (imported here so Alembic autogenerate discovers them)
 from app.food.models import Food, FoodEntry  # noqa: F401

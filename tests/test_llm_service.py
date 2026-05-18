@@ -108,6 +108,25 @@ class TestBuildSystemPrompt:
         prompt = llm_service._build_system_prompt(ctx)
         assert "meal" in prompt
 
+    def test_build_prompt_includes_graph_edges(self, llm_service):
+        ctx = RAGContext(
+            graph_edges=[
+                {
+                    "edge_type": "meal_to_glucose_spike",
+                    "source_metric_id": 1,
+                    "target_metric_id": 2,
+                    "confidence": 0.82,
+                    "time_delay_seconds": 7200,
+                    "evidence": {"food_name": "Pizza", "glucose_rise": 90},
+                }
+            ]
+        )
+        prompt = llm_service._build_system_prompt(ctx)
+        assert "Recent Personal Relationship Evidence" in prompt
+        assert "meal_to_glucose_spike" in prompt
+        assert "confidence 0.82" in prompt
+        assert "observational evidence only" in prompt
+
     def test_build_prompt_no_data(self, llm_service):
         ctx = RAGContext()
         prompt = llm_service._build_system_prompt(ctx)

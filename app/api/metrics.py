@@ -12,11 +12,17 @@ from app.metrics.schemas import (
     BatchHealthMetricCreate,
     HealthMetricCreate,
     HealthMetricQuery,
+    GraphNeighborResponse,
+    HealthMetricEdgeCreate,
+    HealthMetricEdgeQuery,
+    HealthMetricEdgeResponse,
     HealthMetricResponse,
     HealthMetricSummary,
+    HealthSubgraphResponse,
 )
+from app.metrics.graph_service import HealthGraphService
 from app.metrics.service import HealthMetricService, HealthAggregateService
-from app.metrics.types import MetricType
+from app.metrics.types import GraphEdgeType, MetricType
 
 logger = get_logger(__name__)
 route = APIRouter(prefix="/metrics", tags=["metrics"])
@@ -140,3 +146,153 @@ async def delete_metric(
     deleted = await service.delete(user_id, metric_id)
     if not deleted:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Metric not found")
+
+
+# ---------------------------------------------------------------------------
+# Health graph endpoints
+# ---------------------------------------------------------------------------
+
+
+@route.post(
+    "/graph/edges",
+    status_code=status.HTTP_201_CREATED,
+    response_model=HealthMetricEdgeResponse,
+    summary="Create a graph edge between health metrics",
+)
+async def create_graph_edge(
+    data: HealthMetricEdgeCreate,
+    user_id: int = Query(..., ge=1),
+    db: AsyncSession = Depends(get_db),
+) -> HealthMetricEdgeResponse:
+    service = HealthGraphService(db)
+    try:
+        edge = await service.upsert_edge(user_id, data)
+    except ValueError as exc:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, str(exc)) from exc
+    return HealthMetricEdgeResponse.model_validate(edge)
+
+
+@route.get(
+    "/graph/edges",
+    response_model=list[HealthMetricEdgeResponse],
+    summary="Query graph edges",
+)
+async def query_graph_edges(
+    user_id: int = Query(..., ge=1),
+    edge_types: list[GraphEdgeType] = Query(default=[]),
+    min_confidence: float | None = Query(None, ge=0, le=1),
+    source_metric_id: int | None = Query(None, ge=1),
+    target_metric_id: int | None = Query(None, ge=1),
+    limit: int = Query(100, ge=1, le=1000),
+    offset: int = Query(0, ge=0),
+    db: AsyncSession = Depends(get_db),
+) -> list[HealthMetricEdgeResponse]:
+    service = HealthGraphService(db)
+    params = HealthMetricEdgeQuery(
+        edge_types=edge_types or None,
+        min_confidence=min_confidence,
+        source_metric_id=source_metric_id,
+        target_metric_id=target_metric_id,
+        limit=limit,
+        offset=offset,
+    )
+    edges = await service.query_edges(user_id, params)
+    return [HealthMetricEdgeResponse.model_validate(e) for e in edges]
+
+
+@route.get(
+    "/graph/metrics/{metric_id}/neighbors",
+    response_model=GraphNeighborResponse,
+    summary="Get graph neighbors for a metric",
+)
+async def get_metric_neighbors(
+    metric_id: int,
+    user_id: int = Query(..., ge=1),
+    db: AsyncSession = Depends(get_db),
+) -> GraphNeighborResponse:
+    service = HealthGraphService(db)
+    try:
+        incoming, outgoing = await service.get_neighbors(user_id, metric_id)
+    except ValueError as exc:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, str(exc)) from exc
+    return GraphNeighborResponse(
+        metric_id=metric_id,
+        incoming=[HealthMetricEdgeResponse.model_validate(e) for e in incoming],
+        outgoing=[HealthMetricEdgeResponse.model_validate(e) for e in outgoing],
+    )
+
+
+@route.get(
+    "/graph/metrics/{metric_id}/causes",
+    response_model=list[HealthMetricEdgeResponse],
+    summary="Get likely causes leading into a metric",
+)
+async def get_metric_causes(
+    metric_id: int,
+    user_id: int = Query(..., ge=1),
+    limit: int = Query(20, ge=1, le=100),
+    db: AsyncSession = Depends(get_db),
+) -> list[HealthMetricEdgeResponse]:
+    service = HealthGraphService(db)
+    try:
+        edges = await service.get_causes(user_id, metric_id, limit)
+    except ValueError as exc:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, str(exc)) from exc
+    return [HealthMetricEdgeResponse.model_validate(e) for e in edges]
+
+
+@route.get(
+    "/graph/metrics/{metric_id}/effects",
+    response_model=list[HealthMetricEdgeResponse],
+    summary="Get likely effects following a metric",
+)
+async def get_metric_effects(
+    metric_id: int,
+    user_id: int = Query(..., ge=1),
+    limit: int = Query(20, ge=1, le=100),
+    db: AsyncSession = Depends(get_db),
+) -> list[HealthMetricEdgeResponse]:
+    service = HealthGraphService(db)
+    try:
+        edges = await service.get_effects(user_id, metric_id, limit)
+    except ValueError as exc:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, str(exc)) from exc
+    return [HealthMetricEdgeResponse.model_validate(e) for e in edges]
+
+
+@route.get(
+    "/graph/subgraph",
+    response_model=HealthSubgraphResponse,
+    summary="Get a small subgraph around a metric",
+)
+async def get_health_subgraph(
+    center_metric_id: int = Query(..., ge=1),
+    user_id: int = Query(..., ge=1),
+    depth: int = Query(1, ge=0, le=3),
+    db: AsyncSession = Depends(get_db),
+) -> HealthSubgraphResponse:
+    service = HealthGraphService(db)
+    try:
+        nodes, edges = await service.get_subgraph(user_id, center_metric_id, depth)
+    except ValueError as exc:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, str(exc)) from exc
+    return HealthSubgraphResponse(
+        nodes=[HealthMetricResponse.model_validate(n) for n in nodes],
+        edges=[HealthMetricEdgeResponse.model_validate(e) for e in edges],
+    )
+
+
+@route.get(
+    "/graph/recent-correlations",
+    response_model=list[HealthMetricEdgeResponse],
+    summary="Get strongest recent graph relationships",
+)
+async def get_recent_graph_correlations(
+    user_id: int = Query(..., ge=1),
+    edge_types: list[GraphEdgeType] = Query(default=[]),
+    limit: int = Query(20, ge=1, le=100),
+    db: AsyncSession = Depends(get_db),
+) -> list[HealthMetricEdgeResponse]:
+    service = HealthGraphService(db)
+    edges = await service.get_strongest_edges(user_id, edge_types or None, limit)
+    return [HealthMetricEdgeResponse.model_validate(e) for e in edges]

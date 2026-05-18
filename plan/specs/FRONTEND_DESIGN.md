@@ -1,5 +1,106 @@
 # T1D Companion - Frontend Dashboard Design System
 
+## 📱 App Screen Architecture
+
+### Core Screens (Consolidated)
+
+| Final Screen | Merges These | Purpose |
+|---|---|---|
+| **Home** | Home Dashboard | Main landing: status line, 3 key insights, main CTA |
+| **Welcome** | Ready to Start | Short onboarding intro |
+| **Hoot & Holla** | Talk to Hoot & Holla, Ask Companion, AI Advice & Chat, Hoot & Holla Intro | Unified conversational interface: mic, text, camera, barcode, prompt chips |
+| **Meal Capture** | Take a Picture, Show it to Hoot & Holla | Front door to meal logging |
+| **Analysing Meal** | Analysing Plate | Processing state with light copy |
+| **Review Meal** | Review Found Items | User corrects AI food detection before saving |
+| **Meal Review** | Food Log with Memory, Meal Context Review, Meal History Context, Food Log & Coaching, Meal Coaching | Shows past context for similar meals |
+| **Patterns** | Patterns Overview, Weekly Patterns (all variants), Gentle Patterns Overview, Historical Patterns, Understanding Grades | Card-led pattern system with light grading (Good / Worth watching / Needs attention) |
+| **Pattern Detail** | Pattern Card Detail | Deep dive: why noticed, when started, what may matter, actions |
+| **Coach** | Personalized Coaching, Humanized Health Advice, Simple Coaching Examples | Progress page: gentle gamification, goals, improvement |
+| **Memory** | Personal Memory & Patterns, Store as Memory | Saved observations, stored questions, clinic notes |
+| **Voice Notes** | Voice Notes | Speak instead of typing, transcribed and saved |
+| **Discuss** | Discuss & Share | Frame for real conversations: talk to parent, bring to doctor |
+
+### Copy Rules
+
+- **Plain English** over product language
+- **Observation** over instruction ("You've been going high around 6pm" not "You should adjust your dose")
+- **"May" and "worth reviewing"** over authoritative treatment suggestions
+- **No dosing language** — never "Continue to Dosage", use "Review what happened last time"
+- **No marketing fluff** — cut "calm precision", "optimal state", "humanized health advice"
+- **Tone**: calm, useful, observational, trusted companion
+
+### Example Copy
+
+**Home:**
+- "Today looks steadier than yesterday."
+- "You are going high around 6pm most days."
+- "You are waking up around 5 mmol/L most mornings."
+- CTA: "Ask about my glucose."
+
+**Patterns (card-led):**
+- "You have been on a good pattern for 10 days now."
+- "You are waking up low most mornings."
+- "You had a low and your heart rate was unusually low at the same time."
+
+**Pattern Detail actions:**
+- Save as note | Add voice note | Talk to mummy | Bring to doctor | Compare with last time
+
+**Coach:**
+- "10 days of steadier mornings"
+- "Evening highs improved this week"
+- "3 meal reviews completed this week"
+- "Fewer lows after lunch than last week"
+
+### Photo Meal Ingest UX
+
+The photo flow must assume the model is a **starting guess**, not a truth engine.
+
+**Flow:**
+
+1. **Meal Capture**
+   - Camera action
+   - Barcode fallback
+   - Manual add fallback
+
+2. **Analysing Meal**
+   - "Looking at your meal..."
+   - "Recognising foods and estimating portions..."
+   - "You can review this before saving."
+
+3. **Review Meal**
+   - Image with overlays / bounding boxes / masks
+   - Per-item chips with label, portion, confidence
+   - Actions: edit, remove, add missing item, adjust portion
+   - Confidence shown gently, not as certainty
+
+4. **Meal Review**
+   - Each detected item shows ranked food database matches
+   - User picks/edits the match and portion
+   - Confirmed items mapped to nutrition database
+   - Approximate macros/carbs shown as editable
+   - Graph/history card: "Last time you logged a meal like this..."
+
+**Copy rules:**
+
+- Use "We found" / "Looks like" / "Review before saving"
+- Avoid "Detected with certainty" or "carbs calculated"
+- Use "estimated" for macros until confirmed
+- Always allow user correction before writing final meal metrics
+
+**Implementation direction:**
+
+- Treat vision as a proposal step inside our ingestion pipeline, not as the whole feature.
+- V1 may use a hosted vision model with a strict JSON contract.
+- Later we can swap to FoodSAM or YOLO-style self-hosted detection/segmentation behind the same backend interface.
+- Prefer detection/segmentation over single-label Food-101 classifiers.
+- Vision proposes coarse labels only; our food resolver maps each label to ranked nutrition candidates.
+- Source priority: prior user-confirmed foods → curated/Sparky DB → standardized DBs → open community DBs → model fallback.
+- Nutrition estimate happens after user confirmation via food database mapping.
+- Confirmed meal creates one `event_group_id` across macros and links into graph history.
+- If confidence is low, the UI should say "I’m not sure — add this manually" rather than pretending certainty.
+
+---
+
 ## 🎨 Visual Design Overview
 
 ### Color Palette

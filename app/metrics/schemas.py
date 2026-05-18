@@ -5,7 +5,7 @@ from typing import Any, Optional
 
 from pydantic import BaseModel, Field, ConfigDict
 
-from app.metrics.types import MetricType
+from app.metrics.types import GraphEdgeType, MetricType
 
 
 class HealthMetricCreate(BaseModel):
@@ -55,6 +55,62 @@ class HealthMetricQuery(BaseModel):
     sources: Optional[list[str]] = Field(None, description="Filter by sources")
     limit: int = Field(100, ge=1, le=10000)
     offset: int = Field(0, ge=0)
+
+
+class HealthMetricEdgeCreate(BaseModel):
+    """Schema for creating a graph edge between two health metric nodes."""
+
+    source_metric_id: int = Field(..., ge=1)
+    target_metric_id: int = Field(..., ge=1)
+    edge_type: GraphEdgeType
+    confidence: float = Field(0.5, ge=0, le=1)
+    time_delay_seconds: Optional[int] = Field(None, description="Delay from source metric to target metric")
+    algorithm: str = Field("manual", max_length=100)
+    evidence: Optional[dict[str, Any]] = Field(None, description="Explainability metadata for this relationship")
+
+
+class HealthMetricEdgeResponse(BaseModel):
+    """Schema for a graph edge response."""
+
+    id: int
+    user_id: int
+    source_metric_id: int
+    target_metric_id: int
+    edge_type: GraphEdgeType
+    confidence: float
+    time_delay_seconds: Optional[int]
+    algorithm: str
+    evidence: Optional[dict[str, Any]]
+    created_at: datetime
+    updated_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class HealthMetricEdgeQuery(BaseModel):
+    """Schema for querying graph edges."""
+
+    edge_types: Optional[list[GraphEdgeType]] = None
+    min_confidence: Optional[float] = Field(None, ge=0, le=1)
+    source_metric_id: Optional[int] = Field(None, ge=1)
+    target_metric_id: Optional[int] = Field(None, ge=1)
+    limit: int = Field(100, ge=1, le=1000)
+    offset: int = Field(0, ge=0)
+
+
+class GraphNeighborResponse(BaseModel):
+    """Incoming and outgoing edges for a graph node."""
+
+    metric_id: int
+    incoming: list[HealthMetricEdgeResponse]
+    outgoing: list[HealthMetricEdgeResponse]
+
+
+class HealthSubgraphResponse(BaseModel):
+    """Compact graph response with nodes and edges."""
+
+    nodes: list[HealthMetricResponse]
+    edges: list[HealthMetricEdgeResponse]
 
 
 class DailyAggregateQuery(BaseModel):
