@@ -194,6 +194,7 @@ class GarminIngestionService:
                 measured_at=timestamp,
                 source="garmin",
                 provider_id=body_id,
+                event_group_id=body_group_id,
             ))
 
         muscle = body_data.get("muscleMass")
@@ -205,6 +206,7 @@ class GarminIngestionService:
                 measured_at=timestamp,
                 source="garmin",
                 provider_id=body_id,
+                event_group_id=body_group_id,
             ))
 
         self.logger.info(f"Parsed Garmin body composition: {len(metrics)} metrics")
