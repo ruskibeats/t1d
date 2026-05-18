@@ -65,15 +65,16 @@ async def test_link_event_group_creates_edges(db_session, test_user):
     edges_again = await graph_service.link_event_group(test_user.id, event_group_id)
     assert len(edges_again) == 3
     # Verify DB only has 3 SAME_EVENT_AS edges for this user
+    from app.metrics.schemas import HealthMetricEdgeQuery
     all_edges = await graph_service.query_edges(
         test_user.id,
-        params=type('Params', (), {
-            "edge_types": [GraphEdgeType.SAME_EVENT_AS],
-            "min_confidence": None,
-            "source_metric_id": None,
-            "target_metric_id": None,
-            "limit": 100,
-            "offset": 0,
-        })(),
+        params=HealthMetricEdgeQuery(
+            edge_types=[GraphEdgeType.SAME_EVENT_AS],
+            min_confidence=None,
+            source_metric_id=None,
+            target_metric_id=None,
+            limit=100,
+            offset=0,
+        ),
     )
     assert len(all_edges) == 3

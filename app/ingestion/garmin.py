@@ -94,6 +94,7 @@ class GarminIngestionService:
                 measured_at=start_time,
                 source="garmin",
                 provider_id=activity_id,
+                event_group_id=activity_group_id,
             ))
 
         self.logger.info(f"Parsed Garmin activity: {duration_min}min, {len(metrics)} metrics")
@@ -117,6 +118,8 @@ class GarminIngestionService:
         end_time = datetime.fromisoformat(sleep_data.get("endTime", start_time.isoformat()))
         duration_hours = (end_time - start_time).total_seconds() / 3600
         sleep_id = str(sleep_data.get("sleepId", "")) or str(sleep_data.get("startTime", ""))
+        # Each Garmin sleep event is a distinct group – assign a shared event_group_id
+        sleep_group_id = str(__import__('uuid').uuid4())
 
         metrics.append(HealthMetricCreate(
             type=MetricType.SLEEP_HOURS,
@@ -125,6 +128,7 @@ class GarminIngestionService:
             measured_at=start_time,
             source="garmin",
             provider_id=sleep_id,
+            event_group_id=sleep_group_id,
         ))
 
         stages = sleep_data.get("stages", {})
@@ -144,6 +148,7 @@ class GarminIngestionService:
                     measured_at=start_time,
                     source="garmin",
                     provider_id=sleep_id,
+                    event_group_id=sleep_group_id,
                 ))
 
         self.logger.info(f"Parsed Garmin sleep: {duration_hours}h, {len(metrics)} metrics")
@@ -165,6 +170,8 @@ class GarminIngestionService:
 
         timestamp = datetime.fromisoformat(body_data.get("timestamp", datetime.now(timezone.utc).isoformat()))
         body_id = str(body_data.get("bodyCompositionId", "")) or str(body_data.get("timestamp", ""))
+        # Each Garmin body composition entry is a distinct event – assign a group ID
+        body_group_id = str(__import__('uuid').uuid4())
 
         weight = body_data.get("weight")
         if weight:
@@ -175,6 +182,7 @@ class GarminIngestionService:
                 measured_at=timestamp,
                 source="garmin",
                 provider_id=body_id,
+                event_group_id=body_group_id,
             ))
 
         body_fat = body_data.get("bodyFatPercent")

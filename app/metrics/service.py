@@ -183,6 +183,16 @@ class HealthMetricService:
         await self.db.flush()
         return True
 
+    async def get_by_event_group(self, user_id: int, event_group_id: str) -> list[HealthMetric]:
+        """Return all health metrics for a user belonging to a given event_group_id."""
+        result = await self.db.execute(
+            select(HealthMetric).where(
+                HealthMetric.user_id == user_id,
+                HealthMetric.event_group_id == event_group_id,
+            )
+        )
+        return list(result.scalars().all())
+
 
 class HealthAggregateService:
     """Service for daily aggregate computation and queries."""
