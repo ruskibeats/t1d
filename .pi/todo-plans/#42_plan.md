@@ -1,6 +1,6 @@
 # Todo #42: [GRAPH-7] Harden RAG graph evidence contract
 
-Status: in_progress
+Status: completed
 Owner: @researcher
 Tags: #p1 #ai #backend #graph
 Branch: dad_1805

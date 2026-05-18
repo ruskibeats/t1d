@@ -52,6 +52,8 @@ class GarminIngestionService:
         distance_km = activity_data.get("distance", 0) / 1000
         activity_id = str(activity_data.get("activityId", "")) or str(activity_data.get("startTime", ""))
 
+        # Each Garmin activity is a distinct event – assign an event_group_id for all its metrics
+        activity_group_id = str(__import__('uuid').uuid4())
         metrics.append(HealthMetricCreate(
             type=MetricType.EXERCISE_MINUTES,
             value=duration_min,
@@ -59,6 +61,7 @@ class GarminIngestionService:
             measured_at=start_time,
             source="garmin",
             provider_id=activity_id,
+            event_group_id=activity_group_id,
         ))
 
         if calories:

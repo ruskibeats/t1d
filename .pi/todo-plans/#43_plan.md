@@ -1,6 +1,6 @@
 # Todo #43: [GRAPH-8] Add remaining graph tests
 
-Status: in_progress
+Status: pending
 Owner: @worker
 Tags: #p1 #backend #graph #test
 Branch: dad_1805

@@ -1,6 +1,6 @@
 # Todo #31: [GRAPH-0.1] Add event_group_id column to health_metrics
 
-Status: pending
+Status: completed
 Owner: @worker
 Tags: #p0 #backend #database #graph
 Branch: dad_1805

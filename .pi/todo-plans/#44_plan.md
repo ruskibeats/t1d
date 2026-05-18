@@ -1,6 +1,6 @@
 # Todo #44: [GRAPH-9] Update documentation for graph architecture
 
-Status: in_progress
+Status: pending
 Owner: @scout
 Tags: #p2 #docs #graph
 Branch: dad_1805

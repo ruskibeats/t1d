@@ -1,6 +1,6 @@
 # Todo #45: [GRAPH-10] Review and harden graph layer
 
-Status: in_progress
+Status: pending
 Owner: @researcher
 Tags: #p2 #backend #graph
 Branch: dad_1805

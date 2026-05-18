@@ -1,6 +1,6 @@
 # Todo #40: [GRAPH-5C] Design photo meal ingest service contract
 
-Status: in_progress
+Status: pending
 Owner: @researcher
 Tags: #p2 #ai #backend #graph
 Branch: dad_1805

@@ -1,6 +1,6 @@
 # Todo #35: [GRAPH-3] Schema migrations for new graph fields
 
-Status: in_progress
+Status: pending
 Owner: @worker
 Tags: #p1 #backend #database #graph
 Branch: dad_1805

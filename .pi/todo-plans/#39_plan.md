@@ -1,6 +1,6 @@
 # Todo #39: [GRAPH-5B] Implement confidence decomposition
 
-Status: in_progress
+Status: pending
 Owner: @researcher
 Tags: #p2 #backend #graph
 Branch: dad_1805

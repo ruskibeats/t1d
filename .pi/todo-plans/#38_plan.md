@@ -1,6 +1,6 @@
 # Todo #38: [GRAPH-5A] Implement provenance tracking for graph edges
 
-Status: in_progress
+Status: pending
 Owner: @worker
 Tags: #p1 #backend #graph
 Branch: dad_1805

@@ -1,6 +1,6 @@
 # Todo #41: [GRAPH-6] Add event-group query endpoint + auth for graph API
 
-Status: in_progress
+Status: pending
 Owner: @worker
 Tags: #p1 #api #backend #graph
 Branch: dad_1805

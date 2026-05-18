@@ -1,6 +1,6 @@
 # Todo #34: [GRAPH-2] Extend graph schema with new fields
 
-Status: in_progress
+Status: pending
 Owner: @worker
 Tags: #p1 #backend #database #graph
 Branch: dad_1805

@@ -36,7 +36,6 @@ class HealthMetricService:
             provider_id=data.provider_id,
             event_group_id=data.event_group_id,
             meta=data.meta,
-            event_group_id=data.event_group_id,
         )
         self.db.add(metric)
         await self.db.flush()

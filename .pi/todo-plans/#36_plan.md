@@ -1,6 +1,6 @@
 # Todo #36: [GRAPH-4] Complete graph service layer methods
 
-Status: in_progress
+Status: pending
 Owner: @worker
 Tags: #p1 #backend #graph
 Branch: dad_1805
