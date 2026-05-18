@@ -256,7 +256,254 @@
       "branch": "main",
       "project": "t1d",
       "blockedBy": []
+    },
+    {
+      "id": 31,
+      "item": "[GRAPH-0.1] Add event_group_id column to health_metrics",
+      "tags": [
+        "graph",
+        "backend",
+        "database",
+        "p0"
+      ],
+      "status": "pending",
+      "createdAt": "2026-05-18T22:11:25.882Z",
+      "updatedAt": "2026-05-18T22:11:25.882Z",
+      "description": "Add nullable UUID/string event_group_id column to health_metrics table. Add index (user_id, event_group_id). Backfill existing rows as null. Update HealthMetricCreate and HealthMetricResponse schemas. Update HealthMetricService.create() and create_batch().",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": []
+    },
+    {
+      "id": 32,
+      "item": "[GRAPH-0.2] Group multi-metric ingestion events",
+      "tags": [
+        "graph",
+        "backend",
+        "p0"
+      ],
+      "status": "pending",
+      "createdAt": "2026-05-18T22:11:25.885Z",
+      "updatedAt": "2026-05-18T22:11:25.885Z",
+      "description": "Assign event_group_id to grouped metrics: meals (CARBS/FAT/PROTEIN/FIBER/CALORIES), exercise, insulin, sleep, and provider ingestion (Garmin/Fitbit). Preserve provider event/session IDs where stable.",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": []
+    },
+    {
+      "id": 33,
+      "item": "[GRAPH-0.3] Add same-event graph linking",
+      "tags": [
+        "graph",
+        "backend",
+        "p1"
+      ],
+      "status": "pending",
+      "createdAt": "2026-05-18T22:11:25.888Z",
+      "updatedAt": "2026-05-18T22:11:25.888Z",
+      "description": "Create same_event_as edges between metrics sharing event_group_id. Add link_event_group() helper to graph service. Add dedup tests.",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": []
+    },
+    {
+      "id": 34,
+      "item": "[GRAPH-2] Extend graph schema with new fields",
+      "tags": [
+        "graph",
+        "backend",
+        "database",
+        "p1"
+      ],
+      "status": "pending",
+      "createdAt": "2026-05-18T22:11:25.891Z",
+      "updatedAt": "2026-05-18T22:11:25.891Z",
+      "description": "Add planned fields to HealthMetricEdge: window_start, window_end, confidence_components, provenance, optional direction. Add relationships to HealthMetric model.",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": []
+    },
+    {
+      "id": 35,
+      "item": "[GRAPH-3] Schema migrations for new graph fields",
+      "tags": [
+        "graph",
+        "backend",
+        "database",
+        "p1"
+      ],
+      "status": "pending",
+      "createdAt": "2026-05-18T22:11:25.893Z",
+      "updatedAt": "2026-05-18T22:11:25.893Z",
+      "description": "Add event_group_id to health_metrics, provenance_json/confidence_components_json/window_start/window_end to health_metric_edges. Add indexes. Verify SQLite and Postgres compatibility.",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": []
+    },
+    {
+      "id": 36,
+      "item": "[GRAPH-4] Complete graph service layer methods",
+      "tags": [
+        "graph",
+        "backend",
+        "p1"
+      ],
+      "status": "pending",
+      "createdAt": "2026-05-18T22:11:25.896Z",
+      "updatedAt": "2026-05-18T22:11:25.896Z",
+      "description": "Implement remaining HealthGraphService methods: get_edges_for_metric(), get_recent_correlations(), get_event_group(), link_event_group(), aggregation helpers (edge count by type, avg confidence, strongest recurring pairs).",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": []
+    },
+    {
+      "id": 37,
+      "item": "[GRAPH-5] Wire remaining pattern detections to graph edges",
+      "tags": [
+        "graph",
+        "backend",
+        "p0"
+      ],
+      "status": "pending",
+      "createdAt": "2026-05-18T22:11:25.898Z",
+      "updatedAt": "2026-05-18T22:11:25.898Z",
+      "description": "Update PatternService to persist: delayed high-fat meal detection, exercise impact detection, overnight low detection, insulin historical relationships, correlation analysis. Make edge-writing optional/configurable.",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": []
+    },
+    {
+      "id": 38,
+      "item": "[GRAPH-5A] Implement provenance tracking for graph edges",
+      "tags": [
+        "graph",
+        "backend",
+        "p1"
+      ],
+      "status": "pending",
+      "createdAt": "2026-05-18T22:11:25.901Z",
+      "updatedAt": "2026-05-18T22:11:25.901Z",
+      "description": "Add provenance_json to health_metric_edges. Store detector name/version, run type, run ID, feature window. Add provenance helper builders and detector version constants.",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": []
+    },
+    {
+      "id": 39,
+      "item": "[GRAPH-5B] Implement confidence decomposition",
+      "tags": [
+        "graph",
+        "backend",
+        "p2"
+      ],
+      "status": "pending",
+      "createdAt": "2026-05-18T22:11:25.903Z",
+      "updatedAt": "2026-05-18T22:11:25.903Z",
+      "description": "Add confidence_components_json to edges. Create shared scoring utility with components: repetition, temporal_consistency, effect_size, data_completeness, source_quality, recency. Define RAG wording thresholds (low/medium/high).",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": []
+    },
+    {
+      "id": 40,
+      "item": "[GRAPH-5C] Design photo meal ingest service contract",
+      "tags": [
+        "graph",
+        "backend",
+        "ai",
+        "p2"
+      ],
+      "status": "pending",
+      "createdAt": "2026-05-18T22:11:25.906Z",
+      "updatedAt": "2026-05-18T22:11:25.906Z",
+      "description": "Research visual detectors (FoodSAM, YOLO). Design swappable analyze_meal_image() interface. Define MealImageAnalysisProposal schema. Add validation/clamping. Plan canonical food resolution data model.",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": []
+    },
+    {
+      "id": 41,
+      "item": "[GRAPH-6] Add event-group query endpoint + auth for graph API",
+      "tags": [
+        "graph",
+        "backend",
+        "api",
+        "p1"
+      ],
+      "status": "pending",
+      "createdAt": "2026-05-18T22:11:25.908Z",
+      "updatedAt": "2026-05-18T22:11:25.908Z",
+      "description": "Add event-group query endpoint. Replace placeholder user_id query pattern with dependency-injected auth for all graph endpoints.",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": []
+    },
+    {
+      "id": 42,
+      "item": "[GRAPH-7] Harden RAG graph evidence contract",
+      "tags": [
+        "graph",
+        "backend",
+        "ai",
+        "p1"
+      ],
+      "status": "pending",
+      "createdAt": "2026-05-18T22:11:25.911Z",
+      "updatedAt": "2026-05-18T22:11:25.911Z",
+      "description": "Ensure RAG retrieves only query-relevant edge types. Cap edges to top 5-10. Suppress weak edges. Ensure safety wording remains observational. Add RAG evidence contract tests.",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": []
+    },
+    {
+      "id": 43,
+      "item": "[GRAPH-8] Add remaining graph tests",
+      "tags": [
+        "graph",
+        "backend",
+        "test",
+        "p1"
+      ],
+      "status": "pending",
+      "createdAt": "2026-05-18T22:11:25.913Z",
+      "updatedAt": "2026-05-18T22:11:25.913Z",
+      "description": "Write tests for: exercise→drop edge, event grouping, same-event edge dedup, provenance structure, confidence scoring, RAG evidence contract, safety (no dosing advice).",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": []
+    },
+    {
+      "id": 44,
+      "item": "[GRAPH-9] Update documentation for graph architecture",
+      "tags": [
+        "graph",
+        "docs",
+        "p2"
+      ],
+      "status": "pending",
+      "createdAt": "2026-05-18T22:11:25.915Z",
+      "updatedAt": "2026-05-18T22:11:25.915Z",
+      "description": "Update CONTEXT.md with graph vocabulary. Update ARCHITECTURE_MAP.md with graph data flow. Update CODEBASE_AUDIT.md. Link to PHL/PHKG research reference.",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": []
+    },
+    {
+      "id": 45,
+      "item": "[GRAPH-10] Review and harden graph layer",
+      "tags": [
+        "graph",
+        "backend",
+        "p2"
+      ],
+      "status": "pending",
+      "createdAt": "2026-05-18T22:11:25.918Z",
+      "updatedAt": "2026-05-18T22:11:25.918Z",
+      "description": "Run full test suite. Check Alembic migration chain. Check circular imports. Check API auth scoping. Check graph-derived copy for safety risks. Produce final implementation summary.",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": []
     }
   ],
-  "nextId": 31
+  "nextId": 46
 }
