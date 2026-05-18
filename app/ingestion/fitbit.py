@@ -43,6 +43,8 @@ class FitbitIngestionService:
         for act in activities:
             start = act.get("startTime", now.isoformat())
             duration = act.get("duration", 0) / 1000 / 60  # ms → minutes
+            # Generate a unique group ID for each activity event
+            activity_group_id = str(__import__('uuid').uuid4())
             results.append(HealthMetricCreate(
                 type=MetricType.EXERCISE_MINUTES,
                 value=duration,
@@ -50,6 +52,7 @@ class FitbitIngestionService:
                 measured_at=datetime.fromisoformat(start.replace("Z", "+00:00")),
                 source="fitbit",
                 provider_id=act.get("logId", str(act.get("startTime", ""))),
+                event_group_id=activity_group_id,
             ))
             if "calories" in act:
                 results.append(HealthMetricCreate(
@@ -58,6 +61,7 @@ class FitbitIngestionService:
                     unit="kcal",
                     measured_at=datetime.fromisoformat(start.replace("Z", "+00:00")),
                     source="fitbit",
+                    event_group_id=activity_group_id,
                 ))
         return results
 
@@ -69,6 +73,8 @@ class FitbitIngestionService:
             start = entry.get("startTime", "")
             end = entry.get("endTime", "")
             duration = entry.get("duration", 0) / 1000 / 60
+            # Generate a unique group ID for each sleep event
+            sleep_group_id = str(__import__('uuid').uuid4())
             results.append(HealthMetricCreate(
                 type=MetricType.SLEEP_HOURS,
                 value=duration / 60,
@@ -76,6 +82,7 @@ class FitbitIngestionService:
                 measured_at=datetime.fromisoformat(start.replace("Z", "+00:00")),
                 source="fitbit",
                 provider_id=entry.get("logId", str(start)),
+                event_group_id=sleep_group_id,
             ))
             if "efficiency" in entry:
                 results.append(HealthMetricCreate(
@@ -84,6 +91,7 @@ class FitbitIngestionService:
                     unit="percent",
                     measured_at=datetime.fromisoformat(start.replace("Z", "+00:00")),
                     source="fitbit",
+                    event_group_id=sleep_group_id,
                 ))
         return results
 
