@@ -1,15 +1,8 @@
-# Todo #41
+# Todo #41: [GRAPH-6] Add event-group query endpoint + auth for graph API
 
-Status: pending
-Owner: UNASSIGNED
-Tags: graph, backend
+Status: in_progress
+Owner: @worker
+Tags: #p1 #api #backend #graph
+Branch: dad_1805
 
-## Plan
-See GRAPH_TODO.md section for detailed requirements.
-
-## Intercom Rules
-- If blocked, use `intercom({ action: "reply", message: "BLOCKED: <reason>" })`
-- Do NOT silently fail — always report back
-
-## Discovered Work
-- If issues are found, report via intercom as suggested new todos
+Add event-group query endpoint. Replace placeholder user_id query pattern with dependency-injected auth for all graph endpoints.

@@ -34,7 +34,9 @@ class HealthMetricService:
             ended_at=data.ended_at,
             source=data.source,
             provider_id=data.provider_id,
+            event_group_id=data.event_group_id,
             meta=data.meta,
+            event_group_id=data.event_group_id,
         )
         self.db.add(metric)
         await self.db.flush()
@@ -71,6 +73,7 @@ class HealthMetricService:
                 source=source,
                 provider_id=item.provider_id,
                 meta=item.meta,
+                event_group_id=item.event_group_id,
             )
             self.db.add(metric)
             created.append(metric)

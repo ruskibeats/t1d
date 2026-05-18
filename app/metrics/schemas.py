@@ -9,6 +9,7 @@ from app.metrics.types import GraphEdgeType, MetricType
 
 
 class HealthMetricCreate(BaseModel):
+    event_group_id: Optional[str] = None
     """Schema for creating a health metric entry."""
 
     type: MetricType = Field(..., description="Metric type identifier")
@@ -18,10 +19,12 @@ class HealthMetricCreate(BaseModel):
     ended_at: Optional[datetime] = Field(None, description="End time for ranged metrics (sleep, exercise)")
     source: str = Field(..., max_length=50, description="Source system: dexcom, garmin, manual, apple_health, etc.")
     provider_id: Optional[str] = Field(None, max_length=255, description="External provider's unique ID for dedup")
+    event_group_id: Optional[str] = Field(None, description="Identifier for grouping related metric events")
     meta: Optional[dict[str, Any]] = Field(None, description="Type-specific payload")
 
 
 class HealthMetricResponse(BaseModel):
+    event_group_id: Optional[str] = None
     """Schema for a health metric entry response."""
 
     id: int
@@ -33,6 +36,7 @@ class HealthMetricResponse(BaseModel):
     ended_at: Optional[datetime]
     source: str
     provider_id: Optional[str]
+    event_group_id: Optional[str]
     meta: Optional[dict[str, Any]]
     created_at: datetime
 

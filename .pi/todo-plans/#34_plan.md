@@ -1,15 +1,8 @@
-# Todo #34
+# Todo #34: [GRAPH-2] Extend graph schema with new fields
 
-Status: pending
-Owner: UNASSIGNED
-Tags: graph, backend
+Status: in_progress
+Owner: @worker
+Tags: #p1 #backend #database #graph
+Branch: dad_1805
 
-## Plan
-See GRAPH_TODO.md section for detailed requirements.
-
-## Intercom Rules
-- If blocked, use `intercom({ action: "reply", message: "BLOCKED: <reason>" })`
-- Do NOT silently fail — always report back
-
-## Discovered Work
-- If issues are found, report via intercom as suggested new todos
+Add planned fields to HealthMetricEdge: window_start, window_end, confidence_components, provenance, optional direction. Add relationships to HealthMetric model.

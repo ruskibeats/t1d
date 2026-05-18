@@ -41,6 +41,7 @@ class HealthMetric(Base):
     ended_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True), nullable=True)
     source: Mapped[str] = mapped_column(String(50), nullable=False)
     provider_id: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
+    event_group_id: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
     meta: Mapped[Optional[dict[str, Any]]] = mapped_column(
         "metadata", JSONB, nullable=True,
     )

@@ -1,15 +1,8 @@
-# Todo #42
+# Todo #42: [GRAPH-7] Harden RAG graph evidence contract
 
-Status: pending
-Owner: UNASSIGNED
-Tags: graph, backend
+Status: in_progress
+Owner: @researcher
+Tags: #p1 #ai #backend #graph
+Branch: dad_1805
 
-## Plan
-See GRAPH_TODO.md section for detailed requirements.
-
-## Intercom Rules
-- If blocked, use `intercom({ action: "reply", message: "BLOCKED: <reason>" })`
-- Do NOT silently fail — always report back
-
-## Discovered Work
-- If issues are found, report via intercom as suggested new todos
+Ensure RAG retrieves only query-relevant edge types. Cap edges to top 5-10. Suppress weak edges. Ensure safety wording remains observational. Add RAG evidence contract tests.

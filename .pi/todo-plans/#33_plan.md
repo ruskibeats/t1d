@@ -1,15 +1,8 @@
-# Todo #33
+# Todo #33: [GRAPH-0.3] Add same-event graph linking
 
-Status: pending
-Owner: UNASSIGNED
-Tags: graph, backend
+Status: in_progress
+Owner: @worker
+Tags: #p1 #backend #graph
+Branch: dad_1805
 
-## Plan
-See GRAPH_TODO.md section for detailed requirements.
-
-## Intercom Rules
-- If blocked, use `intercom({ action: "reply", message: "BLOCKED: <reason>" })`
-- Do NOT silently fail — always report back
-
-## Discovered Work
-- If issues are found, report via intercom as suggested new todos
+Create same_event_as edges between metrics sharing event_group_id. Add link_event_group() helper to graph service. Add dedup tests.

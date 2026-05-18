@@ -1,15 +1,8 @@
-# Todo #38
+# Todo #38: [GRAPH-5A] Implement provenance tracking for graph edges
 
-Status: pending
-Owner: UNASSIGNED
-Tags: graph, backend
+Status: in_progress
+Owner: @worker
+Tags: #p1 #backend #graph
+Branch: dad_1805
 
-## Plan
-See GRAPH_TODO.md section for detailed requirements.
-
-## Intercom Rules
-- If blocked, use `intercom({ action: "reply", message: "BLOCKED: <reason>" })`
-- Do NOT silently fail — always report back
-
-## Discovered Work
-- If issues are found, report via intercom as suggested new todos
+Add provenance_json to health_metric_edges. Store detector name/version, run type, run ID, feature window. Add provenance helper builders and detector version constants.

@@ -1,15 +1,8 @@
-# Todo #43
+# Todo #43: [GRAPH-8] Add remaining graph tests
 
-Status: pending
-Owner: UNASSIGNED
-Tags: graph, backend
+Status: in_progress
+Owner: @worker
+Tags: #p1 #backend #graph #test
+Branch: dad_1805
 
-## Plan
-See GRAPH_TODO.md section for detailed requirements.
-
-## Intercom Rules
-- If blocked, use `intercom({ action: "reply", message: "BLOCKED: <reason>" })`
-- Do NOT silently fail — always report back
-
-## Discovered Work
-- If issues are found, report via intercom as suggested new todos
+Write tests for: exercise→drop edge, event grouping, same-event edge dedup, provenance structure, confidence scoring, RAG evidence contract, safety (no dosing advice).

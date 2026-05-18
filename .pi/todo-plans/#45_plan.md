@@ -1,15 +1,8 @@
-# Todo #45
+# Todo #45: [GRAPH-10] Review and harden graph layer
 
-Status: pending
-Owner: UNASSIGNED
-Tags: graph, backend
+Status: in_progress
+Owner: @researcher
+Tags: #p2 #backend #graph
+Branch: dad_1805
 
-## Plan
-See GRAPH_TODO.md section for detailed requirements.
-
-## Intercom Rules
-- If blocked, use `intercom({ action: "reply", message: "BLOCKED: <reason>" })`
-- Do NOT silently fail — always report back
-
-## Discovered Work
-- If issues are found, report via intercom as suggested new todos
+Run full test suite. Check Alembic migration chain. Check circular imports. Check API auth scoping. Check graph-derived copy for safety risks. Produce final implementation summary.

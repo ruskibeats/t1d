@@ -1,15 +1,8 @@
-# Todo #44
+# Todo #44: [GRAPH-9] Update documentation for graph architecture
 
-Status: pending
-Owner: UNASSIGNED
-Tags: graph, backend
+Status: in_progress
+Owner: @scout
+Tags: #p2 #docs #graph
+Branch: dad_1805
 
-## Plan
-See GRAPH_TODO.md section for detailed requirements.
-
-## Intercom Rules
-- If blocked, use `intercom({ action: "reply", message: "BLOCKED: <reason>" })`
-- Do NOT silently fail — always report back
-
-## Discovered Work
-- If issues are found, report via intercom as suggested new todos
+Update CONTEXT.md with graph vocabulary. Update ARCHITECTURE_MAP.md with graph data flow. Update CODEBASE_AUDIT.md. Link to PHL/PHKG research reference.
