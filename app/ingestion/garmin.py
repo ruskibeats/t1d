@@ -72,6 +72,7 @@ class GarminIngestionService:
                 measured_at=start_time,
                 source="garmin",
                 provider_id=activity_id,
+                event_group_id=activity_group_id,
             ))
 
         if heart_rate_avg:
@@ -82,6 +83,7 @@ class GarminIngestionService:
                 measured_at=start_time,
                 source="garmin",
                 provider_id=activity_id,
+                event_group_id=activity_group_id,
             ))
 
         if distance_km:

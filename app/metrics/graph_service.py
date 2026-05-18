@@ -154,6 +154,39 @@ class HealthGraphService:
         )
         return list(metric_result.scalars().all()), list(seen_edges.values())
 
+    async def link_event_group(self, user_id: int, event_group_id: str) -> list[HealthMetricEdge]:
+        """Create SAME_EVENT_AS edges between all metrics sharing the given event_group_id.
+
+        Returns the list of edges that were created or updated.
+        """
+        # Fetch metric IDs for the event group
+        result = await self.db.execute(
+            select(HealthMetric.id).where(
+                HealthMetric.user_id == user_id,
+                HealthMetric.event_group_id == event_group_id,
+            )
+        )
+        metric_ids = [row[0] for row in result.fetchall()]
+        if len(metric_ids) < 2:
+            return []
+        # Ensure deterministic order
+        metric_ids.sort()
+        edges: list[HealthMetricEdge] = []
+        # Create an edge for each unordered pair (source < target)
+        from itertools import combinations
+        for src_id, tgt_id in combinations(metric_ids, 2):
+            edge_data = HealthMetricEdgeCreate(
+                source_metric_id=src_id,
+                target_metric_id=tgt_id,
+                edge_type=GraphEdgeType.SAME_EVENT_AS,
+                confidence=1.0,
+                algorithm="event_group_link",
+                evidence={"event_group_id": event_group_id},
+            )
+            edge = await self.upsert_edge(user_id, edge_data)
+            edges.append(edge)
+        return edges
+
     async def _assert_metric_ownership(self, user_id: int, metric_id: int) -> HealthMetric:
         result = await self.db.execute(
             select(HealthMetric).where(HealthMetric.user_id == user_id, HealthMetric.id == metric_id)
