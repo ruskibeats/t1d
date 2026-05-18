@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "description": "A sensor-agnostic conversational AI companion for Type 1 Diabetes that connects to CGM/sensor data, spots personal patterns, and helps users understand what usually happens in their real life — meals, exercise, stress, alcohol, missed pre-bolus, sleep, illness — without replacing clinical advice or providing autonomous insulin dosing instructions.",
   "main": "index.js",
-  "scripts": {},
+  "scripts": {
+    "prepare": "husky"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
@@ -12,10 +14,12 @@
     "@playwright/mcp": "^0.0.75",
     "pi-intercom": "^0.6.0",
     "pi-subagents": "^0.24.3",
-    "playwright": "^1.60.0"
+    "playwright": "^1.6.0"
   },
   "devDependencies": {
     "@playwright/test": "^1.60.0",
-    "@types/node": "^25.8.0"
+    "@types/node": "^25.8.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.4.0"
   }
 }
