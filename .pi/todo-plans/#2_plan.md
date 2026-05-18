@@ -1,8 +1,7 @@
-# Todo #2: List all Python files in the app directory
+# Todo #2: [GRAPH-B] Implement provenance tracking + confidence decomposition
 
-Status: completed
-Owner: @scout
-Tags: #simple #test
-Branch: main
+Status: in_progress
+Tags: #p1 #backend #graph
+Branch: dad_1805
 
-Run `find app -name "*.py" | sort` and report the full list of Python files in the app directory.
+Add provenance_json and confidence_components_json to HealthMetricEdge. Create shared scoring utility. Add detector version constants. Update migrations.

@@ -1,8 +1,7 @@
-# Todo #3: Count lines of code in the project
+# Todo #3: [GRAPH-C] Add event-group API endpoint + auth for graph endpoints
 
-Status: completed
-Owner: @researcher
-Tags: #simple #test
-Branch: main
+Status: in_progress
+Tags: #p1 #api #backend #graph
+Branch: dad_1805
 
-Run `find . -name "*.py" -not -path "./venv/*" -not -path "./node_modules/*" | xargs wc -l` and report the total line count.
+Add GET /api/v1/metrics/graph/event-group/{event_group_id} endpoint. Replace user_id query params with dependency-injected auth on all graph endpoints.

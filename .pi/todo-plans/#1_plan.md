@@ -1,8 +1,7 @@
-# Todo #1: Create a hello.txt file in the project root
+# Todo #1: [GRAPH-A] Wire exercise + sleep + insulin pattern detections to graph edges
 
-Status: completed
-Owner: @worker
-Tags: #simple #test
-Branch: main
+Status: in_progress
+Tags: #p0 #backend #graph
+Branch: dad_1805
 
-Create a file called hello.txt in /root/t1d/ with the content "Hello from subagent test". Verify the file exists after creation.
+Update PatternService to persist: exercise→glucose_drop/rise, overnight low detection, insulin→glucose_change edges. Make edge-writing optional. Add tests.
