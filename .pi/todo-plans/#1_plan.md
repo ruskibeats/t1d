@@ -1,6 +1,6 @@
 # Todo #1: [GRAPH-A] Wire exercise + sleep + insulin pattern detections to graph edges
 
-Status: in_progress
+Status: completed
 Owner: @worker
 Tags: #p0 #backend #graph
 Branch: dad_1805

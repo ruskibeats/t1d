@@ -9,19 +9,14 @@
         "backend",
         "p0"
       ],
-      "status": "in_progress",
+      "status": "completed",
       "createdAt": "2026-05-18T22:43:53.611Z",
-      "updatedAt": "2026-05-18T22:45:20.082Z",
+      "updatedAt": "2026-05-18T22:54:44.752Z",
       "description": "Update PatternService to persist: exercise→glucose_drop/rise, overnight low detection, insulin→glucose_change edges. Make edge-writing optional. Add tests.",
       "branch": "dad_1805",
       "project": "t1d",
       "blockedBy": [],
-      "assigned": "@worker",
-      "handoff": {
-        "target": "@worker",
-        "sentAt": "2026-05-18T22:45:20.082Z",
-        "status": "assigned"
-      }
+      "assigned": "@worker"
     },
     {
       "id": 2,
@@ -31,19 +26,14 @@
         "backend",
         "p1"
       ],
-      "status": "in_progress",
+      "status": "pending",
       "createdAt": "2026-05-18T22:43:53.614Z",
-      "updatedAt": "2026-05-18T22:45:20.083Z",
+      "updatedAt": "2026-05-18T22:54:58.500Z",
       "description": "Add provenance_json and confidence_components_json to HealthMetricEdge. Create shared scoring utility. Add detector version constants. Update migrations.",
       "branch": "dad_1805",
       "project": "t1d",
       "blockedBy": [],
-      "assigned": "@researcher",
-      "handoff": {
-        "target": "@researcher",
-        "sentAt": "2026-05-18T22:45:20.083Z",
-        "status": "assigned"
-      }
+      "assigned": "@researcher"
     },
     {
       "id": 3,
@@ -54,20 +44,48 @@
         "api",
         "p1"
       ],
-      "status": "in_progress",
+      "status": "pending",
       "createdAt": "2026-05-18T22:43:53.617Z",
-      "updatedAt": "2026-05-18T22:45:20.083Z",
+      "updatedAt": "2026-05-18T22:54:58.500Z",
       "description": "Add GET /api/v1/metrics/graph/event-group/{event_group_id} endpoint. Replace user_id query params with dependency-injected auth on all graph endpoints.",
       "branch": "dad_1805",
       "project": "t1d",
       "blockedBy": [],
-      "assigned": "@scout",
-      "handoff": {
-        "target": "@scout",
-        "sentAt": "2026-05-18T22:45:20.083Z",
-        "status": "assigned"
-      }
+      "assigned": "@scout"
+    },
+    {
+      "id": 4,
+      "item": "[GRAPH-D] Add event-group API endpoint + auth for graph endpoints",
+      "tags": [
+        "graph",
+        "backend",
+        "api",
+        "p1"
+      ],
+      "status": "pending",
+      "createdAt": "2026-05-18T22:55:18.989Z",
+      "updatedAt": "2026-05-18T22:55:18.989Z",
+      "description": "Add GET /api/v1/metrics/graph/event-group/{event_group_id} endpoint. Replace user_id query params with Depends(require_active_user) on all graph endpoints.",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": []
+    },
+    {
+      "id": 5,
+      "item": "[GRAPH-E] Implement provenance tracking + confidence decomposition",
+      "tags": [
+        "graph",
+        "backend",
+        "p1"
+      ],
+      "status": "pending",
+      "createdAt": "2026-05-18T22:55:18.992Z",
+      "updatedAt": "2026-05-18T22:55:18.992Z",
+      "description": "Add provenance_json and confidence_components_json to HealthMetricEdge. Create shared scoring utility. Add detector version constants. Update migrations.",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": []
     }
   ],
-  "nextId": 4
+  "nextId": 6
 }

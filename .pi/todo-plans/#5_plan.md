@@ -1,8 +1,7 @@
-# Todo #5: List all test files in the tests directory
+# Todo #5: [GRAPH-E] Implement provenance tracking + confidence decomposition
 
-Status: completed
-Owner: @scout
-Tags: #simple #test
-Branch: main
+Status: pending
+Tags: #p1 #backend #graph
+Branch: dad_1805
 
-Run `find /root/t1d/tests -name "*.py" | sort` and report the full list of test files.
+Add provenance_json and confidence_components_json to HealthMetricEdge. Create shared scoring utility. Add detector version constants. Update migrations.

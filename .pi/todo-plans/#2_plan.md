@@ -1,6 +1,6 @@
 # Todo #2: [GRAPH-B] Implement provenance tracking + confidence decomposition
 
-Status: in_progress
+Status: pending
 Owner: @researcher
 Tags: #p1 #backend #graph
 Branch: dad_1805

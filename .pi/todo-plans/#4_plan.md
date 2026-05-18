@@ -1,8 +1,7 @@
-# Todo #4: Create a goodbye.txt file in the project root
+# Todo #4: [GRAPH-D] Add event-group API endpoint + auth for graph endpoints
 
-Status: completed
-Owner: @worker
-Tags: #simple #test
-Branch: main
+Status: pending
+Tags: #p1 #api #backend #graph
+Branch: dad_1805
 
-Create a file called goodbye.txt in /root/t1d/ with the content "Goodbye from subagent test". Verify the file exists after creation.
+Add GET /api/v1/metrics/graph/event-group/{event_group_id} endpoint. Replace user_id query params with Depends(require_active_user) on all graph endpoints.
