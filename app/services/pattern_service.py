@@ -703,6 +703,44 @@ class PatternService:
                     impact_type, min_drop, exercise.intensity
                 ),
             })
+
+            # Persist graph edge for exercise impact
+            try:
+                from app.metrics.graph_service import HealthGraphService
+                from app.metrics.models import HealthMetric
+                from app.metrics.schemas import HealthMetricEdgeCreate
+                from app.metrics.types import GraphEdgeType, MetricType
+
+                exercise_metric = await self._nearest_metric(
+                    session, user_id, [MetricType.EXERCISE_MINUTES], exercise_time, tolerance_minutes=30
+                )
+                glucose_metric = await self._nearest_metric(
+                    session, user_id, [MetricType.BLOOD_GLUCOSE], min_reading.timestamp, tolerance_minutes=20
+                )
+                if exercise_metric and glucose_metric and exercise_metric.id != glucose_metric.id:
+                    delay = int((min_reading.timestamp.replace(tzinfo=None) - exercise_time.replace(tzinfo=None)).total_seconds())
+                    edge_type = GraphEdgeType.EXERCISE_TO_GLUCOSE_DROP if change_from_baseline < -15 else GraphEdgeType.EXERCISE_TO_GLUCOSE_RISE
+                    await HealthGraphService(session).upsert_edge(
+                        user_id,
+                        HealthMetricEdgeCreate(
+                            source_metric_id=exercise_metric.id,
+                            target_metric_id=glucose_metric.id,
+                            edge_type=edge_type,
+                            confidence=min(abs(change_from_baseline) / 100, 1.0),
+                            time_delay_seconds=delay,
+                            algorithm="pattern_service.exercise_impact.v1",
+                            evidence={
+                                "exercise_duration": exercise.duration,
+                                "exercise_intensity": exercise.intensity,
+                                "baseline_avg": round(baseline_avg, 1),
+                                "post_avg": round(post_avg, 1),
+                                "change": round(change_from_baseline, 1),
+                                "impact_type": impact_type,
+                            },
+                        ),
+                    )
+            except Exception as e:
+                self.logger.warning(f"Failed to persist exercise graph edge: {e}")
         
         return analyses
     
