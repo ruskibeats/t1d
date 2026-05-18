@@ -1,6 +1,7 @@
 # Todo #3: [GRAPH-C] Add event-group API endpoint + auth for graph endpoints
 
 Status: in_progress
+Owner: @scout
 Tags: #p1 #api #backend #graph
 Branch: dad_1805
 

@@ -11,11 +11,17 @@
       ],
       "status": "in_progress",
       "createdAt": "2026-05-18T22:43:53.611Z",
-      "updatedAt": "2026-05-18T22:44:07.073Z",
+      "updatedAt": "2026-05-18T22:45:20.082Z",
       "description": "Update PatternService to persist: exercise→glucose_drop/rise, overnight low detection, insulin→glucose_change edges. Make edge-writing optional. Add tests.",
       "branch": "dad_1805",
       "project": "t1d",
-      "blockedBy": []
+      "blockedBy": [],
+      "assigned": "@worker",
+      "handoff": {
+        "target": "@worker",
+        "sentAt": "2026-05-18T22:45:20.082Z",
+        "status": "assigned"
+      }
     },
     {
       "id": 2,
@@ -27,11 +33,17 @@
       ],
       "status": "in_progress",
       "createdAt": "2026-05-18T22:43:53.614Z",
-      "updatedAt": "2026-05-18T22:44:07.073Z",
+      "updatedAt": "2026-05-18T22:45:20.083Z",
       "description": "Add provenance_json and confidence_components_json to HealthMetricEdge. Create shared scoring utility. Add detector version constants. Update migrations.",
       "branch": "dad_1805",
       "project": "t1d",
-      "blockedBy": []
+      "blockedBy": [],
+      "assigned": "@researcher",
+      "handoff": {
+        "target": "@researcher",
+        "sentAt": "2026-05-18T22:45:20.083Z",
+        "status": "assigned"
+      }
     },
     {
       "id": 3,
@@ -44,11 +56,17 @@
       ],
       "status": "in_progress",
       "createdAt": "2026-05-18T22:43:53.617Z",
-      "updatedAt": "2026-05-18T22:44:07.073Z",
+      "updatedAt": "2026-05-18T22:45:20.083Z",
       "description": "Add GET /api/v1/metrics/graph/event-group/{event_group_id} endpoint. Replace user_id query params with dependency-injected auth on all graph endpoints.",
       "branch": "dad_1805",
       "project": "t1d",
-      "blockedBy": []
+      "blockedBy": [],
+      "assigned": "@scout",
+      "handoff": {
+        "target": "@scout",
+        "sentAt": "2026-05-18T22:45:20.083Z",
+        "status": "assigned"
+      }
     }
   ],
   "nextId": 4
