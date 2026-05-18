@@ -554,6 +554,42 @@ class PatternService:
                     "severity": self._classify_hypo_severity(min_glucose.glucose_value, duration),
                     "trend_at_lowest": min_glucose.trend or "unknown",
                 })
+
+                # Persist graph edge for overnight low
+                try:
+                    from app.metrics.graph_service import HealthGraphService
+                    from app.metrics.models import HealthMetric
+                    from app.metrics.schemas import HealthMetricEdgeCreate
+                    from app.metrics.types import GraphEdgeType, MetricType
+
+                    # Find sleep metric closest to overnight start
+                    sleep_metric = await self._nearest_metric(
+                        session, user_id, [MetricType.SLEEP_HOURS], current, tolerance_minutes=120
+                    )
+                    glucose_metric = await self._nearest_metric(
+                        session, user_id, [MetricType.BLOOD_GLUCOSE], min_glucose.timestamp, tolerance_minutes=20
+                    )
+                    if sleep_metric and glucose_metric and sleep_metric.id != glucose_metric.id:
+                        delay = int((min_glucose.timestamp.replace(tzinfo=None) - current.replace(tzinfo=None)).total_seconds())
+                        await HealthGraphService(session).upsert_edge(
+                            user_id,
+                            HealthMetricEdgeCreate(
+                                source_metric_id=sleep_metric.id,
+                                target_metric_id=glucose_metric.id,
+                                edge_type=GraphEdgeType.SLEEP_TO_NEXT_DAY_GLUCOSE,
+                                confidence=min((self.HYPO_THRESHOLD - min_glucose.glucose_value) / self.HYPO_THRESHOLD, 1.0),
+                                time_delay_seconds=delay,
+                                algorithm="pattern_service.overnight_hypo.v1",
+                                evidence={
+                                    "lowest_value": round(min_glucose.glucose_value, 1),
+                                    "severity": self._classify_hypo_severity(min_glucose.glucose_value, duration),
+                                    "low_count": len(low_readings),
+                                    "percentage_of_night": round(duration, 1),
+                                },
+                            ),
+                        )
+                except Exception as e:
+                    self.logger.warning(f"Failed to persist overnight hypo graph edge: {e}")
             
             current += timedelta(days=1)
         
@@ -980,7 +1016,15 @@ class PatternService:
             )
             if exercise_corr:
                 correlations.append(exercise_corr)
-        
+
+        # Analyze insulin impact
+        if insulin_events:
+            insulin_corr = await self._analyze_insulin_correlation(
+                session, user_id, insulin_events, start_date, end_date
+            )
+            if insulin_corr:
+                correlations.append(insulin_corr)
+
         return correlations
     
     async def _analyze_meal_correlation(
@@ -1060,7 +1104,107 @@ class PatternService:
                 description=f"{drop_count} of {total_exercises} exercise events were followed by low glucose",
                 statistical_significance=0.05 if drop_count > 0 else 1.0,
             )
-        
+
+        return None
+
+    async def _analyze_insulin_correlation(
+        self,
+        session: AsyncSession,
+        user_id: int,
+        insulin_events: List[ContextEvent],
+        start_date: datetime,
+        end_date: datetime,
+    ) -> Optional[PatternCorrelation]:
+        """Analyze correlation between insulin and glucose changes.
+
+        Links insulin events to subsequent glucose changes within 4 hours.
+        Persists insulin_to_glucose_change graph edges.
+        """
+        total_insulin = len(insulin_events)
+        change_count = 0
+
+        for insulin_event in insulin_events:
+            window_end = insulin_event.timestamp + timedelta(hours=4)
+
+            # Get glucose before insulin (baseline)
+            pre_readings = await session.execute(
+                select(GlucoseReading)
+                .where(
+                    GlucoseReading.user_id == user_id,
+                    GlucoseReading.timestamp >= insulin_event.timestamp - timedelta(minutes=30),
+                    GlucoseReading.timestamp < insulin_event.timestamp,
+                )
+                .order_by(GlucoseReading.timestamp)
+            )
+            pre_values = [r.glucose_value for r in pre_readings.scalars().all()]
+
+            # Get glucose after insulin
+            post_readings = await session.execute(
+                select(GlucoseReading)
+                .where(
+                    GlucoseReading.user_id == user_id,
+                    GlucoseReading.timestamp >= insulin_event.timestamp,
+                    GlucoseReading.timestamp <= window_end,
+                )
+                .order_by(GlucoseReading.timestamp)
+            )
+            post_values = [r.glucose_value for r in post_readings.scalars().all()]
+
+            if not pre_values or not post_values:
+                continue
+
+            pre_avg = statistics.mean(pre_values)
+            post_avg = statistics.mean(post_values)
+            glucose_change = post_avg - pre_avg
+
+            # Insulin should cause glucose drop
+            if glucose_change < -10:
+                change_count += 1
+
+                # Persist graph edge
+                try:
+                    from app.metrics.graph_service import HealthGraphService
+                    from app.metrics.models import HealthMetric
+                    from app.metrics.schemas import HealthMetricEdgeCreate
+                    from app.metrics.types import GraphEdgeType, MetricType
+
+                    insulin_metric = await self._nearest_metric(
+                        session, user_id, [MetricType.INSULIN], insulin_event.timestamp, tolerance_minutes=15
+                    )
+                    glucose_metric = await self._nearest_metric(
+                        session, user_id, [MetricType.BLOOD_GLUCOSE], insulin_event.timestamp + timedelta(hours=2), tolerance_minutes=30
+                    )
+                    if insulin_metric and glucose_metric and insulin_metric.id != glucose_metric.id:
+                        delay = 7200  # ~2 hours in seconds
+                        await HealthGraphService(session).upsert_edge(
+                            user_id,
+                            HealthMetricEdgeCreate(
+                                source_metric_id=insulin_metric.id,
+                                target_metric_id=glucose_metric.id,
+                                edge_type=GraphEdgeType.INSULIN_TO_GLUCOSE_CHANGE,
+                                confidence=min(abs(glucose_change) / 100, 1.0),
+                                time_delay_seconds=delay,
+                                algorithm="pattern_service.insulin_correlation.v1",
+                                evidence={
+                                    "insulin_dose": getattr(insulin_event, 'insulin_dose', None),
+                                    "pre_glucose_avg": round(pre_avg, 1),
+                                    "post_glucose_avg": round(post_avg, 1),
+                                    "glucose_change": round(glucose_change, 1),
+                                },
+                            ),
+                        )
+                except Exception as e:
+                    self.logger.warning(f"Failed to persist insulin graph edge: {e}")
+
+        if total_insulin > 0:
+            correlation_strength = change_count / total_insulin
+            return PatternCorrelation(
+                event_type="insulin",
+                correlation_strength=round(correlation_strength, 2),
+                description=f"{change_count} of {total_insulin} insulin events were followed by glucose drop",
+                statistical_significance=0.05 if change_count > 0 else 1.0,
+            )
+
         return None
 
 
