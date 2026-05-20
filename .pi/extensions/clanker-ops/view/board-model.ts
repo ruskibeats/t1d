@@ -140,11 +140,14 @@ export function formatTags(task: Task): string {
 // Plan reference
 // ---------------------------------------------------------------------------
 
-export function classifyPlanRef(task: Task): "exists" | "missing" | "none" {
-	if (!task.id) return "none";
-	if (task.status === "completed") return "exists";
-	if (task.description?.trim()) return "exists";
-	return "missing";
+/**
+ * Returns the plan file name like `#N_plan.md` or `"no"` if none exists.
+ */
+export function getPlanRef(task: Task): string {
+	if (!task.id) return "no";
+	if (task.status === "completed") return `#${task.id}_plan.md`;
+	if (task.description?.trim() || task.planHandoff?.status === "sent") return `#${task.id}_plan.md`;
+	return "no";
 }
 
 // ---------------------------------------------------------------------------
@@ -207,7 +210,7 @@ export interface BoardTaskViewModel {
 	owner: string;
 	ownerSpanOnly: boolean;
 	tags: string;
-	planRef: "exists" | "missing" | "none";
+	planRef: string;
 	lastRan: string;
 	status: Task["status"];
 }
@@ -300,7 +303,7 @@ function toViewModel(task: Task, all: readonly Task[]): BoardTaskViewModel {
 		owner: task.assigned ?? "",
 		ownerSpanOnly: isOwnerSpan(task.assigned),
 		tags: formatTags(task),
-		planRef: classifyPlanRef(task),
+		planRef: getPlanRef(task),
 		lastRan: formatLastRan(task),
 		status: task.status,
 	};

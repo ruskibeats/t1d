@@ -71,7 +71,7 @@ function getTagPaint(vm: BoardTaskViewModel): (v: string) => string {
 }
 
 function getPlanPaint(vm: BoardTaskViewModel): (v: string) => string {
-	if (vm.planRef === "missing" && vm.status !== "completed") return ansi.orange;
+	if (vm.planRef === "no" && vm.status !== "completed") return ansi.orange;
 	return ansi.gray;
 }
 
@@ -155,7 +155,7 @@ export function renderClankerBoard(
 						[vm.item, cols.work, getPaint(vm.paint)],
 						[vm.owner, cols.owner, getOwnerPaint(vm.owner), vm.ownerSpanOnly],
 						[vm.tags, cols.tags, getTagPaint(vm)],
-						[vm.planRef === "exists" ? "yes" : vm.planRef, cols.plan, getPlanPaint(vm)],
+						[vm.planRef, cols.plan, getPlanPaint(vm)],
 						[vm.lastRan, cols.last, getLastPaint(vm)],
 					]),
 					inner,
