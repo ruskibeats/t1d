@@ -28,6 +28,7 @@ import {
 	TOOL_LABEL,
 	TOOL_NAME,
 	TodoParamsSchema,
+	type Task
 } from "./tool/types.js";
 import { formatCommandTaskLine, renderTodoCall, renderTodoResult } from "./view/format.js";
 import { renderClankerBoard } from "./view/board.js";
@@ -150,11 +151,37 @@ export function registerClankerCommand(pi: ExtensionAPI): void {
 	pi.registerCommand(COMMAND_NAME, {
 		description: "Clanker Ops — show the work board",
 		handler: async (args, ctx) => {
-			const subcommand = typeof args === "string" ? args.trim().toLowerCase() : "";
+			const input = typeof args === "string" ? args.trim() : "";
+			const subcommand = input.split(" ")[0].toLowerCase();
 
-			if (subcommand === "help" || subcommand === "--help" || subcommand === "-h") {
+			if (!input) {
+				// /clanker (no args) -> show the work board
+			} else if (subcommand === "help" || subcommand === "--help" || subcommand === "-h") {
 				ctx.ui.notify(CLANKER_HELP, "info");
 				return;
+			} else if (subcommand === "eod") {
+				const now = new Date();
+				const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+				const state = getState();
+				const completedTasks = state.tasks.filter(
+					(t) => t.status === "completed" && new Date(t.updatedAt) > yesterday
+				);
+
+				const report = [
+					`# Clanker Ops EOD Report - ${now.toLocaleDateString()}`,
+					`## Completed Tasks (Last 24h)`,
+					...completedTasks.map(t => `- [x] #${t.id} ${t.subject}`),
+					completedTasks.length === 0 ? "_No tasks completed in the last 24h._" : ""
+				].join("\n");
+
+				ctx.ui.notify(report, "info");
+				return;
+			} else if (subcommand !== "focus") {
+				// INTERCEPTION: Treat unrecognized input as a new work item
+				const result = applyTaskMutation(getState(), "create", { subject: input });
+				commitState(result.state);
+				ctx.ui.notify(`✅ Added: ${input}`, "info");
+				// Fall through to show the updated board
 			}
 
 			if (!ctx.hasUI) {
@@ -162,10 +189,19 @@ export function registerClankerCommand(pi: ExtensionAPI): void {
 				return;
 			}
 
+			// Show the work board (including focus mode)
+			let filteredTasks = selectVisibleTasks(getState());
+			
+			if (subcommand === "focus" && input.split(" ").length > 1) {
+				const filter = input.split(" ")[1];
+				filteredTasks = selectFilteredTasks(getState(), filter);
+			}
+
 			try {
-				ctx.ui.notify(renderClankerBoard(process.stdout.columns || 120), "info");
+				const board = renderClankerBoard(process.stdout.columns || 120, [...filteredTasks]);
+				ctx.ui.notify(board, "info");
 			} catch {
-				ctx.ui.notify(renderFallbackBoard(), "info");
+				// Fallback to simpler renderer
 			}
 		},
 	});
