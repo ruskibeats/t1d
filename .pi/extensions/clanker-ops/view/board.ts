@@ -169,7 +169,7 @@ export function renderClankerBoard(
 
 	// Top border + title
 	lines.push(borderLine("╭", "─".repeat(inner), "╮"));
-	lines.push(box(`${ansi.bold(title)}${" ".repeat(Math.max(1, inner - title.length))}${ansi.gray(summary)}`, inner));
+	lines.push(box(`${ansi.bold(title)}${" ".repeat(Math.max(1, inner - title.length - summary.length))}${ansi.gray(summary)}`, inner));
 	lines.push(headerRule(inner));
 
 	// Column headers
