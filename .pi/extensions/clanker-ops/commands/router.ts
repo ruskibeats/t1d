@@ -16,7 +16,7 @@ import { t } from "../state/i18n-bridge.js";
 import { ERR_REQUIRES_INTERACTIVE, COMMAND_NAME } from "../tool/types.js";
 import { assembleDispatch } from "../dispatch.js";
 import { generatePlan } from "../dispatch/plan-generator.js";
-import { logDispatch, getDispatchHistory } from "../dispatch/dispatch-log.js";
+import { logDispatch, formatDispatchHistory } from "../dispatch/dispatch-log.js";
 
 // ---------------------------------------------------------------------------
 // Handler type
@@ -39,7 +39,10 @@ const CLANKER_HELP = `╭─── Clanker Ops ───╮
 │                    │
 │  /clanker         Show work board
 │  /clanker help    Show this help
+│  /clanker compact Show compact board
 │  /clanker dispatch #<id> [to <owner>]
+│  /clanker bulk #id --status <s> [--assigned <o>]
+│  /clanker log     Show dispatch history
 │  /clanker eod     End-of-day report
 │  /clanker focus   Filtered board view
 │  /clanker <text>  Add new work item
@@ -114,6 +117,13 @@ async function handleBulk(ctx: CommandContext): Promise<boolean> {
 	commitState(result.state);
 	ctx.notify(`✅ Bulk updated ${result.op.count} tasks`, "info");
 	return true;
+}
+
+/** Show dispatch history log */
+async function handleLog(ctx: CommandContext): Promise<boolean> {
+	const history = formatDispatchHistory(20);
+	ctx.notify(history, "info");
+	return false;
 }
 
 /** Help text */
