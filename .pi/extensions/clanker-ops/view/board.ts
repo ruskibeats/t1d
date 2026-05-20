@@ -151,11 +151,11 @@ export function renderClankerBoard(
 	).length;
 
 	const summaryParts: string[] = [];
-	if (groups.active.length) summaryParts.push(`${groups.active.length} active`);
-	summaryParts.push(`${groups.dontForget.length + groups.queued.length} queued`);
+	if (groups.active?.length) summaryParts.push(`${groups.active.length} active`);
+	summaryParts.push(`${(groups.dontForget?.length ?? 0) + (groups.queued?.length ?? 0)} queued`);
 	if (failedCount) summaryParts.push(ansi.red(`${failedCount} failed`));
 	if (blockedCount) summaryParts.push(ansi.cyan(`${blockedCount} blocked`));
-	if (groups.completed.length) summaryParts.push(`${groups.completed.length} done`);
+	if (groups.completed?.length) summaryParts.push(`${groups.completed.length} done`);
 	if (noPlanCount) summaryParts.push(ansi.orange(`${noPlanCount} ⚠no-plan`));
 	const summary = summaryParts.join(ansi.gray(" · "));
 
