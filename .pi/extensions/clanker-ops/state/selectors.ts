@@ -57,7 +57,7 @@ export function selectShowTaskIds(state: TaskState): boolean {
  * `#id` plain rendering.
  */
 export function selectTaskSubjectById(state: TaskState, id: number): string | undefined {
-	return state.tasks.find((t) => t.id === id)?.subject;
+	return state.tasks.find((t) => t.id === id)?.item;
 }
 
 /**
@@ -102,6 +102,24 @@ export function selectOverlayLayout(state: TaskState, budget: number): OverlayLa
  */
 export function selectHasActive(state: TaskState): boolean {
 	return selectVisibleTasks(state).some((t) => t.status === "in_progress" || t.status === "pending");
+}
+
+/**
+ * Filter tasks by owner, tag, or text content. Used by `/clanker focus <filter>`
+ * to narrow the board view.
+ */
+export function selectFilteredTasks(
+	state: TaskState,
+	filter: string,
+): readonly Task[] {
+	const visible = selectVisibleTasks(state);
+	const lowerFilter = filter.toLowerCase();
+	return visible.filter(
+		(t) =>
+			(t.assigned && t.assigned.toLowerCase().includes(lowerFilter)) ||
+			(t.tags && t.tags.some((tag) => tag.toLowerCase().includes(lowerFilter))) ||
+			t.item.toLowerCase().includes(lowerFilter),
+	);
 }
 
 export const ACTIVE_STATUSES: ReadonlySet<TaskStatus> = new Set(["pending", "in_progress"]);

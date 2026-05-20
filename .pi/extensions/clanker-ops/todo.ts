@@ -16,7 +16,7 @@ import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 import { loadConfig, validateGuidanceFields } from "./config.js";
 import { formatStatusLabel, t } from "./state/i18n-bridge.js";
 import { replayFromBranch } from "./state/replay.js";
-import { selectTasksByStatus, selectTodoCounts, selectVisibleTasks } from "./state/selectors.js";
+import { selectFilteredTasks, selectTasksByStatus, selectTodoCounts, selectVisibleTasks } from "./state/selectors.js";
 import { applyTaskMutation } from "./state/state-reducer.js";
 import { commitState, getState, replaceState } from "./state/store.js";
 import { buildToolResult } from "./tool/response-envelope.js";
@@ -46,6 +46,7 @@ const SECTION_COMPLETED = "── Completed ──";
 
 export { isTransitionValid } from "./state/invariants.js";
 export { applyTaskMutation } from "./state/state-reducer.js";
+export { selectFilteredTasks } from "./state/selectors.js";
 export { __resetState, getNextId, getTodos } from "./state/store.js";
 export { deriveBlocks, detectCycle } from "./state/task-graph.js";
 export type { Task, TaskAction, TaskDetails, TaskStatus } from "./tool/types.js";
@@ -110,6 +111,7 @@ const CLANKER_HELP = `╭─── Clanker Ops ───╮
 │                    │
 │  /clanker         Show work board
 │  /clanker help    Show this help
+│  /clanker dispatch #<id> [to <owner>]
 │                    │
 ╰────────────────────╯`;
 
@@ -156,6 +158,8 @@ export function registerClankerCommand(pi: ExtensionAPI): void {
 
 			if (!input) {
 				// /clanker (no args) -> show the work board
+				ctx.ui.notify(renderClankerBoard(120, null, null, true), "info");
+				return;
 			} else if (subcommand === "help" || subcommand === "--help" || subcommand === "-h") {
 				ctx.ui.notify(CLANKER_HELP, "info");
 				return;
@@ -170,11 +174,86 @@ export function registerClankerCommand(pi: ExtensionAPI): void {
 				const report = [
 					`# Clanker Ops EOD Report - ${now.toLocaleDateString()}`,
 					`## Completed Tasks (Last 24h)`,
-					...completedTasks.map(t => `- [x] #${t.id} ${t.subject}`),
+					...completedTasks.map(t => `- [x] #${t.id} ${t.item}`),
 					completedTasks.length === 0 ? "_No tasks completed in the last 24h._" : ""
 				].join("\n");
 
 				ctx.ui.notify(report, "info");
+				return;
+			} else if (subcommand === "dispatch") {
+				const parts = input.split(" ");
+				const taskId = parseInt(parts[1]?.replace("#", ""));
+				const owner = parts.length > 3 && parts[2] === "to" ? parts[3] : undefined;
+
+				if (!taskId || Number.isNaN(taskId)) {
+					ctx.ui.notify("Usage: /clanker dispatch #<id> [to <owner>]", "error");
+					return;
+				}
+
+				const { assembleDispatch } = await import("./dispatch.js");
+
+				if (owner) {
+					const assignResult = applyTaskMutation(getState(), "update", { id: taskId, assigned: owner });
+					commitState(assignResult.state);
+				}
+
+				const payload = assembleDispatch(taskId);
+				if (!payload) {
+					ctx.ui.notify(`Dispatch failed: task #${taskId} not ready (missing plan, owner, or agent definition).`, "error");
+					return;
+				}
+
+				// Try auto-spawn via raw child_process (no ExtensionAPI needed)
+				let spawnResult: { autoSpawned: boolean; error?: string; fallbackCommand?: string } | undefined;
+				try {
+					const { executeBackgroundDispatch } = await import("./background-spawner.js");
+					spawnResult = executeBackgroundDispatch(payload);
+				} catch (error) {
+					const message = error instanceof Error ? error.message : String(error);
+					spawnResult = { autoSpawned: false, error: message };
+				}
+
+				const metaResult = applyTaskMutation(getState(), "update", {
+					id: taskId,
+					status: "in_progress",
+					metadata: {
+						dispatchRunId: payload.runId,
+						dispatchedAt: new Date().toISOString(),
+						dispatchAgent: payload.agent,
+						outputPath: payload.outputPath,
+						...(spawnResult?.autoSpawned ? { autoSpawned: true } : {}),
+					},
+				});
+				commitState(metaResult.state);
+
+				const msgLines: string[] = [
+					`### Dispatched #${taskId} → @${payload.agent}`,
+					"",
+					`**Plan:** ${payload.planPath}`,
+					`**Run ID:** ${payload.runId}`,
+				];
+
+				if (spawnResult?.autoSpawned) {
+					msgLines.push("", "🔥 **Auto-fired in background** — no manual step needed.");
+					msgLines.push("Check status with:");
+					msgLines.push("```bash");
+					msgLines.push(`subagent({ action: "status", id: "${payload.runId}" })`);
+					msgLines.push("```");
+				} else {
+					msgLines.push("", "**Execute this command to start background work:**");
+					msgLines.push("```bash");
+					msgLines.push(`subagent single --agent ${payload.agent} --async true --output ${payload.outputPath} --task "${payload.task.replace(/"/g, '\\"')}"`);
+					msgLines.push("```");
+					msgLines.push("", "The subagent will run in the background. Check status with:");
+					msgLines.push("```bash");
+					msgLines.push(`subagent({ action: "status", id: "${payload.runId}" })`);
+					msgLines.push("```");
+					if (spawnResult?.error) {
+						msgLines.push("", `⚠️ Auto-spawn failed: ${spawnResult.error}`);
+					}
+				}
+
+				ctx.ui.notify(msgLines.join("\n"), "info");
 				return;
 			} else if (subcommand !== "focus") {
 				// INTERCEPTION: Treat unrecognized input as a new work item
