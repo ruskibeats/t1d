@@ -15,6 +15,7 @@ import {
 } from "./plan-audit.js";
 import type { ClassifiedEvent } from "./event-types.js";
 import { classifyEvent, type ControlEventLike } from "./event-types.js";
+import { logCompletion, logHeartbeat } from "../dispatch/dispatch-log.js";
 
 // ---------------------------------------------------------------------------
 // State update per event type
@@ -38,6 +39,7 @@ function handleNeedsAttention(event: ClassifiedEvent): void {
 		`needs attention: ${event.message || "no activity observed"}`,
 	);
 	appendAgentLog(event.taskId, logEntry);
+	logHeartbeat(event.taskId, event.runId);
 
 	const alertResult = applyTaskMutation(getState(), "update", {
 		id: event.taskId,
@@ -71,6 +73,7 @@ function handleFailed(event: ClassifiedEvent): void {
 		`failed: ${event.message}`,
 	);
 	appendAgentLog(event.taskId, logEntry);
+	logCompletion(event.taskId, event.runId, "failed", event.message);
 
 	const failResult = applyTaskMutation(getState(), "update", {
 		id: event.taskId,

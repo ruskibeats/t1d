@@ -23,19 +23,29 @@ export const MSG_NO_TODOS = "No work items yet. Ask the agent to add some!";
 // Public domain types
 // ---------------------------------------------------------------------------
 
-export type TaskStatus = "pending" | "in_progress" | "completed" | "deleted";
+export type TaskStatus = "pending" | "in_progress" | "completed" | "deleted" | "failed" | "cancelled" | "deferred" | "";
 
-export type TaskAction = "create" | "update" | "list" | "get" | "delete" | "clear";
+export type TaskAction = "create" | "update" | "list" | "get" | "delete" | "clear" | "dispatch" | "bulk";
 
 export interface Task {
 	id: number;
-	subject: string;
+	item: string;
+	subject?: string;
 	description?: string;
 	activeForm?: string;
 	status: TaskStatus;
 	blockedBy?: number[];
+	assigned?: string;
 	owner?: string;
+	tags?: string[];
+	planFile?: string;
+	branch?: string;
+	project?: string;
+	handoff?: { status?: string; sentAt?: string };
+	planHandoff?: { status?: string; sentAt?: string };
 	metadata?: Record<string, unknown>;
+	createdAt: string;
+	updatedAt: string;
 }
 
 /**
@@ -60,15 +70,22 @@ export interface TaskDetails {
 export interface TaskMutationParams {
 	[key: string]: unknown;
 	subject?: string;
+	item?: string;
 	description?: string;
 	activeForm?: string;
 	status?: TaskStatus;
 	blockedBy?: number[];
 	addBlockedBy?: number[];
 	removeBlockedBy?: number[];
+	assigned?: string;
 	owner?: string;
+	tags?: string[];
+	planFile?: string;
+	branch?: string;
+	project?: string;
 	metadata?: Record<string, unknown>;
 	id?: number;
+	ids?: number[];
 	includeDeleted?: boolean;
 }
 
@@ -88,7 +105,7 @@ export const TodoParamsSchema = Type.Object({
 		}),
 	),
 	status: Type.Optional(
-		StringEnum(["pending", "in_progress", "completed", "deleted"] as const, {
+		StringEnum(["pending", "in_progress", "completed", "deleted", "failed", "cancelled", "deferred"] as const, {
 			description: "Target status (update) or list filter (list)",
 		}),
 	),
@@ -107,6 +124,12 @@ export const TodoParamsSchema = Type.Object({
 			description: "Task ids to remove from blockedBy (update only, additive merge)",
 		}),
 	),
+	item: Type.Optional(Type.String({ description: "Task subject line (alternative to subject, used by Clanker Ops board)" })),
+	tags: Type.Optional(Type.Array(Type.String(), { description: "Tags for priority, area, and type" })),
+	planFile: Type.Optional(Type.String({ description: "Path to plan file relative to .pi/todo-plans/" })),
+	branch: Type.Optional(Type.String({ description: "Git branch context" })),
+	project: Type.Optional(Type.String({ description: "Project name" })),
+	assigned: Type.Optional(Type.String({ description: "Agent/owner assigned to this task (alternative to owner, used by Clanker Ops board)" })),
 	owner: Type.Optional(Type.String({ description: "Agent/owner assigned to this task" })),
 	metadata: Type.Optional(
 		Type.Record(Type.String(), Type.Unknown(), {

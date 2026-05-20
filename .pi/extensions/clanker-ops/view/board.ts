@@ -11,7 +11,7 @@
 import type { Task } from "../tool/types.js";
 import type { BoardTaskViewModel } from "./board-model.js";
 import { presentBoard, computeColumnWidths } from "./board-model.js";
-import { pad, padOnly } from "./text-utils.js";
+import { pad, padOnly, visualWidth } from "./text-utils.js";
 
 // ---------------------------------------------------------------------------
 // ANSI helpers
@@ -90,8 +90,12 @@ function row(cells: Array<[string, number, (v: string) => string, boolean?]>): s
 	return ` ${cells
 		.map(([value, w, paint, spanOnly = false]) => {
 			if (!spanOnly) return paint(pad(value, w));
-			const plain = pad(value, w);
-			return paint(plain);
+			// spanOnly: paint only the text, padding stays gray
+			const text = String(value ?? "");
+			const textVw = visualWidth(text);
+			const padding = w - textVw;
+			if (padding <= 0) return paint(pad(text, w));
+			return paint(text) + " ".repeat(padding);
 		})
 		.join(" ")} `;
 }
@@ -137,7 +141,23 @@ export function renderClankerBoard(
 	const cols = computeColumnWidths(inner);
 
 	const board = presentBoard(tasks);
-	const { groups, counts, summary } = board;
+	const { groups, counts } = board;
+
+	// Enhanced summary with failed, blocked, no-plan counts
+	const failedCount = tasks.filter((t) => t.status === "failed").length;
+	const blockedCount = tasks.filter((t) => (t.blockedBy?.length ?? 0) > 0 && t.status !== "completed").length;
+	const noPlanCount = tasks.filter(
+		(t) => t.status !== "completed" && t.status !== "deleted" && !t.description?.trim(),
+	).length;
+
+	const summaryParts: string[] = [];
+	if (groups.active.length) summaryParts.push(`${groups.active.length} active`);
+	summaryParts.push(`${groups.dontForget.length + groups.queued.length} queued`);
+	if (failedCount) summaryParts.push(ansi.red(`${failedCount} failed`));
+	if (blockedCount) summaryParts.push(ansi.cyan(`${blockedCount} blocked`));
+	if (groups.completed.length) summaryParts.push(`${groups.completed.length} done`);
+	if (noPlanCount) summaryParts.push(ansi.orange(`${noPlanCount} ⚠no-plan`));
+	const summary = summaryParts.join(ansi.gray(" · "));
 
 	const filterText = options.filter ? ` [Focus: ${options.filter}]` : "";
 	const title = ` Clanker Ops${filterText}`;
@@ -147,12 +167,16 @@ export function renderClankerBoard(
 		if (!group.length) return [];
 		const lines = sectionHeader(name, inner);
 		for (const vm of group) {
+			// Append activeForm for in_progress tasks
+			const workText = vm.activeForm && vm.status === "in_progress"
+				? `${vm.item} ${ansi.gray(`(${vm.activeForm})`)}`
+				: vm.item;
 			lines.push(
 				box(
 					row([
 						[vm.icon, cols.icon, getPaint(vm.paint)],
 						[`#${vm.id}`, cols.id, ansi.gray],
-						[vm.item, cols.work, getPaint(vm.paint)],
+						[workText, cols.work, getPaint(vm.paint)],
 						[vm.owner, cols.owner, getOwnerPaint(vm.owner), vm.ownerSpanOnly],
 						[vm.tags, cols.tags, getTagPaint(vm)],
 						[vm.planRef, cols.plan, getPlanPaint(vm)],
@@ -169,7 +193,7 @@ export function renderClankerBoard(
 
 	// Top border + title
 	lines.push(borderLine("╭", "─".repeat(inner), "╮"));
-	lines.push(box(`${ansi.bold(title)}${" ".repeat(Math.max(1, inner - title.length - summary.length))}${ansi.gray(summary)}`, inner));
+	lines.push(box(`${ansi.bold(title)}${" ".repeat(Math.max(1, inner - title.length - summary.length))}${summary}`, inner));
 	lines.push(headerRule(inner));
 
 	// Column headers
@@ -201,7 +225,7 @@ export function renderClankerBoard(
 		lines.push(box(ansi.gray(` ✓ ${groups.done.length} done; use --all to show them`), inner));
 	}
 
-	// Legend
+	// Legend — color + glyph
 	lines.push(headerRule(inner));
 	lines.push(
 		box(
@@ -216,7 +240,97 @@ export function renderClankerBoard(
 			inner,
 		),
 	);
+	lines.push(
+		box(
+			[
+				ansi.gray("○ pending"),
+				ansi.gray("◐ active"),
+				ansi.amber("! reminder"),
+				ansi.cyan("⊘ blocked"),
+				ansi.gray("◌ deferred"),
+				ansi.green("⇢ dispatched"),
+				ansi.red("✗ failed"),
+				ansi.red("⚠ needs-attn"),
+				ansi.purple("⧉ duplicate"),
+			].join(ansi.gray(" · ")),
+			inner,
+		),
+	);
 	lines.push(borderLine("╰", "─".repeat(inner), "╯"));
+
+	return lines.join("\n");
+}
+
+// ---------------------------------------------------------------------------
+// Compact mode — no borders, indentation-based
+// ---------------------------------------------------------------------------
+
+export function renderClankerBoardCompact(
+	tasks: readonly Task[],
+	options: RenderBoardOptions = {},
+): string {
+	const board = presentBoard(tasks);
+	const { groups } = board;
+
+	const failedCount = tasks.filter((t) => t.status === "failed").length;
+
+	const lines: string[] = [];
+
+	// Header
+	const summaryParts: string[] = [];
+	if (groups.active.length) summaryParts.push(`${groups.active.length} active`);
+	if (failedCount) summaryParts.push(`${failedCount} failed`);
+	summaryParts.push(`${groups.dontForget.length + groups.queued.length} queued`);
+	if (groups.done.length) summaryParts.push(`${groups.done.length} done`);
+
+	lines.push(`Clanker Ops  ${summaryParts.join(" · ")}`);
+
+	// Active section
+	if (groups.active.length) {
+		lines.push("", "Active:");
+		for (const vm of groups.active) {
+			const owner = vm.owner ? ` @${vm.owner}` : "";
+			const active = vm.activeForm ? ` (${vm.activeForm})` : "";
+			const last = ` ${ansi.gray(vm.lastRan)}`;
+			lines.push(`  ◐ #${vm.id} ${vm.item}${active}${owner}${last}`);
+		}
+	}
+
+	// Failed section
+	if (failedCount) {
+		const failed = tasks.filter((t) => t.status === "failed");
+		lines.push("", "Failed:");
+		for (const t of failed) {
+			lines.push(`  ✗ #${t.id} ${t.item}`);
+		}
+	}
+
+	// Dont Forget
+	if (groups.dontForget.length) {
+		lines.push("", "Reminders:");
+		for (const vm of groups.dontForget) {
+			lines.push(`  ! #${vm.id} ${vm.item}`);
+		}
+	}
+
+	// Queued (first 10)
+	if (groups.queued.length) {
+		const show = groups.queued.slice(0, 10);
+		lines.push("", "Queued:");
+		for (const vm of show) {
+			const prefix = vm.paint === "cyan" ? "⊘" : "○";
+			const owner = vm.owner ? ` @${vm.owner}` : "";
+			lines.push(`  ${prefix} #${vm.id} ${vm.item}${owner}`);
+		}
+		if (groups.queued.length > 10) {
+			lines.push(`  ... ${groups.queued.length - 10} more`);
+		}
+	}
+
+	// Done summary
+	if (groups.done.length) {
+		lines.push("", `✓ ${groups.done.length} done`);
+	}
 
 	return lines.join("\n");
 }

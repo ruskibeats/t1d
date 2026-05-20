@@ -172,14 +172,32 @@ export function getLatestActivity(task: Task): Date | undefined {
 	return dates[0];
 }
 
+/**
+ * Format a timestamp as a relative or absolute time string.
+ * Recent items (<24h) show relative: "5m ago", "2h ago"
+ * Today items show time: "11:48"
+ * Older items show date: "05-20"
+ */
 export function formatLastRan(task: Task): string {
 	const date = getLatestActivity(task);
 	if (!date) return "-";
 
-	const today = new Date();
-	if (date.toDateString() === today.toDateString()) {
+	const now = new Date();
+	const diffMs = now.getTime() - date.getTime();
+	const diffMins = Math.floor(diffMs / 60000);
+	const diffHours = Math.floor(diffMins / 60);
+
+	// Very recent — relative time
+	if (diffMins < 1) return "just now";
+	if (diffMins < 60) return `${diffMins}m ago`;
+	if (diffHours < 24) return `${diffHours}h ago`;
+
+	// Today — absolute time
+	if (date.toDateString() === now.toDateString()) {
 		return `${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
 	}
+
+	// Older — short date
 	return `${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
 }
 
@@ -213,6 +231,7 @@ export interface BoardTaskViewModel {
 	planRef: string;
 	lastRan: string;
 	status: Task["status"];
+	activeForm?: string;
 }
 
 export interface BoardViewModel {
@@ -306,6 +325,7 @@ function toViewModel(task: Task, all: readonly Task[]): BoardTaskViewModel {
 		planRef: getPlanRef(task),
 		lastRan: formatLastRan(task),
 		status: task.status,
+		activeForm: task.activeForm,
 	};
 }
 

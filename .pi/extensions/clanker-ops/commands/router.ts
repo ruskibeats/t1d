@@ -11,10 +11,12 @@ import { getState } from "../state/store.js";
 import { applyTaskMutation } from "../state/state-reducer.js";
 import { commitState } from "../state/store.js";
 import { selectFilteredTasks } from "../state/selectors.js";
-import { renderClankerBoard } from "../view/board.js";
+import { renderClankerBoard, renderClankerBoardCompact } from "../view/board.js";
 import { t } from "../state/i18n-bridge.js";
 import { ERR_REQUIRES_INTERACTIVE, COMMAND_NAME } from "../tool/types.js";
 import { assembleDispatch } from "../dispatch.js";
+import { generatePlan } from "../dispatch/plan-generator.js";
+import { logDispatch, getDispatchHistory } from "../dispatch/dispatch-log.js";
 
 // ---------------------------------------------------------------------------
 // Handler type
@@ -51,7 +53,11 @@ const BOARD_FOOTER = "╰──────────────────�
 // Handlers
 // ---------------------------------------------------------------------------
 
-const handlers: Record<string, Handler> = {
+const handler: Record<string, Handler> = {
+	bulk: handleBulk,
+	compact: handleCompact,
+	log: handleLog,
+	history: handleLog,
 	help: handleHelp,
 	"--help": handleHelp,
 	"-h": handleHelp,
@@ -67,9 +73,60 @@ async function handleEmpty(ctx: CommandContext): Promise<boolean> {
 	return false;
 }
 
+/** Bulk update tasks */
+async function handleBulk(ctx: CommandContext): Promise<boolean> {
+	const parts = ctx.input.split(" ");
+	// /clanker bulk #10,#11,#12 --status in_progress --assigned @worker
+	const idMatch = ctx.input.match(/#(\d+)(?:,#(\d+))*/);
+	const ids: number[] = [];
+	const idParts = ctx.input.split(" ");
+	for (const part of idParts) {
+		const m = part.match(/#(\d+)/);
+		if (m) ids.push(parseInt(m[1]));
+	}
+
+	if (!ids.length) {
+		ctx.notify("Usage: /clanker bulk #10,#11,#12 [--status <status>] [--assigned <owner>] [--tag <tag>]", "error");
+		return false;
+	}
+
+	// Parse flags
+	const statusIdx = ctx.input.indexOf("--status ");
+	const assignIdx = ctx.input.indexOf("--assigned ");
+	const tagIdx = ctx.input.indexOf("--tag ");
+
+	const params: Record<string, unknown> = { ids };
+	if (statusIdx >= 0) {
+		const val = ctx.input.slice(statusIdx + 9).split(" ")[0];
+		params.status = val;
+	}
+	if (assignIdx >= 0) {
+		const val = ctx.input.slice(assignIdx + 11).split(" ")[0];
+		params.assigned = val;
+	}
+
+	const result = applyTaskMutation(getState(), "bulk", params as TaskMutationParams);
+	if (result.op.kind === "error") {
+		ctx.notify(`Bulk failed: ${result.op.message}`, "error");
+		return false;
+	}
+
+	commitState(result.state);
+	ctx.notify(`✅ Bulk updated ${result.op.count} tasks`, "info");
+	return true;
+}
+
 /** Help text */
 async function handleHelp(ctx: CommandContext): Promise<boolean> {
 	ctx.notify(CLANKER_HELP, "info");
+	return false;
+}
+
+/** Compact board — no borders, indentation-based */
+async function handleCompact(ctx: CommandContext): Promise<boolean> {
+	const width = process.stdout.columns || 80;
+	const board = renderClankerBoardCompact(getState().tasks, { width });
+	ctx.notify(board, "info");
 	return false;
 }
 
@@ -113,6 +170,20 @@ async function handleDispatch(ctx: CommandContext): Promise<boolean> {
 		commitState(assignResult.state);
 	}
 
+	// Auto-generate plan if missing
+	const task = getState().tasks.find((t) => t.id === taskId);
+	if (task) {
+		const planResult = generatePlan({ task, agentName: owner ?? task.assigned ?? "" });
+		if (planResult.generated) {
+			// Update task with planFile reference
+			const planUpdateResult = applyTaskMutation(getState(), "update", {
+				id: taskId,
+				planFile: `#${taskId}_plan.md`,
+			});
+			commitState(planUpdateResult.state);
+		}
+	}
+
 	const payload = assembleDispatch(taskId);
 	if (!payload) {
 		ctx.notify(
@@ -147,6 +218,15 @@ async function handleDispatch(ctx: CommandContext): Promise<boolean> {
 		},
 	});
 	commitState(metaResult.state);
+
+	// Log the dispatch to history
+	logDispatch({
+		taskId,
+		agent: payload.agent,
+		runId: payload.runId,
+		status: "dispatched",
+		outputPath: payload.outputPath,
+	});
 
 	const msgLines: string[] = [
 		`### Dispatched #${taskId} → @${payload.agent}`,
@@ -237,8 +317,8 @@ export async function routeCommand(
 	}
 
 	// Known subcommand
-	const handler = handlers[subcommand];
-	if (handler) {
+	const h = handlers[subcommand];
+	if (h) {
 		await handler(ctx);
 		return;
 	}

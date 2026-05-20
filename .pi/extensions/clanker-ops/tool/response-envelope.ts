@@ -11,7 +11,7 @@ import type { Task, TaskAction, TaskDetails, TaskMutationParams } from "./types.
 function formatListLine(t: Task): string {
 	const block = t.blockedBy?.length ? ` ⛓ ${t.blockedBy.map((id) => `#${id}`).join(",")}` : "";
 	const form = t.status === "in_progress" && t.activeForm ? ` (${t.activeForm})` : "";
-	return `[${t.status}] #${t.id} ${t.subject}${form}${block}`;
+	return `[${t.status}] #${t.id} ${t.item}${form}${block}`;
 }
 
 /**
@@ -21,7 +21,7 @@ function formatListLine(t: Task): string {
  */
 function formatGetLines(task: Task, state: TaskState): string {
 	const blocks = deriveBlocks(state.tasks).get(task.id) ?? [];
-	const lines = [`#${task.id} [${task.status}] ${task.subject}`];
+	const lines = [`#${task.id} [${task.status}] ${task.item}`];
 	if (task.description) lines.push(`  description: ${task.description}`);
 	if (task.activeForm) lines.push(`  activeForm: ${task.activeForm}`);
 	if (task.blockedBy?.length) {
@@ -30,6 +30,7 @@ function formatGetLines(task: Task, state: TaskState): string {
 	if (blocks.length) {
 		lines.push(`  blocks: ${blocks.map((id) => `#${id}`).join(", ")}`);
 	}
+	if (task.assigned) lines.push(`  assigned: ${task.assigned}`);
 	if (task.owner) lines.push(`  owner: ${task.owner}`);
 	return lines.join("\n");
 }
@@ -46,7 +47,7 @@ export function formatContent(op: Op, state: TaskState): string {
 			const t = state.tasks.find((x) => x.id === op.taskId);
 			// Defensive — `op.taskId` always resolves on success path.
 			if (!t) return `Created #${op.taskId}`;
-			return `Created #${t.id}: ${t.subject} (pending)`;
+			return `Created #${t.id}: ${t.item} (pending)`;
 		}
 		case "update": {
 			const transition = op.fromStatus !== op.toStatus ? ` (${op.fromStatus} → ${op.toStatus})` : "";
