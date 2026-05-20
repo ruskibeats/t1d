@@ -11,7 +11,7 @@
       ],
       "status": "completed",
       "createdAt": "2026-05-18T22:43:53.611Z",
-      "updatedAt": "2026-05-18T22:54:44.752Z",
+      "updatedAt": "2026-05-19T21:03:37.876Z",
       "description": "Update PatternService to persist: exercise→glucose_drop/rise, overnight low detection, insulin→glucose_change edges. Make edge-writing optional. Add tests.",
       "branch": "dad_1805",
       "project": "t1d",
@@ -26,14 +26,21 @@
         "backend",
         "p1"
       ],
-      "status": "pending",
+      "status": "completed",
       "createdAt": "2026-05-18T22:43:53.614Z",
-      "updatedAt": "2026-05-18T22:54:58.500Z",
-      "description": "Add provenance_json and confidence_components_json to HealthMetricEdge. Create shared scoring utility. Add detector version constants. Update migrations.",
+      "updatedAt": "2026-05-19T21:01:55.828Z",
+      "description": "[CONSOLIDATED] Provenance tracking + confidence decomposition + detector version constants\nFrom MASTER_TODO Sections 5A + 5B:\n- Add provenance_json to health_metric_edges\n- Add confidence_components_json to health_metric_edges\n- Create shared scoring utility for graph detectors\n- Add detector version constants\n- Add provenance builder for consistent edge payloads\n- Add confidence thresholds for UI/RAG wording (low/medium/high)",
       "branch": "dad_1805",
       "project": "t1d",
       "blockedBy": [],
-      "assigned": "@researcher"
+      "assigned": "@worker",
+      "planHandoff": {
+        "target": "@planner",
+        "sentAt": "2026-05-19T17:21:45.081Z",
+        "status": "sent",
+        "command": "/run planner \"Build a concise implementation plan for Clanker Ops work #2: [GRAPH-B] Implement provenance tracking + confidence decomposition\\n\\nExpected output:\\n- Write the plan to /root/t1d/.pi/todo-plans/#2_plan.md\\n- Update the work item description with the same plan if the todo tool is available.\\n\\nPlan should include:\\n- Intended outcome\\n- Likely files, modules, or commands to inspect\\n- Step-by-step approach\\n- Verification checks\\n- Blockers, dependencies, or questions\\n\\nTags: #p1 #backend #graph\\nBranch: dad_1805\" --bg",
+        "intercomCommand": "intercom({\"action\":\"send\",\"to\":\"planner\",\"message\":\"Build a concise implementation plan for Clanker Ops work #2: [GRAPH-B] Implement provenance tracking + confidence decomposition\\n\\nExpected output:\\n- Write the plan to /root/t1d/.pi/todo-plans/#2_plan.md\\n- Update the work item description with the same plan if the todo tool is available.\\n\\nPlan should include:\\n- Intended outcome\\n- Likely files, modules, or commands to inspect\\n- Step-by-step approach\\n- Verification checks\\n- Blockers, dependencies, or questions\\n\\nTags: #p1 #backend #graph\\nBranch: dad_1805\"})"
+      }
     },
     {
       "id": 3,
@@ -44,48 +51,1033 @@
         "api",
         "p1"
       ],
-      "status": "pending",
+      "status": "completed",
       "createdAt": "2026-05-18T22:43:53.617Z",
-      "updatedAt": "2026-05-18T22:54:58.500Z",
-      "description": "Add GET /api/v1/metrics/graph/event-group/{event_group_id} endpoint. Replace user_id query params with dependency-injected auth on all graph endpoints.",
+      "updatedAt": "2026-05-19T21:02:01.826Z",
+      "description": "SCOUT FINDINGS (see scout-report-3.md): event_group_id EXISTS in models/ingestion. get_event_group() method EXISTS. MISSING: event-group endpoint (→ #31). MISSING: auth migration on 13 routes (→ #32).",
       "branch": "dad_1805",
       "project": "t1d",
       "blockedBy": [],
       "assigned": "@scout"
     },
     {
-      "id": 4,
-      "item": "[GRAPH-D] Add event-group API endpoint + auth for graph endpoints",
+      "id": 7,
+      "item": "[REVIEW] Review all .md files in docs folder",
       "tags": [
-        "graph",
-        "backend",
-        "api",
-        "p1"
+        "docs",
+        "review"
       ],
-      "status": "pending",
-      "createdAt": "2026-05-18T22:55:18.989Z",
-      "updatedAt": "2026-05-18T22:55:18.989Z",
-      "description": "Add GET /api/v1/metrics/graph/event-group/{event_group_id} endpoint. Replace user_id query params with Depends(require_active_user) on all graph endpoints.",
+      "status": "completed",
+      "createdAt": "2026-05-19T09:00:13.524Z",
+      "updatedAt": "2026-05-19T09:18:18.205Z",
+      "description": "REVIEW COMPLETE - Findings:\n- docs/adr/001-agent-coordinator.md: ACCURATE - matches current coordinator.py implementation\n- docs/audit/2026-05-18-orchestrator-test-report.md: ACCURATE - 305 tests passing, model config matches current .env\n- docs/README.md: NEEDS UPDATE - references SYSTEM.md, PLAN.md, PROJECT_SUMMARY.md, etc. that don't exist in root. Directory structure note is incorrect (says docs/adr and docs/audit but these exist).",
       "branch": "dad_1805",
       "project": "t1d",
       "blockedBy": []
     },
     {
-      "id": 5,
-      "item": "[GRAPH-E] Implement provenance tracking + confidence decomposition",
+      "id": 9,
+      "item": "[SPRINT] Sprint 1: Safety Lockdown + Post-LLM Validation",
+      "tags": [
+        "safety",
+        "backend",
+        "p0"
+      ],
+      "status": "completed",
+      "createdAt": "2026-05-19T09:26:59.833Z",
+      "updatedAt": "2026-05-19T09:56:14.951Z",
+      "description": "From SPRINT_PLAN.md:\n- S1-01: Post-LLM safety validation - run responses through SafetyScaffold.validate()\n- S1-02: Deduplicate SafetyAgent logic - delegate to SafetyScaffold\n- S1-03: Safety-focused chat tests - dosing advice blocked, treatment changes blocked\nAcceptance: 301+ tests passing, post-LLM safety working",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": []
+    },
+    {
+      "id": 10,
+      "item": "[SPRINT] Sprint 2: Frontend Screen Consolidation",
+      "tags": [
+        "frontend",
+        "ui",
+        "p1"
+      ],
+      "status": "completed",
+      "createdAt": "2026-05-19T09:27:20.172Z",
+      "updatedAt": "2026-05-20T12:51:43.295Z",
+      "description": "Sprint 2: Frontend Screen Consolidation complete.\nS2-01: Chat.tsx → HootHolla.tsx (mic/camera/barcode, prompt chips)\nS2-02: FoodLog.tsx → 4-step Meal Review flow (Capture → Analysing → Review → Memory)\nS2-03: Patterns.tsx → card-led layout with Good/Worth watching/Needs attention\nS2-04: New Coach.tsx (streaks, achievements, weekly insight)\nS2-05: New Memory.tsx (observations, questions, clinic notes, voice note button)\nS2-06: New Discuss.tsx (share with doctor/caregiver, mark for review)\nS2-07: Updated App.tsx routes + Layout.tsx nav (10 core items)\nS2-08: Copy pass — plain English throughout\nAlso fixed pre-existing useInsights.ts artifact.",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": [],
+      "assigned": "@builder"
+    },
+    {
+      "id": 11,
+      "item": "[SPRINT] Sprint 3: Security + Deployment Hardening",
+      "tags": [
+        "backend",
+        "deployment",
+        "security",
+        "p1"
+      ],
+      "status": "pending",
+      "createdAt": "2026-05-19T09:27:34.002Z",
+      "updatedAt": "2026-05-20T12:52:53.144Z",
+      "description": "## Task Plan\n\n### Intended Outcome\n- Deliver the requested outcome for: [SPRINT] Sprint 3: Security + Deployment Hardening; context: #backend #deployment #security #p1.\n- Treat the preserved previous plan as source notes, not as permission to broaden scope.\n\n### Likely Files, Modules, Or Commands\n- Review the preserved previous plan notes below.\n- Inspect the current project state and relevant files before editing.\n\n### Steps\n1. Confirm the task is still valid, assigned correctly, and not blocked.\n2. Review the preserved previous plan notes and convert them into concrete execution steps.\n3. Inspect relevant code, data, docs, or external systems before editing.\n4. Make the smallest useful change that satisfies the task.\n5. Update Clanker Ops if scope, blockers, duplicates, or follow-ups are discovered.\n6. Prepare the closeout report before marking the task complete.\n\n### Verification\n- Run the narrowest relevant checks and report exact commands/results.\n- If verification cannot be run, explain why and identify residual risk.\n\n### Blockers, Dependencies, Or Questions\n- Review preserved notes for blockers, dependencies, unanswered questions, or `none`.\n\n### Closeout Notes\n- Use the Closeout Report Template from the Execution Protocol.\n\n### Preserved Previous Plan\n\nFrom SPRINT_PLAN.md:\n- S3-01: Add rate limiting (slowapi) - login 5/min, register 3/min, chat 30/min\n- S3-02: Remove hardcoded demo login (env-var gated demo mode)\n- S3-03: Dual-write verification tests (exercise/sleep/insulin → health_metrics)\n- S3-04: API smoke test script (25 endpoints)\n- S3-05: Demo data seeder (realistic multi-day data)\n- S3-06: Production Docker compose (PostgreSQL, backend, frontend)",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": [],
+      "assigned": "@dad_웃",
+      "handoff": {
+        "target": "@dad_웃",
+        "sentAt": "2026-05-20T10:48:29.899Z",
+        "status": "assigned"
+      },
+      "planHandoff": {
+        "target": "@planner",
+        "sentAt": "2026-05-20T12:52:53.144Z",
+        "status": "sent",
+        "command": "/run planner \"Build a concise implementation plan for Clanker Ops work #11: [SPRINT] Sprint 3: Security + Deployment Hardening\\n\\nExpected output:\\n- Write the plan to /root/t1d/.pi/todo-plans/#11_plan.md\\n- Update the work item description with the same plan if the todo tool is available.\\n- Preserve the Execution Protocol section at the top of the plan.\\n\\nPlan should include:\\n- Execution Protocol with before/while/closeout instructions\\n- `## Task Plan` with these core headings:\\n  - `### Intended Outcome`\\n  - `### Likely Files, Modules, Or Commands`\\n  - `### Steps`\\n  - `### Verification`\\n  - `### Blockers, Dependencies, Or Questions`\\n  - `### Closeout Notes`\\n- Closeout report template with summary, files changed, commands run, verification, follow-ups, blockers, token burn estimate, and final status\\n\\n## Execution Protocol\\n\\n### Before Starting\\n- Run `clanker-board --context-only` from the project root to load current queue context.\\n- Confirm #11 is still open, assigned to you, and not blocked.\\n- Mark #11 in progress before implementation work.\\n- Read the full plan before editing files.\\n\\n### While Working\\n- Keep changes scoped to this task and preserve unrelated user changes.\\n- Do not create skills, tools, scripts, or extra files unless the operator explicitly requested them or this plan names them.\\n- If you discover blockers, duplicates, missing context, or follow-up work, add/update Clanker Ops items instead of burying findings in prose.\\n- If the task cannot be completed, leave it in progress or mark it failed/deferred with a clear reason.\\n\\n### Before Closing\\n- Run relevant verification checks.\\n- Update the Clanker Ops item with a completion summary.\\n- Include files changed, commands run, verification result, blockers/follow-ups, and estimated token burn.\\n- Mark the task completed only when the requested work is done and verified.\\n\\n### Closeout Report Template\\n\\n```text\\nSummary:\\nFiles changed:\\nCommands run:\\nVerification:\\nFollow-ups created:\\nBlockers:\\nToken burn estimate:\\nStatus:\\n```\\n\\nTags: #p1 #backend #deployment #security\\nBranch: dad_1805\" --bg",
+        "intercomCommand": "intercom({\"action\":\"send\",\"to\":\"planner\",\"message\":\"Build a concise implementation plan for Clanker Ops work #11: [SPRINT] Sprint 3: Security + Deployment Hardening\\n\\nExpected output:\\n- Write the plan to /root/t1d/.pi/todo-plans/#11_plan.md\\n- Update the work item description with the same plan if the todo tool is available.\\n- Preserve the Execution Protocol section at the top of the plan.\\n\\nPlan should include:\\n- Execution Protocol with before/while/closeout instructions\\n- `## Task Plan` with these core headings:\\n  - `### Intended Outcome`\\n  - `### Likely Files, Modules, Or Commands`\\n  - `### Steps`\\n  - `### Verification`\\n  - `### Blockers, Dependencies, Or Questions`\\n  - `### Closeout Notes`\\n- Closeout report template with summary, files changed, commands run, verification, follow-ups, blockers, token burn estimate, and final status\\n\\n## Execution Protocol\\n\\n### Before Starting\\n- Run `clanker-board --context-only` from the project root to load current queue context.\\n- Confirm #11 is still open, assigned to you, and not blocked.\\n- Mark #11 in progress before implementation work.\\n- Read the full plan before editing files.\\n\\n### While Working\\n- Keep changes scoped to this task and preserve unrelated user changes.\\n- Do not create skills, tools, scripts, or extra files unless the operator explicitly requested them or this plan names them.\\n- If you discover blockers, duplicates, missing context, or follow-up work, add/update Clanker Ops items instead of burying findings in prose.\\n- If the task cannot be completed, leave it in progress or mark it failed/deferred with a clear reason.\\n\\n### Before Closing\\n- Run relevant verification checks.\\n- Update the Clanker Ops item with a completion summary.\\n- Include files changed, commands run, verification result, blockers/follow-ups, and estimated token burn.\\n- Mark the task completed only when the requested work is done and verified.\\n\\n### Closeout Report Template\\n\\n```text\\nSummary:\\nFiles changed:\\nCommands run:\\nVerification:\\nFollow-ups created:\\nBlockers:\\nToken burn estimate:\\nStatus:\\n```\\n\\nTags: #p1 #backend #deployment #security\\nBranch: dad_1805\"})"
+      }
+    },
+    {
+      "id": 12,
+      "item": "[SPRINT] Sprint 4: Code Quality + Provider Showcase",
+      "tags": [
+        "backend",
+        "quality",
+        "p1"
+      ],
+      "status": "pending",
+      "createdAt": "2026-05-19T09:27:50.787Z",
+      "updatedAt": "2026-05-20T10:48:46.899Z",
+      "description": "## Task Plan\n\n### Intended Outcome\n- Deliver the requested outcome for: [SPRINT] Sprint 4: Code Quality + Provider Showcase; context: #backend #quality #p1.\n- Treat the preserved previous plan as source notes, not as permission to broaden scope.\n\n### Likely Files, Modules, Or Commands\n- Review the preserved previous plan notes below.\n- Inspect the current project state and relevant files before editing.\n\n### Steps\n1. Confirm the task is still valid, assigned correctly, and not blocked.\n2. Review the preserved previous plan notes and convert them into concrete execution steps.\n3. Inspect relevant code, data, docs, or external systems before editing.\n4. Make the smallest useful change that satisfies the task.\n5. Update Clanker Ops if scope, blockers, duplicates, or follow-ups are discovered.\n6. Prepare the closeout report before marking the task complete.\n\n### Verification\n- Run the narrowest relevant checks and report exact commands/results.\n- If verification cannot be run, explain why and identify residual risk.\n\n### Blockers, Dependencies, Or Questions\n- Review preserved notes for blockers, dependencies, unanswered questions, or `none`.\n\n### Closeout Notes\n- Use the Closeout Report Template from the Execution Protocol.\n\n### Preserved Previous Plan\n\nFrom SPRINT_PLAN.md:\n- S4-01: Service method naming consistency (create/list/get/delete across 16 domains)\n- S4-02: Add missing __init__.py files (16 domain packages)\n- S4-03: Garmin webhook end-to-end (push data → activity_entries/sleep_entries)\n- S4-04: Connected devices UI (Settings page with provider status)\n- S4-05: Warning cleanup (Pydantic V2, SQLAlchemy deprecations)",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": [],
+      "assigned": "@worker",
+      "handoff": {
+        "target": "@worker",
+        "sentAt": "2026-05-20T10:48:46.899Z",
+        "status": "assigned"
+      }
+    },
+    {
+      "id": 13,
+      "item": "[SPRINT] Sprint 5: CI/CD + Launch Prep",
+      "tags": [
+        "ci-cd",
+        "documentation",
+        "p1"
+      ],
+      "status": "pending",
+      "createdAt": "2026-05-19T09:28:01.616Z",
+      "updatedAt": "2026-05-19T12:07:17.055Z",
+      "description": "## Task Plan\n\n### Intended Outcome\n- Deliver the requested outcome for: [SPRINT] Sprint 5: CI/CD + Launch Prep; context: #ci-cd #documentation #p1.\n- Treat the preserved previous plan as source notes, not as permission to broaden scope.\n\n### Likely Files, Modules, Or Commands\n- Review the preserved previous plan notes below.\n- Inspect the current project state and relevant files before editing.\n\n### Steps\n1. Confirm the task is still valid, assigned correctly, and not blocked.\n2. Review the preserved previous plan notes and convert them into concrete execution steps.\n3. Inspect relevant code, data, docs, or external systems before editing.\n4. Make the smallest useful change that satisfies the task.\n5. Update Clanker Ops if scope, blockers, duplicates, or follow-ups are discovered.\n6. Prepare the closeout report before marking the task complete.\n\n### Verification\n- Run the narrowest relevant checks and report exact commands/results.\n- If verification cannot be run, explain why and identify residual risk.\n\n### Blockers, Dependencies, Or Questions\n- Review preserved notes for blockers, dependencies, unanswered questions, or `none`.\n\n### Closeout Notes\n- Use the Closeout Report Template from the Execution Protocol.\n\n### Preserved Previous Plan\n\nFrom SPRINT_PLAN.md:\n- S5-01: GitHub Actions CI pipeline (pytest + tsc --noEmit + alembic check)\n- S5-02: Health endpoint metrics (/health returns DB/LLM status)\n- S5-03: Database backup script (pg_dump)\n- S5-04: Production deployment docs (DEPLOYMENT.md)",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": [],
+      "assigned": "@builder"
+    },
+    {
+      "id": 14,
+      "item": "[GRAPH] Event grouping foundation - add event_group_id to health_metrics",
+      "tags": [
+        "graph",
+        "backend",
+        "p0",
+        "🧑"
+      ],
+      "status": "completed",
+      "createdAt": "2026-05-19T09:28:14.843Z",
+      "updatedAt": "2026-05-19T12:57:05.447Z",
+      "description": "[GRAPH] Event grouping foundation - assign event_group_id in ingestion\nFrom GRAPH_TODO.md Section 0.1-0.3:\n- event_group_id already exists in models (checked)\n- Update ingestion flows to assign event_group_id to meals/exercise/insulin/sleep metrics\n- Call link_event_group() from graph service to create same_event_as edges\n- Update Fitbit/Garmin to use event_group_id from provider session IDs",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": [],
+      "assigned": "@tom_웃"
+    },
+    {
+      "id": 16,
+      "item": "[GRAPH] Delayed high-fat meal detection graph edges",
       "tags": [
         "graph",
         "backend",
         "p1"
       ],
+      "status": "completed",
+      "createdAt": "2026-05-19T09:28:48.171Z",
+      "updatedAt": "2026-05-19T20:55:55.993Z",
+      "description": "From GRAPH_TODO.md Section 5.2 + Suggested Implementation Order #3:\n- Link fat/calories metric → delayed glucose spike metric\n- Edge type: meal_to_delayed_spike\n- Evidence: fat grams, hours-to-peak, delayed rise\n- Add tests for delayed spike edge creation",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": [],
+      "assigned": "@worker"
+    },
+    {
+      "id": 19,
+      "item": "[GRAPH] Photo meal ingest MVP contract",
+      "tags": [
+        "graph",
+        "ai",
+        "photo",
+        "p1"
+      ],
+      "status": "completed",
+      "createdAt": "2026-05-19T09:29:31.824Z",
+      "updatedAt": "2026-05-19T21:03:56.290Z",
+      "description": "From GRAPH_TODO.md Section 5C:\n- Design analyze_meal_image(image) -> MealImageAnalysisProposal contract\n- Add FoodResolutionService for label normalization and search\n- Support hosted vision model implementation\n- Store raw model output as provisional metadata\n- Human confirmation before graph write",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": [],
+      "assigned": "@researcher"
+    },
+    {
+      "id": 20,
+      "item": "[TRACKING] Review progress.md and update sprint priorities",
+      "tags": [
+        "review",
+        "tracking"
+      ],
+      "status": "completed",
+      "createdAt": "2026-05-19T09:30:38.348Z",
+      "updatedAt": "2026-05-19T21:04:02.597Z",
+      "description": "From progress.md:\n- Sprint 1 (Safety) is marked complete\n- Sprint 2-5 pending\n- Graph tasks are in progress\n- Next Up: Event grouping, exercise edges, delayed fat edges, food resolution, frontend consolidation\nReview active work and ensure Clanker Ops tasks align with priorities",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": [],
+      "assigned": "@tom_웃"
+    },
+    {
+      "id": 23,
+      "item": "[GRAPH] Graph service missing methods: get_edges_for_metric, get_recent_correlations, get_event_group, link_event_group",
+      "tags": [
+        "graph",
+        "backend",
+        "p1"
+      ],
+      "status": "completed",
+      "createdAt": "2026-05-19T09:35:32.156Z",
+      "updatedAt": "2026-05-19T21:03:28.405Z",
+      "description": "MERGED with #31. Audit: link_event_group EXISTS, get_edges_for_metric EXISTS (get_neighbors), get_recent_correlations EXISTS (get_strongest_edges), get_event_group EXISTS (get_by_event_group in metrics service). Remaining: add get_event_group() to HealthGraphService + add GET /api/v1/metrics/graph/event-group/{event_group_id} endpoint. See .pi/todo-plans/#23_plan.md.",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": [],
+      "assigned": "@worker"
+    },
+    {
+      "id": 24,
+      "item": "[PHOTO] Food resolution service with label normalization and source trust hierarchy",
+      "tags": [
+        "graph",
+        "ai",
+        "food",
+        "p1"
+      ],
+      "status": "completed",
+      "createdAt": "2026-05-19T09:35:53.749Z",
+      "updatedAt": "2026-05-19T21:03:34.532Z",
+      "description": "From MASTER_TODO Photo Meal Ingest + Food Resolution Layer:\n- Add FoodResolutionService interface\n- Normalize labels (lowercase, singular/plural cleanup, remove adjectives)\n- Search priority: user-confirmed → curated/Sparky DB → standardized DBs → open community → model fallback\n- Rank candidates by text similarity, source trust, country/brand relevance, prior user selections, macro plausibility",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": [],
+      "assigned": "@researcher"
+    },
+    {
+      "id": 25,
+      "item": "[DOCS] Update CONTEXT.md, ARCHITECTURE_MAP.md, CODEBASE_AUDIT.md for graph architecture",
+      "tags": [
+        "docs",
+        "graph",
+        "p1"
+      ],
+      "status": "completed",
+      "createdAt": "2026-05-19T09:36:05.446Z",
+      "updatedAt": "2026-05-19T11:38:40.153Z",
+      "description": "SCOUT FINDINGS (see scout-report-25.md): CONTEXT.md exists but lacks formal graph definitions (→ #35). ARCHITECTURE_MAP.md MISSING (→ #33). CODEBASE_AUDIT.md MISSING (→ #34). Graph service: app/metrics/graph_service.py with tests.",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": [],
+      "assigned": "@scout"
+    },
+    {
+      "id": 28,
+      "item": "EOD reporting to Clanker Ops - daily summary generation",
+      "tags": [
+        "housekeeping",
+        "remember"
+      ],
+      "status": "completed",
+      "createdAt": "2026-05-19T09:47:20.044Z",
+      "updatedAt": "2026-05-19T21:04:10.314Z",
+      "description": "Set up daily EOD summary generation: inspect todo-state.json, sprint plans, and open work, then output a structured report. Files involved: .pi/todo-state.json, .pi/todo-plans/, .pi/AGENTS.md. Kept unassigned so it stays in the Don't Forget section for daily reminders.",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": [],
+      "planFile": "eod-report-daily.md"
+    },
+    {
+      "id": 29,
+      "item": "[REVIEW] Review mobile design at Google Stitch project #8748784367979415542",
+      "assigned": "@tom_웃",
+      "tags": [
+        "p0",
+        "ios",
+        "review",
+        "design",
+        "tom"
+      ],
       "status": "pending",
-      "createdAt": "2026-05-18T22:55:18.992Z",
-      "updatedAt": "2026-05-18T22:55:18.992Z",
-      "description": "Add provenance_json and confidence_components_json to HealthMetricEdge. Create shared scoring utility. Add detector version constants. Update migrations.",
+      "createdAt": "2026-05-19T10:05:33.524Z",
+      "updatedAt": "2026-05-19T18:39:08.838Z",
+      "description": "## Task Plan\n\n### Intended Outcome\n- Deliver the requested outcome for: [REVIEW] Review mobile design at Google Stitch project #8748784367979415542; context: #p0 #ios #review #design #tom.\n- Treat the preserved previous plan as source notes, not as permission to broaden scope.\n\n### Likely Files, Modules, Or Commands\n- Review the preserved previous plan notes below.\n- Inspect the current project state and relevant files before editing.\n\n### Steps\n1. Confirm the task is still valid, assigned correctly, and not blocked.\n2. Review the preserved previous plan notes and convert them into concrete execution steps.\n3. Inspect relevant code, data, docs, or external systems before editing.\n4. Make the smallest useful change that satisfies the task.\n5. Update Clanker Ops if scope, blockers, duplicates, or follow-ups are discovered.\n6. Prepare the closeout report before marking the task complete.\n\n### Verification\n- Run the narrowest relevant checks and report exact commands/results.\n- If verification cannot be run, explain why and identify residual risk.\n\n### Blockers, Dependencies, Or Questions\n- Review preserved notes for blockers, dependencies, unanswered questions, or `none`.\n\n### Closeout Notes\n- Use the Closeout Report Template from the Execution Protocol.\n\n### Preserved Previous Plan\n\nPart of iOS project pipeline. Review the Stitch design at https://stitch.withgoogle.com/projects/8748784367979415542. Feed findings into iOS-03 (Stitch design refinement) and iOS-05 (Flutter implementation). Assess: iOS HIG compliance, accessibility, color contrast, gesture design, screen flow completeness.",
+      "branch": "ios-app",
+      "project": "t1d",
+      "blockedBy": []
+    },
+    {
+      "id": 32,
+      "item": "[GRAPH-C.2] Migrate 13 graph endpoints from user_id query param to require_active_user auth",
+      "assigned": "@worker",
+      "tags": [
+        "graph",
+        "backend",
+        "auth",
+        "p1"
+      ],
+      "status": "completed",
+      "createdAt": "2026-05-19T11:10:14.098Z",
+      "updatedAt": "2026-05-19T20:58:28.289Z",
+      "description": "Found by scout in #3. app/api/metrics.py has 13 routes using `user_id: int = Query(...)`. Replace with `user=Depends(require_active_user)` and use `user.id` instead.",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": []
+    },
+    {
+      "id": 35,
+      "item": "[DOCS.25.3] Update CONTEXT.md with formal graph node/edge/evidence definitions",
+      "assigned": "@worker",
+      "tags": [
+        "docs",
+        "graph",
+        "p1"
+      ],
+      "status": "completed",
+      "createdAt": "2026-05-19T11:10:14.104Z",
+      "updatedAt": "2026-05-19T21:04:07.495Z",
+      "description": "From scout #25. CONTEXT.md at /root/t1d/CONTEXT.md exists but lacks formal graph definitions. Update it to define: Health Metric node, Edge types (from GraphEdgeType), Evidence structure, Confidence scoring (0.0-1.0), Time Delay fields. Reference existing files: plan/specs/GRAPH_ARCHITECTURE.md for graph architecture, plan/specs/ARCHITECTURE_MAP.md for full architecture context, plan/decisions/CODEBASE_AUDIT.md for audit state.",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": []
+    },
+    {
+      "id": 36,
+      "item": "[AUDIT] Create Clanker Roster - comprehensive agent/clanker audit for task allocation",
+      "tags": [
+        "docs, audit, roadmap"
+      ],
+      "status": "completed",
+      "createdAt": "2026-05-19T11:32:42.322Z",
+      "updatedAt": "2026-05-19T11:37:01.220Z",
+      "description": "Generate a Clanker Roster document that catalogs all available agents (builtin, project, skill-based) with their capabilities, optimal use cases, and task allocation guidance. This allows informed task assignment from Clanker Ops to the right agent type.",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": []
+    },
+    {
+      "id": 37,
+      "item": "[AUDIT] Prune agent roster to T1D-relevant subset and remove irrelevancies",
+      "tags": [
+        "audit, housekeeping"
+      ],
+      "status": "completed",
+      "createdAt": "2026-05-19T11:57:30.933Z",
+      "updatedAt": "2026-05-19T12:00:41.605Z",
+      "description": "Audit all 62 agents in Clanker Roster. Remove iOS-specific (healthkit), irrelevant (writing-fragments, obsidian-vault), overlapping skills. Keep core: worker, reviewer, planner, researcher, scout, diagnose, tdd, prototype, review, improve-codebase-architecture, impeccable, design-taste-frontend. Create curated list of ~20 high-value agents for T1D Companion Clanker Ops.",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": []
+    },
+    {
+      "id": 38,
+      "item": "[AUDIT] Clanker Ops Framework Improvements - harden agent validation, status enums, plan lifecycle",
+      "tags": [
+        "audit, backend, quality"
+      ],
+      "status": "completed",
+      "createdAt": "2026-05-19T12:25:13.127Z",
+      "updatedAt": "2026-05-19T17:50:30.333Z",
+      "description": "✅ ALL FIXES VERIFIED - Second review complete. All 5 issues fixed: race condition, status states, cycle detection, agent validation, safe file ops. Code is STABLE for community release.",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": [],
+      "assigned": "@worker"
+    },
+    {
+      "id": 85,
+      "item": "[iOS-01] Apple Developer Account — enroll $99 program, generate certs",
+      "assigned": "@tom_웃",
+      "tags": [
+        "ios",
+        "dev-account",
+        "dad"
+      ],
+      "status": "deferred",
+      "createdAt": "2026-05-19T14:57:48.220Z",
+      "updatedAt": "2026-05-20T10:41:01.767Z",
+      "description": "## Task Plan\n\n### Intended Outcome\n- Deliver the requested outcome for: [iOS-01] Apple Developer Account — enroll $99 program, generate certs; context: #ios #dev-account #dad.\n- Treat the preserved previous plan as source notes, not as permission to broaden scope.\n\n### Likely Files, Modules, Or Commands\n- Review the preserved previous plan notes below.\n- Inspect the current project state and relevant files before editing.\n\n### Steps\n1. Confirm the task is still valid, assigned correctly, and not blocked.\n2. Review the preserved previous plan notes and convert them into concrete execution steps.\n3. Inspect relevant code, data, docs, or external systems before editing.\n4. Make the smallest useful change that satisfies the task.\n5. Update Clanker Ops if scope, blockers, duplicates, or follow-ups are discovered.\n6. Prepare the closeout report before marking the task complete.\n\n### Verification\n- Run the narrowest relevant checks and report exact commands/results.\n- If verification cannot be run, explain why and identify residual risk.\n\n### Blockers, Dependencies, Or Questions\n- Review preserved notes for blockers, dependencies, unanswered questions, or `none`.\n\n### Closeout Notes\n- Use the Closeout Report Template from the Execution Protocol.\n\n### Preserved Previous Plan\n\n## Intended Outcome\nApple Developer Program enrolled, certs generated.\n\n## Step-by-Step\n1. Create/use Apple ID\n2. Enroll in Developer Program ($99/yr)\n3. Add Apple ID to Xcode\n4. Generate Development + Distribution certs\n5. Register Bundle ID\n6. Create dev provisioning profile\n\n## Verification\n`security find-identity -v -p codesigning` shows both certs.\n\n## Skills/Tools Required\n- `apple-appstore-reviewer` -> `.agents/skills-archive/apple-appstore-reviewer/SKILL.md`\n\n## Audit (EOD Report-Back)\nAppend findings to .pi/EOD_AUDIT.md: (1) files changed, (2) verification results, (3) gaps/findings, (4) decisions, (5) estimated tokens.",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": []
+    },
+    {
+      "id": 86,
+      "item": "[iOS-02] Dev machine — Xcode + Flutter SDK + CocoaPods",
+      "assigned": "@tom_웃",
+      "tags": [
+        "ios",
+        "setup",
+        "tom"
+      ],
+      "status": "deferred",
+      "createdAt": "2026-05-19T14:57:48.224Z",
+      "updatedAt": "2026-05-20T10:41:10.722Z",
+      "description": "## Task Plan\n\n### Intended Outcome\n- Deliver the requested outcome for: [iOS-02] Dev machine — Xcode + Flutter SDK + CocoaPods; context: #ios #setup #tom.\n- Treat the preserved previous plan as source notes, not as permission to broaden scope.\n\n### Likely Files, Modules, Or Commands\n- Review the preserved previous plan notes below.\n- Inspect the current project state and relevant files before editing.\n\n### Steps\n1. Confirm the task is still valid, assigned correctly, and not blocked.\n2. Review the preserved previous plan notes and convert them into concrete execution steps.\n3. Inspect relevant code, data, docs, or external systems before editing.\n4. Make the smallest useful change that satisfies the task.\n5. Update Clanker Ops if scope, blockers, duplicates, or follow-ups are discovered.\n6. Prepare the closeout report before marking the task complete.\n\n### Verification\n- Run the narrowest relevant checks and report exact commands/results.\n- If verification cannot be run, explain why and identify residual risk.\n\n### Blockers, Dependencies, Or Questions\n- Review preserved notes for blockers, dependencies, unanswered questions, or `none`.\n\n### Closeout Notes\n- Use the Closeout Report Template from the Execution Protocol.\n\n### Preserved Previous Plan\n\n## Intended Outcome\nMac ready for Flutter iOS builds.\n\n## Step-by-Step\n1. Install Xcode from Mac App Store (you'll never open it)\n2. Accept license: `sudo xcodebuild -license accept`\n3. Clone Flutter: `git clone https://github.com/flutter/flutter.git -b stable`\n4. Add to PATH, `flutter precache --ios`\n5. `sudo gem install cocoapods`\n6. `flutter doctor`\n\n## Why Xcode?\nYou never open it. Flutter calls Xcode's toolchain behind the scenes:\n- `flutter run` calls Xcode build system automatically\n- `flutter build ipa` signs and archives via Xcode tools\n- Only time you open Xcode: Organizer > Distribute App (30 secs)\nYour workflow stays 100% in Flutter/VS Code.\n\n## Skills/Tools Required\n- `flutter-building-layouts` -> `.agents/skills-archive/flutter-building-layouts/SKILL.md`\n\n## Audit (EOD Report-Back)\nAppend findings to .pi/EOD_AUDIT.md: (1) files changed, (2) verification results, (3) gaps/findings, (4) decisions, (5) estimated tokens.",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": []
+    },
+    {
+      "id": 87,
+      "item": "[iOS-03] Google Stitch — design screens + export design tokens",
+      "assigned": "@dad_웃",
+      "tags": [
+        "ios",
+        "design",
+        "stitch",
+        "dad"
+      ],
+      "status": "deferred",
+      "createdAt": "2026-05-19T14:57:48.228Z",
+      "updatedAt": "2026-05-20T10:41:14.034Z",
+      "description": "## Task Plan\n\n### Intended Outcome\n- Deliver the requested outcome for: [iOS-03] Google Stitch — design screens + export design tokens; context: #ios #design #stitch #dad.\n- Treat the preserved previous plan as source notes, not as permission to broaden scope.\n\n### Likely Files, Modules, Or Commands\n- Review the preserved previous plan notes below.\n- Inspect the current project state and relevant files before editing.\n\n### Steps\n1. Confirm the task is still valid, assigned correctly, and not blocked.\n2. Review the preserved previous plan notes and convert them into concrete execution steps.\n3. Inspect relevant code, data, docs, or external systems before editing.\n4. Make the smallest useful change that satisfies the task.\n5. Update Clanker Ops if scope, blockers, duplicates, or follow-ups are discovered.\n6. Prepare the closeout report before marking the task complete.\n\n### Verification\n- Run the narrowest relevant checks and report exact commands/results.\n- If verification cannot be run, explain why and identify residual risk.\n\n### Blockers, Dependencies, Or Questions\n- Review preserved notes for blockers, dependencies, unanswered questions, or `none`.\n\n### Closeout Notes\n- Use the Closeout Report Template from the Execution Protocol.\n\n### Preserved Previous Plan\n\n## Intended Outcome\nAll screens designed in Stitch, tokens exported as JSON.\n\n## Step-by-Step\n1. Incorporate #29 review findings\n2. Design screens in Google Stitch\n3. Export color/typography/spacing tokens\n4. Create interactive prototype\n\n## Verification\nStitch project navigable, JSON tokens importable by Flutter.\n\n## Skills/Tools Required\n- `mobile-ios-design` -> `.agents/skills-archive/mobile-ios-design/SKILL.md`\n- `ios-hig-design` -> `.agents/skills-archive/ios-hig-design/SKILL.md`\n\n## Audit (EOD Report-Back)\nAppend findings to .pi/EOD_AUDIT.md: (1) files changed, (2) verification results, (3) gaps/findings, (4) decisions, (5) estimated tokens.",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": [
+        29
+      ]
+    },
+    {
+      "id": 88,
+      "item": "[iOS-04] Flutter scaffold — create project, theme, navigation",
+      "assigned": "@dad_웃",
+      "tags": [
+        "ios",
+        "flutter",
+        "dad"
+      ],
+      "status": "pending",
+      "createdAt": "2026-05-19T14:57:48.232Z",
+      "updatedAt": "2026-05-19T15:56:13.822616+00:00Z",
+      "description": "## Task Plan\n\n### Intended Outcome\n- Deliver the requested outcome for: [iOS-04] Flutter scaffold — create project, theme, navigation; context: #ios #flutter #dad.\n- Treat the preserved previous plan as source notes, not as permission to broaden scope.\n\n### Likely Files, Modules, Or Commands\n- Review the preserved previous plan notes below.\n- Inspect the current project state and relevant files before editing.\n\n### Steps\n1. Confirm the task is still valid, assigned correctly, and not blocked.\n2. Review the preserved previous plan notes and convert them into concrete execution steps.\n3. Inspect relevant code, data, docs, or external systems before editing.\n4. Make the smallest useful change that satisfies the task.\n5. Update Clanker Ops if scope, blockers, duplicates, or follow-ups are discovered.\n6. Prepare the closeout report before marking the task complete.\n\n### Verification\n- Run the narrowest relevant checks and report exact commands/results.\n- If verification cannot be run, explain why and identify residual risk.\n\n### Blockers, Dependencies, Or Questions\n- Review preserved notes for blockers, dependencies, unanswered questions, or `none`.\n\n### Closeout Notes\n- Use the Closeout Report Template from the Execution Protocol.\n\n### Preserved Previous Plan\n\n## Intended Outcome\nFlutter project scaffolded with Cupertino theme + nav.\n\n## Step-by-Step\n1. `flutter create --org com.yourapp`\n2. Set bundle ID + team from #85\n3. Build ThemeData from #87 tokens\n4. Set up CupertinoApp with routing\n5. Create stub screens\n\n## Verification\n`flutter run -d ios` launches with theme.\n\n## Skills/Tools Required\n- `flutter-theming-apps` -> `.agents/skills-archive/flutter-theming-apps/SKILL.md`\n\n## Audit (EOD Report-Back)\nAppend findings to .pi/EOD_AUDIT.md: (1) files changed, (2) verification results, (3) gaps/findings, (4) decisions, (5) estimated tokens.",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": [
+        86,
+        87
+      ]
+    },
+    {
+      "id": 89,
+      "item": "[iOS-05] Flutter screens — implement UI from Stitch designs",
+      "assigned": "@dad_웃",
+      "tags": [
+        "ios",
+        "flutter",
+        "ui",
+        "dad"
+      ],
+      "status": "pending",
+      "createdAt": "2026-05-19T14:58:48.426Z",
+      "updatedAt": "2026-05-19T15:56:13.822618+00:00Z",
+      "description": "## Task Plan\n\n### Intended Outcome\n- Deliver the requested outcome for: [iOS-05] Flutter screens — implement UI from Stitch designs; context: #ios #flutter #ui #dad.\n- Treat the preserved previous plan as source notes, not as permission to broaden scope.\n\n### Likely Files, Modules, Or Commands\n- Review the preserved previous plan notes below.\n- Inspect the current project state and relevant files before editing.\n\n### Steps\n1. Confirm the task is still valid, assigned correctly, and not blocked.\n2. Review the preserved previous plan notes and convert them into concrete execution steps.\n3. Inspect relevant code, data, docs, or external systems before editing.\n4. Make the smallest useful change that satisfies the task.\n5. Update Clanker Ops if scope, blockers, duplicates, or follow-ups are discovered.\n6. Prepare the closeout report before marking the task complete.\n\n### Verification\n- Run the narrowest relevant checks and report exact commands/results.\n- If verification cannot be run, explain why and identify residual risk.\n\n### Blockers, Dependencies, Or Questions\n- Review preserved notes for blockers, dependencies, unanswered questions, or `none`.\n\n### Closeout Notes\n- Use the Closeout Report Template from the Execution Protocol.\n\n### Preserved Previous Plan\n\n## Intended Outcome\nAll Stitch screens implemented as Flutter Cupertino widgets.\n\n## Step-by-Step\n1. For each Stitch screen, create Flutter widget\n2. Use CupertinoPageScaffold, CupertinoNavBar, etc.\n3. Apply theme from #88\n4. Implement navigation from Stitch prototype\n5. Build reusable component library\n\n## Verification\n`flutter analyze` clean, all screens match design.\n\n## Skills/Tools Required\n- `flutter-building-layouts` -> `.agents/skills-archive/flutter-building-layouts/SKILL.md`\n- `mobile-ios-design` -> `.agents/skills-archive/mobile-ios-design/SKILL.md`\n\n## Audit (EOD Report-Back)\nAppend findings to .pi/EOD_AUDIT.md: (1) files changed, (2) verification results, (3) gaps/findings, (4) decisions, (5) estimated tokens.",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": [
+        87,
+        88
+      ]
+    },
+    {
+      "id": 90,
+      "item": "[iOS-06] Device testing — provisioning + real iPhone test",
+      "assigned": "@tom_웃",
+      "tags": [
+        "ios",
+        "testing",
+        "device",
+        "tom"
+      ],
+      "status": "pending",
+      "createdAt": "2026-05-19T14:58:48.432Z",
+      "updatedAt": "2026-05-19T14:58:48.432Z",
+      "description": "## Task Plan\n\n### Intended Outcome\n- Deliver the requested outcome for: [iOS-06] Device testing — provisioning + real iPhone test; context: #ios #testing #device #tom.\n- Treat the preserved previous plan as source notes, not as permission to broaden scope.\n\n### Likely Files, Modules, Or Commands\n- Review the preserved previous plan notes below.\n- Inspect the current project state and relevant files before editing.\n\n### Steps\n1. Confirm the task is still valid, assigned correctly, and not blocked.\n2. Review the preserved previous plan notes and convert them into concrete execution steps.\n3. Inspect relevant code, data, docs, or external systems before editing.\n4. Make the smallest useful change that satisfies the task.\n5. Update Clanker Ops if scope, blockers, duplicates, or follow-ups are discovered.\n6. Prepare the closeout report before marking the task complete.\n\n### Verification\n- Run the narrowest relevant checks and report exact commands/results.\n- If verification cannot be run, explain why and identify residual risk.\n\n### Blockers, Dependencies, Or Questions\n- Review preserved notes for blockers, dependencies, unanswered questions, or `none`.\n\n### Closeout Notes\n- Use the Closeout Report Template from the Execution Protocol.\n\n### Preserved Previous Plan\n\nAfter iOS-01 (certs) + iOS-05 (build). Add physical iPhone UDID to Apple Developer portal. Regenerate development provisioning profile with device included. Run `flutter run --release` on connected iPhone. Test all features: navigation gestures, animations, push notifications, performance, memory. File any issues as new bugs for @dad_웃.",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": [
+        85,
+        89
+      ]
+    },
+    {
+      "id": 91,
+      "item": "[iOS-07] App Store prep — screenshots, metadata, build archive",
+      "assigned": "@dad_웃",
+      "tags": [
+        "ios",
+        "appstore",
+        "dad"
+      ],
+      "status": "pending",
+      "createdAt": "2026-05-19T14:58:48.436Z",
+      "updatedAt": "2026-05-19T15:56:13.822619+00:00Z",
+      "description": "## Task Plan\n\n### Intended Outcome\n- Deliver the requested outcome for: [iOS-07] App Store prep — screenshots, metadata, build archive; context: #ios #appstore #dad.\n- Treat the preserved previous plan as source notes, not as permission to broaden scope.\n\n### Likely Files, Modules, Or Commands\n- Review the preserved previous plan notes below.\n- Inspect the current project state and relevant files before editing.\n\n### Steps\n1. Confirm the task is still valid, assigned correctly, and not blocked.\n2. Review the preserved previous plan notes and convert them into concrete execution steps.\n3. Inspect relevant code, data, docs, or external systems before editing.\n4. Make the smallest useful change that satisfies the task.\n5. Update Clanker Ops if scope, blockers, duplicates, or follow-ups are discovered.\n6. Prepare the closeout report before marking the task complete.\n\n### Verification\n- Run the narrowest relevant checks and report exact commands/results.\n- If verification cannot be run, explain why and identify residual risk.\n\n### Blockers, Dependencies, Or Questions\n- Review preserved notes for blockers, dependencies, unanswered questions, or `none`.\n\n### Closeout Notes\n- Use the Closeout Report Template from the Execution Protocol.\n\n### Preserved Previous Plan\n\n## Intended Outcome\nBuild archived, uploaded to App Store Connect, metadata complete.\n\n## Step-by-Step\n1. Take screenshots at all required sizes\n2. Write description, keywords, privacy policy\n3. `flutter build ipa`\n4. Upload via Xcode Organizer\n5. Fill in compliance details\n\n## Verification\nBuild appears in App Store Connect as Ready to Submit.\n\n## Skills/Tools Required\n- `app-store-screenshots` -> `.agents/skills-archive/app-store-screenshots/SKILL.md`\n\n## Audit (EOD Report-Back)\nAppend findings to .pi/EOD_AUDIT.md: (1) files changed, (2) verification results, (3) gaps/findings, (4) decisions, (5) estimated tokens.",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": [
+        89
+      ]
+    },
+    {
+      "id": 92,
+      "item": "[iOS-08] App Store submission — review process + launch",
+      "assigned": "@tom_웃",
+      "tags": [
+        "ios",
+        "appstore",
+        "launch",
+        "tom"
+      ],
+      "status": "pending",
+      "createdAt": "2026-05-19T14:58:48.441Z",
+      "updatedAt": "2026-05-19T15:56:13.822620+00:00Z",
+      "description": "## Task Plan\n\n### Intended Outcome\n- Deliver the requested outcome for: [iOS-08] App Store submission — review process + launch; context: #ios #appstore #launch #tom.\n- Treat the preserved previous plan as source notes, not as permission to broaden scope.\n\n### Likely Files, Modules, Or Commands\n- Review the preserved previous plan notes below.\n- Inspect the current project state and relevant files before editing.\n\n### Steps\n1. Confirm the task is still valid, assigned correctly, and not blocked.\n2. Review the preserved previous plan notes and convert them into concrete execution steps.\n3. Inspect relevant code, data, docs, or external systems before editing.\n4. Make the smallest useful change that satisfies the task.\n5. Update Clanker Ops if scope, blockers, duplicates, or follow-ups are discovered.\n6. Prepare the closeout report before marking the task complete.\n\n### Verification\n- Run the narrowest relevant checks and report exact commands/results.\n- If verification cannot be run, explain why and identify residual risk.\n\n### Blockers, Dependencies, Or Questions\n- Review preserved notes for blockers, dependencies, unanswered questions, or `none`.\n\n### Closeout Notes\n- Use the Closeout Report Template from the Execution Protocol.\n\n### Preserved Previous Plan\n\n## Intended Outcome\nApp approved and live on App Store.\n\n## Step-by-Step\n1. Verify metadata + pricing in App Store Connect\n2. Submit for Review\n3. Monitor status (1-7 days)\n4. Handle any rejection via Resolution Center\n5. Release when approved\n\n## Verification\nApp visible on App Store with Ready for Sale status.\n\n## Skills/Tools Required\n- `apple-appstore-reviewer` -> `.agents/skills-archive/apple-appstore-reviewer/SKILL.md`\n\n## Audit (EOD Report-Back)\nAppend findings to .pi/EOD_AUDIT.md: (1) files changed, (2) verification results, (3) gaps/findings, (4) decisions, (5) estimated tokens.",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": [
+        91
+      ]
+    },
+    {
+      "id": 93,
+      "item": "[OPS] LibreLink — verify connection is up and running",
+      "assigned": "@tom_웃",
+      "tags": [
+        "ops",
+        "cgm",
+        "libre",
+        "p1"
+      ],
+      "status": "pending",
+      "createdAt": "2026-05-19T15:07:24.423Z",
+      "updatedAt": "2026-05-19T15:07:24.423Z",
+      "description": "## Task Plan\n\n### Intended Outcome\n- Deliver the requested outcome for: [OPS] LibreLink — verify connection is up and running; context: #ops #cgm #libre #p1.\n- Treat the preserved previous plan as source notes, not as permission to broaden scope.\n\n### Likely Files, Modules, Or Commands\n- Review the preserved previous plan notes below.\n- Inspect the current project state and relevant files before editing.\n\n### Steps\n1. Confirm the task is still valid, assigned correctly, and not blocked.\n2. Review the preserved previous plan notes and convert them into concrete execution steps.\n3. Inspect relevant code, data, docs, or external systems before editing.\n4. Make the smallest useful change that satisfies the task.\n5. Update Clanker Ops if scope, blockers, duplicates, or follow-ups are discovered.\n6. Prepare the closeout report before marking the task complete.\n\n### Verification\n- Run the narrowest relevant checks and report exact commands/results.\n- If verification cannot be run, explain why and identify residual risk.\n\n### Blockers, Dependencies, Or Questions\n- Review preserved notes for blockers, dependencies, unanswered questions, or `none`.\n\n### Closeout Notes\n- Use the Closeout Report Template from the Execution Protocol.\n\n### Preserved Previous Plan\n\nCheck the LibreLink/LibreLinkUp integration for the T1D Companion system. Verify: (1) API endpoint is reachable, (2) authentication tokens valid, (3) data syncing correctly, (4) any recent service changes broke connectivity. If down, diagnose and restore. This feeds into the CGM data pipeline alongside Dexcom/Nightscout.",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": []
+    },
+    {
+      "id": 94,
+      "item": "[OPS] Fix Pi agent on Windows — tom's Pi.Dev clanker setup",
+      "assigned": "@tom_웃",
+      "tags": [
+        "ops",
+        "pi",
+        "setup",
+        "windows",
+        "p1"
+      ],
+      "status": "pending",
+      "createdAt": "2026-05-19T15:36:19.696Z",
+      "updatedAt": "2026-05-19T15:36:19.696Z",
+      "description": "## Task Plan\n\n### Intended Outcome\n- Deliver the requested outcome for: [OPS] Fix Pi agent on Windows — tom's Pi.Dev clanker setup; context: #ops #pi #setup #windows #p1.\n- Treat the preserved previous plan as source notes, not as permission to broaden scope.\n\n### Likely Files, Modules, Or Commands\n- Review the preserved previous plan notes below.\n- Inspect the current project state and relevant files before editing.\n\n### Steps\n1. Confirm the task is still valid, assigned correctly, and not blocked.\n2. Review the preserved previous plan notes and convert them into concrete execution steps.\n3. Inspect relevant code, data, docs, or external systems before editing.\n4. Make the smallest useful change that satisfies the task.\n5. Update Clanker Ops if scope, blockers, duplicates, or follow-ups are discovered.\n6. Prepare the closeout report before marking the task complete.\n\n### Verification\n- Run the narrowest relevant checks and report exact commands/results.\n- If verification cannot be run, explain why and identify residual risk.\n\n### Blockers, Dependencies, Or Questions\n- Review preserved notes for blockers, dependencies, unanswered questions, or `none`.\n\n### Closeout Notes\n- Use the Closeout Report Template from the Execution Protocol.\n\n### Preserved Previous Plan\n\nGet the Pi agent running properly on the Windows dev machine. Likely issues: WSL configuration, Node.js version/path, extension paths (Windows vs POSIX), shell compatibility, agent startup script, environment variables. Goal: Pi.Dev agent fully operational on Windows for iOS/Flutter development tasks.",
+      "branch": "ios-app",
+      "project": "t1d",
+      "blockedBy": []
+    },
+    {
+      "id": 95,
+      "item": "[OPS] Top up OpenRouter API account",
+      "assigned": "@tom_웃",
+      "tags": [],
+      "status": "pending",
+      "createdAt": "2026-05-19T17:12:22.104Z",
+      "updatedAt": "2026-05-19T17:12:22.104Z",
+      "description": "## Task Plan\n\n### Intended Outcome\n- Deliver the requested outcome for: [OPS] Top up OpenRouter API account.\n- Treat the preserved previous plan as source notes, not as permission to broaden scope.\n\n### Likely Files, Modules, Or Commands\n- Review the preserved previous plan notes below.\n- Inspect the current project state and relevant files before editing.\n\n### Steps\n1. Confirm the task is still valid, assigned correctly, and not blocked.\n2. Review the preserved previous plan notes and convert them into concrete execution steps.\n3. Inspect relevant code, data, docs, or external systems before editing.\n4. Make the smallest useful change that satisfies the task.\n5. Update Clanker Ops if scope, blockers, duplicates, or follow-ups are discovered.\n6. Prepare the closeout report before marking the task complete.\n\n### Verification\n- Run the narrowest relevant checks and report exact commands/results.\n- If verification cannot be run, explain why and identify residual risk.\n\n### Blockers, Dependencies, Or Questions\n- Review preserved notes for blockers, dependencies, unanswered questions, or `none`.\n\n### Closeout Notes\n- Use the Closeout Report Template from the Execution Protocol.\n\n### Preserved Previous Plan\n\n## Intended Outcome\\nOpenRouter account funded and API key working.\\n\\n## Step-by-Step\\n1. Log in to openrouter.ai\\n2. Check account balance / credit status\\n3. Add funds via payment method\\n4. Verify API key responds: `curl https://openrouter.ai/api/v1/auth/key`\\n5. Update .env if key changed\\n6. Run a test LLM call to confirm working\\n\\n## Verification\\nSubagent dispatches work (tests pass, no 402/429 errors).\\n\\n## Skills/Tools Required\\n- (none — human task, requires OpenRouter web dashboard)\\n\\n## Audit (EOD Report-Back)\\nAppend to .pi/EOD_AUDIT.md: (1) new balance, (2) any key changes, (3) gaps/findings, (4) decisions, (5) estimated tokens.",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": []
+    },
+    {
+      "id": 98,
+      "item": "[GRAPH] Event grouping tests — event_group_id queries and same-event edge dedup",
+      "tags": [
+        "graph",
+        "backend",
+        "testing",
+        "p1"
+      ],
+      "status": "completed",
+      "createdAt": "2026-05-19T19:22:54.561Z",
+      "updatedAt": "2026-05-19T20:59:34.922Z",
+      "description": "**Missing from GRAPH_TODO.md test section**\n- Test event_group_id queries in health_metrics\n- Test same_event_as edge deduplication\n- Test link_event_group() service method\n- Test meal/exercise/sleep grouping creates edges correctly\nFiles: tests/test_graph_event_grouping.py\nVerification: All event grouping tests pass",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": [],
+      "assigned": "@worker"
+    },
+    {
+      "id": 101,
+      "item": "[GRAPH] Provenance structure tests — verify detector/version/timestamps on graph edges",
+      "tags": [
+        "graph",
+        "backend",
+        "testing",
+        "p1"
+      ],
+      "status": "completed",
+      "createdAt": "2026-05-19T19:23:25.452Z",
+      "updatedAt": "2026-05-19T20:59:40.177Z",
+      "description": "**Missing tests from GRAPH_TODO.md section 8**\n- Test that every persisted edge has: detector name, version, run type, feature window\n- Test provenance JSON structure is consistent across edge types\n- File: tests/test_graph_provenance.py\nVerification: Provenance tests cover all graph edge creation paths",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": [],
+      "assigned": "@worker"
+    },
+    {
+      "id": 102,
+      "item": "[GRAPH] Confidence component/scoring tests — verify decomposed confidence on graph edges",
+      "tags": [
+        "graph",
+        "backend",
+        "testing",
+        "p1"
+      ],
+      "status": "completed",
+      "createdAt": "2026-05-19T19:23:35.509Z",
+      "updatedAt": "2026-05-19T21:00:30.723Z",
+      "description": "**Missing tests from GRAPH_TODO.md section 8**\n- Test `confidence_components` JSON: repetition, temporal_consistency, effect_size, data_completeness, source_quality, recency\n- Test confidence thresholds map to language: low=\"sometimes\", medium=\"has sometimes\", high=\"has often\"\n- Test confidence_overall computed from weighted components\n- File: tests/test_graph_confidence.py\nVerification: Confidence tests validate calculation and thresholded language",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": [],
+      "assigned": "@worker"
+    },
+    {
+      "id": 103,
+      "item": "[SAFETY] Graph-derived response safety test — verify no dosing advice from graph RAG",
+      "tags": [
+        "safety",
+        "graph",
+        "testing",
+        "p0"
+      ],
+      "status": "completed",
+      "createdAt": "2026-05-19T19:23:42.762Z",
+      "updatedAt": "2026-05-19T21:06:50.553Z",
+      "description": "**Missing safety test from GRAPH_TODO.md section 8**\n- Test that graph-derived RAG responses are blocked from producing dosing/treatment advice\n- Test prompts like \"What insulin should I take for this pattern?\"\n- Verify SafetyAgent catches prescription-style completions\n- File: tests/test_safety_graph_rag.py\nVerification: All graph-related LLM responses pass safety validation",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": [],
+      "assigned": "@worker"
+    },
+    {
+      "id": 104,
+      "item": "[GRAPH] RAG evidence contract tests — verify graph context retrieval for LLM",
+      "tags": [
+        "graph",
+        "backend",
+        "testing",
+        "p1"
+      ],
+      "status": "completed",
+      "createdAt": "2026-05-19T19:23:56.354Z",
+      "updatedAt": "2026-05-19T21:05:24.828Z",
+      "description": "**Missing tests from GRAPH_TODO.md section 7**\n- Test RAG retrieves only query-relevant edge types\n- Test retrieved edges capped to top 5-10 by confidence\n- Test weak/ambiguous edges suppressed from LLM context\n- Test evidence_json, provenance_json, confidence components included\n- File: tests/test_rag_graph_evidence.py\nVerification: RAG contract tests ensure compact, relevant graph context",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": [],
+      "assigned": "@worker"
+    },
+    {
+      "id": 105,
+      "item": "[GRAPH] Graph backfill script — rebuild historical graph edges from existing health_metrics",
+      "tags": [
+        "graph",
+        "backend",
+        "script",
+        "p1"
+      ],
+      "status": "completed",
+      "createdAt": "2026-05-19T19:24:17.029Z",
+      "updatedAt": "2026-05-19T21:06:07.871Z",
+      "description": "**Missing from suggested implementation sequence in DATA_DESIGN_FLOW_PLAN.md**\n- Create `scripts/backfill_graph_edges.py`\n- For each user, scan historical metrics and create missing edges\n- Run pattern detectors in backfill mode with edge persistence\n- Report counts by edge type, handle upserts properly\n- Verification: Script can rebuild entire graph from existing data\nFile: scripts/backfill_graph_edges.py",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": [],
+      "assigned": "@worker"
+    },
+    {
+      "id": 106,
+      "item": "[GRAPH] Graph aggregation helpers — edge count, avg confidence, strongest pairs",
+      "tags": [
+        "graph",
+        "backend",
+        "service",
+        "p1"
+      ],
+      "status": "completed",
+      "createdAt": "2026-05-19T19:24:32.938Z",
+      "updatedAt": "2026-05-19T21:06:26.650Z",
+      "description": "**Missing from GRAPH_TODO.md service layer section 4**\n- `edge_count_by_type(user_id, days=14)` \n- `avg_confidence_by_type(user_id)`\n- `strongest_recurring_pairs(user_id, limit=20)`\n- Useful for dashboard stats and \"What usually happens?\" queries\n- Files: app/metrics/graph_service.py\nVerification: Service methods return correct aggregated statistics",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": [],
+      "assigned": "@worker"
+    },
+    {
+      "id": 107,
+      "item": "[DOCS] Add PHL/PHKG research reference to graph documentation",
+      "tags": [
+        "docs",
+        "graph",
+        "research",
+        "p2"
+      ],
+      "status": "completed",
+      "createdAt": "2026-05-19T19:24:43.036Z",
+      "updatedAt": "2026-05-19T21:06:39.097Z",
+      "description": "**Missing from GRAPH_TODO.md documentation section 9**\n- Add reference to Ammar et al. (2021) Personal Health Library/PHKG paper\n- Add citation in GRAPH_ARCHITECTURE.md\n- Cross-reference with PHL concept in CONTEXT.md DATA_DESIGN_FLOW_PLAN.md already links this\n- Link: https://pmc.ncbi.nlm.nih.gov/articles/PMC8075073/\nVerification: Documentation includes proper research citation",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": [],
+      "assigned": "@researcher"
+    },
+    {
+      "id": 109,
+      "item": "[BUTLER] Board hygiene — stale blockedBy, ghost assignees, orphan plans",
+      "tags": [
+        "housekeeping",
+        "butler",
+        "daily"
+      ],
+      "status": "completed",
+      "createdAt": "2026-05-19T19:47:06.949Z",
+      "updatedAt": "2026-05-19T21:07:16.336Z",
+      "description": "Daily system check: scan for stale blockedBy, ghost assignees, orphan plan files. Report findings, don't fix them — that's the job, not the fix.",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": [],
+      "planFile": "board-hygiene-audit.md"
+    },
+    {
+      "id": 110,
+      "item": "[BUTLER] Dupe comb — detect overlapping pending tasks",
+      "tags": [
+        "housekeeping",
+        "butler",
+        "daily",
+        "remember"
+      ],
+      "status": "completed",
+      "createdAt": "2026-05-19T19:47:06.955Z",
+      "updatedAt": "2026-05-19T21:07:22.214Z",
+      "description": "Run dupe detection: scan all pending tasks for ≥60% intent overlap, print compare N M output for review.",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": [],
+      "planFile": "dupe-comb-pending-tasks.md"
+    },
+    {
+      "id": 111,
+      "item": "[BUTLER] Roster sync — verify assignees match CLANKER_ROSTER.md",
+      "tags": [
+        "housekeeping",
+        "butler",
+        "daily",
+        "remember"
+      ],
+      "status": "completed",
+      "createdAt": "2026-05-19T19:47:06.961Z",
+      "updatedAt": "2026-05-19T21:07:27.295Z",
+      "description": "Cross-reference all task assignees against CLANKER_ROSTER.md. Flag any assignments that don't match the expected role.",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": [],
+      "planFile": "roster-sync-assignees.md"
+    },
+    {
+      "id": 112,
+      "item": "[BUTLER] Dependency triage — walk blockedBy chains, find stuck tasks",
+      "tags": [
+        "housekeeping",
+        "butler",
+        "daily",
+        "remember"
+      ],
+      "status": "completed",
+      "createdAt": "2026-05-19T19:47:06.965Z",
+      "updatedAt": "2026-05-19T21:07:30.736Z",
+      "description": "Walk blockedBy chains. Find tasks whose blockers are completed but are still pending. Flag orphaned blockedBy references pointing to deleted tasks.",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": [],
+      "planFile": "dependency-triage-stuck-tasks.md"
+    },
+    {
+      "id": 113,
+      "item": "[BUTLER] Plan audit — verify all plan files have required sections",
+      "tags": [
+        "housekeeping",
+        "butler",
+        "weekly",
+        "remember"
+      ],
+      "status": "completed",
+      "createdAt": "2026-05-19T19:47:06.970Z",
+      "updatedAt": "2026-05-19T21:07:35.377Z",
+      "description": "Audit every plan file for required sections: Intended Outcome, Step-by-Step, Verification, Skills/Tools Required, Audit (EOD Report-Back). Flag missing sections.",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": [],
+      "planFile": "plan-audit-required-sections.md"
+    },
+    {
+      "id": 114,
+      "item": "[BUTLER] Plan file cleanup — remove orphaned .md files",
+      "tags": [
+        "housekeeping",
+        "butler",
+        "weekly",
+        "remember"
+      ],
+      "status": "completed",
+      "createdAt": "2026-05-19T19:47:06.975Z",
+      "updatedAt": "2026-05-19T20:38:45.240Z",
+      "description": "Scan `.pi/todo-plans/` for plan files whose task no longer exists. Report orphan paths for cleanup.",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": [],
+      "planFile": "plan-file-cleanup-orphaned.md"
+    },
+    {
+      "id": 115,
+      "item": "Find all .md files in subdirectories of current project",
+      "assigned": "@tom_웃",
+      "tags": [
+        "docs",
+        "review"
+      ],
+      "status": "completed",
+      "createdAt": "2026-05-19T21:25:12.517Z",
+      "updatedAt": "2026-05-19T21:26:23.144Z",
+      "description": "Found 363 .md files total. Core project docs: 98 files across AGENTS.md, CONTEXT.md, DEVELOPMENT.md, docs/, plan/, progress.md, README.md, research.md, scout-reports, TODO.md. Skills archive contains ~250 additional .md files in .agents/skills-archive/",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": []
+    },
+    {
+      "id": 116,
+      "item": "[RESEARCH] Find best synthetic diabetes data sources for knowledge graph training/testing",
+      "assigned": "@researcher",
+      "tags": [
+        "research, graph, data, ml"
+      ],
+      "status": "completed",
+      "createdAt": "2026-05-19T22:20:27.367Z",
+      "updatedAt": "2026-05-19T22:40:20.692Z",
+      "description": "Research synthetic/augmented diabetes and CGM datasets for:\n- Training pattern detection algorithms\n- Testing graph relationship inference\n- UI/UX design with realistic data\n- Backtesting trading algorithms\n\nSources to investigate:\n- Google AI synthetic health data methods (https://share.google/aimode/5KIulA3ZASjy0NWD1)\n- EU Open Data Portal diabetes datasets (https://data.europa.eu/data/datasets/662a7a37ee85069bfb9a666b?locale=en)\n- OhioT1D dataset equivalents\n- Simulated patient digital twins\n- Nightscout public data\n- Dexcom API anonymized data\n\nDeliverable: Report with top 5 data sources, formats, licensing, access methods.",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": []
+    },
+    {
+      "id": 118,
+      "item": "[GRAPH] Add lipid panel metrics (cholesterol, HDL, LDL, triglycerides) to MetricType enum",
+      "assigned": "@worker",
+      "tags": [
+        "graph, backend, data"
+      ],
+      "status": "completed",
+      "createdAt": "2026-05-19T22:41:13.891Z",
+      "updatedAt": "2026-05-19T22:42:12.648Z",
+      "description": "Add lipid panel metrics identified as missing from gap analysis with HuggingFace diabetes dataset. Add CHOLESTEROL_TOTAL, HDL_CHOLESTEROL, LDL_CHOLESTERERIDE, TRIGLYCERIDES to MetricType enum in app/metrics/types.py. Update models/schemas as needed.",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": []
+    },
+    {
+      "id": 119,
+      "item": "109,110,111,112,113,114",
+      "tags": [
+        "remember"
+      ],
+      "status": "completed",
+      "createdAt": "2026-05-20T09:46:50.709Z",
+      "updatedAt": "2026-05-20T09:50:21.464Z",
+      "description": "Plan:\n- Confirm the intended outcome for: 109,110,111,112,113,114; context: #remember.\n- Inspect the relevant files/state before changing anything.\n- Make the smallest useful change, then verify it and report any blocker.",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": []
+    },
+    {
+      "id": 120,
+      "item": "[BUTLER] Board hygiene — stale blockedBy, ghost assignees, orphan plans | #housekeeping #butler #daily",
+      "tags": [
+        "remember"
+      ],
+      "status": "pending",
+      "createdAt": "2026-05-20T09:48:27.999Z",
+      "updatedAt": "2026-05-20T09:48:27.999Z",
+      "description": "## Task Plan\n\n### Intended Outcome\n- Deliver the requested outcome for: [BUTLER] Board hygiene — stale blockedBy, ghost assignees, orphan plans | #housekeeping #butler #daily; context: #remember.\n- Treat the preserved previous plan as source notes, not as permission to broaden scope.\n\n### Likely Files, Modules, Or Commands\n- Review the preserved previous plan notes below.\n- Inspect the current project state and relevant files before editing.\n\n### Steps\n1. Confirm the task is still valid, assigned correctly, and not blocked.\n2. Review the preserved previous plan notes and convert them into concrete execution steps.\n3. Inspect relevant code, data, docs, or external systems before editing.\n4. Make the smallest useful change that satisfies the task.\n5. Update Clanker Ops if scope, blockers, duplicates, or follow-ups are discovered.\n6. Prepare the closeout report before marking the task complete.\n\n### Verification\n- Run the narrowest relevant checks and report exact commands/results.\n- If verification cannot be run, explain why and identify residual risk.\n\n### Blockers, Dependencies, Or Questions\n- Review preserved notes for blockers, dependencies, unanswered questions, or `none`.\n\n### Closeout Notes\n- Use the Closeout Report Template from the Execution Protocol.\n\n### Preserved Previous Plan\n\nPlan:\n- Confirm the intended outcome for: [BUTLER] Board hygiene — stale blockedBy, ghost assignees, orphan plans | #housekeeping #butler #daily; context: #remember.\n- Inspect the relevant files/state before changing anything.\n- Make the smallest useful change, then verify it and report any blocker.",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": []
+    },
+    {
+      "id": 121,
+      "item": "[BUTLER] Dupe comb — detect overlapping pending tasks | #housekeeping #butler #daily",
+      "tags": [
+        "remember"
+      ],
+      "status": "pending",
+      "createdAt": "2026-05-20T09:48:36.226Z",
+      "updatedAt": "2026-05-20T09:48:36.226Z",
+      "description": "## Task Plan\n\n### Intended Outcome\n- Deliver the requested outcome for: [BUTLER] Dupe comb — detect overlapping pending tasks | #housekeeping #butler #daily; context: #remember.\n- Treat the preserved previous plan as source notes, not as permission to broaden scope.\n\n### Likely Files, Modules, Or Commands\n- Review the preserved previous plan notes below.\n- Inspect the current project state and relevant files before editing.\n\n### Steps\n1. Confirm the task is still valid, assigned correctly, and not blocked.\n2. Review the preserved previous plan notes and convert them into concrete execution steps.\n3. Inspect relevant code, data, docs, or external systems before editing.\n4. Make the smallest useful change that satisfies the task.\n5. Update Clanker Ops if scope, blockers, duplicates, or follow-ups are discovered.\n6. Prepare the closeout report before marking the task complete.\n\n### Verification\n- Run the narrowest relevant checks and report exact commands/results.\n- If verification cannot be run, explain why and identify residual risk.\n\n### Blockers, Dependencies, Or Questions\n- Review preserved notes for blockers, dependencies, unanswered questions, or `none`.\n\n### Closeout Notes\n- Use the Closeout Report Template from the Execution Protocol.\n\n### Preserved Previous Plan\n\nPlan:\n- Confirm the intended outcome for: [BUTLER] Dupe comb — detect overlapping pending tasks | #housekeeping #butler #daily; context: #remember.\n- Inspect the relevant files/state before changing anything.\n- Make the smallest useful change, then verify it and report any blocker.",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": []
+    },
+    {
+      "id": 122,
+      "item": "[BUTLER] Roster sync — verify assignees match CLANKER_ROSTER.md | #housekeeping #butler #daily",
+      "tags": [
+        "remember"
+      ],
+      "status": "pending",
+      "createdAt": "2026-05-20T09:48:40.429Z",
+      "updatedAt": "2026-05-20T09:48:40.429Z",
+      "description": "## Task Plan\n\n### Intended Outcome\n- Deliver the requested outcome for: [BUTLER] Roster sync — verify assignees match CLANKER_ROSTER.md | #housekeeping #butler #daily; context: #remember.\n- Treat the preserved previous plan as source notes, not as permission to broaden scope.\n\n### Likely Files, Modules, Or Commands\n- Review the preserved previous plan notes below.\n- Inspect the current project state and relevant files before editing.\n\n### Steps\n1. Confirm the task is still valid, assigned correctly, and not blocked.\n2. Review the preserved previous plan notes and convert them into concrete execution steps.\n3. Inspect relevant code, data, docs, or external systems before editing.\n4. Make the smallest useful change that satisfies the task.\n5. Update Clanker Ops if scope, blockers, duplicates, or follow-ups are discovered.\n6. Prepare the closeout report before marking the task complete.\n\n### Verification\n- Run the narrowest relevant checks and report exact commands/results.\n- If verification cannot be run, explain why and identify residual risk.\n\n### Blockers, Dependencies, Or Questions\n- Review preserved notes for blockers, dependencies, unanswered questions, or `none`.\n\n### Closeout Notes\n- Use the Closeout Report Template from the Execution Protocol.\n\n### Preserved Previous Plan\n\nPlan:\n- Confirm the intended outcome for: [BUTLER] Roster sync — verify assignees match CLANKER_ROSTER.md | #housekeeping #butler #daily; context: #remember.\n- Inspect the relevant files/state before changing anything.\n- Make the smallest useful change, then verify it and report any blocker.",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": []
+    },
+    {
+      "id": 123,
+      "item": "[BUTLER] Dependency triage — walk blockedBy chains, find stuck tasks | #housekeeping #butler #daily",
+      "tags": [
+        "remember"
+      ],
+      "status": "pending",
+      "createdAt": "2026-05-20T09:48:43.969Z",
+      "updatedAt": "2026-05-20T09:48:43.969Z",
+      "description": "## Task Plan\n\n### Intended Outcome\n- Deliver the requested outcome for: [BUTLER] Dependency triage — walk blockedBy chains, find stuck tasks | #housekeeping #butler #daily; context: #remember.\n- Treat the preserved previous plan as source notes, not as permission to broaden scope.\n\n### Likely Files, Modules, Or Commands\n- Review the preserved previous plan notes below.\n- Inspect the current project state and relevant files before editing.\n\n### Steps\n1. Confirm the task is still valid, assigned correctly, and not blocked.\n2. Review the preserved previous plan notes and convert them into concrete execution steps.\n3. Inspect relevant code, data, docs, or external systems before editing.\n4. Make the smallest useful change that satisfies the task.\n5. Update Clanker Ops if scope, blockers, duplicates, or follow-ups are discovered.\n6. Prepare the closeout report before marking the task complete.\n\n### Verification\n- Run the narrowest relevant checks and report exact commands/results.\n- If verification cannot be run, explain why and identify residual risk.\n\n### Blockers, Dependencies, Or Questions\n- Review preserved notes for blockers, dependencies, unanswered questions, or `none`.\n\n### Closeout Notes\n- Use the Closeout Report Template from the Execution Protocol.\n\n### Preserved Previous Plan\n\nPlan:\n- Confirm the intended outcome for: [BUTLER] Dependency triage — walk blockedBy chains, find stuck tasks | #housekeeping #butler #daily; context: #remember.\n- Inspect the relevant files/state before changing anything.\n- Make the smallest useful change, then verify it and report any blocker.",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": []
+    },
+    {
+      "id": 124,
+      "item": "[BUTLER] Plan audit — verify all plan files have required sections | #housekeeping #butler #weekly",
+      "tags": [
+        "butler",
+        "housekeeping",
+        "weekly",
+        "plan-reviewed"
+      ],
+      "status": "pending",
+      "createdAt": "2026-05-20T09:48:52.917Z",
+      "updatedAt": "2026-05-20T12:03:23.346Z",
+      "description": "## Task Plan\n\n### Intended Outcome\n- Deliver the requested outcome for: [BUTLER] Plan audit — verify all plan files have required sections | #housekeeping #butler #weekly; context: #remember.\n- Treat the preserved previous plan as source notes, not as permission to broaden scope.\n\n### Likely Files, Modules, Or Commands\n- Review the preserved previous plan notes below.\n- Inspect the current project state and relevant files before editing.\n\n### Steps\n1. Confirm the task is still valid, assigned correctly, and not blocked.\n2. Review the preserved previous plan notes and convert them into concrete execution steps.\n3. Inspect relevant code, data, docs, or external systems before editing.\n4. Make the smallest useful change that satisfies the task.\n5. Update Clanker Ops if scope, blockers, duplicates, or follow-ups are discovered.\n6. Prepare the closeout report before marking the task complete.\n\n### Verification\n- Run the narrowest relevant checks and report exact commands/results.\n- If verification cannot be run, explain why and identify residual risk.\n\n### Blockers, Dependencies, Or Questions\n- Review preserved notes for blockers, dependencies, unanswered questions, or `none`.\n\n### Closeout Notes\n- Use the Closeout Report Template from the Execution Protocol.\n\n### Preserved Previous Plan\n\nPlan:\n- Confirm the intended outcome for: [BUTLER] Plan audit — verify all plan files have required sections | #housekeeping #butler #weekly; context: #remember.\n- Inspect the relevant files/state before changing anything.\n- Make the smallest useful change, then verify it and report any blocker.",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": [],
+      "handoff": {
+        "target": "@clanker",
+        "sentAt": "2026-05-20T11:45:12.683Z",
+        "status": "sent",
+        "command": "/run clanker \"Clanker Ops #124: [BUTLER] Plan audit — verify all plan files have required sections | #housekeeping #butler #weekly\\\\nDescription: ## Task Plan\\\\n\\\\n### Intended Outcome\\\\n- Deliver the requested outcome for: [BUTLER] Plan audit — verify all plan files have required sections | #housekeeping #butler #weekly; context: #remember.\\\\n- Treat the preserved previous plan as source notes, not as permission to broaden scope.\\\\n\\\\n### Likely Files, Modules, Or Commands\\\\n- Review the preserved previous plan notes below.\\\\n- Inspect the current project state and relevant files before editing.\\\\n\\\\n### Steps\\\\n1. Confirm the task is still valid, assigned correctly, and not blocked.\\\\n2. Review the preserved previous plan notes and convert them into concrete execution steps.\\\\n3. Inspect relevant code, data, docs, or external systems before editing.\\\\n4. Make the smallest useful change that satisfies the task.\\\\n5. Update Clanker Ops if scope, blockers, duplicates, or follow-ups are discovered.\\\\n6. Prepare the closeout report before marking the task complete.\\\\n\\\\n### Verification\\\\n- Run the narrowest relevant checks and report exact commands/results.\\\\n- If verification cannot be run, explain why and identify residual risk.\\\\n\\\\n### Blockers, Dependencies, Or Questions\\\\n- Review preserved notes for blockers, dependencies, unanswered questions, or `none`.\\\\n\\\\n### Closeout Notes\\\\n- Use the Closeout Report Template from the Execution Protocol.\\\\n\\\\n### Preserved Previous Plan\\\\n\\\\nPlan:\\\\n- Confirm the intended outcome for: [BUTLER] Plan audit — verify all plan files have required sections | #housekeeping #butler #weekly; context: #remember.\\\\n- Inspect the relevant files/state before changing anything.\\\\n- Make the smallest useful change, then verify it and report any blocker.\\\\nTags: #butler #housekeeping #plan-reviewed #ready-to-execute #weekly\\\\nBranch: dad_1805\\\\n\\\\nExecution requirements:\\\\n- Run `clanker-board --context-only` from the project root before starting.\\\\n- Mark #124 in progress before implementation work.\\\\n- Keep changes scoped and preserve unrelated user changes.\\\\n- Add/update Clanker Ops items for blockers, duplicates, missing context, or follow-up work.\\\\n- Before closing, update the task with summary, files changed, commands run, verification, follow-ups, blockers, token burn estimate, and final status.\\\\n- Mark completed only when done and verified; otherwise leave in progress or mark failed/deferred with a clear reason.\" --bg",
+        "intercomCommand": "intercom({\"action\":\"send\",\"to\":\"clanker\",\"message\":\"Clanker Ops #124: [BUTLER] Plan audit — verify all plan files have required sections | #housekeeping #butler #weekly\\nDescription: ## Task Plan\\n\\n### Intended Outcome\\n- Deliver the requested outcome for: [BUTLER] Plan audit — verify all plan files have required sections | #housekeeping #butler #weekly; context: #remember.\\n- Treat the preserved previous plan as source notes, not as permission to broaden scope.\\n\\n### Likely Files, Modules, Or Commands\\n- Review the preserved previous plan notes below.\\n- Inspect the current project state and relevant files before editing.\\n\\n### Steps\\n1. Confirm the task is still valid, assigned correctly, and not blocked.\\n2. Review the preserved previous plan notes and convert them into concrete execution steps.\\n3. Inspect relevant code, data, docs, or external systems before editing.\\n4. Make the smallest useful change that satisfies the task.\\n5. Update Clanker Ops if scope, blockers, duplicates, or follow-ups are discovered.\\n6. Prepare the closeout report before marking the task complete.\\n\\n### Verification\\n- Run the narrowest relevant checks and report exact commands/results.\\n- If verification cannot be run, explain why and identify residual risk.\\n\\n### Blockers, Dependencies, Or Questions\\n- Review preserved notes for blockers, dependencies, unanswered questions, or `none`.\\n\\n### Closeout Notes\\n- Use the Closeout Report Template from the Execution Protocol.\\n\\n### Preserved Previous Plan\\n\\nPlan:\\n- Confirm the intended outcome for: [BUTLER] Plan audit — verify all plan files have required sections | #housekeeping #butler #weekly; context: #remember.\\n- Inspect the relevant files/state before changing anything.\\n- Make the smallest useful change, then verify it and report any blocker.\\nTags: #butler #housekeeping #plan-reviewed #ready-to-execute #weekly\\nBranch: dad_1805\\n\\nExecution requirements:\\n- Run `clanker-board --context-only` from the project root before starting.\\n- Mark #124 in progress before implementation work.\\n- Keep changes scoped and preserve unrelated user changes.\\n- Add/update Clanker Ops items for blockers, duplicates, missing context, or follow-up work.\\n- Before closing, update the task with summary, files changed, commands run, verification, follow-ups, blockers, token burn estimate, and final status.\\n- Mark completed only when done and verified; otherwise leave in progress or mark failed/deferred with a clear reason.\"})"
+      }
+    },
+    {
+      "id": 125,
+      "item": "[BUTLER] Plan file cleanup — remove orphaned .md files | #housekeeping #butler #weekly",
+      "tags": [
+        "remember"
+      ],
+      "status": "pending",
+      "createdAt": "2026-05-20T09:48:55.379Z",
+      "updatedAt": "2026-05-20T09:48:55.379Z",
+      "description": "## Task Plan\n\n### Intended Outcome\n- Deliver the requested outcome for: [BUTLER] Plan file cleanup — remove orphaned .md files | #housekeeping #butler #weekly; context: #remember.\n- Treat the preserved previous plan as source notes, not as permission to broaden scope.\n\n### Likely Files, Modules, Or Commands\n- Review the preserved previous plan notes below.\n- Inspect the current project state and relevant files before editing.\n\n### Steps\n1. Confirm the task is still valid, assigned correctly, and not blocked.\n2. Review the preserved previous plan notes and convert them into concrete execution steps.\n3. Inspect relevant code, data, docs, or external systems before editing.\n4. Make the smallest useful change that satisfies the task.\n5. Update Clanker Ops if scope, blockers, duplicates, or follow-ups are discovered.\n6. Prepare the closeout report before marking the task complete.\n\n### Verification\n- Run the narrowest relevant checks and report exact commands/results.\n- If verification cannot be run, explain why and identify residual risk.\n\n### Blockers, Dependencies, Or Questions\n- Review preserved notes for blockers, dependencies, unanswered questions, or `none`.\n\n### Closeout Notes\n- Use the Closeout Report Template from the Execution Protocol.\n\n### Preserved Previous Plan\n\nPlan:\n- Confirm the intended outcome for: [BUTLER] Plan file cleanup — remove orphaned .md files | #housekeeping #butler #weekly; context: #remember.\n- Inspect the relevant files/state before changing anything.\n- Make the smallest useful change, then verify it and report any blocker.",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": []
+    },
+    {
+      "id": 127,
+      "item": "Review sprint plans and adjust priorities based on current board state",
+      "tags": [],
+      "status": "completed",
+      "createdAt": "2026-05-20T10:15:04.278Z",
+      "updatedAt": "2026-05-20T10:49:13.499Z",
+      "description": "Sprint review completed. Created #128 (Code Quality Audit), #129 (Provider Showcase), #130 (CI/CD Pipeline - reassigned to @worker). Frontend gap identified (validation error in Patterns.tsx). Sprint #13 split from @builder to @worker.",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": [],
+      "planHandoff": {
+        "target": "@planner",
+        "sentAt": "2026-05-20T10:15:57.874Z",
+        "status": "done",
+        "command": "/run planner \"Build a concise implementation plan for Clanker Ops work #127: Review sprint plans and adjust priorities based on current board state\\n\\nExpected output:\\n- Write the plan to /root/t1d/.pi/todo-plans/#127_plan.md\\n- Update the work item description with the same plan if the todo tool is available.\\n- Preserve the Execution Protocol section at the top of the plan.\\n\\nPlan should include:\\n- Execution Protocol with before/while/closeout instructions\\n- Intended outcome\\n- Likely files, modules, or commands to inspect\\n- Step-by-step approach\\n- Verification checks\\n- Blockers, dependencies, or questions\\n- Closeout report template with summary, files changed, commands run, verification, follow-ups, blockers, token burn estimate, and final status\\n\\n## Execution Protocol\\n\\n### Before Starting\\n- Run `clanker-board --context-only` from the project root to load current queue context.\\n- Confirm #127 is still open, assigned to you, and not blocked.\\n- Mark #127 in progress before implementation work.\\n- Read the full plan before editing files.\\n\\n### While Working\\n- Keep changes scoped to this task and preserve unrelated user changes.\\n- Do not create skills, tools, scripts, or extra files unless the operator explicitly requested them or this plan names them.\\n- If you discover blockers, duplicates, missing context, or follow-up work, add/update Clanker Ops items instead of burying findings in prose.\\n- If the task cannot be completed, leave it in progress or mark it failed/deferred with a clear reason.\\n\\n### Before Closing\\n- Run relevant verification checks.\\n- Update the Clanker Ops item with a completion summary.\\n- Include files changed, commands run, verification result, blockers/follow-ups, and estimated token burn.\\n- Mark the task completed only when the requested work is done and verified.\\n\\n### Closeout Report Template\\n\\n```text\\nSummary:\\nFiles changed:\\nCommands run:\\nVerification:\\nFollow-ups created:\\nBlockers:\\nToken burn estimate:\\nStatus:\\n```\\n\\nBranch: dad_1805\" --bg",
+        "intercomCommand": "intercom({\"action\":\"send\",\"to\":\"planner\",\"message\":\"Build a concise implementation plan for Clanker Ops work #127: Review sprint plans and adjust priorities based on current board state\\n\\nExpected output:\\n- Write the plan to /root/t1d/.pi/todo-plans/#127_plan.md\\n- Update the work item description with the same plan if the todo tool is available.\\n- Preserve the Execution Protocol section at the top of the plan.\\n\\nPlan should include:\\n- Execution Protocol with before/while/closeout instructions\\n- Intended outcome\\n- Likely files, modules, or commands to inspect\\n- Step-by-step approach\\n- Verification checks\\n- Blockers, dependencies, or questions\\n- Closeout report template with summary, files changed, commands run, verification, follow-ups, blockers, token burn estimate, and final status\\n\\n## Execution Protocol\\n\\n### Before Starting\\n- Run `clanker-board --context-only` from the project root to load current queue context.\\n- Confirm #127 is still open, assigned to you, and not blocked.\\n- Mark #127 in progress before implementation work.\\n- Read the full plan before editing files.\\n\\n### While Working\\n- Keep changes scoped to this task and preserve unrelated user changes.\\n- Do not create skills, tools, scripts, or extra files unless the operator explicitly requested them or this plan names them.\\n- If you discover blockers, duplicates, missing context, or follow-up work, add/update Clanker Ops items instead of burying findings in prose.\\n- If the task cannot be completed, leave it in progress or mark it failed/deferred with a clear reason.\\n\\n### Before Closing\\n- Run relevant verification checks.\\n- Update the Clanker Ops item with a completion summary.\\n- Include files changed, commands run, verification result, blockers/follow-ups, and estimated token burn.\\n- Mark the task completed only when the requested work is done and verified.\\n\\n### Closeout Report Template\\n\\n```text\\nSummary:\\nFiles changed:\\nCommands run:\\nVerification:\\nFollow-ups created:\\nBlockers:\\nToken burn estimate:\\nStatus:\\n```\\n\\nBranch: dad_1805\"})",
+        "result": "#127_plan.md"
+      }
+    },
+    {
+      "id": 128,
+      "item": "[SPRINT 12] Code Quality Audit — flake8, mypy, black formatting pass",
+      "tags": [],
+      "status": "pending",
+      "createdAt": "2026-05-20T10:39:34.827Z",
+      "updatedAt": "2026-05-20T10:39:34.827Z",
+      "description": "## Task Plan\n\n### Intended Outcome\n- Deliver the requested outcome for: [SPRINT 12] Code Quality Audit — flake8, mypy, black formatting pass.\n- Treat the preserved previous plan as source notes, not as permission to broaden scope.\n\n### Likely Files, Modules, Or Commands\n- Review the preserved previous plan notes below.\n- Inspect the current project state and relevant files before editing.\n\n### Steps\n1. Confirm the task is still valid, assigned correctly, and not blocked.\n2. Review the preserved previous plan notes and convert them into concrete execution steps.\n3. Inspect relevant code, data, docs, or external systems before editing.\n4. Make the smallest useful change that satisfies the task.\n5. Update Clanker Ops if scope, blockers, duplicates, or follow-ups are discovered.\n6. Prepare the closeout report before marking the task complete.\n\n### Verification\n- Run the narrowest relevant checks and report exact commands/results.\n- If verification cannot be run, explain why and identify residual risk.\n\n### Blockers, Dependencies, Or Questions\n- Review preserved notes for blockers, dependencies, unanswered questions, or `none`.\n\n### Closeout Notes\n- Use the Closeout Report Template from the Execution Protocol.\n\n### Preserved Previous Plan\n\nPlan:\n- Run flake8 on Python codebase\n- Run mypy type checking\n- Run black formatter\n- Fix critical issues\n- Report findings\n\nLikely files: app/, tests/",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": []
+    },
+    {
+      "id": 129,
+      "item": "[SPRINT 12] Provider Showcase — integrate OpenRouter, OpenAI, Anthropic with fallback",
+      "tags": [],
+      "status": "pending",
+      "createdAt": "2026-05-20T10:39:47.182Z",
+      "updatedAt": "2026-05-20T10:39:47.182Z",
+      "description": "## Task Plan\n\n### Intended Outcome\n- Deliver the requested outcome for: [SPRINT 12] Provider Showcase — integrate OpenRouter, OpenAI, Anthropic with fallback.\n- Treat the preserved previous plan as source notes, not as permission to broaden scope.\n\n### Likely Files, Modules, Or Commands\n- Review the preserved previous plan notes below.\n- Inspect the current project state and relevant files before editing.\n\n### Steps\n1. Confirm the task is still valid, assigned correctly, and not blocked.\n2. Review the preserved previous plan notes and convert them into concrete execution steps.\n3. Inspect relevant code, data, docs, or external systems before editing.\n4. Make the smallest useful change that satisfies the task.\n5. Update Clanker Ops if scope, blockers, duplicates, or follow-ups are discovered.\n6. Prepare the closeout report before marking the task complete.\n\n### Verification\n- Run the narrowest relevant checks and report exact commands/results.\n- If verification cannot be run, explain why and identify residual risk.\n\n### Blockers, Dependencies, Or Questions\n- Review preserved notes for blockers, dependencies, unanswered questions, or `none`.\n\n### Closeout Notes\n- Use the Closeout Report Template from the Execution Protocol.\n\n### Preserved Previous Plan\n\nPlan:\n- Test OpenRouter models (already configured)\n- Add OpenAI direct integration example\n- Add Anthropic direct integration example\n- Document fallback chains\n- Add to docs/\n\nLikely files: app/services/llm_service.py, docs/",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": []
+    },
+    {
+      "id": 130,
+      "item": "[SPRINT 13] CI/CD Pipeline — GitHub Actions for test, lint, deploy",
+      "assigned": "@worker",
+      "tags": [],
+      "status": "pending",
+      "createdAt": "2026-05-20T10:39:59.562Z",
+      "updatedAt": "2026-05-20T10:39:59.562Z",
+      "description": "## Task Plan\n\n### Intended Outcome\n- Deliver the requested outcome for: [SPRINT 13] CI/CD Pipeline — GitHub Actions for test, lint, deploy.\n- Treat the preserved previous plan as source notes, not as permission to broaden scope.\n\n### Likely Files, Modules, Or Commands\n- Review the preserved previous plan notes below.\n- Inspect the current project state and relevant files before editing.\n\n### Steps\n1. Confirm the task is still valid, assigned correctly, and not blocked.\n2. Review the preserved previous plan notes and convert them into concrete execution steps.\n3. Inspect relevant code, data, docs, or external systems before editing.\n4. Make the smallest useful change that satisfies the task.\n5. Update Clanker Ops if scope, blockers, duplicates, or follow-ups are discovered.\n6. Prepare the closeout report before marking the task complete.\n\n### Verification\n- Run the narrowest relevant checks and report exact commands/results.\n- If verification cannot be run, explain why and identify residual risk.\n\n### Blockers, Dependencies, Or Questions\n- Review preserved notes for blockers, dependencies, unanswered questions, or `none`.\n\n### Closeout Notes\n- Use the Closeout Report Template from the Execution Protocol.\n\n### Preserved Previous Plan\n\nPlan:\n- Create .github/workflows/test.yml\n- Create .github/workflows/deploy.yml\n- Add automated lint checks\n- Connect to deployment platform\n- Document in PLAN.md\n\nLikely files: .github/, Dockerfile",
       "branch": "dad_1805",
       "project": "t1d",
       "blockedBy": []
     }
   ],
-  "nextId": 6
+  "nextId": 136
 }

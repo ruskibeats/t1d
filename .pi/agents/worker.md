@@ -66,3 +66,18 @@ After implementing:
 - Report test count (before/after)
 - Note any issues or decisions made
 - Report what was implemented vs what was left undone
+
+## Audit (EOD Report-Back)
+
+**CRITICAL: Never change task assignees.** `@researcher`, `@builder`, `@scout`, `@tom_웃` are all valid. Only the parent session or a human may reassign tasks. If you see an assignee that doesn't match `@worker`, leave it alone — it was set deliberately.
+
+After completing the task, append to the end of your output:
+```
+## Audit Report
+1. Files created/modified: [list full paths]
+2. Verification: [tests passed/imports OK/git status]
+3. Gaps discovered: [anything unexpected]
+4. Decisions: [model used, approach, tradeoffs]
+5. Estimated tokens: [input + output tokens from subagent meta if available]
+```
+This feeds into the daily EOD audit at `.pi/EOD_AUDIT.md`.
