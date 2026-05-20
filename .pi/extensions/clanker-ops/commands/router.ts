@@ -10,7 +10,7 @@ import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 import { getState } from "../state/store.js";
 import { applyTaskMutation } from "../state/state-reducer.js";
 import { commitState } from "../state/store.js";
-import { selectVisibleTasks, selectFilteredTasks } from "../state/selectors.js";
+import { selectFilteredTasks } from "../state/selectors.js";
 import { renderClankerBoard } from "../view/board.js";
 import { t } from "../state/i18n-bridge.js";
 import { ERR_REQUIRES_INTERACTIVE, COMMAND_NAME } from "../tool/types.js";
@@ -62,7 +62,8 @@ const handlers: Record<string, Handler> = {
 
 /** No subcommand — show board */
 async function handleEmpty(ctx: CommandContext): Promise<boolean> {
-	ctx.notify(renderClankerBoard(120, null, null, true), "info");
+	const board = renderClankerBoard(getState().tasks, { width: 120, includeDone: true });
+	ctx.notify(board, "info");
 	return false;
 }
 
@@ -188,20 +189,20 @@ async function handleFocus(ctx: CommandContext): Promise<boolean> {
 	}
 
 	const parts = ctx.input.split(" ");
+	const width = process.stdout.columns || 120;
+
 	if (parts.length < 2) {
-		ctx.notify(renderClankerBoard(120), "info");
+		ctx.notify(renderClankerBoard(getState().tasks, { width }), "info");
 		return false;
 	}
 
-	const filter = parts[1];
-	const filteredTasks = selectFilteredTasks(getState(), filter);
+	const filteredTasks = selectFilteredTasks(getState(), parts[1]);
 
 	try {
-		const board = renderClankerBoard(process.stdout.columns || 120, [...filteredTasks]);
+		const board = renderClankerBoard(filteredTasks, { width });
 		ctx.notify(board, "info");
 	} catch {
-		// Fallback to unfiltered board
-		ctx.notify(renderClankerBoard(120), "info");
+		ctx.notify(renderClankerBoard(getState().tasks, { width }), "info");
 	}
 	return false;
 }
@@ -248,7 +249,8 @@ export async function routeCommand(
 	// Re-render board after interception if possible
 	if (hasUI) {
 		try {
-			const board = renderClankerBoard(process.stdout.columns || 120);
+			const width = process.stdout.columns || 120;
+			const board = renderClankerBoard(getState().tasks, { width });
 			notify(board, "info");
 		} catch {
 			// No fallback needed
