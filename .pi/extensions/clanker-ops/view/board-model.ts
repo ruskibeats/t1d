@@ -337,7 +337,7 @@ export interface ColumnWidths {
 }
 
 export function computeColumnWidths(innerWidth: number): ColumnWidths {
-	const fixed = 2 + 5 + 13 + 24 + 14 + 7; // icon + id + owner + tags + plan + last
+	const fixed = 2 + 5 + 13 + 24 + 14 + 7 + 9; // col widths + 8 spacing + 1 right margin
 	return {
 		icon: 2,
 		id: 5,
