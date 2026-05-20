@@ -14,30 +14,19 @@
 
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 import { loadConfig, validateGuidanceFields } from "./config.js";
-import { formatStatusLabel, t } from "./state/i18n-bridge.js";
 import { replayFromBranch } from "./state/replay.js";
-import { selectFilteredTasks, selectTasksByStatus, selectTodoCounts, selectVisibleTasks } from "./state/selectors.js";
 import { applyTaskMutation } from "./state/state-reducer.js";
 import { commitState, getState, replaceState } from "./state/store.js";
 import { buildToolResult } from "./tool/response-envelope.js";
 import {
 	COMMAND_NAME,
-	ERR_REQUIRES_INTERACTIVE,
-	MSG_NO_TODOS,
 	type TaskMutationParams,
 	TOOL_LABEL,
 	TOOL_NAME,
 	TodoParamsSchema,
 	type Task
 } from "./tool/types.js";
-import { formatCommandTaskLine, renderTodoCall, renderTodoResult } from "./view/format.js";
-import { renderClankerBoard } from "./view/board.js";
-
-// English fallbacks for localized /clanker section headers — the box-drawing
-// decoration is part of the localized string so translators can adjust spacing.
-const SECTION_PENDING = "── Pending ──";
-const SECTION_IN_PROGRESS = "── In Progress ──";
-const SECTION_COMPLETED = "── Completed ──";
+import { renderTodoCall, renderTodoResult } from "./view/format.js";
 
 // ---------------------------------------------------------------------------
 // Public re-exports — pre-refactor consumers (overlay, tests, index.ts) keep
@@ -104,184 +93,20 @@ export function registerTodoTool(pi: ExtensionAPI): void {
 }
 
 // ---------------------------------------------------------------------------
-// /clanker command — Clanker Ops board + subcommands
+// /clanker command — delegates to commands/router.ts
 // ---------------------------------------------------------------------------
-
-const CLANKER_HELP = `╭─── Clanker Ops ───╮
-│                    │
-│  /clanker         Show work board
-│  /clanker help    Show this help
-│  /clanker dispatch #<id> [to <owner>]
-│                    │
-╰────────────────────╯`;
-
-const BOARD_HEADER = "╭─── Clanker Ops ───╮";
-
-const BOARD_FOOTER = "╰────────────────────╯";
-
-function renderFallbackBoard(): string {
-	const state = getState();
-	const visible = selectVisibleTasks(state);
-	if (visible.length === 0) return t("command.no_todos", MSG_NO_TODOS);
-
-	const groups = selectTasksByStatus(state);
-	const counts = selectTodoCounts(state);
-
-	const lines: string[] = [BOARD_HEADER];
-	lines.push(`│ ${counts.completed}/${counts.total} done · ${counts.inProgress} in progress · ${counts.pending} pending`);
-
-	if (groups.pending.length > 0) {
-		lines.push("│");
-		lines.push(`│ ${t("command.section.pending", SECTION_PENDING)}`);
-		for (const task of groups.pending) lines.push(`│  ${formatCommandTaskLine(task, "○")}`);
-	}
-	if (groups.inProgress.length > 0) {
-		lines.push("│");
-		lines.push(`│ ${t("command.section.in_progress", SECTION_IN_PROGRESS)}`);
-		for (const task of groups.inProgress) lines.push(`│  ${formatCommandTaskLine(task, "◐")}`);
-	}
-	if (groups.completed.length > 0) {
-		lines.push("│");
-		lines.push(`│ ${t("command.section.completed", SECTION_COMPLETED)}`);
-		for (const task of groups.completed) lines.push(`│  ${formatCommandTaskLine(task, "✓")}`);
-	}
-	lines.push(BOARD_FOOTER);
-	return lines.join("\n");
-}
 
 export function registerClankerCommand(pi: ExtensionAPI): void {
 	pi.registerCommand(COMMAND_NAME, {
 		description: "Clanker Ops — show the work board",
 		handler: async (args, ctx) => {
 			const input = typeof args === "string" ? args.trim() : "";
-			const subcommand = input.split(" ")[0].toLowerCase();
-
-			if (!input) {
-				// /clanker (no args) -> show the work board
-				ctx.ui.notify(renderClankerBoard(120, null, null, true), "info");
-				return;
-			} else if (subcommand === "help" || subcommand === "--help" || subcommand === "-h") {
-				ctx.ui.notify(CLANKER_HELP, "info");
-				return;
-			} else if (subcommand === "eod") {
-				const now = new Date();
-				const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000);
-				const state = getState();
-				const completedTasks = state.tasks.filter(
-					(t) => t.status === "completed" && new Date(t.updatedAt) > yesterday
-				);
-
-				const report = [
-					`# Clanker Ops EOD Report - ${now.toLocaleDateString()}`,
-					`## Completed Tasks (Last 24h)`,
-					...completedTasks.map(t => `- [x] #${t.id} ${t.item}`),
-					completedTasks.length === 0 ? "_No tasks completed in the last 24h._" : ""
-				].join("\n");
-
-				ctx.ui.notify(report, "info");
-				return;
-			} else if (subcommand === "dispatch") {
-				const parts = input.split(" ");
-				const taskId = parseInt(parts[1]?.replace("#", ""));
-				const owner = parts.length > 3 && parts[2] === "to" ? parts[3] : undefined;
-
-				if (!taskId || Number.isNaN(taskId)) {
-					ctx.ui.notify("Usage: /clanker dispatch #<id> [to <owner>]", "error");
-					return;
-				}
-
-				const { assembleDispatch } = await import("./dispatch.js");
-
-				if (owner) {
-					const assignResult = applyTaskMutation(getState(), "update", { id: taskId, assigned: owner });
-					commitState(assignResult.state);
-				}
-
-				const payload = assembleDispatch(taskId);
-				if (!payload) {
-					ctx.ui.notify(`Dispatch failed: task #${taskId} not ready (missing plan, owner, or agent definition).`, "error");
-					return;
-				}
-
-				// Try auto-spawn via raw child_process (no ExtensionAPI needed)
-				let spawnResult: { autoSpawned: boolean; error?: string; fallbackCommand?: string } | undefined;
-				try {
-					const { executeBackgroundDispatch } = await import("./background-spawner.js");
-					spawnResult = executeBackgroundDispatch(payload);
-				} catch (error) {
-					const message = error instanceof Error ? error.message : String(error);
-					spawnResult = { autoSpawned: false, error: message };
-				}
-
-				const metaResult = applyTaskMutation(getState(), "update", {
-					id: taskId,
-					status: "in_progress",
-					metadata: {
-						dispatchRunId: payload.runId,
-						dispatchedAt: new Date().toISOString(),
-						dispatchAgent: payload.agent,
-						outputPath: payload.outputPath,
-						...(spawnResult?.autoSpawned ? { autoSpawned: true } : {}),
-					},
-				});
-				commitState(metaResult.state);
-
-				const msgLines: string[] = [
-					`### Dispatched #${taskId} → @${payload.agent}`,
-					"",
-					`**Plan:** ${payload.planPath}`,
-					`**Run ID:** ${payload.runId}`,
-				];
-
-				if (spawnResult?.autoSpawned) {
-					msgLines.push("", "🔥 **Auto-fired in background** — no manual step needed.");
-					msgLines.push("Check status with:");
-					msgLines.push("```bash");
-					msgLines.push(`subagent({ action: "status", id: "${payload.runId}" })`);
-					msgLines.push("```");
-				} else {
-					msgLines.push("", "**Execute this command to start background work:**");
-					msgLines.push("```bash");
-					msgLines.push(`subagent single --agent ${payload.agent} --async true --output ${payload.outputPath} --task "${payload.task.replace(/"/g, '\\"')}"`);
-					msgLines.push("```");
-					msgLines.push("", "The subagent will run in the background. Check status with:");
-					msgLines.push("```bash");
-					msgLines.push(`subagent({ action: "status", id: "${payload.runId}" })`);
-					msgLines.push("```");
-					if (spawnResult?.error) {
-						msgLines.push("", `⚠️ Auto-spawn failed: ${spawnResult.error}`);
-					}
-				}
-
-				ctx.ui.notify(msgLines.join("\n"), "info");
-				return;
-			} else if (subcommand !== "focus") {
-				// INTERCEPTION: Treat unrecognized input as a new work item
-				const result = applyTaskMutation(getState(), "create", { subject: input });
-				commitState(result.state);
-				ctx.ui.notify(`✅ Added: ${input}`, "info");
-				// Fall through to show the updated board
-			}
-
-			if (!ctx.hasUI) {
-				ctx.ui.notify(t("command.requires_interactive", ERR_REQUIRES_INTERACTIVE), "error");
-				return;
-			}
-
-			// Show the work board (including focus mode)
-			let filteredTasks = selectVisibleTasks(getState());
-			
-			if (subcommand === "focus" && input.split(" ").length > 1) {
-				const filter = input.split(" ")[1];
-				filteredTasks = selectFilteredTasks(getState(), filter);
-			}
-
-			try {
-				const board = renderClankerBoard(process.stdout.columns || 120, [...filteredTasks]);
-				ctx.ui.notify(board, "info");
-			} catch {
-				// Fallback to simpler renderer
-			}
+			const { routeCommand } = await import("./commands/router.js");
+			await routeCommand(
+				input,
+				(msg, level) => ctx.ui.notify(msg, level as "info" | "error"),
+				ctx.hasUI ?? false,
+			);
 		},
 	});
 }
