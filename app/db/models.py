@@ -1,6 +1,6 @@
 """SQLAlchemy ORM models for the T1D Companion application."""
 
-from datetime import datetime
+from datetime import datetime, timezone
 
 from sqlalchemy import (
     JSON,
@@ -18,9 +18,16 @@ from sqlalchemy.orm import Mapped, relationship
 
 from app.db.base import Base
 
+
+def _utcnow() -> datetime:
+    """Return timezone-aware UTC datetime for SQLAlchemy defaults."""
+    return datetime.now(timezone.utc)
+
 # Forward references for health metrics models
 # (imported here so Alembic autogenerate discovers them)
 from app.metrics.models import HealthMetric, HealthMetricEdge, HealthDailyAggregate  # noqa: F401
+# Forward references for simulator models
+from app.simulator.models import SimRun, SimUser, SimHiddenTruth, SimDetectorScore  # noqa: F401
 # Forward references for food models
 # (imported here so Alembic autogenerate discovers them)
 from app.food.models import Food, FoodEntry  # noqa: F401
@@ -226,8 +233,8 @@ class User(Base):
     )
 
     # Metadata
-    created_at: Mapped[datetime] = Column(DateTime, default=datetime.utcnow, nullable=False)
-    updated_at: Mapped[datetime] = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    created_at: Mapped[datetime] = Column(DateTime, default=_utcnow, nullable=False)
+    updated_at: Mapped[datetime] = Column(DateTime, default=_utcnow, onupdate=_utcnow, nullable=False)
     last_glucose_sync: Mapped[datetime | None] = Column(DateTime, nullable=True)
 
     # Dexcom OAuth2
@@ -240,6 +247,13 @@ class User(Base):
     nightscout_api_token: Mapped[str | None] = Column(String(255), nullable=True)
     nightscout_connected: Mapped[bool] = Column(Boolean, default=False, nullable=False)
     last_nightscout_sync: Mapped[datetime | None] = Column(DateTime, nullable=True)
+
+    # LibreLinkUp configuration
+    librelinkup_email: Mapped[str | None] = Column(String(255), nullable=True)
+    librelinkup_password: Mapped[str | None] = Column(String(512), nullable=True)
+    librelinkup_region: Mapped[str | None] = Column(String(10), nullable=True)
+    librelinkup_connected: Mapped[bool] = Column(Boolean, default=False, nullable=False)
+    last_librelinkup_sync: Mapped[datetime | None] = Column(DateTime, nullable=True)
 
     # Indexes
     __table_args__ = (
@@ -281,7 +295,7 @@ class GlucoseReading(Base):
     confidence_level: Mapped[int | None] = Column(Integer)  # 0-100
 
     # Metadata
-    created_at: Mapped[datetime] = Column(DateTime, default=datetime.utcnow, nullable=False)
+    created_at: Mapped[datetime] = Column(DateTime, default=_utcnow, nullable=False)
     raw_data: Mapped[dict | None] = Column(JSON)  # Store raw API response for debugging
 
     # Relationships
@@ -339,8 +353,8 @@ class ContextEvent(Base):
     photos: Mapped[list | None] = Column(JSON)  # List of file paths or URLs
 
     # Metadata
-    created_at: Mapped[datetime] = Column(DateTime, default=datetime.utcnow, nullable=False)
-    updated_at: Mapped[datetime] = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    created_at: Mapped[datetime] = Column(DateTime, default=_utcnow, nullable=False)
+    updated_at: Mapped[datetime] = Column(DateTime, default=_utcnow, onupdate=_utcnow, nullable=False)
     tags: Mapped[list | None] = Column(JSON)  # List of tags
 
     # Relationships
@@ -372,8 +386,8 @@ class Conversation(Base):
     title: Mapped[str | None] = Column(String(255))
 
     # Metadata
-    created_at: Mapped[datetime] = Column(DateTime, default=datetime.utcnow, nullable=False)
-    updated_at: Mapped[datetime] = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
+    created_at: Mapped[datetime] = Column(DateTime, default=_utcnow, nullable=False)
+    updated_at: Mapped[datetime] = Column(DateTime, default=_utcnow, onupdate=_utcnow, nullable=False)
 
     # Relationships
     user: Mapped["User"] = relationship("User", back_populates="conversations")
@@ -407,7 +421,7 @@ class ConversationMessage(Base):
     extra_data: Mapped[dict | None] = Column(JSON)
 
     # Timestamps
-    timestamp: Mapped[datetime] = Column(DateTime, default=datetime.utcnow, nullable=False, index=True)
+    timestamp: Mapped[datetime] = Column(DateTime, default=_utcnow, nullable=False, index=True)
 
     # Relationships
     conversation: Mapped["Conversation"] = relationship("Conversation", back_populates="messages")
@@ -445,7 +459,7 @@ class PatternAnalysis(Base):
     recommendations: Mapped[list | None] = Column(JSON)
 
     # Metadata
-    created_at: Mapped[datetime] = Column(DateTime, default=datetime.utcnow, nullable=False)
+    created_at: Mapped[datetime] = Column(DateTime, default=_utcnow, nullable=False)
 
     # Indexes
     __table_args__ = (

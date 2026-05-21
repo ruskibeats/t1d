@@ -99,7 +99,8 @@ async def db_engine():
         from app.fasting.models import FastingEntry  # noqa: F401
         from app.food.models import Food, FoodEntry  # noqa: F401
         from app.measurements.models import CustomMeasurement  # noqa: F401
-        from app.metrics.models import HealthMetric, HealthDailyAggregate  # noqa: F401
+        from app.metrics.models import HealthMetric, HealthDailyAggregate, HealthMetricEdge  # noqa: F401
+        from app.simulator.models import SimRun, SimUser, SimHiddenTruth, SimDetectorScore  # noqa: F401
         from app.mood.models import MoodEntry  # noqa: F401
         from app.sleep.models import SleepEntry, SleepStage  # noqa: F401
         from app.water.models import WaterEntry  # noqa: F401
@@ -135,6 +136,12 @@ async def db_session(db_engine):
     )
     async with async_session_maker() as session:
         yield session
+
+
+@pytest_asyncio.fixture(scope="function")
+async def async_db_session(db_session):
+    """Alias for db_session, matching convention in new simulator tests."""
+    return db_session
 
 
 @pytest_asyncio.fixture(scope="function")

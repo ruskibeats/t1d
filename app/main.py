@@ -198,6 +198,7 @@ def create_app() -> FastAPI:
                 "patterns": "/api/v1/patterns",
                 "chat": "/api/v1/chat",
                 "metrics": "/api/v1/metrics",
+                "cgm": "/api/v1/cgm/status",
                 "food": "/api/v1/food",
                 "exercise": "/api/v1/exercise",
                 "sleep": "/api/v1/sleep",
@@ -212,18 +213,66 @@ def create_app() -> FastAPI:
     # Health check endpoint
     @app.get("/health", tags=["Info"])
     async def health_check() -> dict:
-        """Health check endpoint."""
+        """Health check endpoint with DB and LLM status."""
+        from app.core.database import db_manager
+        from app.config import get_settings
+        from sqlalchemy import text
+
+        settings = get_settings()
+        db_status = "unknown"
+        llm_status = "unknown"
+
+        # Check database connectivity
+        try:
+            if db_manager.engine:
+                async with db_manager.engine.connect() as conn:
+                    await conn.execute(text("SELECT 1"))
+                db_status = "connected"
+            else:
+                db_status = "not_initialized"
+        except Exception as e:
+            db_status = f"error: {type(e).__name__}"
+            logger.warning(f"Health check DB error: {e}")
+
+        # Check LLM provider availability
+        try:
+            llm_provider = settings.llm_provider
+            if llm_provider == "openrouter" and settings.openrouter_api_key:
+                llm_status = "configured (openrouter)"
+            elif llm_provider == "openai" and settings.openai_api_key:
+                llm_status = "configured (openai)"
+            elif llm_provider == "anthropic" and settings.anthropic_api_key:
+                llm_status = "configured (anthropic)"
+            else:
+                llm_status = f"no_api_key ({llm_provider})"
+        except Exception as e:
+            llm_status = f"error: {type(e).__name__}"
+            logger.warning(f"Health check LLM error: {e}")
+
+        overall = "healthy" if db_status == "connected" and "configured" in llm_status else "degraded"
+
         return {
-            "status": "healthy",
+            "status": overall,
             "service": settings.app_title,
             "version": settings.version,
+            "environment": settings.environment,
             "timestamp": datetime.now(timezone.utc).isoformat(),
+            "checks": {
+                "database": db_status,
+                "llm": llm_status,
+            },
         }
 
     # Include routers
     from app.api import (
+        activity,
         auth,
+        blood_pressure,
+        body_battery,
+        body_composition,
+        cgm,
         chat,
+        environment,
         events,
         exercise,
         fasting,
@@ -232,19 +281,23 @@ def create_app() -> FastAPI:
         garmin,
         glucose,
         glucose_ext,
+        heart,
         insights,
+        lifestyle,
         measurements,
         metrics,
         mood,
         patterns,
         polar,
+        providers,
+        simulator,
         sleep,
         strava,
         users,
+        vitals,
         water,
         withings,
     )
-    from app.api import environment, heart, blood_pressure, activity, vitals, body_composition, lifestyle, body_battery
 
     app.include_router(auth.router, prefix="/auth", tags=["Authentication"])
     app.include_router(users.router, prefix="/api/v1", tags=["Users"])
@@ -269,6 +322,8 @@ def create_app() -> FastAPI:
     app.include_router(body_composition.route, prefix="/api/v1", tags=["Body Composition"])
     app.include_router(lifestyle.route, prefix="/api/v1", tags=["Lifestyle"])
     app.include_router(body_battery.route, prefix="/api/v1", tags=["Body Battery"])
+    # ── CGM connection ──
+    app.include_router(cgm.route, prefix="/api/v1", tags=["CGM Connection"])
     # ── External ingestion providers ──
     app.include_router(fitbit.route, prefix="/api/v1", tags=["Fitbit"])
     app.include_router(garmin.route, prefix="/api/v1", tags=["Garmin"])
@@ -277,6 +332,9 @@ def create_app() -> FastAPI:
     app.include_router(withings.route, prefix="/api/v1", tags=["Withings"])
     # ── New unified metrics endpoint ──
     app.include_router(metrics.route, prefix="/api/v1", tags=["Unified Health Metrics"])
+    app.include_router(providers.route, prefix="/api/v1", tags=["Providers"])
+    # ── Simulator pipeline ──
+    app.include_router(simulator.router, prefix="/api/v1", tags=["Simulator"])
     logger.info("Application setup complete")
 
     return app
