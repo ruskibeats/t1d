@@ -199,6 +199,7 @@ class SimulationService:
                         "sim_user_id": sim_user.id,
                         "cgm_readings": len(cgm_readings),
                         "truths_planted": len(truths),
+                        "sim_date_start": base_date,  # Pass the simulation start date
                     })
 
                     user_index += 1
@@ -216,7 +217,7 @@ class SimulationService:
 
             logger.info(f"Running PatternService detectors for {len(all_user_records)} users...")
             for record in all_user_records:
-                await self._run_detectors(record["user_id"])
+                await self._run_detectors(record["user_id"], record["sim_date_start"], run.days_per_user)
             logger.info("Detector run complete")
 
             # Run evaluation
@@ -245,17 +246,21 @@ class SimulationService:
             logger.error(f"Sim run {run_id} failed: {e}", exc_info=True)
             raise
 
-    async def _run_detectors(self, user_id: int) -> None:
+    async def _run_detectors(self, user_id: int, sim_date_start: datetime, days_per_user: int = 7) -> None:
         """Run PatternService detectors over a user's synthetic data.
 
         This exercises the exact same detection paths used for real users.
 
         Args:
             user_id: The real_user_id (from tbl_users).
+            sim_date_start: The start date of the simulated data.
+            days_per_user: Number of days of simulated data.
         """
         try:
-            end_date = datetime.now(timezone.utc)
-            start_date = end_date - timedelta(days=365)  # Wide enough to cover all sim data
+            # Use the actual date range of simulated data instead of "365 days ago"
+            # which doesn't overlap with the January 2025 simulation window
+            start_date = sim_date_start.replace(hour=0, minute=0, second=0, microsecond=0)
+            end_date = start_date + timedelta(days=days_per_user + 1)  # Cover all sim days plus buffer
 
             # Run all detectors — these create edges in health_metric_edges
             await self.pattern_service.detect_post_meal_spikes(
