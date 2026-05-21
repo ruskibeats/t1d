@@ -139,6 +139,7 @@ async def get_sim_run(
 )
 async def start_sim_run(
     run_id: int,
+    user: User = Depends(require_active_user),
     db: AsyncSession = Depends(get_db),
 ) -> SimRunResponse:
     service = SimulationService(db)
