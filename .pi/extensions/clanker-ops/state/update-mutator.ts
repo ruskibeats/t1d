@@ -155,3 +155,37 @@ export function applyMutation(
 
 	return { tasks: newTasks, nextId: state.nextId };
 }
+
+/**
+ * Update a task by id — wrapper that matches the old API and returns result object.
+ */
+export function update(state: TaskState, params: TaskMutationParams): {
+	state: TaskState;
+	task: Task;
+	fromStatus: TaskStatus;
+	toStatus: TaskStatus;
+} {
+	const idx = state.tasks.findIndex((t) => t.id === params.id);
+	if (idx === -1) {
+		throw new Error(`#${params.id} not found`);
+	}
+
+	const task = state.tasks[idx];
+	const validation = validateUpdateParams(task, params, state);
+	if (!validation.valid) {
+		throw new Error(validation.error);
+	}
+
+	const fromStatus = task.status;
+	const updated = mutateTask(task, params);
+	const toStatus = updated.status;
+	const newTasks = [...state.tasks];
+	newTasks[idx] = updated;
+
+	return {
+		state: { tasks: newTasks, nextId: state.nextId },
+		task: updated,
+		fromStatus,
+		toStatus,
+	};
+}
