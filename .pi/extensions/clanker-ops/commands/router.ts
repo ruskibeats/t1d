@@ -40,6 +40,7 @@ const CLANKER_HELP = `╭─── Clanker Ops ───╮
 │  /clanker         Show work board
 │  /clanker help    Show this help
 │  /clanker compact Show compact board
+│  /clanker overlay Scrollable overlay board
 │  /clanker dispatch #<id> [to <owner>]
 │  /clanker bulk #id --status <s> [--assigned <o>]
 │  /clanker log     Show dispatch history
@@ -56,6 +57,18 @@ const BOARD_FOOTER = "╰──────────────────�
 // Handlers
 // ---------------------------------------------------------------------------
 
+/** Overlay board — scrollable TUI overlay */
+async function handleOverlay(ctx: CommandContext): Promise<boolean> {
+	if (!ctx.hasUI) {
+		ctx.notify(t("command.requires_interactive", ERR_REQUIRES_INTERACTIVE), "error");
+		return false;
+	}
+	// TODO: Implement scrollable overlay via ui.custom()
+	// For now, show compact board as placeholder
+	await handleCompact(ctx);
+	return false;
+}
+
 const handler: Record<string, Handler> = {
 	bulk: handleBulk,
 	compact: handleCompact,
@@ -67,6 +80,7 @@ const handler: Record<string, Handler> = {
 	eod: handleEod,
 	dispatch: handleDispatch,
 	focus: handleFocus,
+	overlay: handleOverlay,
 };
 
 /** No subcommand — show board */
@@ -327,9 +341,9 @@ export async function routeCommand(
 	}
 
 	// Known subcommand
-	const h = handlers[subcommand];
+	const h = handler[subcommand];
 	if (h) {
-		await handler(ctx);
+		await h(ctx);
 		return;
 	}
 
