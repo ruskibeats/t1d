@@ -11,7 +11,7 @@
       "status": "completed",
       "createdAt": "2026-05-18T22:43:53.611Z",
       "updatedAt": "2026-05-19T21:03:37.876Z",
-      "description": "Update PatternService to persist: exercise→glucose_drop/rise, overnight low detection, insulin→glucose_change edges. Make edge-writing optional. Add tests.",
+      "description": "Update PatternService to persist: exercise\u2192glucose_drop/rise, overnight low detection, insulin\u2192glucose_change edges. Make edge-writing optional. Add tests.",
       "branch": "dad_1805",
       "project": "t1d",
       "blockedBy": [],
@@ -53,7 +53,7 @@
       "status": "completed",
       "createdAt": "2026-05-18T22:43:53.617Z",
       "updatedAt": "2026-05-19T21:02:01.826Z",
-      "description": "SCOUT FINDINGS (see scout-report-3.md): event_group_id EXISTS in models/ingestion. get_event_group() method EXISTS. MISSING: event-group endpoint (→ #31). MISSING: auth migration on 13 routes (→ #32).",
+      "description": "SCOUT FINDINGS (see scout-report-3.md): event_group_id EXISTS in models/ingestion. get_event_group() method EXISTS. MISSING: event-group endpoint (\u2192 #31). MISSING: auth migration on 13 routes (\u2192 #32).",
       "branch": "dad_1805",
       "project": "t1d",
       "blockedBy": [],
@@ -101,7 +101,7 @@
       "status": "completed",
       "createdAt": "2026-05-19T09:27:20.172Z",
       "updatedAt": "2026-05-20T23:41:50.000Z",
-      "description": "From SPRINT_PLAN.md:\n- S2-01: Merge chat screens → Hoot & Holla (mic/camera/barcode buttons)\n- S2-02: Merge meal screens → Meal Review flow (4-step)\n- S2-03: Merge pattern screens → Patterns (Good/Worth watching/Needs attention)\n- S2-04: Add Coach page (progress streaks, gentle achievements)\n- S2-05: Add Memory page (observations, voice notes)\n- S2-06: Add Discuss page (doctor discussion, caregiver sharing)\n- S2-07: Update navigation + routing\n- S2-08: Copy pass — plain English everywhere",
+      "description": "From SPRINT_PLAN.md:\n- S2-01: Merge chat screens \u2192 Hoot & Holla (mic/camera/barcode buttons)\n- S2-02: Merge meal screens \u2192 Meal Review flow (4-step)\n- S2-03: Merge pattern screens \u2192 Patterns (Good/Worth watching/Needs attention)\n- S2-04: Add Coach page (progress streaks, gentle achievements)\n- S2-05: Add Memory page (observations, voice notes)\n- S2-06: Add Discuss page (doctor discussion, caregiver sharing)\n- S2-07: Update navigation + routing\n- S2-08: Copy pass \u2014 plain English everywhere",
       "branch": "dad_1805",
       "project": "t1d",
       "blockedBy": [],
@@ -124,13 +124,13 @@
       "status": "completed",
       "createdAt": "2026-05-19T09:27:34.002Z",
       "updatedAt": "2026-05-20T23:41:50.000Z",
-      "description": "From SPRINT_PLAN.md:\n- S3-01: Add rate limiting (slowapi) - login 5/min, register 3/min, chat 30/min\n- S3-02: Remove hardcoded demo login (env-var gated demo mode)\n- S3-03: Dual-write verification tests (exercise/sleep/insulin → health_metrics)\n- S3-04: API smoke test script (25 endpoints)\n- S3-05: Demo data seeder (realistic multi-day data)\n- S3-06: Production Docker compose (PostgreSQL, backend, frontend)",
+      "description": "From SPRINT_PLAN.md:\n- S3-01: Add rate limiting (slowapi) - login 5/min, register 3/min, chat 30/min\n- S3-02: Remove hardcoded demo login (env-var gated demo mode)\n- S3-03: Dual-write verification tests (exercise/sleep/insulin \u2192 health_metrics)\n- S3-04: API smoke test script (25 endpoints)\n- S3-05: Demo data seeder (realistic multi-day data)\n- S3-06: Production Docker compose (PostgreSQL, backend, frontend)",
       "branch": "dad_1805",
       "project": "t1d",
       "blockedBy": [],
-      "assigned": "@dad_웃",
+      "assigned": "@dad_\uc6c3",
       "handoff": {
-        "target": "@dad_웃",
+        "target": "@dad_\uc6c3",
         "sentAt": "2026-05-20T10:48:29.899Z",
         "status": "assigned"
       }
@@ -146,7 +146,7 @@
       "status": "completed",
       "createdAt": "2026-05-19T09:27:50.787Z",
       "updatedAt": "2026-05-20T23:41:50.000Z",
-      "description": "From SPRINT_PLAN.md:\n- S4-01: Service method naming consistency (create/list/get/delete across 16 domains)\n- S4-02: Add missing __init__.py files (16 domain packages)\n- S4-03: Garmin webhook end-to-end (push data → activity_entries/sleep_entries)\n- S4-04: Connected devices UI (Settings page with provider status)\n- S4-05: Warning cleanup (Pydantic V2, SQLAlchemy deprecations)",
+      "description": "From SPRINT_PLAN.md:\n- S4-01: Service method naming consistency (create/list/get/delete across 16 domains)\n- S4-02: Add missing __init__.py files (16 domain packages)\n- S4-03: Garmin webhook end-to-end (push data \u2192 activity_entries/sleep_entries)\n- S4-04: Connected devices UI (Settings page with provider status)\n- S4-05: Warning cleanup (Pydantic V2, SQLAlchemy deprecations)",
       "branch": "dad_1805",
       "project": "t1d",
       "blockedBy": [],
@@ -181,7 +181,7 @@
         "graph",
         "backend",
         "p0",
-        "🧑"
+        "\ud83e\uddd1"
       ],
       "status": "completed",
       "createdAt": "2026-05-19T09:28:14.843Z",
@@ -190,7 +190,7 @@
       "branch": "dad_1805",
       "project": "t1d",
       "blockedBy": [],
-      "assigned": "@tom_웃"
+      "assigned": "@tom_\uc6c3"
     },
     {
       "id": 16,
@@ -203,7 +203,7 @@
       "status": "completed",
       "createdAt": "2026-05-19T09:28:48.171Z",
       "updatedAt": "2026-05-19T20:55:55.993Z",
-      "description": "From GRAPH_TODO.md Section 5.2 + Suggested Implementation Order #3:\n- Link fat/calories metric → delayed glucose spike metric\n- Edge type: meal_to_delayed_spike\n- Evidence: fat grams, hours-to-peak, delayed rise\n- Add tests for delayed spike edge creation",
+      "description": "From GRAPH_TODO.md Section 5.2 + Suggested Implementation Order #3:\n- Link fat/calories metric \u2192 delayed glucose spike metric\n- Edge type: meal_to_delayed_spike\n- Evidence: fat grams, hours-to-peak, delayed rise\n- Add tests for delayed spike edge creation",
       "branch": "dad_1805",
       "project": "t1d",
       "blockedBy": [],
@@ -241,7 +241,7 @@
       "branch": "dad_1805",
       "project": "t1d",
       "blockedBy": [],
-      "assigned": "@tom_웃"
+      "assigned": "@tom_\uc6c3"
     },
     {
       "id": 23,
@@ -272,7 +272,7 @@
       "status": "completed",
       "createdAt": "2026-05-19T09:35:53.749Z",
       "updatedAt": "2026-05-19T21:03:34.532Z",
-      "description": "From MASTER_TODO Photo Meal Ingest + Food Resolution Layer:\n- Add FoodResolutionService interface\n- Normalize labels (lowercase, singular/plural cleanup, remove adjectives)\n- Search priority: user-confirmed → curated/Sparky DB → standardized DBs → open community → model fallback\n- Rank candidates by text similarity, source trust, country/brand relevance, prior user selections, macro plausibility",
+      "description": "From MASTER_TODO Photo Meal Ingest + Food Resolution Layer:\n- Add FoodResolutionService interface\n- Normalize labels (lowercase, singular/plural cleanup, remove adjectives)\n- Search priority: user-confirmed \u2192 curated/Sparky DB \u2192 standardized DBs \u2192 open community \u2192 model fallback\n- Rank candidates by text similarity, source trust, country/brand relevance, prior user selections, macro plausibility",
       "branch": "dad_1805",
       "project": "t1d",
       "blockedBy": [],
@@ -289,7 +289,7 @@
       "status": "completed",
       "createdAt": "2026-05-19T09:36:05.446Z",
       "updatedAt": "2026-05-19T11:38:40.153Z",
-      "description": "SCOUT FINDINGS (see scout-report-25.md): CONTEXT.md exists but lacks formal graph definitions (→ #35). ARCHITECTURE_MAP.md MISSING (→ #33). CODEBASE_AUDIT.md MISSING (→ #34). Graph service: app/metrics/graph_service.py with tests.",
+      "description": "SCOUT FINDINGS (see scout-report-25.md): CONTEXT.md exists but lacks formal graph definitions (\u2192 #35). ARCHITECTURE_MAP.md MISSING (\u2192 #33). CODEBASE_AUDIT.md MISSING (\u2192 #34). Graph service: app/metrics/graph_service.py with tests.",
       "branch": "dad_1805",
       "project": "t1d",
       "blockedBy": [],
@@ -314,7 +314,7 @@
     {
       "id": 29,
       "item": "[REVIEW] Review mobile design at Google Stitch project #8748784367979415542",
-      "assigned": "@tom_웃",
+      "assigned": "@tom_\uc6c3",
       "tags": [
         "p0",
         "ios",
@@ -402,7 +402,7 @@
       "status": "completed",
       "createdAt": "2026-05-19T12:25:13.127Z",
       "updatedAt": "2026-05-19T17:50:30.333Z",
-      "description": "✅ ALL FIXES VERIFIED - Second review complete. All 5 issues fixed: race condition, status states, cycle detection, agent validation, safe file ops. Code is STABLE for community release.",
+      "description": "\u2705 ALL FIXES VERIFIED - Second review complete. All 5 issues fixed: race condition, status states, cycle detection, agent validation, safe file ops. Code is STABLE for community release.",
       "branch": "dad_1805",
       "project": "t1d",
       "blockedBy": [],
@@ -410,8 +410,8 @@
     },
     {
       "id": 85,
-      "item": "[iOS-01] Apple Developer Account — enroll $99 program, generate certs",
-      "assigned": "@tom_웃",
+      "item": "[iOS-01] Apple Developer Account \u2014 enroll $99 program, generate certs",
+      "assigned": "@tom_\uc6c3",
       "tags": [
         "ios",
         "dev-account",
@@ -427,8 +427,8 @@
     },
     {
       "id": 86,
-      "item": "[iOS-02] Dev machine — Xcode + Flutter SDK + CocoaPods",
-      "assigned": "@tom_웃",
+      "item": "[iOS-02] Dev machine \u2014 Xcode + Flutter SDK + CocoaPods",
+      "assigned": "@tom_\uc6c3",
       "tags": [
         "ios",
         "setup",
@@ -444,8 +444,8 @@
     },
     {
       "id": 87,
-      "item": "[iOS-03] Google Stitch — design screens + export design tokens",
-      "assigned": "@dad_웃",
+      "item": "[iOS-03] Google Stitch \u2014 design screens + export design tokens",
+      "assigned": "@dad_\uc6c3",
       "tags": [
         "ios",
         "design",
@@ -464,8 +464,8 @@
     },
     {
       "id": 88,
-      "item": "[iOS-04] Flutter scaffold — create project, theme, navigation",
-      "assigned": "@dad_웃",
+      "item": "[iOS-04] Flutter scaffold \u2014 create project, theme, navigation",
+      "assigned": "@dad_\uc6c3",
       "tags": [
         "ios",
         "flutter",
@@ -484,8 +484,8 @@
     },
     {
       "id": 89,
-      "item": "[iOS-05] Flutter screens — implement UI from Stitch designs",
-      "assigned": "@dad_웃",
+      "item": "[iOS-05] Flutter screens \u2014 implement UI from Stitch designs",
+      "assigned": "@dad_\uc6c3",
       "tags": [
         "ios",
         "flutter",
@@ -505,8 +505,8 @@
     },
     {
       "id": 90,
-      "item": "[iOS-06] Device testing — provisioning + real iPhone test",
-      "assigned": "@tom_웃",
+      "item": "[iOS-06] Device testing \u2014 provisioning + real iPhone test",
+      "assigned": "@tom_\uc6c3",
       "tags": [
         "ios",
         "testing",
@@ -516,7 +516,7 @@
       "status": "pending",
       "createdAt": "2026-05-19T14:58:48.432Z",
       "updatedAt": "2026-05-19T14:58:48.432Z",
-      "description": "After iOS-01 (certs) + iOS-05 (build). Add physical iPhone UDID to Apple Developer portal. Regenerate development provisioning profile with device included. Run `flutter run --release` on connected iPhone. Test all features: navigation gestures, animations, push notifications, performance, memory. File any issues as new bugs for @dad_웃.",
+      "description": "After iOS-01 (certs) + iOS-05 (build). Add physical iPhone UDID to Apple Developer portal. Regenerate development provisioning profile with device included. Run `flutter run --release` on connected iPhone. Test all features: navigation gestures, animations, push notifications, performance, memory. File any issues as new bugs for @dad_\uc6c3.",
       "branch": "dad_1805",
       "project": "t1d",
       "blockedBy": [
@@ -526,8 +526,8 @@
     },
     {
       "id": 91,
-      "item": "[iOS-07] App Store prep — screenshots, metadata, build archive",
-      "assigned": "@dad_웃",
+      "item": "[iOS-07] App Store prep \u2014 screenshots, metadata, build archive",
+      "assigned": "@dad_\uc6c3",
       "tags": [
         "ios",
         "appstore",
@@ -545,8 +545,8 @@
     },
     {
       "id": 92,
-      "item": "[iOS-08] App Store submission — review process + launch",
-      "assigned": "@tom_웃",
+      "item": "[iOS-08] App Store submission \u2014 review process + launch",
+      "assigned": "@tom_\uc6c3",
       "tags": [
         "ios",
         "appstore",
@@ -565,8 +565,8 @@
     },
     {
       "id": 93,
-      "item": "[OPS] LibreLink — verify connection is up and running",
-      "assigned": "@tom_웃",
+      "item": "[OPS] LibreLink \u2014 verify connection is up and running",
+      "assigned": "@tom_\uc6c3",
       "tags": [
         "ops",
         "cgm",
@@ -583,8 +583,8 @@
     },
     {
       "id": 94,
-      "item": "[OPS] Fix Pi agent on Windows — tom's Pi.Dev clanker setup",
-      "assigned": "@tom_웃",
+      "item": "[OPS] Fix Pi agent on Windows \u2014 tom's Pi.Dev clanker setup",
+      "assigned": "@tom_\uc6c3",
       "tags": [
         "ops",
         "pi",
@@ -603,19 +603,19 @@
     {
       "id": 95,
       "item": "[OPS] Top up OpenRouter API account",
-      "assigned": "@tom_웃",
+      "assigned": "@tom_\uc6c3",
       "tags": [],
       "status": "pending",
       "createdAt": "2026-05-19T17:12:22.104Z",
       "updatedAt": "2026-05-19T17:12:22.104Z",
-      "description": "## Intended Outcome\\nOpenRouter account funded and API key working.\\n\\n## Step-by-Step\\n1. Log in to openrouter.ai\\n2. Check account balance / credit status\\n3. Add funds via payment method\\n4. Verify API key responds: `curl https://openrouter.ai/api/v1/auth/key`\\n5. Update .env if key changed\\n6. Run a test LLM call to confirm working\\n\\n## Verification\\nSubagent dispatches work (tests pass, no 402/429 errors).\\n\\n## Skills/Tools Required\\n- (none — human task, requires OpenRouter web dashboard)\\n\\n## Audit (EOD Report-Back)\\nAppend to .pi/EOD_AUDIT.md: (1) new balance, (2) any key changes, (3) gaps/findings, (4) decisions, (5) estimated tokens.",
+      "description": "## Intended Outcome\\nOpenRouter account funded and API key working.\\n\\n## Step-by-Step\\n1. Log in to openrouter.ai\\n2. Check account balance / credit status\\n3. Add funds via payment method\\n4. Verify API key responds: `curl https://openrouter.ai/api/v1/auth/key`\\n5. Update .env if key changed\\n6. Run a test LLM call to confirm working\\n\\n## Verification\\nSubagent dispatches work (tests pass, no 402/429 errors).\\n\\n## Skills/Tools Required\\n- (none \u2014 human task, requires OpenRouter web dashboard)\\n\\n## Audit (EOD Report-Back)\\nAppend to .pi/EOD_AUDIT.md: (1) new balance, (2) any key changes, (3) gaps/findings, (4) decisions, (5) estimated tokens.",
       "branch": "dad_1805",
       "project": "t1d",
       "blockedBy": []
     },
     {
       "id": 98,
-      "item": "[GRAPH] Event grouping tests — event_group_id queries and same-event edge dedup",
+      "item": "[GRAPH] Event grouping tests \u2014 event_group_id queries and same-event edge dedup",
       "tags": [
         "graph",
         "backend",
@@ -633,7 +633,7 @@
     },
     {
       "id": 101,
-      "item": "[GRAPH] Provenance structure tests — verify detector/version/timestamps on graph edges",
+      "item": "[GRAPH] Provenance structure tests \u2014 verify detector/version/timestamps on graph edges",
       "tags": [
         "graph",
         "backend",
@@ -651,7 +651,7 @@
     },
     {
       "id": 102,
-      "item": "[GRAPH] Confidence component/scoring tests — verify decomposed confidence on graph edges",
+      "item": "[GRAPH] Confidence component/scoring tests \u2014 verify decomposed confidence on graph edges",
       "tags": [
         "graph",
         "backend",
@@ -669,7 +669,7 @@
     },
     {
       "id": 103,
-      "item": "[SAFETY] Graph-derived response safety test — verify no dosing advice from graph RAG",
+      "item": "[SAFETY] Graph-derived response safety test \u2014 verify no dosing advice from graph RAG",
       "tags": [
         "safety",
         "graph",
@@ -687,7 +687,7 @@
     },
     {
       "id": 104,
-      "item": "[GRAPH] RAG evidence contract tests — verify graph context retrieval for LLM",
+      "item": "[GRAPH] RAG evidence contract tests \u2014 verify graph context retrieval for LLM",
       "tags": [
         "graph",
         "backend",
@@ -705,7 +705,7 @@
     },
     {
       "id": 105,
-      "item": "[GRAPH] Graph backfill script — rebuild historical graph edges from existing health_metrics",
+      "item": "[GRAPH] Graph backfill script \u2014 rebuild historical graph edges from existing health_metrics",
       "tags": [
         "graph",
         "backend",
@@ -723,7 +723,7 @@
     },
     {
       "id": 106,
-      "item": "[GRAPH] Graph aggregation helpers — edge count, avg confidence, strongest pairs",
+      "item": "[GRAPH] Graph aggregation helpers \u2014 edge count, avg confidence, strongest pairs",
       "tags": [
         "graph",
         "backend",
@@ -759,7 +759,7 @@
     },
     {
       "id": 109,
-      "item": "[BUTLER] Board hygiene — stale blockedBy, ghost assignees, orphan plans",
+      "item": "[BUTLER] Board hygiene \u2014 stale blockedBy, ghost assignees, orphan plans",
       "tags": [
         "housekeeping",
         "butler",
@@ -768,7 +768,7 @@
       "status": "completed",
       "createdAt": "2026-05-19T19:47:06.949Z",
       "updatedAt": "2026-05-19T21:07:16.336Z",
-      "description": "Daily system check: scan for stale blockedBy, ghost assignees, orphan plan files. Report findings, don't fix them — that's the job, not the fix.",
+      "description": "Daily system check: scan for stale blockedBy, ghost assignees, orphan plan files. Report findings, don't fix them \u2014 that's the job, not the fix.",
       "branch": "dad_1805",
       "project": "t1d",
       "blockedBy": [],
@@ -776,7 +776,7 @@
     },
     {
       "id": 110,
-      "item": "[BUTLER] Dupe comb — detect overlapping pending tasks",
+      "item": "[BUTLER] Dupe comb \u2014 detect overlapping pending tasks",
       "tags": [
         "housekeeping",
         "butler",
@@ -786,7 +786,7 @@
       "status": "completed",
       "createdAt": "2026-05-19T19:47:06.955Z",
       "updatedAt": "2026-05-19T21:07:22.214Z",
-      "description": "Run dupe detection: scan all pending tasks for ≥60% intent overlap, print compare N M output for review.",
+      "description": "Run dupe detection: scan all pending tasks for \u226560% intent overlap, print compare N M output for review.",
       "branch": "dad_1805",
       "project": "t1d",
       "blockedBy": [],
@@ -794,7 +794,7 @@
     },
     {
       "id": 111,
-      "item": "[BUTLER] Roster sync — verify assignees match CLANKER_ROSTER.md",
+      "item": "[BUTLER] Roster sync \u2014 verify assignees match CLANKER_ROSTER.md",
       "tags": [
         "housekeeping",
         "butler",
@@ -812,7 +812,7 @@
     },
     {
       "id": 112,
-      "item": "[BUTLER] Dependency triage — walk blockedBy chains, find stuck tasks",
+      "item": "[BUTLER] Dependency triage \u2014 walk blockedBy chains, find stuck tasks",
       "tags": [
         "housekeeping",
         "butler",
@@ -830,7 +830,7 @@
     },
     {
       "id": 113,
-      "item": "[BUTLER] Plan audit — verify all plan files have required sections",
+      "item": "[BUTLER] Plan audit \u2014 verify all plan files have required sections",
       "tags": [
         "housekeeping",
         "butler",
@@ -848,7 +848,7 @@
     },
     {
       "id": 114,
-      "item": "[BUTLER] Plan file cleanup — remove orphaned .md files",
+      "item": "[BUTLER] Plan file cleanup \u2014 remove orphaned .md files",
       "tags": [
         "housekeeping",
         "butler",
@@ -867,7 +867,7 @@
     {
       "id": 115,
       "item": "Find all .md files in subdirectories of current project",
-      "assigned": "@tom_웃",
+      "assigned": "@tom_\uc6c3",
       "tags": [
         "docs",
         "review"
@@ -926,28 +926,28 @@
     },
     {
       "id": 120,
-      "item": "[BUTLER] Board hygiene — stale blockedBy, ghost assignees, orphan plans | #housekeeping #butler #daily",
+      "item": "[BUTLER] Board hygiene \u2014 stale blockedBy, ghost assignees, orphan plans | #housekeeping #butler #daily",
       "tags": [
         "remember"
       ],
       "status": "pending",
       "createdAt": "2026-05-20T09:48:27.999Z",
       "updatedAt": "2026-05-20T09:48:27.999Z",
-      "description": "Plan:\n- Confirm the intended outcome for: [BUTLER] Board hygiene — stale blockedBy, ghost assignees, orphan plans | #housekeeping #butler #daily; context: #remember.\n- Inspect the relevant files/state before changing anything.\n- Make the smallest useful change, then verify it and report any blocker.",
+      "description": "Plan:\n- Confirm the intended outcome for: [BUTLER] Board hygiene \u2014 stale blockedBy, ghost assignees, orphan plans | #housekeeping #butler #daily; context: #remember.\n- Inspect the relevant files/state before changing anything.\n- Make the smallest useful change, then verify it and report any blocker.",
       "branch": "dad_1805",
       "project": "t1d",
       "blockedBy": []
     },
     {
       "id": 121,
-      "item": "[BUTLER] Dupe comb — detect overlapping pending tasks | #housekeeping #butler #daily",
+      "item": "[BUTLER] Dupe comb \u2014 detect overlapping pending tasks | #housekeeping #butler #daily",
       "tags": [
         "remember"
       ],
       "status": "completed",
       "createdAt": "2026-05-20T09:48:36.226Z",
       "updatedAt": "2026-05-20T23:40:26.000Z",
-      "description": "Dupe comb complete — 2 duplicate pairs found. See dispatch log.",
+      "description": "Dupe comb complete \u2014 2 duplicate pairs found. See dispatch log.",
       "branch": "dad_1805",
       "project": "t1d",
       "blockedBy": [],
@@ -955,56 +955,56 @@
     },
     {
       "id": 122,
-      "item": "[BUTLER] Roster sync — verify assignees match CLANKER_ROSTER.md | #housekeeping #butler #daily",
+      "item": "[BUTLER] Roster sync \u2014 verify assignees match CLANKER_ROSTER.md | #housekeeping #butler #daily",
       "tags": [
         "remember"
       ],
       "status": "pending",
       "createdAt": "2026-05-20T09:48:40.429Z",
       "updatedAt": "2026-05-20T09:48:40.429Z",
-      "description": "Plan:\n- Confirm the intended outcome for: [BUTLER] Roster sync — verify assignees match CLANKER_ROSTER.md | #housekeeping #butler #daily; context: #remember.\n- Inspect the relevant files/state before changing anything.\n- Make the smallest useful change, then verify it and report any blocker.",
+      "description": "Plan:\n- Confirm the intended outcome for: [BUTLER] Roster sync \u2014 verify assignees match CLANKER_ROSTER.md | #housekeeping #butler #daily; context: #remember.\n- Inspect the relevant files/state before changing anything.\n- Make the smallest useful change, then verify it and report any blocker.",
       "branch": "dad_1805",
       "project": "t1d",
       "blockedBy": []
     },
     {
       "id": 123,
-      "item": "[BUTLER] Dependency triage — walk blockedBy chains, find stuck tasks | #housekeeping #butler #daily",
+      "item": "[BUTLER] Dependency triage \u2014 walk blockedBy chains, find stuck tasks | #housekeeping #butler #daily",
       "tags": [
         "remember"
       ],
       "status": "pending",
       "createdAt": "2026-05-20T09:48:43.969Z",
       "updatedAt": "2026-05-20T23:46:41.000Z",
-      "description": "Plan:\n- Confirm the intended outcome for: [BUTLER] Dependency triage — walk blockedBy chains, find stuck tasks | #housekeeping #butler #daily; context: #remember.\n- Inspect the relevant files/state before changing anything.\n- Make the smallest useful change, then verify it and report any blocker.",
+      "description": "Plan:\n- Confirm the intended outcome for: [BUTLER] Dependency triage \u2014 walk blockedBy chains, find stuck tasks | #housekeeping #butler #daily; context: #remember.\n- Inspect the relevant files/state before changing anything.\n- Make the smallest useful change, then verify it and report any blocker.",
       "branch": "dad_1805",
       "project": "t1d",
       "blockedBy": []
     },
     {
       "id": 124,
-      "item": "[BUTLER] Plan audit — verify all plan files have required sections | #housekeeping #butler #weekly",
+      "item": "[BUTLER] Plan audit \u2014 verify all plan files have required sections | #housekeeping #butler #weekly",
       "tags": [
         "remember"
       ],
       "status": "pending",
       "createdAt": "2026-05-20T09:48:52.917Z",
       "updatedAt": "2026-05-20T09:48:52.917Z",
-      "description": "Plan:\n- Confirm the intended outcome for: [BUTLER] Plan audit — verify all plan files have required sections | #housekeeping #butler #weekly; context: #remember.\n- Inspect the relevant files/state before changing anything.\n- Make the smallest useful change, then verify it and report any blocker.",
+      "description": "Plan:\n- Confirm the intended outcome for: [BUTLER] Plan audit \u2014 verify all plan files have required sections | #housekeeping #butler #weekly; context: #remember.\n- Inspect the relevant files/state before changing anything.\n- Make the smallest useful change, then verify it and report any blocker.",
       "branch": "dad_1805",
       "project": "t1d",
       "blockedBy": []
     },
     {
       "id": 125,
-      "item": "[BUTLER] Plan file cleanup — remove orphaned .md files | #housekeeping #butler #weekly",
+      "item": "[BUTLER] Plan file cleanup \u2014 remove orphaned .md files | #housekeeping #butler #weekly",
       "tags": [
         "remember"
       ],
       "status": "pending",
       "createdAt": "2026-05-20T09:48:55.379Z",
       "updatedAt": "2026-05-20T09:48:55.379Z",
-      "description": "Plan:\n- Confirm the intended outcome for: [BUTLER] Plan file cleanup — remove orphaned .md files | #housekeeping #butler #weekly; context: #remember.\n- Inspect the relevant files/state before changing anything.\n- Make the smallest useful change, then verify it and report any blocker.",
+      "description": "Plan:\n- Confirm the intended outcome for: [BUTLER] Plan file cleanup \u2014 remove orphaned .md files | #housekeeping #butler #weekly; context: #remember.\n- Inspect the relevant files/state before changing anything.\n- Make the smallest useful change, then verify it and report any blocker.",
       "branch": "dad_1805",
       "project": "t1d",
       "blockedBy": []
@@ -1031,7 +1031,7 @@
     },
     {
       "id": 129,
-      "item": "[SPRINT 12] Provider Showcase — integrate OpenRouter, OpenAI, Anthropic with fallback",
+      "item": "[SPRINT 12] Provider Showcase \u2014 integrate OpenRouter, OpenAI, Anthropic with fallback",
       "tags": [],
       "status": "pending",
       "createdAt": "2026-05-20T10:39:47.182Z",
@@ -1043,7 +1043,7 @@
     },
     {
       "id": 130,
-      "item": "[SPRINT 13] CI/CD Pipeline — GitHub Actions for test, lint, deploy",
+      "item": "[SPRINT 13] CI/CD Pipeline \u2014 GitHub Actions for test, lint, deploy",
       "assigned": "@worker",
       "tags": [],
       "status": "pending",
@@ -1074,85 +1074,95 @@
       "id": 142,
       "item": "[SYNTH DATA] Implement SyntheticIngestionMapper for full metadata extraction",
       "tags": [
+        "archived",
+        "synthea",
         "implementation",
         "data",
         "synthetic"
       ],
-      "status": "pending",
+      "status": "archived",
       "createdAt": "2026-05-20T20:22:00.000Z",
       "updatedAt": "2026-05-20T22:41:23.212039Z",
-      "description": "Expand SyntheticIngestionMapper from 3 basic methods into full metadata extraction service mapping Synthea CSV output to T1D domain models.",
+      "description": "Expand SyntheticIngestionMapper from 3 basic methods into full metadata extraction service mapping Synthea CSV output to T1D domain models.\n\n---\n\n**Status**: Archived to `tools/synthea` project. Kept for future external dataset validation.",
       "branch": "research/synthea-ingestion",
       "project": "t1d",
       "blockedBy": [],
-      "assigned": "@tom_웃"
+      "assigned": "@tom_\uc6c3"
     },
     {
       "id": 143,
       "item": "[SYNTH DATA] Add hybrid metadata storage to User model",
       "tags": [
+        "archived",
+        "synthea",
         "implementation",
         "database",
         "migration"
       ],
-      "status": "pending",
+      "status": "archived",
       "createdAt": "2026-05-20T20:24:00.000Z",
       "updatedAt": "2026-05-20T22:41:23.212059Z",
-      "description": "Extend User model with 8 core queryable columns + synthetic_metadata JSON blob for hybrid storage.",
+      "description": "Extend User model with 8 core queryable columns + synthetic_metadata JSON blob for hybrid storage.\n\n---\n\n**Status**: Archived to `tools/synthea` project. Kept for future external dataset validation.",
       "branch": "research/synthea-ingestion",
       "project": "t1d",
       "blockedBy": [],
-      "assigned": "@tom_웃"
+      "assigned": "@tom_\uc6c3"
     },
     {
       "id": 144,
       "item": "[SYNTH DATA] Implement GraphEdgeRuleEngine with 20 rules",
       "tags": [
+        "archived",
+        "synthea",
         "implementation",
         "graph",
         "rules"
       ],
-      "status": "deferred",
+      "status": "archived",
       "createdAt": "2026-05-20T20:25:00.000Z",
       "updatedAt": "2026-05-20T22:41:23.212061Z",
-      "description": "Create GraphEdgeRuleEngine with 20 condition-led rules from YAML and temporal proximity heuristic.",
+      "description": "Create GraphEdgeRuleEngine with 20 condition-led rules from YAML and temporal proximity heuristic.\n\n---\n\n**Status**: Archived to `tools/synthea` project. Kept for future external dataset validation.",
       "branch": "research/synthea-ingestion",
       "project": "t1d",
       "blockedBy": [],
-      "assigned": "@tom_웃"
+      "assigned": "@tom_\uc6c3"
     },
     {
       "id": 145,
       "item": "[SYNTH DATA] Create seeding CLI and validation report",
       "tags": [
+        "archived",
+        "synthea",
         "implementation",
         "scripts",
         "validation"
       ],
-      "status": "deferred",
+      "status": "archived",
       "createdAt": "2026-05-20T20:28:00.000Z",
       "updatedAt": "2026-05-20T22:41:23.212063Z",
-      "description": "Create seed_synthetic.py and validate_synthetic_pool.py scripts for 4-phase validation.",
+      "description": "Create seed_synthetic.py and validate_synthetic_pool.py scripts for 4-phase validation.\n\n---\n\n**Status**: Archived to `tools/synthea` project. Kept for future external dataset validation.",
       "branch": "research/synthea-ingestion",
       "project": "t1d",
       "blockedBy": [],
-      "assigned": "@tom_웃"
+      "assigned": "@tom_\uc6c3"
     },
     {
       "id": 146,
       "item": "[SYNTH DATA] Write tests and create 80-patient test file",
       "tags": [
+        "archived",
+        "synthea",
         "testing",
         "synthetic"
       ],
-      "status": "deferred",
+      "status": "archived",
       "createdAt": "2026-05-20T20:30:00.000Z",
       "updatedAt": "2026-05-20T22:41:23.212064Z",
-      "description": "Comprehensive test coverage for synthetic data pipeline with 80-patient test fixture.",
+      "description": "Comprehensive test coverage for synthetic data pipeline with 80-patient test fixture.\n\n---\n\n**Status**: Archived to `tools/synthea` project. Kept for future external dataset validation.",
       "branch": "research/synthea-ingestion",
       "project": "t1d",
       "blockedBy": [],
-      "assigned": "@tom_웃"
+      "assigned": "@tom_\uc6c3"
     },
     {
       "id": 149,
@@ -1341,7 +1351,7 @@
       "metadata": {},
       "createdAt": "2026-05-20T23:24:52.172Z",
       "updatedAt": "2026-05-21T00:10:00.000Z",
-      "assigned": "@tom_웃"
+      "assigned": "@tom_\uc6c3"
     },
     {
       "id": 164,
@@ -1363,7 +1373,7 @@
     },
     {
       "id": 165,
-      "item": "Critical safety features — post-LLM validation + regulatory guardrails",
+      "item": "Critical safety features \u2014 post-LLM validation + regulatory guardrails",
       "tags": [
         "p0",
         "safety",
@@ -1377,6 +1387,46 @@
       "project": "t1d",
       "blockedBy": [],
       "assigned": "@pi"
+    },
+    {
+      "id": 166,
+      "item": "[BUGFIX] Simulator detector date-range fix verification",
+      "description": "Verify the fix committed in 07ae54e resolves the 0 true positives issue. Run validation cohort and report SQL evidence.",
+      "tags": [
+        "validation",
+        "simulator",
+        "p1"
+      ],
+      "status": "pending",
+      "branch": "clanker-ops-enhancements",
+      "project": "t1d",
+      "planFile": "#166-p1-investigate-and-fix-simulator-detector-bug_plan.md"
+    },
+    {
+      "id": 167,
+      "item": "[TEST] Add regression tests for detector date alignment",
+      "description": "Create tests that verify detector date range matches simulation window to prevent recurrence of date mismatch bug.",
+      "tags": [
+        "testing",
+        "regression",
+        "p1"
+      ],
+      "status": "pending",
+      "branch": "clanker-ops-enhancements",
+      "project": "t1d"
+    },
+    {
+      "id": 168,
+      "item": "[VALIDATE] Run 5-patient, 7-day simulator cohort",
+      "description": "Execute small cohort validation. Report before/after SQL evidence showing edges created and truths detected.",
+      "tags": [
+        "validation",
+        "simulator",
+        "p1"
+      ],
+      "status": "pending",
+      "branch": "clanker-ops-enhancements",
+      "project": "t1d"
     }
   ]
 }
