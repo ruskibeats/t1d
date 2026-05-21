@@ -102,6 +102,7 @@ async def list_sim_runs(
     limit: int = Query(20, ge=1, le=100),
     offset: int = Query(0, ge=0),
     status: Optional[str] = Query(None, description="Filter by status"),
+    user: User = Depends(require_active_user),
     db: AsyncSession = Depends(get_db),
 ) -> SimRunListResponse:
     service = SimulationService(db)
@@ -119,6 +120,7 @@ async def list_sim_runs(
 )
 async def get_sim_run(
     run_id: int,
+    user: User = Depends(require_active_user),
     db: AsyncSession = Depends(get_db),
 ) -> SimRunResponse:
     service = SimulationService(db)
@@ -171,6 +173,7 @@ async def list_sim_users(
     run_id: int,
     limit: int = Query(50, ge=1, le=200),
     offset: int = Query(0, ge=0),
+    user: User = Depends(require_active_user),
     db: AsyncSession = Depends(get_db),
 ) -> list[SimUserResponse]:
     service = SimulationService(db)
@@ -192,6 +195,7 @@ async def list_sim_users(
 )
 async def get_evaluation(
     run_id: int,
+    user: User = Depends(require_active_user),
     db: AsyncSession = Depends(get_db),
 ) -> EvaluationSummary:
     """Get aggregated evaluation results for a completed simulation run."""
@@ -299,6 +303,7 @@ async def get_hidden_truths(
     run_id: int,
     sim_user_id: Optional[int] = Query(None),
     pattern_type: Optional[str] = Query(None),
+    user: User = Depends(require_active_user),
     db: AsyncSession = Depends(get_db),
 ) -> list[dict]:
     from app.simulator.models import SimHiddenTruth
@@ -338,6 +343,7 @@ async def get_hidden_truths(
 )
 async def get_calibration(
     run_id: int,
+    user: User = Depends(require_active_user),
     db: AsyncSession = Depends(get_db),
 ) -> dict[str, Any]:
     """Get confidence calibration summary for a completed simulation run.
@@ -381,6 +387,7 @@ async def get_detector_scores(
     run_id: int,
     anchor_type: Optional[str] = Query(None),
     pattern_type: Optional[str] = Query(None),
+    user: User = Depends(require_active_user),
     db: AsyncSession = Depends(get_db),
 ) -> list[dict]:
     service = SimulationService(db)

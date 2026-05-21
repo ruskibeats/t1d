@@ -149,7 +149,7 @@ class TestCalibrationResult:
                 b.add(center, center >= 0.7)  # all >= 0.7 are correct
             bins.append(b)
         result = CalibrationResult("test", bins)
-        threshold = result.find_threshold(accuracy_target=0.80)
+        threshold = result.find_threshold(accuracy_target=0.80, min_samples=5)
         assert threshold is not None
         # The lowest confidence where running accuracy stays >= 0.80
         # At conf >= 0.75, accuracy = 3/3 = 1.0; drop below at 0.65 (3/4 = 0.75)
@@ -262,7 +262,7 @@ class TestComputeCalibration:
             truths.append(make_truth(confidence=conf, detected=True))
 
         result = compute_calibration(truths, label="deployment")
-        threshold = result.find_threshold(accuracy_target=0.90)
+        threshold = result.find_threshold(accuracy_target=0.90, min_samples=5)
         assert threshold is not None
         # At conf=0.7: running acc=1/1=1.0 → threshold = 0.7
         # At conf=0.65: running acc=1/2=0.5 < 0.90 → break

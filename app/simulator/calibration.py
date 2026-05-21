@@ -22,10 +22,27 @@ logger = logging.getLogger(__name__)
 
 # Number of equally-spaced confidence bins
 DEFAULT_BIN_COUNT = 10
-# Minimum samples per bin for a reliable estimate
-MIN_SAMPLES_PER_BIN = 3
+# Minimum samples per populated bin for a reliable ECE estimate.
+# Bins with fewer samples than this are flagged as sparse and merged
+# into the nearest neighbor during ECE computation. The raw bins are
+# still returned in to_dict() for transparency.
+MIN_SAMPLES_PER_BIN = 5
+# Minimum number of edge samples required to issue a threshold
+# recommendation. Below this count the recommendation is mathematically
+# correct but operationally unreliable.
+MIN_THRESHOLD_SAMPLES = 10
 # Minimum confidence threshold for high-confidence deployment
 DEPLOYMENT_ACCURACY_TARGET = 0.80
+
+
+# TODO(v2): Replace ad-hoc confidence scoring with a learned scoring
+# model. Once 240 users × 90 days of truth-labeled edges exist, train
+# a logistic regression on features like [delta_peak, time_to_peak_min,
+# auc_above, baseline_variance] to predict is_correct. This produces
+# naturally calibrated probabilities without needing post-hoc Platt
+# scaling or isotonic regression. The current ad-hoc scores
+# (0.5 + rise_component*0.3 + peak_component*0.2) are heuristic and
+# will show systematic miscalibration in the ECE output.
 
 
 class CalibrationBin:
@@ -85,7 +102,56 @@ class CalibrationResult:
         bins: list[CalibrationBin],
     ):
         self.label = label
-        self.bins = [b for b in bins if b.support > 0]
+        self.raw_bins = list(bins)  # keep originals for transparency
+        self.bins = self._merge_sparse_bins([b for b in bins if b.support > 0])
+        self.merged_bin_indices: list[int] = [
+            b.bin_index for b in bins
+            if b.support > 0 and b.support < MIN_SAMPLES_PER_BIN
+        ]
+
+    def _merge_sparse_bins(self, populated: list[CalibrationBin]) -> list[CalibrationBin]:
+        """Merge bins with fewer than MIN_SAMPLES_PER_BIN into nearest neighbor.
+
+        If a bin has too few samples, its data is folded into the nearest
+        non-sparse adjacent bin to avoid misleading ECE contributions from
+        underpopulated buckets.
+        """
+        if len(populated) <= 1:
+            return populated
+
+        # Sort by bin index
+        populated.sort(key=lambda b: b.bin_index)
+
+        # Identify sparse bins
+        sparse_indices = {b.bin_index for b in populated if b.support < MIN_SAMPLES_PER_BIN}
+        if not sparse_indices:
+            return populated
+
+        result: list[CalibrationBin] = []
+        # We'll reassign samples from sparse bins into the nearest neighbor
+        # by building a new bin list and merging
+        dense = [b for b in populated if b.bin_index not in sparse_indices]
+        if not dense:
+            # All bins are sparse — just return them as-is
+            return populated
+
+        for b in populated:
+            if b.bin_index not in sparse_indices:
+                # Already dense — keep it
+                continue
+            # Find nearest dense neighbor by bin_index
+            nearest = min(
+                dense,
+                key=lambda db: abs(db.bin_index - b.bin_index),
+            )
+            for conf, correct in zip(b.confidences, b.is_correct):
+                nearest.add(conf, correct)
+            logger.info(
+                f"Merged sparse bin {b.bin_index} ({b.support} samples, "
+                f"conf range {b.bin_lower}-{b.bin_upper}) into bin {nearest.bin_index}"
+            )
+
+        return dense
 
     @property
     def total_samples(self) -> int:
@@ -118,11 +184,13 @@ class CalibrationResult:
     def find_threshold(
         self,
         accuracy_target: float = DEPLOYMENT_ACCURACY_TARGET,
+        min_samples: int = MIN_THRESHOLD_SAMPLES,
     ) -> Optional[dict[str, Any]]:
         """Find the minimum confidence threshold achieving a target accuracy.
 
         For deployment use: finds the lowest confidence t such that
-        all edges with confidence >= t have empirical accuracy >= target.
+        all edges with confidence >= t have empirical accuracy >= target
+        and at least ``min_samples`` edges fall above the threshold.
 
         Algorithm: scan from high confidence downward, tracking running
         accuracy. The first position where running accuracy drops below
@@ -131,10 +199,19 @@ class CalibrationResult:
 
         Args:
             accuracy_target: Desired empirical accuracy (default 0.80).
+            min_samples: Minimum number of samples above threshold
+                required for a recommendation (default 10).
 
         Returns:
-            Dict with threshold info, or None if target unreachable.
+            Dict with threshold info, or None if target unreachable
+            or sample count too low.
         """
+        if self.total_samples < min_samples:
+            logger.info(
+                f"Skipping threshold for '{self.label}': only "
+                f"{self.total_samples} samples (need {min_samples})"
+            )
+            return None
         if not self.bins:
             return None
 
@@ -200,6 +277,13 @@ class CalibrationResult:
         if best_threshold is None:
             return None
 
+        if best_count < min_samples:
+            logger.info(
+                f"Skipping threshold for '{self.label}': only "
+                f"{best_count} samples above threshold (need {min_samples})"
+            )
+            return None
+
         return {
             "accuracy_target": accuracy_target,
             "min_confidence": round(best_threshold, 3),
@@ -216,6 +300,9 @@ class CalibrationResult:
             "ece": round(self.ece, 4),
             "mce": round(self.mce, 4),
             "bins": [b.to_dict() for b in self.bins],
+            "raw_bins": [b.to_dict() for b in self.raw_bins if b.support > 0],
+            "merged_bin_indices": self.merged_bin_indices,
+            "min_samples_per_bin": MIN_SAMPLES_PER_BIN,
             "threshold": self.find_threshold(),
             "high_conf_threshold": self.find_threshold(accuracy_target=0.90),
         }
