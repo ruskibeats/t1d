@@ -1401,7 +1401,8 @@
       "status": "pending",
       "branch": "clanker-ops-enhancements",
       "project": "t1d",
-      "planFile": "#166-p1-investigate-and-fix-simulator-detector-bug_plan.md"
+      "planFile": "#166-p1-investigate-and-fix-simulator-detector-bug_plan.md",
+      "assigned": "@tom_\uc6c3"
     },
     {
       "id": 167,
@@ -1415,7 +1416,8 @@
       "status": "pending",
       "branch": "clanker-ops-enhancements",
       "project": "t1d",
-      "planFile": "#167-add-regression-tests-detector-date_alignment.md"
+      "planFile": "#167-add-regression-tests-detector-date_alignment.md",
+      "assigned": "@tom_\uc6c3"
     },
     {
       "id": 168,
@@ -1429,7 +1431,8 @@
       "status": "pending",
       "branch": "clanker-ops-enhancements",
       "project": "t1d",
-      "planFile": "#168-run-5-patient-7-day-validation-cohort.md"
+      "planFile": "#168-run-5-patient-7-day-validation-cohort.md",
+      "assigned": "@tom_\uc6c3"
     }
   ]
 }
