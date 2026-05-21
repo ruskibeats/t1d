@@ -1,11 +1,9 @@
-import asyncio
 import os
 from logging.config import fileConfig
 
 from dotenv import load_dotenv
-from sqlalchemy import pool
+from sqlalchemy import create_engine, pool
 from sqlalchemy.engine import Connection
-from sqlalchemy.ext.asyncio import async_engine_from_config
 
 from alembic import context
 
@@ -18,10 +16,21 @@ load_dotenv()
 # access to the values within the .ini file in use.
 config = context.config
 
-# Override sqlalchemy.url with DATABASE_URL from .env if set
+# Override sqlalchemy.url with DATABASE_URL from .env if set.
+# Alembic runs DDL synchronously, so we strip the async driver
+# suffix to use the sync psycopg2 driver instead of asyncpg.
 database_url = os.getenv("DATABASE_URL")
 if database_url:
-    config.set_main_option("sqlalchemy.url", database_url)
+    sync_url = database_url.replace("+asyncpg", "").replace("+aiosqlite", "")
+    config.set_main_option("sqlalchemy.url", sync_url)
+
+# Also convert the .ini default if it uses an async driver
+ini_url = config.get_main_option("sqlalchemy.url")
+if ini_url:
+    config.set_main_option(
+        "sqlalchemy.url",
+        ini_url.replace("+asyncpg", "").replace("+aiosqlite", ""),
+    )
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
@@ -68,23 +77,20 @@ def do_run_migrations(connection: Connection) -> None:
         context.run_migrations()
 
 
-async def run_async_migrations() -> None:
-    """Run migrations in 'online' mode with async engine."""
-    connectable = async_engine_from_config(
-        config.get_section(config.config_ini_section, {}),
-        prefix="sqlalchemy.",
-        poolclass=pool.NullPool,
-    )
-
-    async with connectable.connect() as connection:
-        await connection.run_sync(do_run_migrations)
-
-    await connectable.dispose()
-
-
 def run_migrations_online() -> None:
-    """Run migrations in 'online' mode."""
-    asyncio.run(run_async_migrations())
+    """Run migrations in 'online' mode using a sync connection.
+
+    Alembic runs DDL statements which don't benefit from async.
+    Using a sync engine avoids the greenlet dependency needed by
+    asyncpg's sync-compatibility layer.
+    """
+    url = config.get_main_option("sqlalchemy.url")
+    connectable = create_engine(url, poolclass=pool.NullPool)
+
+    with connectable.connect() as connection:
+        do_run_migrations(connection)
+
+    connectable.dispose()
 
 
 if context.is_offline_mode():
