@@ -11,6 +11,7 @@ from datetime import datetime
 from typing import Any, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
@@ -308,7 +309,6 @@ async def get_hidden_truths(
     db: AsyncSession = Depends(get_db),
 ) -> list[dict]:
     from app.simulator.models import SimHiddenTruth
-    from sqlalchemy import select
 
     query = select(SimHiddenTruth).where(SimHiddenTruth.sim_run_id == run_id)
     if sim_user_id:

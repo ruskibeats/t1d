@@ -227,12 +227,21 @@ class SimulationService:
                 f"Sim run {run_id} complete. "
                 f"Detection rate: {summary.get('detection_rate', 'N/A')}"
             )
+
+            # Commit the completed state
+            await self.db.commit()
+            await self.db.refresh(run)
+            logger.info(f"Commit succeeded for run {run_id}")
             return run
 
         except Exception as e:
             run.status = RunStatus.FAILED.value
             run.notes = f"Failed at {datetime.now(timezone.utc).isoformat()}: {str(e)}"
-            await self.db.flush()
+            try:
+                await self.db.flush()
+                await self.db.commit()
+            except Exception:
+                pass  # Already in error state
             logger.error(f"Sim run {run_id} failed: {e}", exc_info=True)
             raise
 
