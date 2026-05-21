@@ -14,10 +14,14 @@ export { formatStatusLabel };
 // ---------------------------------------------------------------------------
 
 export const STATUS_GLYPH: Record<TaskStatus, string> = {
+	"": "○",
 	pending: "○",
 	in_progress: "◐",
 	completed: "●",
 	deleted: "⊘",
+	failed: "✗",
+	cancelled: "×",
+	deferred: "◌",
 };
 
 /**
@@ -25,11 +29,15 @@ export const STATUS_GLYPH: Record<TaskStatus, string> = {
  * successful delete is visually distinct from the error branch (which uses
  * `error` + `✗`).
  */
-export const STATUS_COLOR: Record<TaskStatus, "dim" | "warning" | "success" | "muted"> = {
+export const STATUS_COLOR: Record<TaskStatus, "dim" | "warning" | "success" | "muted" | "error"> = {
+	"": "dim",
 	pending: "dim",
 	in_progress: "warning",
 	completed: "success",
 	deleted: "muted",
+	failed: "error",
+	cancelled: "muted",
+	deferred: "dim",
 };
 
 /**
@@ -43,6 +51,7 @@ export const ACTION_GLYPH: Record<TaskAction, string> = {
 	get: "›",
 	list: "☰",
 	clear: "∅",
+	dispatch: "⇢",
 };
 
 /**
@@ -53,6 +62,7 @@ export const ACTION_GLYPH: Record<TaskAction, string> = {
  */
 export function overlayStatusGlyph(status: TaskStatus, theme: Theme): string {
 	switch (status) {
+		case "":
 		case "pending":
 			return theme.fg("dim", "○");
 		case "in_progress":
@@ -61,6 +71,12 @@ export function overlayStatusGlyph(status: TaskStatus, theme: Theme): string {
 			return theme.fg("success", "✓");
 		case "deleted":
 			return theme.fg("error", "✗");
+		case "failed":
+			return theme.fg("error", "✗");
+		case "cancelled":
+			return theme.fg("muted", "×");
+		case "deferred":
+			return theme.fg("dim", "◌");
 	}
 }
 
@@ -77,14 +93,14 @@ function taskMarker(taskId: number): string {
 export function formatOverlayTaskLine(t: Task, theme: Theme, showId: boolean): string {
 	const glyph = overlayStatusGlyph(t.status, theme);
 	const marker = taskMarker(t.id);
-	let subject = theme.bold(t.subject);
+	let itemText = theme.bold(t.item);
 	if (t.status === "completed" || t.status === "deleted") {
-		subject = theme.strikethrough(subject);
+		itemText = theme.strikethrough(itemText);
 	}
 	let line = `${glyph}`;
 	line += ` ${theme.fg("toolTitle", theme.bold(marker))}`;
 	if (showId) line += ` ${theme.fg("toolTitle", theme.bold(`#${t.id}`))}`;
-	line += ` ${subject}`;
+	line += ` ${itemText}`;
 	if (t.status === "in_progress" && t.activeForm) {
 		line += ` ${theme.fg("dim", `(${t.activeForm})`)}`;
 	}
@@ -101,7 +117,7 @@ export function formatOverlayTaskLine(t: Task, theme: Theme, showId: boolean): s
 export function formatCommandTaskLine(t: Task, glyph: string): string {
 	const form = t.status === "in_progress" && t.activeForm ? ` (${t.activeForm})` : "";
 	const block = t.blockedBy?.length ? `    ⛓ ${t.blockedBy.map((id) => `#${id}`).join(",")}` : "";
-	return `  ${glyph} #${t.id} ${t.subject}${form}${block}`;
+	return `  ${glyph} #${t.id} ${t.item}${form}${block}`;
 }
 
 // ---------------------------------------------------------------------------

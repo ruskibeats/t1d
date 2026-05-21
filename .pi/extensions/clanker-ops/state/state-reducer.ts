@@ -1,5 +1,8 @@
 import type { Task, TaskAction, TaskMutationParams, TaskStatus } from "../tool/types.js";
 import { isTransitionValid } from "./invariants.js";
+import { TransitionValidator } from "./transition-validator.js";
+import { TaskFactory } from "./task-factory.js";
+import { UpdateMutator } from "./update-mutator.js";
 import type { TaskState } from "./state.js";
 import { detectCycle } from "./task-graph.js";
 
@@ -15,6 +18,7 @@ import { detectCycle } from "./task-graph.js";
 export type Op =
 	| { kind: "create"; taskId: number }
 	| { kind: "update"; id: number; fromStatus: TaskStatus; toStatus: TaskStatus }
+	| { kind: "bulk"; count: number; action: string }
 	| { kind: "delete"; id: number; subject: string }
 	| { kind: "list"; statusFilter?: TaskStatus; includeDeleted: boolean }
 	| { kind: "get"; task: Task }
@@ -44,103 +48,27 @@ function errorResult(state: TaskState, message: string): ApplyResult {
 export function applyTaskMutation(state: TaskState, action: TaskAction, params: TaskMutationParams): ApplyResult {
 	switch (action) {
 		case "create": {
-			if (!params.subject?.trim()) {
-				return errorResult(state, "subject required for create");
+			try {
+				const result = UpdateMutator.create(state, params);
+				return {
+					state: { tasks: result.state.tasks, nextId: result.state.nextId },
+					op: { kind: "create", taskId: result.task.id },
+				};
+			} catch (error) {
+				return errorResult(state, (error as Error).message);
 			}
-			if (params.blockedBy?.length) {
-				for (const dep of params.blockedBy) {
-					const depTask = state.tasks.find((t) => t.id === dep);
-					if (!depTask) return errorResult(state, `blockedBy: #${dep} not found`);
-					if (depTask.status === "deleted") return errorResult(state, `blockedBy: #${dep} is deleted`);
-				}
-			}
-			const newTask: Task = {
-				id: state.nextId,
-				subject: params.subject,
-				status: "pending",
-			};
-			if (params.description) newTask.description = params.description;
-			if (params.activeForm) newTask.activeForm = params.activeForm;
-			if (params.blockedBy?.length) newTask.blockedBy = [...params.blockedBy];
-			if (params.owner) newTask.owner = params.owner;
-			if (params.metadata) newTask.metadata = { ...params.metadata };
-
-			const newTasks = [...state.tasks, newTask];
-			return {
-				state: { tasks: newTasks, nextId: state.nextId + 1 },
-				op: { kind: "create", taskId: newTask.id },
-			};
 		}
 
 		case "update": {
-			if (params.id === undefined) return errorResult(state, "id required for update");
-			const idx = state.tasks.findIndex((t) => t.id === params.id);
-			if (idx === -1) return errorResult(state, `#${params.id} not found`);
-			const current = state.tasks[idx];
-
-			const hasMutation =
-				params.subject !== undefined ||
-				params.description !== undefined ||
-				params.activeForm !== undefined ||
-				params.status !== undefined ||
-				params.owner !== undefined ||
-				params.metadata !== undefined ||
-				(params.addBlockedBy && params.addBlockedBy.length > 0) ||
-				(params.removeBlockedBy && params.removeBlockedBy.length > 0);
-			if (!hasMutation) return errorResult(state, "update requires at least one mutable field");
-
-			let newStatus = current.status;
-			if (params.status !== undefined) {
-				if (!isTransitionValid(current.status, params.status)) {
-					return errorResult(state, `illegal transition ${current.status} → ${params.status}`);
-				}
-				newStatus = params.status;
+			try {
+				const result = UpdateMutator.update(state, params);
+				return {
+					state: { tasks: result.state.tasks, nextId: result.state.nextId },
+					op: { kind: "update", id: result.task.id, fromStatus: result.fromStatus, toStatus: result.toStatus },
+				};
+			} catch (error) {
+				return errorResult(state, (error as Error).message);
 			}
-
-			let newBlockedBy = current.blockedBy ? [...current.blockedBy] : [];
-			if (params.removeBlockedBy?.length) {
-				const toRemove = new Set(params.removeBlockedBy);
-				newBlockedBy = newBlockedBy.filter((dep) => !toRemove.has(dep));
-			}
-			if (params.addBlockedBy?.length) {
-				for (const dep of params.addBlockedBy) {
-					if (dep === current.id) return errorResult(state, `cannot block #${current.id} on itself`);
-					const depTask = state.tasks.find((t) => t.id === dep);
-					if (!depTask) return errorResult(state, `addBlockedBy: #${dep} not found`);
-					if (depTask.status === "deleted") return errorResult(state, `addBlockedBy: #${dep} is deleted`);
-					if (!newBlockedBy.includes(dep)) newBlockedBy.push(dep);
-				}
-				if (detectCycle(state.tasks, current.id, newBlockedBy)) {
-					return errorResult(state, "addBlockedBy would create a cycle in the blockedBy graph");
-				}
-			}
-
-			let newMetadata = current.metadata;
-			if (params.metadata !== undefined) {
-				const merged: Record<string, unknown> = { ...(current.metadata ?? {}) };
-				for (const [k, v] of Object.entries(params.metadata)) {
-					if (v === null) delete merged[k];
-					else merged[k] = v;
-				}
-				newMetadata = Object.keys(merged).length ? merged : undefined;
-			}
-
-			const updated: Task = { ...current, status: newStatus };
-			if (params.subject !== undefined) updated.subject = params.subject;
-			if (params.description !== undefined) updated.description = params.description;
-			if (params.activeForm !== undefined) updated.activeForm = params.activeForm;
-			if (params.owner !== undefined) updated.owner = params.owner;
-			if (newBlockedBy.length) updated.blockedBy = newBlockedBy;
-			else delete updated.blockedBy;
-			if (newMetadata === undefined) delete updated.metadata;
-			else updated.metadata = newMetadata;
-
-			const newTasks = [...state.tasks];
-			newTasks[idx] = updated;
-			return {
-				state: { tasks: newTasks, nextId: state.nextId },
-				op: { kind: "update", id: updated.id, fromStatus: current.status, toStatus: newStatus },
-			};
 		}
 
 		case "list": {
@@ -172,15 +100,35 @@ export function applyTaskMutation(state: TaskState, action: TaskAction, params: 
 			newTasks[idx] = updated;
 			return {
 				state: { tasks: newTasks, nextId: state.nextId },
-				op: { kind: "delete", id: updated.id, subject: updated.subject },
+				op: { kind: "delete", id: updated.id, subject: updated.item },
 			};
 		}
 
-		case "clear": {
-			const count = state.tasks.length;
+		case "bulk": {
+			const ids = params.ids as number[] | undefined;
+			const bulkAction = params.action as string | undefined;
+			if (!ids?.length) return errorResult(state, "ids required for bulk");
+			if (!bulkAction && !params.status && !params.assigned && !params.tags) {
+				return errorResult(state, "at least one mutation field required for bulk");
+			}
+
+			let currentState = state;
+			let updatedCount = 0;
+
+			for (const id of ids) {
+				const idx = currentState.tasks.findIndex((t) => t.id === id);
+				if (idx === -1) continue;
+
+				const subResult = applyTaskMutation(currentState, "update", { ...params, id });
+				if (subResult.op.kind !== "error") {
+					currentState = subResult.state;
+					updatedCount++;
+				}
+			}
+
 			return {
-				state: { tasks: [], nextId: 1 },
-				op: { kind: "clear", count },
+				state: currentState,
+				op: { kind: "bulk", count: updatedCount, action: params.status as string || "update" },
 			};
 		}
 	}

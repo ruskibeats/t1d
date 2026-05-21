@@ -1,354 +1,336 @@
-// @ts-nocheck
-import { existsSync, readFileSync } from "node:fs";
-import { basename, join } from "node:path";
+/**
+ * Board Renderer — ANSI terminal renderer for the Clanker Ops board.
+ *
+ * Pure rendering: accepts task data, produces ANSI strings.
+ * No file I/O, no side effects — all data is passed in.
+ *
+ * Business logic (classification, grouping) lives in board-model.ts.
+ * Text measurement utilities live in text-utils.ts.
+ */
 
-const statePath = join(process.cwd(), ".pi", "todo-state.json");
+import type { Task } from "../tool/types.js";
+import type { BoardTaskViewModel } from "./board-model.js";
+import { presentBoard, computeColumnWidths } from "./board-model.js";
+import { pad, padOnly, visualWidth } from "./text-utils.js";
+
+// ---------------------------------------------------------------------------
+// ANSI helpers
+// ---------------------------------------------------------------------------
 
 const ansi = {
-  red: (v) => `\x1b[1;91m${v}\x1b[0m`,
-  orange: (v) => `\x1b[38;5;214m${v}\x1b[0m`,
-  amber: (v) => `\x1b[33m${v}\x1b[0m`,
-  green: (v) => `\x1b[32m${v}\x1b[0m`,
-  cyan: (v) => `\x1b[36m${v}\x1b[0m`,
-  purple: (v) => `\x1b[35m${v}\x1b[0m`,
-  border: (v) => `\x1b[38;5;33m${v}\x1b[0m`,
-  dad: (v) => `\x1b[48;5;19m\x1b[38;5;81m${v}\x1b[0m`,
-  tom: (v) => `\x1b[48;5;34m\x1b[38;5;22m${v}\x1b[0m`,
-  gray: (v) => `\x1b[90m${v}\x1b[0m`,
-  bold: (v) => `\x1b[1m${v}\x1b[0m`,
+	red: (v: string) => `\x1b[1;91m${v}\x1b[0m`,
+	orange: (v: string) => `\x1b[38;5;214m${v}\x1b[0m`,
+	amber: (v: string) => `\x1b[33m${v}\x1b[0m`,
+	green: (v: string) => `\x1b[32m${v}\x1b[0m`,
+	cyan: (v: string) => `\x1b[36m${v}\x1b[0m`,
+	purple: (v: string) => `\x1b[35m${v}\x1b[0m`,
+	border: (v: string) => `\x1b[38;5;33m${v}\x1b[0m`,
+	dad: (v: string) => `\x1b[48;5;19m\x1b[38;5;81m${v}\x1b[0m`,
+	tom: (v: string) => `\x1b[48;5;34m\x1b[38;5;22m${v}\x1b[0m`,
+	gray: (v: string) => `\x1b[90m${v}\x1b[0m`,
+	bold: (v: string) => `\x1b[1m${v}\x1b[0m`,
 };
 
-function visualWidth(value) {
-  let width = 0;
-  let inAnsi = false;
-  for (let i = 0; i < value.length; i++) {
-    if (value[i] === "\x1b") {
-      inAnsi = true;
-      continue;
-    }
-    if (inAnsi) {
-      if (value[i] === "m") inAnsi = false;
-      continue;
-    }
-    const code = value.codePointAt(i) ?? 0;
-    width += isWideCodePoint(code) ? 2 : 1;
-  }
-  return width;
+// ---------------------------------------------------------------------------
+// Paint helpers
+// ---------------------------------------------------------------------------
+
+function getPaint(paint: string): (v: string) => string {
+	switch (paint) {
+		case "red":
+			return ansi.red;
+		case "orange":
+			return ansi.orange;
+		case "amber":
+			return ansi.amber;
+		case "green":
+			return ansi.green;
+		case "cyan":
+			return ansi.cyan;
+		case "purple":
+			return ansi.purple;
+		default:
+			return (v) => v;
+	}
 }
 
-function isWideCodePoint(code) {
-  return (
-    (code >= 0x1100 && code <= 0x115f) ||
-    (code >= 0x2329 && code <= 0x232a) ||
-    (code >= 0x2e80 && code <= 0xa4cf && code !== 0x303f) ||
-    (code >= 0xac00 && code <= 0xd7a3) ||
-    (code >= 0xf900 && code <= 0xfaff) ||
-    (code >= 0xfe10 && code <= 0xfe19) ||
-    (code >= 0xfe30 && code <= 0xfe6f) ||
-    (code >= 0xff00 && code <= 0xff60) ||
-    (code >= 0xffe0 && code <= 0xffe6)
-  );
+function getOwnerPaint(owner: string): (v: string) => string {
+	if (owner === "@dad_웃" || owner === "dad_웃") return ansi.dad;
+	if (owner === "@tom_웃" || owner === "tom_웃") return ansi.tom;
+	if (owner.includes("웃")) return ansi.cyan;
+	return ansi.gray;
 }
 
-function truncate(value, width) {
-  if (visualWidth(value) <= width) return value;
-  const suffix = "...";
-  const suffixWidth = visualWidth(suffix);
-  if (width <= suffixWidth) return suffix.slice(0, width);
-  let out = "";
-  let w = 0;
-  for (const char of value) {
-    const cw = visualWidth(char);
-    if (w + cw + suffixWidth > width) return out + suffix;
-    out += char;
-    w += cw;
-  }
-  return out;
+function getTagPaint(vm: BoardTaskViewModel): (v: string) => string {
+	return (v: string) => {
+		if (vm.priorityLevel === "p0") return ansi.red(v);
+		if (vm.priorityLevel === "p1") return ansi.orange(v);
+		if (vm.priorityLevel === "p2") return ansi.green(v);
+		return ansi.gray(v);
+	};
 }
 
-function pad(value, width) {
-  const v = truncate(value, width);
-  return v + " ".repeat(Math.max(0, width - visualWidth(v)));
+function getPlanPaint(vm: BoardTaskViewModel): (v: string) => string {
+	if (vm.planRef === "no" && vm.status !== "completed") return ansi.orange;
+	return ansi.gray;
 }
 
-function padOnly(value, width) {
-  return value + " ".repeat(Math.max(0, width - visualWidth(value)));
+function getLastPaint(vm: BoardTaskViewModel): (v: string) => string {
+	if (vm.lastRan !== "-") return ansi.green;
+	return ansi.gray;
 }
 
-function tags(item) {
-  return (item.tags || []).map((tag) => `#${tag}`).join(" ");
+// ---------------------------------------------------------------------------
+// Cell rendering
+// ---------------------------------------------------------------------------
+
+type Column = [value: string, width: number];
+
+function row(cells: Array<[string, number, (v: string) => string, boolean?]>): string {
+	return ` ${cells
+		.map(([value, w, paint, spanOnly = false]) => {
+			if (!spanOnly) return paint(pad(value, w));
+			// spanOnly: paint only the text, padding stays gray
+			const text = String(value ?? "");
+			const textVw = visualWidth(text);
+			const padding = w - textVw;
+			if (padding <= 0) return paint(pad(text, w));
+			return paint(text) + " ".repeat(padding);
+		})
+		.join(" ")} `;
 }
 
-function planRef(item) {
-  const planPath = join(process.cwd(), ".pi", "todo-plans", `#${item.id}_plan.md`);
-  if (!item.description?.trim() && item.planHandoff?.status === "sent") return "planning";
-  return item.description?.trim() || existsSync(planPath) ? `#${item.id}_plan.md` : "no";
+function borderLine(left: string, fill: string, right: string): string {
+	return `${left}${ansi.border(`${fill}${right}`)}`;
 }
 
-function latestRanAt(item) {
-  const stamps = [item.handoff?.sentAt, item.planHandoff?.sentAt].filter(Boolean);
-  if (item.status === "completed" && item.updatedAt) stamps.push(item.updatedAt);
-  return stamps.map((v) => new Date(v)).filter((d) => !Number.isNaN(d.getTime())).sort((a, b) => b - a)[0];
+function box(content: string, inner: number): string {
+	return `│${padOnly(content, inner)}${ansi.border("│")}`;
 }
 
-function lastRan(item) {
-  const date = latestRanAt(item);
-  if (!date) return "-";
-  const today = new Date();
-  if (date.toDateString() === today.toDateString()) {
-    return `${String(date.getHours()).padStart(2, "0")}:${String(date.getMinutes()).padStart(2, "0")}`;
-  }
-  return `${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+function headerRule(inner: number): string {
+	return borderLine("├", "─".repeat(inner), "┤");
 }
 
-function isDontForget(item) {
-  if ((item.status !== "pending" && item.status !== "deferred") || item.assigned) return false;
-  const reminderTags = new Set(["remember", "dont-forget", "don't-forget", "chore", "ops", "housekeeping"]);
-  const text = `${item.item} ${(item.tags || []).join(" ")}`.toLowerCase();
-  return (item.tags || []).some((tag) => reminderTags.has(tag.toLowerCase())) ||
-    /\b(push|commit|git|save memory|checkpoint|deploy|backup|cleanup|document|eod|end of day)\b/.test(text);
+function sectionHeader(name: string, inner: number): string[] {
+	const label = `─ ${name} `;
+	return [
+		borderLine("├", `${label}${"─".repeat(Math.max(1, inner - label.length))}`, "┤"),
+	];
 }
 
-function normText(value) {
-  return value.toLowerCase().replace(/\[[^\]]+\]/g, " ").replace(/#[\w-]+/g, " ").replace(/[^\w\s]/g, " ").replace(/\s+/g, " ").trim();
+// ---------------------------------------------------------------------------
+// Main render function
+// ---------------------------------------------------------------------------
+
+export interface RenderBoardOptions {
+	width?: number;
+	filter?: Task[];
+	includeDone?: boolean;
 }
 
-function isDuplicate(item, all) {
-  const subject = normText(item.item);
-  if (!subject) return false;
-  return all.some((other) => {
-    if (other.id === item.id || other.status === "completed") return false;
-    const otherSubject = normText(other.item);
-    return otherSubject && (subject === otherSubject || subject.includes(otherSubject) || otherSubject.includes(subject));
-  });
+export function renderClankerBoard(
+	tasks: readonly Task[],
+	options: RenderBoardOptions = {},
+): string {
+	const width = Math.max(
+		72,
+		Math.min(Number(options.width) || Number(process.stdout.columns) || 120, 140),
+	);
+	const inner = width - 2;
+	const cols = computeColumnWidths(inner);
+
+	const board = presentBoard(tasks);
+	const { groups, counts } = board;
+
+	// Enhanced summary with failed, blocked, no-plan counts
+	const failedCount = tasks.filter((t) => t.status === "failed").length;
+	const blockedCount = tasks.filter((t) => (t.blockedBy?.length ?? 0) > 0 && t.status !== "completed").length;
+	const noPlanCount = tasks.filter(
+		(t) => t.status !== "completed" && t.status !== "deleted" && !t.description?.trim(),
+	).length;
+
+	const summaryParts: string[] = [];
+	if (groups.active.length) summaryParts.push(`${groups.active.length} active`);
+	summaryParts.push(`${groups.dontForget.length + groups.queued.length} queued`);
+	if (failedCount) summaryParts.push(ansi.red(`${failedCount} failed`));
+	if (blockedCount) summaryParts.push(ansi.cyan(`${blockedCount} blocked`));
+	if (groups.completed.length) summaryParts.push(`${groups.completed.length} done`);
+	if (noPlanCount) summaryParts.push(ansi.orange(`${noPlanCount} ⚠no-plan`));
+	const summary = summaryParts.join(ansi.gray(" · "));
+
+	const filterText = options.filter ? ` [Focus: ${options.filter}]` : "";
+	const title = ` Clanker Ops${filterText}`;
+
+	// Sub-table renderer
+	function addGroup(name: string, group: readonly BoardTaskViewModel[]): string[] {
+		if (!group.length) return [];
+		const lines = sectionHeader(name, inner);
+		for (const vm of group) {
+			// Append activeForm for in_progress tasks
+			const workText = vm.activeForm && vm.status === "in_progress"
+				? `${vm.item} ${ansi.gray(`(${vm.activeForm})`)}`
+				: vm.item;
+			lines.push(
+				box(
+					row([
+						[vm.icon, cols.icon, getPaint(vm.paint)],
+						[`#${vm.id}`, cols.id, ansi.gray],
+						[workText, cols.work, getPaint(vm.paint)],
+						[vm.owner, cols.owner, getOwnerPaint(vm.owner), vm.ownerSpanOnly],
+						[vm.tags, cols.tags, getTagPaint(vm)],
+						[vm.planRef, cols.plan, getPlanPaint(vm)],
+						[vm.lastRan, cols.last, getLastPaint(vm)],
+					]),
+					inner,
+				),
+			);
+		}
+		return lines;
+	}
+
+	const lines: string[] = [];
+
+	// Top border + title
+	lines.push(borderLine("╭", "─".repeat(inner), "╮"));
+	lines.push(box(`${ansi.bold(title)}${" ".repeat(Math.max(1, inner - title.length - summary.length))}${summary}`, inner));
+	lines.push(headerRule(inner));
+
+	// Column headers
+	lines.push(
+		box(
+			row([
+				["", cols.icon, ansi.gray],
+				["ID", cols.id, ansi.gray],
+				["Work", cols.work, ansi.gray],
+				["Owner", cols.owner, ansi.gray],
+				["Tags", cols.tags, ansi.gray],
+				["Plan", cols.plan, ansi.gray],
+				["Last", cols.last, ansi.gray],
+			]),
+			inner,
+		),
+	);
+	lines.push(headerRule(inner));
+
+	// Groups
+	lines.push(...addGroup("Active", groups.active));
+	lines.push(...addGroup("Don't Forget", groups.dontForget));
+	lines.push(...addGroup("Queued", groups.queued));
+
+	if (options.includeDone && groups.done.length) {
+		lines.push(...addGroup("Completed", groups.done));
+	} else if (groups.done.length) {
+		lines.push(...sectionHeader("Done", inner));
+		lines.push(box(ansi.gray(` ✓ ${groups.done.length} done; use --all to show them`), inner));
+	}
+
+	// Legend — color + glyph
+	lines.push(headerRule(inner));
+	lines.push(
+		box(
+			[
+				ansi.red("red fail/p0"),
+				ansi.orange("orange p1/no-plan"),
+				ansi.amber("amber reminder"),
+				ansi.green("green p2"),
+				ansi.cyan("cyan blocked"),
+				ansi.purple("purple dupe"),
+			].join(ansi.gray(" · ")),
+			inner,
+		),
+	);
+	lines.push(
+		box(
+			[
+				ansi.gray("○ pending"),
+				ansi.gray("◐ active"),
+				ansi.amber("! reminder"),
+				ansi.cyan("⊘ blocked"),
+				ansi.gray("◌ deferred"),
+				ansi.green("⇢ dispatched"),
+				ansi.red("✗ failed"),
+				ansi.red("⚠ needs-attn"),
+				ansi.purple("⧉ duplicate"),
+			].join(ansi.gray(" · ")),
+			inner,
+		),
+	);
+	lines.push(borderLine("╰", "─".repeat(inner), "╯"));
+
+	return lines.join("\n");
 }
 
-function priorityColor(item, value) {
-  const lowered = (item.tags || []).map((tag) => tag.toLowerCase());
-  if (lowered.includes("p0")) return ansi.red(value);
-  if (lowered.includes("p1")) return ansi.orange(value);
-  if (lowered.includes("p2")) return ansi.green(value);
-  return ansi.gray(value);
-}
+// ---------------------------------------------------------------------------
+// Compact mode — no borders, indentation-based
+// ---------------------------------------------------------------------------
 
-function visual(item, all, sectionColor, sectionIcon) {
-  const failed = item.handoff?.status === "failed" || item.status === "failed";
-  const blocked = (item.blockedBy || []).length > 0;
-  const sent = item.handoff?.status === "sent";
-  const duplicate = isDuplicate(item, all);
-  const lowered = (item.tags || []).map((tag) => tag.toLowerCase());
-  const p0 = lowered.includes("p0");
-  const paint = failed ? ansi.red : blocked ? ansi.cyan : sent ? ansi.green : duplicate ? ansi.purple : sectionColor;
-  return {
-    icon: failed ? "✗" : item.status === "cancelled" ? "×" : item.status === "deferred" ? "◌" : sent ? "⇢" : blocked ? "⊘" : duplicate ? "⧉" : sectionIcon,
-    iconPaint: paint,
-    subjectPaint: p0 ? ansi.red : paint,
-    ownerPaint: item.assigned === "@dad_웃" || item.assigned === "dad_웃" ? ansi.dad : item.assigned === "@tom_웃" || item.assigned === "tom_웃" ? ansi.tom : item.assigned?.includes("웃") ? ansi.cyan : ansi.gray,
-    tagPaint: sent ? ansi.gray : (value) => priorityColor(item, value),
-    planPaint: planRef(item) === "no" && item.status !== "completed" && !isDontForget(item) ? ansi.orange : ansi.gray,
-    lastPaint: latestRanAt(item)?.toDateString() === new Date().toDateString() ? ansi.green : ansi.gray,
-    tagText: sent ? "sent" : tags(item),
-    ownerSpanOnly: item.assigned === "@dad_웃" || item.assigned === "dad_웃" || item.assigned === "@tom_웃" || item.assigned === "tom_웃",
-  };
-}
+export function renderClankerBoardCompact(
+	tasks: readonly Task[],
+	options: RenderBoardOptions = {},
+): string {
+	const board = presentBoard(tasks);
+	const { groups } = board;
 
-function row(cells) {
-  return ` ${cells.map(([value, width, paint = (v) => v, spanOnly = false]) => {
-    if (!spanOnly) return paint(pad(value, width));
-    const plain = truncate(value, width);
-    return paint(plain) + " ".repeat(Math.max(0, width - visualWidth(plain)));
-  }).join(" ")} `;
-}
+	const failedCount = tasks.filter((t) => t.status === "failed").length;
 
-function stripAnsi(value) {
-  return value.replace(/\x1b\[[0-9;]*m/g, "");
-}
+	const lines: string[] = [];
 
-function firstPlanLines(item, maxLines = 3) {
-  const ref = planRef(item);
-  if (ref === "no" || ref === "planning") return [];
-  const planPath = join(process.cwd(), ".pi", "todo-plans", ref);
-  if (!existsSync(planPath)) return [];
-  return readFileSync(planPath, "utf8")
-    .split(/\r?\n/)
-    .map((line) => line.trim())
-    .filter((line) => line && !line.startsWith("#"))
-    .slice(0, maxLines);
-}
+	// Header
+	const summaryParts: string[] = [];
+	if (groups.active.length) summaryParts.push(`${groups.active.length} active`);
+	if (failedCount) summaryParts.push(`${failedCount} failed`);
+	summaryParts.push(`${groups.dontForget.length + groups.queued.length} queued`);
+	if (groups.done.length) summaryParts.push(`${groups.done.length} done`);
 
-function itemLine(item) {
-  const owner = item.assigned ? ` ${item.assigned}` : "";
-  const tagText = tags(item);
-  return `#${item.id} ${item.item}${owner}${tagText ? ` ${tagText}` : ""} plan=${planRef(item)}`;
-}
+	lines.push(`Clanker Ops  ${summaryParts.join(" · ")}`);
 
-function renderContext(items, groups, counts) {
-  const open = items.filter((item) => item.status !== "completed");
-  const missingPlans = open.filter((item) => planRef(item) === "no" && !isDontForget(item));
-  const blocked = open.filter((item) => (item.blockedBy || []).length > 0);
-  const failed = open.filter((item) => item.handoff?.status === "failed" || item.status === "failed");
-  const duplicates = open.filter((item) => isDuplicate(item, items));
-  const top = open
-    .filter((item) => !isDontForget(item))
-    .sort((a, b) => {
-      const rank = (item) => {
-        const lowered = (item.tags || []).map((tag) => tag.toLowerCase());
-        if (item.handoff?.status === "failed" || item.status === "failed") return 0;
-        if ((item.blockedBy || []).length) return 1;
-        if (lowered.includes("p0")) return 2;
-        if (lowered.includes("p1")) return 3;
-        if (lowered.includes("p2")) return 4;
-        return 5;
-      };
-      return rank(a) - rank(b) || a.id - b.id;
-    })
-    .slice(0, 6);
+	// Active section
+	if (groups.active.length) {
+		lines.push("", "Active:");
+		for (const vm of groups.active) {
+			const owner = vm.owner ? ` @${vm.owner}` : "";
+			const active = vm.activeForm ? ` (${vm.activeForm})` : "";
+			const last = ` ${ansi.gray(vm.lastRan)}`;
+			lines.push(`  ◐ #${vm.id} ${vm.item}${active}${owner}${last}`);
+		}
+	}
 
-  const lines = [
-    "",
-    "<!-- CLANKER_CONTEXT",
-    `Project: ${basename(process.cwd())}`,
-    `Queue: ${counts.active} active, ${counts.queued} queued, ${counts.failed} failed, ${counts.cancelled} cancelled, ${counts.done} done`,
-    `State: ${statePath}`,
-    "Board command: clanker-board",
-    "Pi command: /clanker",
-    "",
-    "Operating rules:",
-    "- Clanker Ops is the source of truth for queued work.",
-    "- Add/update Clanker Ops items with mini-plans; do not create skills/tools/scripts unless explicitly asked.",
-    "- Plan files live in .pi/todo-plans/#id_plan.md.",
-    "- Visual precedence: failed > blocked > sent > duplicate > section default.",
-    "- Legend: red fail/p0, orange p1/no-plan, amber reminder, green p2, cyan blocked, purple dupe.",
-    "",
-    "Current reminders:",
-    ...(groups.dontForget.length ? groups.dontForget.slice(0, 5).map((item) => `- ${itemLine(item)} suggested=/clanker dispatch #${item.id}`) : ["- none"]),
-    "",
-    "Attention:",
-    ...(failed.length ? failed.map((item) => `- failed ${itemLine(item)}`) : []),
-    ...(blocked.length ? blocked.map((item) => `- blocked ${itemLine(item)} blockedBy=${(item.blockedBy || []).map((id) => `#${id}`).join(",")}`) : []),
-    ...(missingPlans.length ? missingPlans.map((item) => `- no-plan ${itemLine(item)} suggested=/clanker plan #${item.id}`) : []),
-    ...(duplicates.length ? duplicates.map((item) => `- duplicate ${itemLine(item)} suggested=/clanker compare #${item.id} <other-id>`).slice(0, 5) : []),
-    ...(failed.length || blocked.length || missingPlans.length || duplicates.length ? [] : ["- none"]),
-    "",
-    "Top open work:",
-    ...(top.length ? top.map((item) => `- ${itemLine(item)}`) : ["- none"]),
-    "",
-    "Plan snippets:",
-  ];
+	// Failed section
+	if (failedCount) {
+		const failed = tasks.filter((t) => t.status === "failed");
+		lines.push("", "Failed:");
+		for (const t of failed) {
+			lines.push(`  ✗ #${t.id} ${t.item}`);
+		}
+	}
 
-  for (const item of top.slice(0, 4)) {
-    const snippets = firstPlanLines(item, 2);
-    lines.push(`- #${item.id} ${planRef(item)}${snippets.length ? `: ${snippets.join(" / ")}` : ""}`);
-  }
+	// Dont Forget
+	if (groups.dontForget.length) {
+		lines.push("", "Reminders:");
+		for (const vm of groups.dontForget) {
+			lines.push(`  ! #${vm.id} ${vm.item}`);
+		}
+	}
 
-  lines.push("-->");
-  return lines.join("\n");
-}
+	// Queued (first 10)
+	if (groups.queued.length) {
+		const show = groups.queued.slice(0, 10);
+		lines.push("", "Queued:");
+		for (const vm of show) {
+			const prefix = vm.paint === "cyan" ? "⊘" : "○";
+			const owner = vm.owner ? ` @${vm.owner}` : "";
+			lines.push(`  ${prefix} #${vm.id} ${vm.item}${owner}`);
+		}
+		if (groups.queued.length > 10) {
+			lines.push(`  ... ${groups.queued.length - 10} more`);
+		}
+	}
 
-export function renderClankerBoard(widthOverride) {
-  if (!existsSync(statePath)) {
-    return "No Clanker Ops state found. Run from a project containing .pi/todo-state.json.";
-  }
+	// Done summary
+	if (groups.done.length) {
+		lines.push("", `✓ ${groups.done.length} done`);
+	}
 
-  const state = JSON.parse(readFileSync(statePath, "utf8"));
-  const items = Array.isArray(state.items) ? state.items : [];
-  const width = Math.max(72, Math.min(Number(widthOverride) || Number(process.stdout.columns) || 120, 140));
-  const inner = width - 2;
-  const cols = { icon: 2, id: 5, work: Math.max(24, inner - 74), owner: 13, tags: 24, plan: 14, last: 7 };
-  const counts = {
-    active: items.filter((item) => item.status === "in_progress").length,
-    queued: items.filter((item) => item.status === "pending" || item.status === "deferred").length,
-    failed: items.filter((item) => item.status === "failed").length,
-    cancelled: items.filter((item) => item.status === "cancelled").length,
-    done: items.filter((item) => item.status === "completed").length,
-  };
-  const summary = `${counts.active ? `${counts.active} active · ` : ""}${counts.queued} queued${counts.failed ? ` · ${counts.failed} failed` : ""}${counts.cancelled ? ` · ${counts.cancelled} cancelled` : ""} · ${counts.done} done`;
-  const title = ` Clanker Ops${" ".repeat(Math.max(1, inner - 12 - summary.length))}${summary}`;
-
-  const groups = { active: [], dontForget: [], queued: [], done: [] };
-  for (const item of items) {
-    if (isDontForget(item)) groups.dontForget.push(item);
-    else if (item.status === "in_progress") groups.active.push(item);
-    else if (item.status === "pending" || item.status === "deferred" || item.status === "failed") groups.queued.push(item);
-    else if (item.status === "completed") groups.done.push(item);
-  }
-
-  const lines = [];
-  const borderLine = (left, fill, right) => `${left}${ansi.border(`${fill}${right}`)}`;
-  const box = (content) => `│${padOnly(content, inner)}${ansi.border("│")}`;
-  const rule = () => borderLine("├", "─".repeat(inner), "┤");
-  const section = (name) => {
-    const label = `─ ${name} `;
-    lines.push(borderLine("├", `${label}${"─".repeat(Math.max(1, inner - label.length))}`, "┤"));
-  };
-  const add = (name, group, icon, paint) => {
-    if (!group.length) return;
-    section(name);
-    for (const item of group) {
-      const v = visual(item, items, paint, icon);
-      lines.push(box(row([
-        [v.icon, cols.icon, v.iconPaint],
-        [`#${item.id}`, cols.id, ansi.gray],
-        [item.item, cols.work, v.subjectPaint],
-        [item.assigned || "", cols.owner, v.ownerPaint, v.ownerSpanOnly],
-        [v.tagText, cols.tags, v.tagPaint],
-        [planRef(item), cols.plan, v.planPaint],
-        [lastRan(item), cols.last, v.lastPaint],
-      ])));
-    }
-  };
-
-  lines.push(borderLine("╭", "─".repeat(inner), "╮"));
-  lines.push(box(ansi.bold(title)));
-  lines.push(rule());
-  lines.push(box(row([
-    ["", cols.icon],
-    ["ID", cols.id],
-    ["Work", cols.work],
-    ["Owner", cols.owner],
-    ["Tags", cols.tags],
-    ["Plan", cols.plan],
-    ["Last", cols.last],
-  ].map(([v, w]) => [v, w, ansi.gray]))));
-  lines.push(rule());
-  add("Active", groups.active, "◐", ansi.cyan);
-  add("Don't Forget", groups.dontForget, "!", ansi.amber);
-  add("Queued", groups.queued, "○", ansi.gray);
-  if (groups.done.length) {
-    section("Done");
-    lines.push(box(ansi.gray(` ✓ ${groups.done.length} done hidden from live view; use /clanker for all`)));
-  }
-  lines.push(rule());
-  lines.push(box([
-    ansi.red("red fail/p0"),
-    ansi.orange("orange p1/no-plan"),
-    ansi.amber("amber reminder"),
-    ansi.green("green p2"),
-    ansi.cyan("cyan blocked"),
-    ansi.purple("purple dupe"),
-  ].join(ansi.gray(" · "))));
-  lines.push(borderLine("╰", "─".repeat(inner), "╯"));
-
-  return lines.join("\n");
-}
-
-export function renderClankerContext() {
-  if (!existsSync(statePath)) return "";
-  const state = JSON.parse(readFileSync(statePath, "utf8"));
-  const items = Array.isArray(state.items) ? state.items : [];
-  const groups = { active: [], dontForget: [], queued: [], done: [] };
-  for (const item of items) {
-    if (isDontForget(item)) groups.dontForget.push(item);
-    else if (item.status === "in_progress") groups.active.push(item);
-    else if (item.status === "pending" || item.status === "deferred" || item.status === "failed") groups.queued.push(item);
-    else if (item.status === "completed") groups.done.push(item);
-  }
-  const counts = {
-    active: groups.active.length,
-    queued: groups.queued.length + groups.dontForget.length,
-    failed: items.filter((item) => item.status === "failed").length,
-    cancelled: items.filter((item) => item.status === "cancelled").length,
-    done: groups.done.length,
-  };
-  return stripAnsi(renderContext(items, groups, counts));
+	return lines.join("\n");
 }

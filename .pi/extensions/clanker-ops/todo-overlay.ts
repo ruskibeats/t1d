@@ -12,6 +12,7 @@
 import type { ExtensionUIContext, Theme } from "@earendil-works/pi-coding-agent";
 import { type TUI } from "@earendil-works/pi-tui";
 import { renderClankerBoard } from "./view/board.js";
+import { getState } from "./state/store.js";
 
 const WIDGET_KEY = "clanker-ops-todos";
 const LEGACY_WIDGET_KEY = "rpiv-todos";
@@ -33,7 +34,7 @@ export class TodoOverlay {
 
 	update(): void {
 		if (!this.uiCtx) return;
-		
+
 		// Clean up legacy widget just in case
 		this.uiCtx.setWidget(LEGACY_WIDGET_KEY, undefined);
 
@@ -59,6 +60,7 @@ export class TodoOverlay {
 	}
 
 	resetCompletedDisplayState(): void {
+		// No-op: state is always fresh from getState()
 	}
 
 	hideCompletedTasksFromPreviousTurn(): void {
@@ -67,7 +69,8 @@ export class TodoOverlay {
 
 	private renderWidget(theme: Theme, width: number): string[] {
 		this.uiCtx?.setStatus(WIDGET_KEY, theme.fg("accent", "Clanker Ops"));
-		return renderClankerBoard(width).split("\n");
+		const tasks = getState().tasks;
+		return renderClankerBoard(tasks, { width }).split("\n");
 	}
 
 	dispose(): void {

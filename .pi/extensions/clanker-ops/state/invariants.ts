@@ -8,9 +8,13 @@ import type { TaskStatus } from "../tool/types.js";
  * table only enumerates actual transitions.
  */
 export const VALID_TRANSITIONS: Record<TaskStatus, ReadonlySet<TaskStatus>> = {
-	pending: new Set(["in_progress", "completed", "deleted"]),
-	in_progress: new Set(["pending", "completed", "deleted"]),
-	completed: new Set(["deleted"]),
+	"": new Set(["pending", "in_progress", "completed", "deleted", "failed", "cancelled", "deferred"]),
+	pending: new Set(["in_progress", "completed", "deleted", "failed", "cancelled", "deferred"]),
+	in_progress: new Set(["pending", "completed", "deleted", "failed", "cancelled", "deferred"]),
+	completed: new Set(["deleted", "failed", "cancelled"]),
+	failed: new Set(["pending", "in_progress", "deleted"]),
+	cancelled: new Set(["pending", "in_progress", "deleted"]),
+	deferred: new Set(["pending", "in_progress", "deleted"]),
 	deleted: new Set(),
 };
 
