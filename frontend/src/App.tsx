@@ -7,7 +7,10 @@ import { Dashboard } from './pages/Dashboard'
 import { GlucosePage } from './pages/Glucose'
 import { EventsPage } from './pages/Events'
 import { PatternsPage } from './pages/Patterns'
-import { ChatPage } from './pages/Chat'
+import { HootHollaPage } from './pages/HootHolla'
+import { CoachPage } from './pages/Coach'
+import { MemoryPage } from './pages/Memory'
+import { DiscussPage } from './pages/Discuss'
 import { SettingsPage } from './pages/Settings'
 import { LoginPage } from './pages/Login'
 import { SleepLogPage } from './pages/SleepLog'
@@ -39,7 +42,10 @@ function App() {
                   <Route path="/glucose" element={<GlucosePage />} />
                   <Route path="/events" element={<EventsPage />} />
                   <Route path="/patterns" element={<PatternsPage />} />
-                  <Route path="/chat" element={<ChatPage />} />
+                  <Route path="/chat" element={<HootHollaPage />} />
+                  <Route path="/coach" element={<CoachPage />} />
+                  <Route path="/memory" element={<MemoryPage />} />
+                  <Route path="/discuss" element={<DiscussPage />} />
                   <Route path="/sleep" element={<SleepLogPage />} />
                   <Route path="/health-metrics" element={<HealthMetricsPage />} />
                   <Route path="/food" element={<FoodLogPage />} />

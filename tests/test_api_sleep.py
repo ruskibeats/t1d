@@ -49,7 +49,7 @@ class TestSleepAPI:
 
         # Use service directly
         from app.sleep.service import SleepService
-        response = await SleepService(db_session).list_entries(user_id=test_user.id)
+        response = await SleepService(db_session).list(user_id=test_user.id)
 
         assert isinstance(response, list)
 

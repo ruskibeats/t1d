@@ -18,7 +18,7 @@ async def create_entry(
     db: AsyncSession = Depends(get_db),
     user: User = Depends(require_active_user),
 ):
-    return await EnvironmentService(db).create_entry(user.id, data)
+    return await EnvironmentService(db).create(user.id, data)
 
 
 @router.get("", response_model=list[EnvironmentEntryResponse])
@@ -39,7 +39,7 @@ async def list_entries(
         from datetime import datetime
         end_date = datetime.fromisoformat(end.replace("Z", "+00:00"))
     
-    return await EnvironmentService(db).list_entries(
+    return await EnvironmentService(db).list(
         user_id=user.id, start_date=start_date, end_date=end_date, limit=limit, offset=offset
     )
 
@@ -50,7 +50,7 @@ async def get_entry(
     db: AsyncSession = Depends(get_db),
     user: User = Depends(require_active_user),
 ):
-    entry = await EnvironmentService(db).get_entry(user.id, entry_id)
+    entry = await EnvironmentService(db).get(user.id, entry_id)
     if not entry:
         raise HTTPException(status_code=404, detail="Environment entry not found")
     return entry
@@ -63,7 +63,7 @@ async def update_entry(
     db: AsyncSession = Depends(get_db),
     user: User = Depends(require_active_user),
 ):
-    entry = await EnvironmentService(db).update_entry(user.id, entry_id, data)
+    entry = await EnvironmentService(db).update(user.id, entry_id, data)
     if not entry:
         raise HTTPException(status_code=404, detail="Environment entry not found")
     return entry
@@ -75,7 +75,7 @@ async def delete_entry(
     db: AsyncSession = Depends(get_db),
     user: User = Depends(require_active_user),
 ):
-    success = await EnvironmentService(db).delete_entry(user.id, entry_id)
+    success = await EnvironmentService(db).delete(user.id, entry_id)
     if not success:
         raise HTTPException(status_code=404, detail="Environment entry not found")
     return None

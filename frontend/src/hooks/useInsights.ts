@@ -96,4 +96,3 @@ export function useInsights() {
 
   return { insights, loading, error, fetchInsights, predictMeal }
 }
-</write_to_file>

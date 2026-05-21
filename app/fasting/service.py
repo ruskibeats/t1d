@@ -7,28 +7,36 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.fasting.models import FastingEntry
 from app.fasting.schemas import FastingEntryCreate
 from app.metrics.types import MetricType
-from app.services.metric_writer import write_metric_if_present
+from app.services.metric_registry import MetricRegistry
 
 
 class FastingService:
     def __init__(self, db: AsyncSession):
         self.db = db
+        self._metric_registry = MetricRegistry(db)
 
-    async def create_entry(self, user_id: int, data: FastingEntryCreate) -> FastingEntry:
+    async def create(self, user_id: int, data: FastingEntryCreate) -> FastingEntry:
         entry = FastingEntry(user_id=user_id, **data.model_dump())
         self.db.add(entry)
         await self.db.flush()
         await self.db.refresh(entry)
-        await write_metric_if_present(self.db, user_id, MetricType.FASTING_DURATION, entry.duration_minutes, "minutes", entry.start_time, entry.source)
+        await self._metric_registry.record_metric(
+            user_id=user_id,
+            metric_type=MetricType.FASTING_DURATION,
+            value=entry.duration_minutes,
+            measured_at=entry.start_time,
+            unit="minutes",
+            source=entry.source,
+        )
         return entry
 
-    async def get_entry(self, user_id: int, entry_id: int) -> Optional[FastingEntry]:
+    async def get(self, user_id: int, entry_id: int) -> Optional[FastingEntry]:
         result = await self.db.execute(
             select(FastingEntry).where(FastingEntry.user_id == user_id, FastingEntry.id == entry_id)
         )
         return result.scalar_one_or_none()
 
-    async def list_entries(
+    async def list(
         self,
         user_id: int,
         start_date: Optional[datetime] = None,
@@ -45,10 +53,10 @@ class FastingService:
         result = await self.db.execute(stmt)
         return list(result.scalars().all())
 
-    async def update_entry(
+    async def update(
         self, user_id: int, entry_id: int, data: FastingEntryCreate
     ) -> Optional[FastingEntry]:
-        entry = await self.get_entry(user_id, entry_id)
+        entry = await self.get(user_id, entry_id)
         if not entry:
             return None
         for field, value in data.model_dump(exclude_unset=True).items():
@@ -57,8 +65,8 @@ class FastingService:
         await self.db.refresh(entry)
         return entry
 
-    async def delete_entry(self, user_id: int, entry_id: int) -> bool:
-        entry = await self.get_entry(user_id, entry_id)
+    async def delete(self, user_id: int, entry_id: int) -> bool:
+        entry = await self.get(user_id, entry_id)
         if not entry:
             return False
         await self.db.delete(entry)

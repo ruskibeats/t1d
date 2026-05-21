@@ -45,7 +45,7 @@ class TestFastingAPI:
 
         # Use service directly
         from app.fasting.service import FastingService
-        response = await FastingService(db_session).list_entries(user_id=test_user.id, limit=100, offset=0)
+        response = await FastingService(db_session).list(user_id=test_user.id, limit=100, offset=0)
 
         assert isinstance(response, list)
         assert len(response) >= 1

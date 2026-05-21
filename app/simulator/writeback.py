@@ -16,6 +16,15 @@ import logging
 from datetime import datetime, timezone
 from typing import Any, Optional
 
+
+def _naive(dt: datetime | None) -> datetime | None:
+    """Convert aware datetimes to naive UTC for legacy DB columns."""
+    if dt is None:
+        return None
+    if dt.tzinfo is not None:
+        return dt.astimezone(timezone.utc).replace(tzinfo=None)
+    return dt
+
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -301,7 +310,7 @@ class SimulatorWriteback:
         for r in readings:
             db_reading = GlucoseReading(
                 user_id=user_id,
-                timestamp=r["timestamp"],
+                timestamp=_naive(r["timestamp"]),
                 glucose_value=r["glucose_value"],
                 glucose_units="mg/dL",
                 reading_type="sensor",
@@ -338,7 +347,7 @@ class SimulatorWriteback:
                     user_id=user_id,
                     event_type="meal",
                     event_subtype=meal["type"],
-                    timestamp=meal["timestamp"],
+                    timestamp=_naive(meal["timestamp"]),
                     description=meal.get("description", "Meal"),
                     carbs_grams=meal.get("carbs_grams"),
                     fat_grams=meal.get("fat_grams"),
@@ -352,7 +361,7 @@ class SimulatorWriteback:
                     user_id=user_id,
                     event_type="insulin",
                     event_subtype=ins["type"],
-                    timestamp=ins["timestamp"],
+                    timestamp=_naive(ins["timestamp"]),
                     description=ins.get("description", "Insulin"),
                     insulin_units=ins.get("units"),
                 ))
@@ -363,7 +372,7 @@ class SimulatorWriteback:
                     user_id=user_id,
                     event_type="exercise",
                     event_subtype=ex.get("type"),
-                    timestamp=ex["timestamp"],
+                    timestamp=_naive(ex["timestamp"]),
                     duration=ex.get("duration_minutes"),
                     description=ex.get("description", "Exercise"),
                     intensity=ex.get("intensity"),

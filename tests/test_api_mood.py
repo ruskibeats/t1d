@@ -40,9 +40,9 @@ class TestMoodAPI:
             score=5,
             logged_at=datetime.now(timezone.utc),
         )
-        await MoodService(db_session).create_entry(test_user.id, data)
+        await MoodService(db_session).create(test_user.id, data)
 
-        response = await MoodService(db_session).list_entries(test_user.id)
+        response = await MoodService(db_session).list(test_user.id)
         assert isinstance(response, list)
         assert len(response) >= 1
 
@@ -56,7 +56,7 @@ class TestMoodAPI:
             score=3,
             logged_at=datetime.now(timezone.utc),
         )
-        created = await MoodService(db_session).create_entry(test_user.id, data)
+        created = await MoodService(db_session).create(test_user.id, data)
 
-        deleted = await MoodService(db_session).delete_entry(test_user.id, created.id)
+        deleted = await MoodService(db_session).delete(test_user.id, created.id)
         assert deleted is True

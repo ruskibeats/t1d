@@ -48,7 +48,7 @@ class TestMeasurementsAPI:
 
         # Use service directly
         from app.measurements.service import MeasurementService
-        response = await MeasurementService(db_session).list_measurements(user_id=test_user.id, limit=100, offset=0)
+        response = await MeasurementService(db_session).list(user_id=test_user.id, limit=100, offset=0)
 
         assert isinstance(response, list)
         assert len(response) >= 1

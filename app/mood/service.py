@@ -7,28 +7,36 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.mood.models import MoodEntry
 from app.mood.schemas import MoodEntryCreate
 from app.metrics.types import MetricType
-from app.services.metric_writer import write_metric_if_present
+from app.services.metric_registry import MetricRegistry
 
 
 class MoodService:
     def __init__(self, db: AsyncSession):
         self.db = db
+        self._metric_registry = MetricRegistry(db)
 
-    async def create_entry(self, user_id: int, data: MoodEntryCreate) -> MoodEntry:
+    async def create(self, user_id: int, data: MoodEntryCreate) -> MoodEntry:
         entry = MoodEntry(user_id=user_id, **data.model_dump())
         self.db.add(entry)
         await self.db.flush()
         await self.db.refresh(entry)
-        await write_metric_if_present(self.db, user_id, MetricType.MOOD_SCORE, entry.score, "score", entry.logged_at, entry.source)
+        await self._metric_registry.record_metric(
+            user_id=user_id,
+            metric_type=MetricType.MOOD_SCORE,
+            value=entry.score,
+            measured_at=entry.logged_at,
+            unit="score",
+            source=entry.source,
+        )
         return entry
 
-    async def get_entry(self, user_id: int, entry_id: int) -> Optional[MoodEntry]:
+    async def get(self, user_id: int, entry_id: int) -> Optional[MoodEntry]:
         result = await self.db.execute(
             select(MoodEntry).where(MoodEntry.user_id == user_id, MoodEntry.id == entry_id)
         )
         return result.scalar_one_or_none()
 
-    async def list_entries(
+    async def list(
         self,
         user_id: int,
         start_date: Optional[datetime] = None,
@@ -45,10 +53,10 @@ class MoodService:
         result = await self.db.execute(stmt)
         return list(result.scalars().all())
 
-    async def update_entry(
+    async def update(
         self, user_id: int, entry_id: int, data: MoodEntryCreate
     ) -> Optional[MoodEntry]:
-        entry = await self.get_entry(user_id, entry_id)
+        entry = await self.get(user_id, entry_id)
         if not entry:
             return None
         for field, value in data.model_dump(exclude_unset=True).items():
@@ -57,8 +65,8 @@ class MoodService:
         await self.db.refresh(entry)
         return entry
 
-    async def delete_entry(self, user_id: int, entry_id: int) -> bool:
-        entry = await self.get_entry(user_id, entry_id)
+    async def delete(self, user_id: int, entry_id: int) -> bool:
+        entry = await self.get(user_id, entry_id)
         if not entry:
             return False
         await self.db.delete(entry)

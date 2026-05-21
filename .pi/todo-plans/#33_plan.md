@@ -1,8 +1,0 @@
-# Todo #33: [GRAPH-0.3] Add same-event graph linking
-
-Status: pending
-Owner: @worker
-Tags: #p1 #backend #graph
-Branch: dad_1805
-
-Create same_event_as edges between metrics sharing event_group_id. Add link_event_group() helper to graph service. Add dedup tests.

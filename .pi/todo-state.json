@@ -98,9 +98,9 @@
         "ui",
         "p1"
       ],
-      "status": "pending",
+      "status": "completed",
       "createdAt": "2026-05-19T09:27:20.172Z",
-      "updatedAt": "2026-05-20T10:48:24.878Z",
+      "updatedAt": "2026-05-20T23:41:50.000Z",
       "description": "From SPRINT_PLAN.md:\n- S2-01: Merge chat screens → Hoot & Holla (mic/camera/barcode buttons)\n- S2-02: Merge meal screens → Meal Review flow (4-step)\n- S2-03: Merge pattern screens → Patterns (Good/Worth watching/Needs attention)\n- S2-04: Add Coach page (progress streaks, gentle achievements)\n- S2-05: Add Memory page (observations, voice notes)\n- S2-06: Add Discuss page (doctor discussion, caregiver sharing)\n- S2-07: Update navigation + routing\n- S2-08: Copy pass — plain English everywhere",
       "branch": "dad_1805",
       "project": "t1d",
@@ -121,9 +121,9 @@
         "security",
         "p1"
       ],
-      "status": "pending",
+      "status": "completed",
       "createdAt": "2026-05-19T09:27:34.002Z",
-      "updatedAt": "2026-05-20T10:48:29.899Z",
+      "updatedAt": "2026-05-20T23:41:50.000Z",
       "description": "From SPRINT_PLAN.md:\n- S3-01: Add rate limiting (slowapi) - login 5/min, register 3/min, chat 30/min\n- S3-02: Remove hardcoded demo login (env-var gated demo mode)\n- S3-03: Dual-write verification tests (exercise/sleep/insulin → health_metrics)\n- S3-04: API smoke test script (25 endpoints)\n- S3-05: Demo data seeder (realistic multi-day data)\n- S3-06: Production Docker compose (PostgreSQL, backend, frontend)",
       "branch": "dad_1805",
       "project": "t1d",
@@ -143,9 +143,9 @@
         "quality",
         "p1"
       ],
-      "status": "pending",
+      "status": "completed",
       "createdAt": "2026-05-19T09:27:50.787Z",
-      "updatedAt": "2026-05-20T10:48:46.899Z",
+      "updatedAt": "2026-05-20T23:41:50.000Z",
       "description": "From SPRINT_PLAN.md:\n- S4-01: Service method naming consistency (create/list/get/delete across 16 domains)\n- S4-02: Add missing __init__.py files (16 domain packages)\n- S4-03: Garmin webhook end-to-end (push data → activity_entries/sleep_entries)\n- S4-04: Connected devices UI (Settings page with provider status)\n- S4-05: Warning cleanup (Pydantic V2, SQLAlchemy deprecations)",
       "branch": "dad_1805",
       "project": "t1d",
@@ -165,9 +165,9 @@
         "documentation",
         "p1"
       ],
-      "status": "pending",
+      "status": "completed",
       "createdAt": "2026-05-19T09:28:01.616Z",
-      "updatedAt": "2026-05-19T12:07:17.055Z",
+      "updatedAt": "2026-05-20T23:41:50.000Z",
       "description": "From SPRINT_PLAN.md:\n- S5-01: GitHub Actions CI pipeline (pytest + tsc --noEmit + alembic check)\n- S5-02: Health endpoint metrics (/health returns DB/LLM status)\n- S5-03: Database backup script (pg_dump)\n- S5-04: Production deployment docs (DEPLOYMENT.md)",
       "branch": "dad_1805",
       "project": "t1d",
@@ -944,10 +944,10 @@
       "tags": [
         "remember"
       ],
-      "status": "in_progress",
+      "status": "completed",
       "createdAt": "2026-05-20T09:48:36.226Z",
-      "updatedAt": "2026-05-20T23:36:09.000Z",
-      "description": "Plan:\n- Confirm the intended outcome for: [BUTLER] Dupe comb — detect overlapping pending tasks | #housekeeping #butler #daily; context: #remember.\n- Inspect the relevant files/state before changing anything.\n- Make the smallest useful change, then verify it and report any blocker.",
+      "updatedAt": "2026-05-20T23:40:26.000Z",
+      "description": "Dupe comb complete — 2 duplicate pairs found. See dispatch log.",
       "branch": "dad_1805",
       "project": "t1d",
       "blockedBy": [],
@@ -975,7 +975,7 @@
       ],
       "status": "pending",
       "createdAt": "2026-05-20T09:48:43.969Z",
-      "updatedAt": "2026-05-20T09:48:43.969Z",
+      "updatedAt": "2026-05-20T23:46:41.000Z",
       "description": "Plan:\n- Confirm the intended outcome for: [BUTLER] Dependency triage — walk blockedBy chains, find stuck tasks | #housekeeping #butler #daily; context: #remember.\n- Inspect the relevant files/state before changing anything.\n- Make the smallest useful change, then verify it and report any blocker.",
       "branch": "dad_1805",
       "project": "t1d",
@@ -1030,18 +1030,6 @@
       }
     },
     {
-      "id": 128,
-      "item": "[SPRINT 12] Code Quality Audit — flake8, mypy, black formatting pass",
-      "tags": [],
-      "status": "pending",
-      "createdAt": "2026-05-20T10:39:34.827Z",
-      "updatedAt": "2026-05-20T10:39:34.827Z",
-      "description": "Plan:\n- Run flake8 on Python codebase\n- Run mypy type checking\n- Run black formatter\n- Fix critical issues\n- Report findings\n\nLikely files: app/, tests/",
-      "branch": "dad_1805",
-      "project": "t1d",
-      "blockedBy": []
-    },
-    {
       "id": 129,
       "item": "[SPRINT 12] Provider Showcase — integrate OpenRouter, OpenAI, Anthropic with fallback",
       "tags": [],
@@ -1079,21 +1067,6 @@
       "updatedAt": "2026-05-20T13:52:00.000Z",
       "description": "Produce a pool of synthetic T1D user profiles that realistically represent health metrics and events extracted from existing data structures. Sources: Synthea (50 pts) + simglucose (30 pts) = 80 total.",
       "branch": "research/synthetic-users",
-      "project": "t1d",
-      "blockedBy": []
-    },
-    {
-      "id": 138,
-      "item": "[SPRINT 12] Warning cleanup",
-      "tags": [
-        "sprint",
-        "code-quality"
-      ],
-      "status": "pending",
-      "createdAt": "2026-05-20T19:36:00.000Z",
-      "updatedAt": "2026-05-20T19:36:00.000Z",
-      "description": "Resolve all Pydantic V2 and SQLAlchemy deprecation warnings in the codebase.",
-      "branch": "sprint-12/warning-cleanup",
       "project": "t1d",
       "blockedBy": []
     },

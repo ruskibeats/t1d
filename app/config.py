@@ -75,6 +75,13 @@ class Settings(BaseSettings):
     # USDA FoodData Central
     usda_api_key: str | None = os.getenv("USDA_API_KEY")
 
+    # Nightscout
+    nightscout_url: str | None = os.getenv("NIGHTSCOUT_URL")
+    nightscout_api_token: str | None = os.getenv("NIGHTSCOUT_API_TOKEN")
+
+    # Dexcom
+    dexcom_use_sandbox: bool = os.getenv("DEXCOM_USE_SANDBOX", "false").lower() == "true"
+
     # CORS
     cors_origins: list[str] = ["http://localhost:3000", "http://localhost:8000"]
 

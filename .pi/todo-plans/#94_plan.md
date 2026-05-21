@@ -2,7 +2,7 @@
 
 Status: pending
 Owner: @tom_웃
-Tags: #p1 #ops #pi #setup #windows
+Tags: #p0 #ops #pi #setup #windows
 Branch: ios-app
 
 ## Execution Protocol
@@ -43,7 +43,7 @@ Status:
 ## Task Plan
 
 ### Intended Outcome
-- Deliver the requested outcome for: [OPS] Fix Pi agent on Windows — tom's Pi.Dev clanker setup; context: #ops #pi #setup #windows #p1.
+- Deliver the requested outcome for: [OPS] Fix Pi agent on Windows — tom's Pi.Dev clanker setup; context: #ops #pi #setup #windows #p0.
 - Treat the preserved previous plan as source notes, not as permission to broaden scope.
 
 ### Likely Files, Modules, Or Commands
@@ -70,4 +70,4 @@ Status:
 
 ### Preserved Previous Plan
 
-Get the Pi agent running properly on the Windows dev machine. Likely issues: WSL configuration, Node.js version/path, extension paths (Windows vs POSIX), shell compatibility, agent startup script, environment variables. Goal: Pi.Dev agent fully operational on Windows for iOS/Flutter development tasks.
+Get the Pi agent running properly on the Windows dev machine. Likely issues: WSL configuration, Node.js version/path, extension paths (Windows vs POSIX), shell compatibility, agent startup script, environment variables. Goal: Pi.Dev agent fully operational on Windows for iOS/Flutter development tasks. PRIORITY: P0 — blocks iOS development sprint.

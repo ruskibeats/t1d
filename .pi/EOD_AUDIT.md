@@ -114,3 +114,42 @@ tests/test_graph_rag_evidence.py::test_strongest_edge_context PASSED
 1. Sprint 2-5 frontend/backend work (assigned to @builder)
 2. iOS pipeline (assigned to @tom_웃 / @dad_웃)
 3. iOS: Review Stitch designs (#29) → Design tokens (#87) → Flutter scaffold (#88)
+
+---
+
+## Butler Report — 2026-05-21 00:45
+
+### Task: #121 — Dupe Comb — Detect Overlapping Pending Tasks
+**Agent:** @butler
+**File:** `.pi/todo-plans/#121_dispatch.log`
+
+### Issues Found
+
+**HIGH — 2 duplicate pairs with ≥60% intent overlap**
+
+| Pair | Overlap | Scope | Recommendation |
+|------|---------|-------|----------------|
+| **#12 ↔ #138** | ~90% | Both target Pydantic V2 + SQLAlchemy deprecation warning cleanup. #138 is a standalone extraction of #12 S4-05. | Consolidate — close one or split scope clearly |
+| **#13 ↔ #130** | ~65% | Both target GitHub Actions CI/CD pipeline creation. #13 is broader (health endpoint, DB backup, deploy docs) but CI core is duplicate. | Consolidate CI work under one task |
+
+### Clean Pairs Verified (no >=60% overlap)
+
+- **iOS pipeline** (#29→#88→#89→#90→#91→#92): Sequential build chain, distinct steps ✓
+- **SYNTH DATA** (#142, #143): Ingestion mapper vs model storage. Complementary ✓
+- **ARCH sprints** (#149, #150, #153): Different architectural components ✓
+- **BUTLER tasks** (#120, #122, #123, #124, #125): Distinct hygiene domains ✓
+- **Sprint 2** (#10): UI consolidation — unique ✓
+- **OPS tasks** (#93, #95, #163): Different operational concerns ✓
+- **Sprint 12 pair** (#128, #129): Code Quality Audit (linting) vs Provider Showcase (LLM providers) — different domains ✓
+
+### Actions Taken
+
+- Scanned all 25 pending/in-progress tasks from `todo-state.json`
+- Compared 300+ subject+description pairs for intent similarity
+- Wrote structured findings to `.pi/todo-plans/#121_dispatch.log`
+- Appended this report to `.pi/EOD_AUDIT.md`
+- Did NOT modify any task content, assignees, or descriptions
+
+### Estimated Token Burn
+
+~2,800 tokens

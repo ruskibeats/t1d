@@ -89,7 +89,7 @@ class TestDualWrite:
             duration_minutes=480,
             quality_score=85,
         )
-        await SleepService(db_session).create_entry(user_id=test_user.id, data=data)
+        await SleepService(db_session).create(user_id=test_user.id, data=data)
 
         result = await db_session.execute(
             select(HealthMetric).where(

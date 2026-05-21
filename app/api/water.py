@@ -32,6 +32,18 @@ async def list_water(
     return await WaterService(db).list(user_id, start, end, limit)
 
 
+@route.get("/{entry_id}", response_model=WaterEntryResponse)
+async def get_water(
+    entry_id: int,
+    user_id: int = Query(..., ge=1),
+    db: AsyncSession = Depends(get_db),
+):
+    entry = await WaterService(db).get(user_id, entry_id)
+    if not entry:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Water entry not found")
+    return entry
+
+
 @route.delete("/{entry_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_water(
     entry_id: int,

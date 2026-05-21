@@ -77,3 +77,10 @@ From SPRINT_PLAN.md:
 - S3-04: API smoke test script (25 endpoints)
 - S3-05: Demo data seeder (realistic multi-day data)
 - S3-06: Production Docker compose (PostgreSQL, backend, frontend)
+
+### Agent Log
+- **[2026-05-20 17:52] DISPATCHED** — Run `613717fd` started via @worker (owl-alpha, high thinking, async)
+- **[2026-05-20 17:52] ACTIVE** — Subagent running, status checked at 7s elapsed
+- **[2026-05-20 19:01] NEEDS_ATTENTION** — Intercom alert: no activity for 60s (normal for long tasks, subagent still running)
+- **[2026-05-20 19:03] INTERCOM** — Controller nudged subagent. Response: 'running in non-interactive mode, will continue current task and exit when done'
+- **[2026-05-20 19:10] COMPLETED** — Subagent finished after ~20m. Auto-spawn validated. Extension loads cleanly, dispatch works end-to-end, board shows ⇢ icon. Closeout note: subagent ran out of context but core feature was already implemented by Controller.

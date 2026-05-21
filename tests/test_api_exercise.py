@@ -53,7 +53,7 @@ class TestExerciseAPI:
             await create_entry(data=data, user=test_user, db=db_session)
 
         from app.exercise.service import ExerciseService
-        response = await ExerciseService(db_session).list_entries(user_id=test_user.id)
+        response = await ExerciseService(db_session).list(user_id=test_user.id)
         assert isinstance(response, list)
 
     @pytest.mark.asyncio

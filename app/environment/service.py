@@ -14,20 +14,20 @@ class EnvironmentService:
     def __init__(self, db: AsyncSession):
         self.db = db
 
-    async def create_entry(self, user_id: int, data: EnvironmentEntryCreate) -> EnvironmentEntry:
+    async def create(self, user_id: int, data: EnvironmentEntryCreate) -> EnvironmentEntry:
         entry = EnvironmentEntry(user_id=user_id, **data.model_dump())
         self.db.add(entry)
         await self.db.flush()
         await self.db.refresh(entry)
         return entry
 
-    async def get_entry(self, user_id: int, entry_id: int) -> Optional[EnvironmentEntry]:
+    async def get(self, user_id: int, entry_id: int) -> Optional[EnvironmentEntry]:
         result = await self.db.execute(
             select(EnvironmentEntry).where(EnvironmentEntry.user_id == user_id, EnvironmentEntry.id == entry_id)
         )
         return result.scalar_one_or_none()
 
-    async def list_entries(
+    async def list(
         self,
         user_id: int,
         start_date: Optional[datetime] = None,
@@ -44,10 +44,10 @@ class EnvironmentService:
         result = await self.db.execute(stmt)
         return list(result.scalars().all())
 
-    async def update_entry(
+    async def update(
         self, user_id: int, entry_id: int, data: EnvironmentEntryCreate
     ) -> Optional[EnvironmentEntry]:
-        entry = await self.get_entry(user_id, entry_id)
+        entry = await self.get(user_id, entry_id)
         if not entry:
             return None
         for field, value in data.model_dump(exclude_unset=True).items():
@@ -56,8 +56,8 @@ class EnvironmentService:
         await self.db.refresh(entry)
         return entry
 
-    async def delete_entry(self, user_id: int, entry_id: int) -> bool:
-        entry = await self.get_entry(user_id, entry_id)
+    async def delete(self, user_id: int, entry_id: int) -> bool:
+        entry = await self.get(user_id, entry_id)
         if not entry:
             return False
         await self.db.delete(entry)

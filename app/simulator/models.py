@@ -30,7 +30,8 @@ from app.db.base import Base
 
 
 def _utcnow() -> datetime:
-    return datetime.now(timezone.utc)
+    """Return timezone-naive UTC datetime for SQLAlchemy defaults."""
+    return datetime.now(timezone.utc).replace(tzinfo=None)
 
 
 class SimRun(Base):

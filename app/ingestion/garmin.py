@@ -8,10 +8,14 @@ import logging
 from datetime import datetime, timezone
 from typing import Any, Optional
 
+from app.activity.schemas import ActivityEntryCreate
+from app.activity.service import ActivityService
 from app.core.logging_config import get_logger
 from app.metrics.schemas import BatchHealthMetricCreate, HealthMetricCreate
 from app.metrics.service import HealthMetricService
 from app.metrics.types import MetricType
+from app.sleep.schemas import SleepEntryCreate, SleepStageCreate
+from app.sleep.service import SleepService
 
 logger = get_logger(__name__)
 
@@ -212,6 +216,79 @@ class GarminIngestionService:
         self.logger.info(f"Parsed Garmin body composition: {len(metrics)} metrics")
         return metrics
 
+    async def _write_activity_entries(
+        self,
+        user_id: int,
+        activities: list[dict[str, Any]],
+    ) -> int:
+        """Write parsed Garmin activities to the activity_entries domain table."""
+        service = ActivityService(self.service.db)
+        count = 0
+        for activity_data in activities:
+            start_time = datetime.fromisoformat(
+                activity_data.get("startTime", datetime.now(timezone.utc).isoformat())
+            )
+            distance_km = activity_data.get("distance", 0) / 1000
+            activity_id = str(activity_data.get("activityId", ""))
+
+            entry = ActivityEntryCreate(
+                steps=activity_data.get("steps"),
+                distance_km=distance_km if distance_km > 0 else None,
+                measured_at=start_time,
+                source="garmin",
+                meta={"provider_id": activity_id},
+            )
+            await service.create(user_id, entry)
+            count += 1
+        return count
+
+    async def _write_sleep_entries(
+        self,
+        user_id: int,
+        sleep_records: list[dict[str, Any]],
+    ) -> int:
+        """Write parsed Garmin sleep to the sleep_entries domain table."""
+        service = SleepService(self.service.db)
+        count = 0
+        for sleep_data in sleep_records:
+            start_time = datetime.fromisoformat(
+                sleep_data.get("startTime", datetime.now(timezone.utc).isoformat())
+            )
+            end_time = datetime.fromisoformat(
+                sleep_data.get("endTime", start_time.isoformat())
+            )
+            duration_minutes = int((end_time - start_time).total_seconds() / 60)
+            sleep_id = str(sleep_data.get("sleepId", ""))
+
+            entry = SleepEntryCreate(
+                start_time=start_time,
+                end_time=end_time,
+                duration_minutes=duration_minutes,
+                source="garmin",
+                meta={"provider_id": sleep_id},
+            )
+            created = await service.create(user_id, entry)
+            count += 1
+
+            # Write sleep stages if present
+            stages = sleep_data.get("stages", {})
+            stage_map = {
+                "deepMinutes": "deep",
+                "lightMinutes": "light",
+                "remMinutes": "rem",
+                "awakeMinutes": "awake",
+            }
+            for key, stage_type in stage_map.items():
+                val = stages.get(key, 0)
+                if val:
+                    stage = SleepStageCreate(
+                        stage_type=stage_type,
+                        duration_minutes=int(val),
+                        start_time=start_time,
+                    )
+                    await service.create_stage(created.id, stage)
+        return count
+
     async def ingest_webhook(
         self,
         user_id: int,
@@ -237,9 +314,29 @@ class GarminIngestionService:
         for body in payload.get("bodyComposition", []):
             all_metrics.extend(self.parse_body_composition(body))
 
+        domain_counts = {"activity_entries": 0, "sleep_entries": 0}
+
+        # Dual-write to domain tables
+        activities = payload.get("activities", [])
+        if activities:
+            domain_counts["activity_entries"] = await self._write_activity_entries(
+                user_id, activities
+            )
+
+        sleep_records = payload.get("sleep", [])
+        if sleep_records:
+            domain_counts["sleep_entries"] = await self._write_sleep_entries(
+                user_id, sleep_records
+            )
+
+        # Write to unified health_metrics
         if all_metrics:
             batch = BatchHealthMetricCreate(metrics=all_metrics)
             created, skipped = await self.service.create_batch(user_id, batch)
-            return {"created": len(created), "skipped": skipped}
+            return {
+                "created": len(created),
+                "skipped": skipped,
+                **domain_counts,
+            }
 
-        return {"created": 0, "skipped": 0}
+        return {"created": 0, "skipped": 0, **domain_counts}

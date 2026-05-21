@@ -224,10 +224,35 @@ async def chat_stream(
             response_text = "The AI assistant is not available right now."
 
         # Save complete AI response before streaming so chunks use the real DB id.
+        response_text_str = response_text.strip()
+
+        # Post-LLM safety check before saving/streaming
+        from app.ai.safety import SafetyScaffold
+        scaffold = SafetyScaffold()
+        safety = scaffold.validate(response_text_str, {"source": "assistant"})
+        if not safety["is_safe"]:
+            logger.warning(
+                f"SafetyScaffold blocked stream response for user {user.id}: "
+                f"{safety.get('reasons', [])}"
+            )
+            response_text_str = (
+                "I'm not able to provide that information. "
+                "Please consult your healthcare team for medical advice."
+            )
+        elif len(response_text_str) > 200:
+            # Ensure disclaimer on long responses
+            DISCLAIMERS = ["educational", "not medical", "consult your", "discuss with"]
+            if not any(d in response_text_str.lower() for d in DISCLAIMERS):
+                response_text_str = response_text_str.rstrip() + (
+                    "\n\n---\n"
+                    "*This is educational information, not medical advice. "
+                    "Consider discussing these patterns with your healthcare team.*"
+                )
+
         ai_message = ConversationMessageModel(
             conversation_id=conversation.id,
             role="assistant",
-            content=response_text.strip(),
+            content=response_text_str,
             extra_data={"context_used": context.get("summary", {}), "streamed": True},
         )
         session.add(ai_message)
@@ -236,7 +261,7 @@ async def chat_stream(
         await session.refresh(ai_message)
 
         # Stream word-by-word
-        words = response_text.split()
+        words = response_text_str.split()
         for i, word in enumerate(words):
             chunk = StreamingChunk(
                 chunk=word + " ",

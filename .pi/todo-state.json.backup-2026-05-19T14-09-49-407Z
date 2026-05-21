@@ -1,0 +1,725 @@
+{
+  "version": 2,
+  "items": [
+    {
+      "id": 1,
+      "item": "[GRAPH-A] Wire exercise + sleep + insulin pattern detections to graph edges",
+      "tags": [
+        "graph",
+        "backend",
+        "p0"
+      ],
+      "status": "completed",
+      "createdAt": "2026-05-18T22:43:53.611Z",
+      "updatedAt": "2026-05-18T22:54:44.752Z",
+      "description": "Update PatternService to persist: exercise\u2192glucose_drop/rise, overnight low detection, insulin\u2192glucose_change edges. Make edge-writing optional. Add tests.",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": [],
+      "assigned": "@worker"
+    },
+    {
+      "id": 2,
+      "item": "[GRAPH-B] Implement provenance tracking + confidence decomposition",
+      "tags": [
+        "graph",
+        "backend",
+        "p1"
+      ],
+      "status": "pending",
+      "createdAt": "2026-05-18T22:43:53.614Z",
+      "updatedAt": "2026-05-19T12:52:13.286Z",
+      "description": "[CONSOLIDATED] Provenance tracking + confidence decomposition + detector version constants\nFrom MASTER_TODO Sections 5A + 5B:\n- Add provenance_json to health_metric_edges\n- Add confidence_components_json to health_metric_edges\n- Create shared scoring utility for graph detectors\n- Add detector version constants\n- Add provenance builder for consistent edge payloads\n- Add confidence thresholds for UI/RAG wording (low/medium/high)",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": [],
+      "assigned": "@researcher"
+    },
+    {
+      "id": 3,
+      "item": "[GRAPH-C] Add event-group API endpoint + auth for graph endpoints",
+      "tags": [
+        "graph",
+        "backend",
+        "api",
+        "p1"
+      ],
+      "status": "completed",
+      "createdAt": "2026-05-18T22:43:53.617Z",
+      "updatedAt": "2026-05-19T11:10:19.805Z",
+      "description": "SCOUT FINDINGS (see scout-report-3.md): event_group_id EXISTS in models/ingestion. get_event_group() method EXISTS. MISSING: event-group endpoint (\u2192 #31). MISSING: auth migration on 13 routes (\u2192 #32).",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": [],
+      "assigned": "@scout"
+    },
+    {
+      "id": 7,
+      "item": "[REVIEW] Review all .md files in docs folder",
+      "tags": [
+        "docs",
+        "review"
+      ],
+      "status": "completed",
+      "createdAt": "2026-05-19T09:00:13.524Z",
+      "updatedAt": "2026-05-19T09:18:18.205Z",
+      "description": "REVIEW COMPLETE - Findings:\n- docs/adr/001-agent-coordinator.md: ACCURATE - matches current coordinator.py implementation\n- docs/audit/2026-05-18-orchestrator-test-report.md: ACCURATE - 305 tests passing, model config matches current .env\n- docs/README.md: NEEDS UPDATE - references SYSTEM.md, PLAN.md, PROJECT_SUMMARY.md, etc. that don't exist in root. Directory structure note is incorrect (says docs/adr and docs/audit but these exist).",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": []
+    },
+    {
+      "id": 9,
+      "item": "[SPRINT] Sprint 1: Safety Lockdown + Post-LLM Validation",
+      "tags": [
+        "safety",
+        "backend",
+        "p0"
+      ],
+      "status": "completed",
+      "createdAt": "2026-05-19T09:26:59.833Z",
+      "updatedAt": "2026-05-19T09:56:14.951Z",
+      "description": "From SPRINT_PLAN.md:\n- S1-01: Post-LLM safety validation - run responses through SafetyScaffold.validate()\n- S1-02: Deduplicate SafetyAgent logic - delegate to SafetyScaffold\n- S1-03: Safety-focused chat tests - dosing advice blocked, treatment changes blocked\nAcceptance: 301+ tests passing, post-LLM safety working",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": []
+    },
+    {
+      "id": 10,
+      "item": "[SPRINT] Sprint 2: Frontend Screen Consolidation",
+      "tags": [
+        "frontend",
+        "ui",
+        "p1"
+      ],
+      "status": "pending",
+      "createdAt": "2026-05-19T09:27:20.172Z",
+      "updatedAt": "2026-05-19T12:07:12.873Z",
+      "description": "From SPRINT_PLAN.md:\n- S2-01: Merge chat screens \u2192 Hoot & Holla (mic/camera/barcode buttons)\n- S2-02: Merge meal screens \u2192 Meal Review flow (4-step)\n- S2-03: Merge pattern screens \u2192 Patterns (Good/Worth watching/Needs attention)\n- S2-04: Add Coach page (progress streaks, gentle achievements)\n- S2-05: Add Memory page (observations, voice notes)\n- S2-06: Add Discuss page (doctor discussion, caregiver sharing)\n- S2-07: Update navigation + routing\n- S2-08: Copy pass \u2014 plain English everywhere",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": [],
+      "assigned": "@builder"
+    },
+    {
+      "id": 11,
+      "item": "[SPRINT] Sprint 3: Security + Deployment Hardening",
+      "tags": [
+        "backend",
+        "deployment",
+        "security",
+        "p1"
+      ],
+      "status": "pending",
+      "createdAt": "2026-05-19T09:27:34.002Z",
+      "updatedAt": "2026-05-19T12:07:12.874Z",
+      "description": "From SPRINT_PLAN.md:\n- S3-01: Add rate limiting (slowapi) - login 5/min, register 3/min, chat 30/min\n- S3-02: Remove hardcoded demo login (env-var gated demo mode)\n- S3-03: Dual-write verification tests (exercise/sleep/insulin \u2192 health_metrics)\n- S3-04: API smoke test script (25 endpoints)\n- S3-05: Demo data seeder (realistic multi-day data)\n- S3-06: Production Docker compose (PostgreSQL, backend, frontend)",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": [],
+      "assigned": "@builder"
+    },
+    {
+      "id": 12,
+      "item": "[SPRINT] Sprint 4: Code Quality + Provider Showcase",
+      "tags": [
+        "backend",
+        "quality",
+        "p1"
+      ],
+      "status": "pending",
+      "createdAt": "2026-05-19T09:27:50.787Z",
+      "updatedAt": "2026-05-19T12:07:25.443Z",
+      "description": "From SPRINT_PLAN.md:\n- S4-01: Service method naming consistency (create/list/get/delete across 16 domains)\n- S4-02: Add missing __init__.py files (16 domain packages)\n- S4-03: Garmin webhook end-to-end (push data \u2192 activity_entries/sleep_entries)\n- S4-04: Connected devices UI (Settings page with provider status)\n- S4-05: Warning cleanup (Pydantic V2, SQLAlchemy deprecations)",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": [],
+      "assigned": "@builder"
+    },
+    {
+      "id": 13,
+      "item": "[SPRINT] Sprint 5: CI/CD + Launch Prep",
+      "tags": [
+        "ci-cd",
+        "documentation",
+        "p1"
+      ],
+      "status": "pending",
+      "createdAt": "2026-05-19T09:28:01.616Z",
+      "updatedAt": "2026-05-19T12:07:17.055Z",
+      "description": "From SPRINT_PLAN.md:\n- S5-01: GitHub Actions CI pipeline (pytest + tsc --noEmit + alembic check)\n- S5-02: Health endpoint metrics (/health returns DB/LLM status)\n- S5-03: Database backup script (pg_dump)\n- S5-04: Production deployment docs (DEPLOYMENT.md)",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": [],
+      "assigned": "@builder"
+    },
+    {
+      "id": 14,
+      "item": "[GRAPH] Event grouping foundation - add event_group_id to health_metrics",
+      "tags": [
+        "graph",
+        "backend",
+        "p0",
+        "\ud83e\uddd1"
+      ],
+      "status": "completed",
+      "createdAt": "2026-05-19T09:28:14.843Z",
+      "updatedAt": "2026-05-19T12:57:05.447Z",
+      "description": "[GRAPH] Event grouping foundation - assign event_group_id in ingestion\nFrom GRAPH_TODO.md Section 0.1-0.3:\n- event_group_id already exists in models (checked)\n- Update ingestion flows to assign event_group_id to meals/exercise/insulin/sleep metrics\n- Call link_event_group() from graph service to create same_event_as edges\n- Update Fitbit/Garmin to use event_group_id from provider session IDs",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": [],
+      "assigned": "@worker"
+    },
+    {
+      "id": 16,
+      "item": "[GRAPH] Delayed high-fat meal detection graph edges",
+      "tags": [
+        "graph",
+        "backend",
+        "p1"
+      ],
+      "status": "pending",
+      "createdAt": "2026-05-19T09:28:48.171Z",
+      "updatedAt": "2026-05-19T12:07:21.412Z",
+      "description": "From GRAPH_TODO.md Section 5.2 + Suggested Implementation Order #3:\n- Link fat/calories metric \u2192 delayed glucose spike metric\n- Edge type: meal_to_delayed_spike\n- Evidence: fat grams, hours-to-peak, delayed rise\n- Add tests for delayed spike edge creation",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": [],
+      "assigned": "@worker"
+    },
+    {
+      "id": 19,
+      "item": "[GRAPH] Photo meal ingest MVP contract",
+      "tags": [
+        "graph",
+        "ai",
+        "photo",
+        "p1"
+      ],
+      "status": "pending",
+      "createdAt": "2026-05-19T09:29:31.824Z",
+      "updatedAt": "2026-05-19T12:06:54.817Z",
+      "description": "From GRAPH_TODO.md Section 5C:\n- Design analyze_meal_image(image) -> MealImageAnalysisProposal contract\n- Add FoodResolutionService for label normalization and search\n- Support hosted vision model implementation\n- Store raw model output as provisional metadata\n- Human confirmation before graph write",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": [],
+      "assigned": "@researcher"
+    },
+    {
+      "id": 20,
+      "item": "[TRACKING] Review progress.md and update sprint priorities",
+      "tags": [
+        "review",
+        "tracking"
+      ],
+      "status": "pending",
+      "createdAt": "2026-05-19T09:30:38.348Z",
+      "updatedAt": "2026-05-19T12:54:21.338Z",
+      "description": "From progress.md:\n- Sprint 1 (Safety) is marked complete\n- Sprint 2-5 pending\n- Graph tasks are in progress\n- Next Up: Event grouping, exercise edges, delayed fat edges, food resolution, frontend consolidation\nReview active work and ensure Clanker Ops tasks align with priorities",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": [],
+      "assigned": "@worker"
+    },
+    {
+      "id": 23,
+      "item": "[GRAPH] Graph service missing methods: get_edges_for_metric, get_recent_correlations, get_event_group, link_event_group",
+      "tags": [
+        "graph",
+        "backend",
+        "p1"
+      ],
+      "status": "pending",
+      "createdAt": "2026-05-19T09:35:32.156Z",
+      "updatedAt": "2026-05-19T11:38:14.941Z",
+      "description": "MERGED with #31. Audit: link_event_group EXISTS, get_edges_for_metric EXISTS (get_neighbors), get_recent_correlations EXISTS (get_strongest_edges), get_event_group EXISTS (get_by_event_group in metrics service). Remaining: add get_event_group() to HealthGraphService + add GET /api/v1/metrics/graph/event-group/{event_group_id} endpoint. See .pi/todo-plans/#23_plan.md.",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": [],
+      "assigned": "@worker"
+    },
+    {
+      "id": 24,
+      "item": "[PHOTO] Food resolution service with label normalization and source trust hierarchy",
+      "tags": [
+        "graph",
+        "ai",
+        "food",
+        "p1"
+      ],
+      "status": "pending",
+      "createdAt": "2026-05-19T09:35:53.749Z",
+      "updatedAt": "2026-05-19T11:38:28.443Z",
+      "description": "From MASTER_TODO Photo Meal Ingest + Food Resolution Layer:\n- Add FoodResolutionService interface\n- Normalize labels (lowercase, singular/plural cleanup, remove adjectives)\n- Search priority: user-confirmed \u2192 curated/Sparky DB \u2192 standardized DBs \u2192 open community \u2192 model fallback\n- Rank candidates by text similarity, source trust, country/brand relevance, prior user selections, macro plausibility",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": [],
+      "assigned": "@researcher"
+    },
+    {
+      "id": 25,
+      "item": "[DOCS] Update CONTEXT.md, ARCHITECTURE_MAP.md, CODEBASE_AUDIT.md for graph architecture",
+      "tags": [
+        "docs",
+        "graph",
+        "p1"
+      ],
+      "status": "completed",
+      "createdAt": "2026-05-19T09:36:05.446Z",
+      "updatedAt": "2026-05-19T11:38:40.153Z",
+      "description": "SCOUT FINDINGS (see scout-report-25.md): CONTEXT.md exists but lacks formal graph definitions (\u2192 #35). ARCHITECTURE_MAP.md MISSING (\u2192 #33). CODEBASE_AUDIT.md MISSING (\u2192 #34). Graph service: app/metrics/graph_service.py with tests.",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": [],
+      "assigned": "@scout"
+    },
+    {
+      "id": 28,
+      "item": "EOD reporting to Clanker Ops - daily summary generation",
+      "tags": [
+        "housekeeping",
+        "remember"
+      ],
+      "status": "pending",
+      "createdAt": "2026-05-19T09:47:20.044Z",
+      "updatedAt": "2026-05-19T11:38:35.909Z",
+      "description": "Set up daily EOD summary generation: inspect todo-state.json, sprint plans, and open work, then output a structured report. Files involved: .pi/todo-state.json, .pi/todo-plans/, .pi/AGENTS.md",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": []
+    },
+    {
+      "id": 29,
+      "item": "[REVIEW] Review mobile design at Google Stitch project #8748784367979415542",
+      "assigned": "@worker",
+      "tags": [
+        "review",
+        "frontend",
+        "ui",
+        "design"
+      ],
+      "status": "pending",
+      "createdAt": "2026-05-19T10:05:33.524Z",
+      "updatedAt": "2026-05-19T12:54:32.348Z",
+      "description": "Review the mobile design prototype at https://stitch.withgoogle.com/projects/8748784367979415542. Likely a T1D Companion mobile screen design. Assess against: design-taste-frontend skill standards, accessibility, information architecture, and T1D data visualization patterns. Extract screens, note gaps vs existing frontend, and propose consolidation roadmap.",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": []
+    },
+    {
+      "id": 32,
+      "item": "[GRAPH-C.2] Migrate 13 graph endpoints from user_id query param to require_active_user auth",
+      "assigned": "@worker",
+      "tags": [
+        "graph",
+        "backend",
+        "auth",
+        "p1"
+      ],
+      "status": "pending",
+      "createdAt": "2026-05-19T11:10:14.098Z",
+      "updatedAt": "2026-05-19T11:38:50.526Z",
+      "description": "Found by scout in #3. app/api/metrics.py has 13 routes using `user_id: int = Query(...)`. Replace with `user=Depends(require_active_user)` and use `user.id` instead.",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": []
+    },
+    {
+      "id": 35,
+      "item": "[DOCS.25.3] Update CONTEXT.md with formal graph node/edge/evidence definitions",
+      "assigned": "@worker",
+      "tags": [
+        "docs",
+        "graph",
+        "p1"
+      ],
+      "status": "pending",
+      "createdAt": "2026-05-19T11:10:14.104Z",
+      "updatedAt": "2026-05-19T11:38:54.376Z",
+      "description": "From scout #25. CONTEXT.md at /root/t1d/CONTEXT.md exists but lacks formal graph definitions. Update it to define: Health Metric node, Edge types (from GraphEdgeType), Evidence structure, Confidence scoring (0.0-1.0), Time Delay fields. Reference existing files: plan/specs/GRAPH_ARCHITECTURE.md for graph architecture, plan/specs/ARCHITECTURE_MAP.md for full architecture context, plan/decisions/CODEBASE_AUDIT.md for audit state.",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": []
+    },
+    {
+      "id": 36,
+      "item": "[AUDIT] Create Clanker Roster - comprehensive agent/clanker audit for task allocation",
+      "tags": [
+        "docs, audit, roadmap"
+      ],
+      "status": "completed",
+      "createdAt": "2026-05-19T11:32:42.322Z",
+      "updatedAt": "2026-05-19T11:37:01.220Z",
+      "description": "Generate a Clanker Roster document that catalogs all available agents (builtin, project, skill-based) with their capabilities, optimal use cases, and task allocation guidance. This allows informed task assignment from Clanker Ops to the right agent type.",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": []
+    },
+    {
+      "id": 37,
+      "item": "[AUDIT] Prune agent roster to T1D-relevant subset and remove irrelevancies",
+      "tags": [
+        "audit, housekeeping"
+      ],
+      "status": "completed",
+      "createdAt": "2026-05-19T11:57:30.933Z",
+      "updatedAt": "2026-05-19T12:00:41.605Z",
+      "description": "Audit all 62 agents in Clanker Roster. Remove iOS-specific (healthkit), irrelevant (writing-fragments, obsidian-vault), overlapping skills. Keep core: worker, reviewer, planner, researcher, scout, diagnose, tdd, prototype, review, improve-codebase-architecture, impeccable, design-taste-frontend. Create curated list of ~20 high-value agents for T1D Companion Clanker Ops.",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": []
+    },
+    {
+      "id": 38,
+      "item": "[AUDIT] Clanker Ops Framework Improvements - harden agent validation, status enums, plan lifecycle",
+      "tags": [
+        "audit, backend, quality"
+      ],
+      "status": "pending",
+      "createdAt": "2026-05-19T12:25:13.127Z",
+      "updatedAt": "2026-05-19T12:56:46.555Z",
+      "description": "Based on source analysis: 1) Agent validation EXISTS (normalizeOwner, ownerToAgent, defaults), 2) Status enum is COMPLETE (4 states only), 3) Plan file cleanup EXISTS (delete action lines 1249-1250), 4) MISSING: File locking for concurrent writes, 5) MISSING: Cycle detection for blockedBy dependencies. Also need to verify: does `analyz\u0435` action exist? (not in action enum). Recommendation: Update task with accurate gaps, potentially split into: a) file locking, b) cycle detection, c) consider analyze action if valuable.",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": []
+    },
+    {
+      "id": 49,
+      "item": "[TEST] P0 high priority \u2014 subject + tag should be RED",
+      "assigned": "@worker",
+      "tags": [
+        "TEST",
+        "p0",
+        "priority",
+        "red"
+      ],
+      "status": "pending",
+      "createdAt": "2026-05-19T13:23:32.609Z",
+      "updatedAt": "2026-05-19T13:23:32.609Z",
+      "description": "TEST: Verify p0 renders subject red and #p0 tag red. Delete after verifying.",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": []
+    },
+    {
+      "id": 50,
+      "item": "[TEST] Medium priority \u2014 tag should be AMBER, owner GRAY",
+      "assigned": "@scout",
+      "tags": [
+        "TEST",
+        "p1",
+        "priority",
+        "amber"
+      ],
+      "status": "pending",
+      "createdAt": "2026-05-19T13:23:32.613Z",
+      "updatedAt": "2026-05-19T13:23:32.613Z",
+      "description": "TEST: Verify p1 tag renders amber, @scout owner renders gray (muted). Delete after verifying.",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": []
+    },
+    {
+      "id": 51,
+      "item": "[TEST] Human task \uc6c3 \u2014 owner column CYAN, aligned with",
+      "assigned": "@tom_\uc6c3",
+      "tags": [
+        "TEST",
+        "human",
+        "alignment",
+        "accent"
+      ],
+      "status": "pending",
+      "createdAt": "2026-05-19T13:23:32.615Z",
+      "updatedAt": "2026-05-19T13:23:32.615Z",
+      "description": "TEST: Verify @tom_\uc6c3 owner renders in accent (cyan) and aligns correctly with other rows. The \uc6c3 is 2 columns wide.",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": []
+    },
+    {
+      "id": 52,
+      "item": "[TEST] Blocked by #999 \u2014 row should be AMBER with \u2298 glyph",
+      "assigned": "@worker",
+      "tags": [
+        "TEST",
+        "blocked",
+        "amber"
+      ],
+      "status": "pending",
+      "createdAt": "2026-05-19T13:23:44.974Z",
+      "updatedAt": "2026-05-19T13:23:44.974Z",
+      "description": "TEST: blockedBy a non-existent ID so the blockedBy renders amber + \u2298. Delete after verify.",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": [
+        999
+      ]
+    },
+    {
+      "id": 53,
+      "item": "[TEST] P2 low priority \u2014 tags should be DIM gray, no color",
+      "assigned": "@worker",
+      "tags": [
+        "TEST",
+        "p2",
+        "dim"
+      ],
+      "status": "pending",
+      "createdAt": "2026-05-19T13:23:44.977Z",
+      "updatedAt": "2026-05-19T13:23:44.977Z",
+      "description": "TEST: Verify P2 renders with dim/gray tags, no emphasis. Delete after verify.",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": []
+    },
+    {
+      "id": 54,
+      "item": "[TEST] Dispatch test \u2014 should show \u21e2 in Active section",
+      "assigned": "@worker",
+      "tags": [
+        "TEST",
+        "dispatch",
+        "active"
+      ],
+      "status": "in_progress",
+      "createdAt": "2026-05-19T13:23:44.981Z",
+      "updatedAt": "2026-05-19T13:26:48.165Z",
+      "description": "TEST: Dispatch this to see \u21e2 icon and auto-move to Active section. Delete after verify.",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": []
+    },
+    {
+      "id": 55,
+      "item": "[TEST] Done task \u2014 should show GREEN \u2713 in completed section",
+      "assigned": "@worker",
+      "tags": [
+        "TEST",
+        "completed",
+        "green"
+      ],
+      "status": "completed",
+      "createdAt": "2026-05-19T13:23:44.984Z",
+      "updatedAt": "2026-05-19T13:24:07.013Z",
+      "description": "TEST: Verify completed renders with green success color and \u2713.",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": []
+    },
+    {
+      "id": 56,
+      "item": "[TEST] Don't Forget \u2014 should show ! icon in RED section",
+      "tags": [
+        "TEST",
+        "housekeeping"
+      ],
+      "status": "pending",
+      "createdAt": "2026-05-19T13:26:20.875Z",
+      "updatedAt": "2026-05-19T13:26:20.875Z",
+      "description": "TEST: Don't Forget tasks show with ! icon in RED section. Unassigned + housekeeping tag triggers this.",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": []
+    },
+    {
+      "id": 57,
+      "item": "[TEST] High priority P0 task \u2014 subject should be red with emphasis",
+      "assigned": "@worker",
+      "tags": [
+        "TEST",
+        "duplicate"
+      ],
+      "status": "pending",
+      "createdAt": "2026-05-19T13:26:20.879Z",
+      "updatedAt": "2026-05-19T13:26:20.879Z",
+      "description": "TEST: Verify duplicate detection. If an existing task has similar wording, this should show \u29c9 glyph.",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": []
+    },
+    {
+      "id": 58,
+      "item": "[TEST] Failed handoff \u2014 should show \u2717 icon when handoff failed",
+      "assigned": "@worker",
+      "tags": [
+        "TEST",
+        "failed",
+        "handoff"
+      ],
+      "status": "pending",
+      "createdAt": "2026-05-19T13:26:20.883Z",
+      "updatedAt": "2026-05-19T13:26:20.883Z",
+      "description": "TEST: Verify failed handoff shows \u2717 icon. Handoff will be set to failed in the JSON.",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": [],
+      "handoff": {
+        "target": "@worker",
+        "sentAt": "2026-05-19T13:26:20.883Z",
+        "status": "failed",
+        "command": "/run worker \"test\" --bg",
+        "intercomCommand": "intercom({\"action\":\"send\",\"to\":\"worker\",\"message\":\"test\"})"
+      }
+    },
+    {
+      "id": 59,
+      "item": "[COMBO] P0 + in-progress \u2014 red subject + cyan \u25d0 icon",
+      "assigned": "@worker",
+      "tags": [
+        "TEST",
+        "p0",
+        "active",
+        "combo"
+      ],
+      "status": "in_progress",
+      "createdAt": "2026-05-19T14:07:37.928Z",
+      "updatedAt": "2026-05-19T14:07:44.415Z",
+      "description": "TEST: P0 active \u2014 subject red + \u25d0 cyan \u2014 tests priority + status overlay.",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": []
+    },
+    {
+      "id": 60,
+      "item": "[COMBO] Blocked human task \uc6c3 \u2014 orange row + cyan owner",
+      "assigned": "@tom_\uc6c3",
+      "tags": [
+        "TEST",
+        "blocked",
+        "human",
+        "combo"
+      ],
+      "status": "pending",
+      "createdAt": "2026-05-19T14:07:37.933Z",
+      "updatedAt": "2026-05-19T14:07:37.933Z",
+      "description": "TEST: human + blocked \u2014 \u2298 icon + orange row + cyan owner name. Triple combo.",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": [
+        999
+      ]
+    },
+    {
+      "id": 61,
+      "item": "[COMBO] P0 + blocked (Red+Orange) \u2014 double-highlight",
+      "assigned": "@worker",
+      "tags": [
+        "TEST",
+        "p0",
+        "blocked",
+        "combo"
+      ],
+      "status": "pending",
+      "createdAt": "2026-05-19T14:07:37.937Z",
+      "updatedAt": "2026-05-19T14:07:37.937Z",
+      "description": "TEST: P0 + blocked \u2014 red subject + orange row + \u2298. Highest priority combo.",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": [
+        999
+      ]
+    },
+    {
+      "id": 62,
+      "item": "[COMBO] P1 + blocked \u2014 amber tag on orange blocked row",
+      "assigned": "@worker",
+      "tags": [
+        "TEST",
+        "p1",
+        "blocked",
+        "combo"
+      ],
+      "status": "pending",
+      "createdAt": "2026-05-19T14:07:37.940Z",
+      "updatedAt": "2026-05-19T14:07:37.940Z",
+      "description": "TEST: P1 + blocked \u2014 amber tag + orange row. Medium priority + blocked combo.",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": [
+        999
+      ]
+    },
+    {
+      "id": 63,
+      "item": "[COMBO] P0 + done \u2014 red subject + green checkmark",
+      "assigned": "@worker",
+      "tags": [
+        "TEST",
+        "p0",
+        "completed",
+        "combo"
+      ],
+      "status": "completed",
+      "createdAt": "2026-05-19T14:07:37.944Z",
+      "updatedAt": "2026-05-19T14:07:44.416Z",
+      "description": "TEST: P0 + completed \u2014 red subject + green \u2713. Red and green together.",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": []
+    },
+    {
+      "id": 64,
+      "item": "[COMBO] P1 human \uc6c3 \u2014 amber tag + cyan owner",
+      "assigned": "@tom_\uc6c3",
+      "tags": [
+        "TEST",
+        "p1",
+        "human",
+        "combo"
+      ],
+      "status": "pending",
+      "createdAt": "2026-05-19T14:07:37.947Z",
+      "updatedAt": "2026-05-19T14:07:37.947Z",
+      "description": "TEST: P1 + human \u2014 amber tag + cyan owner name. Medium human task.",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": []
+    },
+    {
+      "id": 65,
+      "item": "[COMBO] Human \uc8fc task \u2014 owner column CYAN aligned (dupe of #51)",
+      "assigned": "@tom_\uc6c3",
+      "tags": [
+        "TEST",
+        "human",
+        "duplicate",
+        "combo"
+      ],
+      "status": "pending",
+      "createdAt": "2026-05-19T14:07:52.119Z",
+      "updatedAt": "2026-05-19T14:07:52.119Z",
+      "description": "TEST: Duplicate of #51 (both are human \uc6c3 tasks). Should show \u29c9 glyph + cyan owner.",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": []
+    },
+    {
+      "id": 66,
+      "item": "[COMBO] P0 + failed \u2014 red tag, red subject, \u2717 bright red row",
+      "assigned": "@worker",
+      "tags": [
+        "TEST",
+        "p0",
+        "failed",
+        "combo"
+      ],
+      "status": "pending",
+      "createdAt": "2026-05-19T14:07:52.124Z",
+      "updatedAt": "2026-05-19T14:07:52.124Z",
+      "description": "TEST: P0 + failed handoff \u2014 red subject + \u2717 + bold bright red row. Highest urgency combo.",
+      "branch": "dad_1805",
+      "project": "t1d",
+      "blockedBy": [],
+      "handoff": {
+        "target": "@worker",
+        "sentAt": "2026-05-19T14:07:52.124Z",
+        "status": "failed",
+        "command": "/run worker \"test\" --bg",
+        "intercomCommand": "intercom({\"action\":\"send\",\"to\":\"worker\",\"message\":\"test\"})"
+      }
+    }
+  ],
+  "nextId": 67
+}

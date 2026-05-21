@@ -7,21 +7,29 @@ from sqlalchemy import desc, select
 from app.activity.models import ActivityEntry
 from app.activity.schemas import ActivityEntryCreate
 from app.metrics.types import MetricType
-from app.services.metric_writer import write_metric_if_present
+from app.services.metric_registry import MetricRegistry
 
 
 class ActivityService:
     def __init__(self, db: AsyncSession):
         self.db = db
+        self._metric_registry = MetricRegistry(db)
 
     async def create(self, user_id: int, data: ActivityEntryCreate) -> ActivityEntry:
         entry = ActivityEntry(user_id=user_id, **data.model_dump())
         self.db.add(entry)
         await self.db.flush()
         await self.db.refresh(entry)
-        await write_metric_if_present(self.db, user_id, MetricType.STEPS, entry.steps, "steps", entry.measured_at, entry.source)
-        await write_metric_if_present(self.db, user_id, MetricType.DISTANCE_KM, entry.distance_km, "km", entry.measured_at, entry.source)
-        await write_metric_if_present(self.db, user_id, MetricType.FLOORS_CLIMBED, entry.floors_climbed, "floors", entry.measured_at, entry.source)
+        await self._metric_registry.record_metrics_batch(
+            user_id=user_id,
+            measured_at=entry.measured_at,
+            source=entry.source,
+            metrics=[
+                {"metric_type": MetricType.STEPS, "value": entry.steps, "unit": "steps"},
+                {"metric_type": MetricType.DISTANCE_KM, "value": entry.distance_km, "unit": "km"},
+                {"metric_type": MetricType.FLOORS_CLIMBED, "value": entry.floors_climbed, "unit": "floors"},
+            ]
+        )
         return entry
 
     async def get(self, user_id: int, entry_id: int) -> Optional[ActivityEntry]:

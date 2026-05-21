@@ -20,9 +20,13 @@ _Avoid_: Trend, insight
 The percentage of time glucose values stay within the user's target band (default 70–180 mg/dL).
 _Avoid_: In-range percentage
 
+**MetricRegistry**:
+The centralized dual-write service that all domain services (exercise, food, sleep, etc.) use when they create entries. Replaces inline `write_metric_if_present()` calls. Provides `record_metric()` for single metrics and `record_metrics_batch()` for N metrics atomically.
+_See_: `app/services/metric_registry.py`, ADR-003
+
 **Health Metric**:
 A single fact written into the unified polymorphic store (`health_metrics` table), backfilled by every domain table on write. Used by the AI layer for cross-domain correlation and knowledge-graph construction.
-_Avoid_: Metric (ambiguous)
+_Avoid_: Metric (ambiguous), but never deprecate "Health Metric" (it's the canonical term)
 
 **Domain Table**:
 A dedicated SQL table for one health-data type (exercise, sleep, heart, etc.) with its own CRUD API. Every create also writes a Health Metric.
@@ -52,10 +56,13 @@ The long-term vision — every Health Metric is a node, and AI finds edges betwe
 ## Example dialogue
 
 > **Dev:** "When a user logs exercise, does it write to health_metrics?"
-> **Domain expert:** "Yes — `ExerciseService.create_entry()` writes to `exercise_entries` AND calls `write_metric_if_present()` with `MetricType.EXERCISE_MINUTES` to create a Health Metric row."
+> **Domain expert:** "Yes — `ExerciseService.create()` writes to `exercise_entries` AND calls `self._metric_registry.record_metrics_batch()` with `MetricType.EXERCISE_MINUTES` and `MetricType.EXERCISE_CALORIES` to create Health Metric rows."
 >
 > **Dev:** "So the Health Metrics dashboard page queries health_metrics directly?"
-> **Domain expert:** "Correct. The `HealthMetricsPage` calls `GET /api/v1/metrics`. Every domain domain creates its own table AND the unified store on write."
+> **Domain expert:** "Correct. The `HealthMetricsPage` calls `GET /api/v1/metrics`. Every domain service creates its own table AND the unified store on write through MetricRegistry."
+>
+> **Dev:** "What if I want to add a new metric type?"
+> **Domain expert:** "Add the `MetricType` enum value, then add it to the relevant domain service's `record_metrics_batch()` call. One change in `app/metrics/types.py`, one line in the service. MetricRegistry handles validation and creation."
 
 ## Research & References
 

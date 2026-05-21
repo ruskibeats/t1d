@@ -1,25 +1,20 @@
 /** @jsxImportSource @emotion/react */
 import { Outlet, NavLink } from 'react-router-dom'
 import { useAuth } from '@/contexts/AuthContext'
-import { Activity, BarChart3, Bot, Calendar, Dumbbell, Droplet, Footprints, HeartPulse, LayoutDashboard, Menu, Moon, Settings, ShieldCheck, Smile, Sparkles, Timer, Utensils, X } from 'lucide-react'
+import { Activity, BarChart3, Bot, Brain, Calendar, HeartPulse, LayoutDashboard, Menu, Settings, ShieldCheck, Sparkles, Utensils, X } from 'lucide-react'
 import { useState } from 'react'
 import { cn } from '@/lib/utils'
 
 const navItems = [
-  { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-  { to: '/glucose', icon: Activity, label: 'Glucose' },
-  { to: '/food', icon: Utensils, label: 'Food' },
-  { to: '/exercise', icon: Dumbbell, label: 'Exercise' },
-  { to: '/activity', icon: Footprints, label: 'Activity' },
-  { to: '/sleep', icon: Moon, label: 'Sleep' },
-  { to: '/fasting', icon: Timer, label: 'Fasting' },
-  { to: '/measurements', icon: Activity, label: 'Measurements' },
-  { to: '/mood', icon: Smile, label: 'Mood' },
-  { to: '/water', icon: Droplet, label: 'Water' },
-  { to: '/vitals', icon: HeartPulse, label: 'Vitals' },
-  { to: '/events', icon: Calendar, label: 'Events' },
+  { to: '/dashboard', icon: LayoutDashboard, label: 'Home' },
+  { to: '/chat', icon: Bot, label: 'Hoot & Holla' },
+  { to: '/food', icon: Utensils, label: 'Meals' },
   { to: '/patterns', icon: BarChart3, label: 'Patterns' },
-  { to: '/chat', icon: Bot, label: 'AI chat' },
+  { to: '/coach', icon: Sparkles, label: 'Coach' },
+  { to: '/memory', icon: Brain, label: 'Memory' },
+  { to: '/discuss', icon: HeartPulse, label: 'Discuss' },
+  { to: '/glucose', icon: Activity, label: 'Glucose' },
+  { to: '/events', icon: Calendar, label: 'Events' },
   { to: '/settings', icon: Settings, label: 'Settings' },
 ]
 

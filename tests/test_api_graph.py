@@ -38,13 +38,13 @@ async def test_graph_api_edge_lifecycle(db_session, test_user):
             time_delay_seconds=7200,
             algorithm="api-test",
         ),
-        user_id=test_user.id,
+        user=test_user,
         db=db_session,
     )
     assert created.edge_type == GraphEdgeType.MEAL_TO_GLUCOSE_SPIKE
 
     edges = await query_graph_edges(
-        user_id=test_user.id,
+        user=test_user,
         edge_types=[GraphEdgeType.MEAL_TO_GLUCOSE_SPIKE],
         min_confidence=0.6,
         source_metric_id=None,
@@ -56,18 +56,18 @@ async def test_graph_api_edge_lifecycle(db_session, test_user):
     assert len(edges) == 1
     assert edges[0].id == created.id
 
-    neighbors = await get_metric_neighbors(source.id, user_id=test_user.id, db=db_session)
+    neighbors = await get_metric_neighbors(source.id, user=test_user, db=db_session)
     assert len(neighbors.outgoing) == 1
     assert neighbors.incoming == []
 
-    causes = await get_metric_causes(target.id, user_id=test_user.id, limit=20, db=db_session)
+    causes = await get_metric_causes(target.id, user=test_user, limit=20, db=db_session)
     assert len(causes) == 1
     assert causes[0].source_metric_id == source.id
 
-    effects = await get_metric_effects(source.id, user_id=test_user.id, limit=20, db=db_session)
+    effects = await get_metric_effects(source.id, user=test_user, limit=20, db=db_session)
     assert len(effects) == 1
     assert effects[0].target_metric_id == target.id
 
-    subgraph = await get_health_subgraph(center_metric_id=source.id, user_id=test_user.id, depth=1, db=db_session)
+    subgraph = await get_health_subgraph(center_metric_id=source.id, user=test_user, depth=1, db=db_session)
     assert {node.id for node in subgraph.nodes} == {source.id, target.id}
     assert len(subgraph.edges) == 1

@@ -1,5 +1,10 @@
-"""Helpers for dual-writing domain entries into the unified health_metrics store."""
+"""Helpers for dual-writing domain entries into the unified health_metrics store.
 
+DEPRECATED: Use `app.services.metric_registry.MetricRegistry` instead.
+This module is kept for backward compatibility only.
+"""
+
+import warnings
 from datetime import datetime
 from typing import Any
 
@@ -8,6 +13,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.metrics.schemas import HealthMetricCreate
 from app.metrics.service import HealthMetricService
 from app.metrics.types import MetricType
+
+
+warnings.warn(
+    "app.services.metric_writer is deprecated. "
+    "Use app.services.metric_registry.MetricRegistry instead.",
+    DeprecationWarning,
+    stacklevel=1,
+)
 
 
 async def write_metric_if_present(

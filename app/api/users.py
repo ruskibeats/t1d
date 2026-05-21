@@ -285,3 +285,123 @@ async def sync_nightscout(
             status_code=400,
             detail=f"Sync failed: {str(e)}",
         )
+
+
+# ── LibreLinkUp Endpoints ──
+
+
+class LibreLinkUpConfig(BaseModel):
+    """LibreLinkUp configuration model."""
+    email: str
+    password: str
+    region: str = "EU2"
+
+
+class LibreLinkUpStatus(BaseModel):
+    """LibreLinkUp status response model."""
+    connected: bool
+    email: str | None = None
+    region: str | None = None
+    last_sync: str | None = None
+
+
+@router.get("/me/librelinkup", response_model=LibreLinkUpStatus)
+async def get_librelinkup_status(
+    user: User = Depends(require_active_user),
+) -> LibreLinkUpStatus:
+    """Get LibreLinkUp connection status."""
+    return LibreLinkUpStatus(
+        connected=user.librelinkup_connected,
+        email=user.librelinkup_email,
+        region=user.librelinkup_region,
+        last_sync=user.last_librelinkup_sync.isoformat() if user.last_librelinkup_sync else None,
+    )
+
+
+@router.post("/me/librelinkup")
+async def configure_librelinkup(
+    config: LibreLinkUpConfig,
+    session: AsyncSession = Depends(get_db),
+    user: User = Depends(require_active_user),
+) -> dict:
+    """Configure LibreLinkUp connection.
+
+    Tests the connection before saving credentials.
+    """
+    from app.services.librelinkup_service import LibreLinkUpService, LibreLinkUpServiceError
+
+    service = LibreLinkUpService(
+        email=config.email,
+        password=config.password,
+        region=config.region,
+    )
+    try:
+        await service.login()
+    except LibreLinkUpServiceError as e:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Failed to connect to LibreLinkUp: {str(e)}",
+        )
+
+    user.librelinkup_email = config.email
+    user.librelinkup_password = config.password
+    user.librelinkup_region = config.region
+    user.librelinkup_connected = True
+    await session.commit()
+
+    return {
+        "message": "LibreLinkUp connected successfully",
+    }
+
+
+@router.delete("/me/librelinkup")
+async def disconnect_librelinkup(
+    session: AsyncSession = Depends(get_db),
+    user: User = Depends(require_active_user),
+) -> dict:
+    """Disconnect LibreLinkUp."""
+    user.librelinkup_email = None
+    user.librelinkup_password = None
+    user.librelinkup_region = None
+    user.librelinkup_connected = False
+    user.last_librelinkup_sync = None
+    await session.commit()
+
+    return {
+        "message": "LibreLinkUp disconnected successfully",
+    }
+
+
+@router.post("/me/librelinkup/sync")
+async def sync_librelinkup(
+    session: AsyncSession = Depends(get_db),
+    user: User = Depends(require_active_user),
+) -> dict:
+    """Sync glucose data from LibreLinkUp."""
+    from app.services.librelinkup_service import LibreLinkUpService, LibreLinkUpServiceError
+
+    if not user.librelinkup_email:
+        raise HTTPException(
+            status_code=400,
+            detail="LibreLinkUp not configured",
+        )
+
+    service = LibreLinkUpService(
+        email=user.librelinkup_email,
+        password=user.librelinkup_password,
+        region=user.librelinkup_region or "EU2",
+    )
+    try:
+        count = await service.sync_glucose_data(session, user)
+        user.last_librelinkup_sync = datetime.now(timezone.utc)
+        await session.commit()
+
+        return {
+            "message": "Sync successful",
+            "readings_imported": count,
+        }
+    except LibreLinkUpServiceError as e:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Sync failed: {str(e)}",
+        )

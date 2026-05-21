@@ -67,6 +67,12 @@ class MetricType(StrEnum):
     BLOOD_PRESSURE_SYSTOLIC = "blood_pressure_systolic"
     BLOOD_PRESSURE_DIASTOLIC = "blood_pressure_diastolic"
 
+    # ── Lipid Panel ──
+    CHOLESTEROL_TOTAL = "cholesterol_total"
+    CHOLESTEROL_HDL = "cholesterol_hdl"
+    CHOLESTEROL_LDL = "cholesterol_ldl"
+    TRIGLYCERIDES = "triglycerides"
+
     # ── Sleep ──
     SLEEP_HOURS = "sleep_hours"
     SLEEP_DEEP = "sleep_deep"

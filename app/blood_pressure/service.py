@@ -7,20 +7,28 @@ from sqlalchemy import desc, select
 from app.blood_pressure.models import BloodPressureEntry
 from app.blood_pressure.schemas import BloodPressureEntryCreate
 from app.metrics.types import MetricType
-from app.services.metric_writer import write_metric_if_present
+from app.services.metric_registry import MetricRegistry
 
 
 class BloodPressureService:
     def __init__(self, db: AsyncSession):
         self.db = db
+        self._metric_registry = MetricRegistry(db)
 
     async def create(self, user_id: int, data: BloodPressureEntryCreate) -> BloodPressureEntry:
         entry = BloodPressureEntry(user_id=user_id, **data.model_dump())
         self.db.add(entry)
         await self.db.flush()
         await self.db.refresh(entry)
-        await write_metric_if_present(self.db, user_id, MetricType.BLOOD_PRESSURE_SYSTOLIC, entry.systolic, "mmHg", entry.measured_at, entry.source)
-        await write_metric_if_present(self.db, user_id, MetricType.BLOOD_PRESSURE_DIASTOLIC, entry.diastolic, "mmHg", entry.measured_at, entry.source)
+        await self._metric_registry.record_metrics_batch(
+            user_id=user_id,
+            measured_at=entry.measured_at,
+            source=entry.source,
+            metrics=[
+                {"metric_type": MetricType.BLOOD_PRESSURE_SYSTOLIC, "value": entry.systolic, "unit": "mmHg"},
+                {"metric_type": MetricType.BLOOD_PRESSURE_DIASTOLIC, "value": entry.diastolic, "unit": "mmHg"},
+            ]
+        )
         return entry
 
     async def get(self, user_id: int, entry_id: int) -> Optional[BloodPressureEntry]:

@@ -6,7 +6,7 @@ from datetime import datetime, timezone
 from logging.config import dictConfig
 from typing import Any
 
-from pythonjsonlogger import jsonlogger  # type: ignore
+from pythonjsonlogger.json import JsonFormatter as _JsonFormatter  # type: ignore
 
 
 def setup_logging() -> None:
@@ -60,7 +60,7 @@ def setup_logging() -> None:
     dictConfig(logging_config)
 
 
-class JSONFormatter(jsonlogger.JsonFormatter):
+class JSONFormatter(_JsonFormatter):
     """Custom JSON formatter with additional fields."""
 
     def __init__(self, fmt: str = None, datefmt: str = None):

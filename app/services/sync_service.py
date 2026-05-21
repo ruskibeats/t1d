@@ -27,6 +27,10 @@ from app.services.nightscout_service import (
     NightscoutService,
     NightscoutServiceError,
 )
+from app.services.librelinkup_service import (
+    LibreLinkUpService,
+    LibreLinkUpServiceError,
+)
 from pydantic import BaseModel, Field
 
 
@@ -254,30 +258,87 @@ async def _sync_user_glucose_async(
         
         elif source == "nightscout":
             # Sync from Nightscout
-            # Note: In production, you'd store Nightscout URL and token per user
-            ns_url = getattr(settings, "NIGHTSCOUT_URL", None)
-            ns_token = getattr(settings, "NIGHTSCOUT_API_TOKEN", None)
+            # Use per-user Nightscout configuration (set via CGM connection UI)
+            ns_url = user.nightscout_url
+            ns_token = user.nightscout_api_token
             
-            if ns_url:
-                nightscout = NightscoutService(
-                    base_url=ns_url,
-                    api_token=ns_token,
+            if not ns_url:
+                # Fallback to global settings for backward compatibility
+                ns_url = getattr(settings, "NIGHTSCOUT_URL", None)
+                ns_token = getattr(settings, "NIGHTSCOUT_API_TOKEN", None)
+            
+            if not ns_url:
+                logger.warning(f"Nightscout URL not configured for user {user_id} and no global fallback")
+                return {
+                    "user_id": user_id,
+                    "source": source,
+                    "new_readings": 0,
+                    "updated_at": datetime.now(timezone.utc),
+                    "success": False,
+                    "error": "Nightscout URL not configured",
+                }
+            
+            nightscout = NightscoutService(
+                base_url=ns_url,
+                api_token=ns_token,
+            )
+            try:
+                new_readings = await nightscout.sync_recent_data(
+                    session, user
                 )
-                try:
-                    new_readings = await nightscout.sync_recent_data(
-                        session, user
-                    )
-                except NightscoutServiceError as e:
-                    logger.error(f"Nightscout sync failed for user {user_id}: {e}")
-                    return {
-                        "user_id": user_id,
-                        "source": source,
-                        "new_readings": 0,
-                        "updated_at": datetime.now(timezone.utc),
-                        "success": False,
-                        "error": str(e),
-                    }
-        
+                # Update last sync timestamp
+                user.last_nightscout_sync = datetime.now(timezone.utc)
+                await session.commit()
+            except NightscoutServiceError as e:
+                logger.error(f"Nightscout sync failed for user {user_id}: {e}")
+                return {
+                    "user_id": user_id,
+                    "source": source,
+                    "new_readings": 0,
+                    "updated_at": datetime.now(timezone.utc),
+                    "success": False,
+                    "error": str(e),
+                }
+
+        elif source == "librelinkup":
+            # Sync from LibreLinkUp
+            email = user.librelinkup_email
+            password = user.librelinkup_password
+            region = user.librelinkup_region or "EU2"
+
+            if not email or not password:
+                logger.warning(f"LibreLinkUp not configured for user {user_id}")
+                return {
+                    "user_id": user_id,
+                    "source": source,
+                    "new_readings": 0,
+                    "updated_at": datetime.now(timezone.utc),
+                    "success": False,
+                    "error": "LibreLinkUp not configured",
+                }
+
+            librelinkup = LibreLinkUpService(
+                email=email,
+                password=password,
+                region=region,
+            )
+            try:
+                new_readings = await librelinkup.sync_recent_data(
+                    session, user
+                )
+                user.last_librelinkup_sync = datetime.now(timezone.utc)
+                await session.commit()
+            except LibreLinkUpServiceError as e:
+                logger.error(f"LibreLinkUp sync failed for user {user_id}: {e}")
+                return {
+                    "user_id": user_id,
+                    "source": source,
+                    "new_readings": 0,
+                    "updated_at": datetime.now(timezone.utc),
+                    "success": False,
+                    "error": str(e),
+                }
+
         else:
             return {
                 "user_id": user_id,
@@ -340,11 +401,18 @@ async def _sync_all_users_glucose_async() -> List[Dict[str, Any]]:
             if getattr(user, "dexcom_access_token", None):
                 sources.append("dexcom")
             
-            # For Nightscout, check settings or user preference
-            from app.config import get_settings
-            settings = get_settings()
-            if getattr(settings, "NIGHTSCOUT_URL", None):
+            # For Nightscout, check per-user config first, then global fallback
+            if user.nightscout_connected and user.nightscout_url:
                 sources.append("nightscout")
+            else:
+                from app.config import get_settings
+                settings = get_settings()
+                if getattr(settings, "NIGHTSCOUT_URL", None):
+                    sources.append("nightscout")
+
+            # For LibreLinkUp
+            if user.librelinkup_connected and user.librelinkup_email:
+                sources.append("librelinkup")
             
             # Sync each source
             for source in sources:

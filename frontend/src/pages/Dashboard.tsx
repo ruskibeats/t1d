@@ -89,7 +89,7 @@ export function Dashboard() {
               See the rhythm behind the numbers.
             </h1>
             <p className="mt-5 max-w-2xl text-base leading-7 text-[oklch(0.86_0.025_245)] md:text-lg">
-              A sensor-agnostic Type 1 companion for CGM context, real-life events, and plain-language pattern discovery.
+              Track your glucose, meals, and patterns. Get plain-English insights from your data.
             </p>
             <div className="mt-7 flex flex-wrap gap-3">
               <Button size="lg" className="bg-[oklch(0.72_0.15_178)] text-[oklch(0.18_0.04_255)] hover:bg-[oklch(0.78_0.14_178)]" onClick={() => setShowPreMeal(true)}>

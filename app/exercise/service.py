@@ -7,29 +7,45 @@ from typing import List, Optional
 from app.exercise.models import ExerciseEntry, ExerciseEntrySet
 from app.exercise.schemas import ExerciseEntryCreate, ExerciseEntrySetCreate
 from app.metrics.types import MetricType
-from app.services.metric_writer import write_metric_if_present
+from app.services.metric_registry import MetricRegistry
 
 
 class ExerciseService:
     def __init__(self, db: AsyncSession):
         self.db = db
+        self._metric_registry = MetricRegistry(db)
 
-    async def create_entry(self, user_id: int, data: ExerciseEntryCreate) -> ExerciseEntry:
+    async def create(self, user_id: int, data: ExerciseEntryCreate) -> ExerciseEntry:
         entry = ExerciseEntry(user_id=user_id, **data.model_dump())
         self.db.add(entry)
         await self.db.flush()
         await self.db.refresh(entry)
-        await write_metric_if_present(self.db, user_id, MetricType.EXERCISE_MINUTES, entry.duration_minutes, "minutes", entry.start_time, entry.source)
-        await write_metric_if_present(self.db, user_id, MetricType.EXERCISE_CALORIES, entry.calories, "kcal", entry.start_time, entry.source)
+        # Dual-write via consolidated registry
+        await self._metric_registry.record_metric(
+            user_id=user_id,
+            metric_type=MetricType.EXERCISE_MINUTES,
+            value=entry.duration_minutes,
+            measured_at=entry.start_time,
+            unit="minutes",
+            source=entry.source,
+        )
+        await self._metric_registry.record_metric(
+            user_id=user_id,
+            metric_type=MetricType.EXERCISE_CALORIES,
+            value=entry.calories,
+            measured_at=entry.start_time,
+            unit="kcal",
+            source=entry.source,
+        )
         return entry
 
-    async def get_entry(self, user_id: int, entry_id: int) -> Optional[ExerciseEntry]:
+    async def get(self, user_id: int, entry_id: int) -> Optional[ExerciseEntry]:
         result = await self.db.execute(
             select(ExerciseEntry).where(ExerciseEntry.user_id == user_id, ExerciseEntry.id == entry_id)
         )
         return result.scalar_one_or_none()
 
-    async def list_entries(
+    async def list(
         self,
         user_id: int,
         start_date: Optional[datetime] = None,
@@ -65,10 +81,10 @@ class ExerciseService:
         )
         return list(result.scalars().all())
 
-    async def update_entry(
+    async def update(
         self, user_id: int, entry_id: int, data: ExerciseEntryCreate
     ) -> Optional[ExerciseEntry]:
-        entry = await self.get_entry(user_id, entry_id)
+        entry = await self.get(user_id, entry_id)
         if not entry:
             return None
         for field, value in data.model_dump(exclude_unset=True).items():
@@ -77,8 +93,8 @@ class ExerciseService:
         await self.db.refresh(entry)
         return entry
 
-    async def delete_entry(self, user_id: int, entry_id: int) -> bool:
-        entry = await self.get_entry(user_id, entry_id)
+    async def delete(self, user_id: int, entry_id: int) -> bool:
+        entry = await self.get(user_id, entry_id)
         if not entry:
             return False
         await self.db.delete(entry)

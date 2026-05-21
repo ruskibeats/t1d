@@ -68,6 +68,7 @@ class SimulationService:
         )
         self.db.add(run)
         await self.db.flush()
+        await self.db.commit()
         await self.db.refresh(run)
         logger.info(f"Created sim run: {run.id} '{run.name}'")
         return run
@@ -85,6 +86,9 @@ class SimulationService:
         run = result.scalar_one_or_none()
         if not run:
             raise ValueError(f"SimRun {run_id} not found")
+
+        # Clear any stale transaction from a previous failed query
+        await self.db.rollback()
 
         run.status = RunStatus.GENERATING.value
         run.started_at = datetime.now(timezone.utc)

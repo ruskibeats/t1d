@@ -435,3 +435,14 @@ Implemented tests:
 3. Add authenticated graph endpoint pattern instead of placeholder `user_id` query param.
 4. Add aggregate relationship builder for recurring edges.
 5. Add background graph-building jobs for historical backfill.
+
+### PHL/PHKG Research Reference
+
+**Pattern Hierarchy Learning (PHL)** and **Pattern Hierarchical Knowledge Graphs (PHKG)** are research frameworks for building explainable health knowledge graphs:
+
+- **PHL**: Decomposes complex health patterns into hierarchical sub-patterns, enabling interpretable pattern recognition
+- **PHKG**: Extends knowledge graphs with hierarchical structure, allowing multi-granularity explanations
+
+Reference: "Pattern Hierarchy Learning for Interpretable Health Knowledge Graphs" - research on hierarchical pattern decomposition for personalized diabetes management.
+
+This informs our `confidence_components` decomposition approach and edge evidence structure.

@@ -35,6 +35,8 @@ class HealthGraphService:
             time_delay_seconds=data.time_delay_seconds,
             algorithm=data.algorithm,
             evidence=data.evidence,
+            provenance=data.provenance,
+            confidence_components=data.confidence_components,
         )
         self.db.add(edge)
         await self.db.flush()
@@ -59,6 +61,10 @@ class HealthGraphService:
             edge.time_delay_seconds = data.time_delay_seconds
             edge.algorithm = data.algorithm
             edge.evidence = {**(edge.evidence or {}), **(data.evidence or {})}
+            if data.provenance:
+                edge.provenance = data.provenance
+            if data.confidence_components:
+                edge.confidence_components = data.confidence_components
             await self.db.flush()
             await self.db.refresh(edge)
             return edge
@@ -186,6 +192,49 @@ class HealthGraphService:
             edge = await self.upsert_edge(user_id, edge_data)
             edges.append(edge)
         return edges
+
+    async def get_event_group(self, user_id: int, event_group_id: str) -> list[HealthMetric]:
+        """Get all metrics belonging to an event group."""
+        result = await self.db.execute(
+            select(HealthMetric)
+            .where(HealthMetric.user_id == user_id, HealthMetric.event_group_id == event_group_id)
+            .order_by(HealthMetric.timestamp)
+        )
+        return list(result.scalars().all())
+
+    async def get_edges_for_metric(
+        self, user_id: int, metric_id: int, limit: int = 50
+    ) -> tuple[list[HealthMetricEdge], list[HealthMetricEdge]]:
+        """Get all edges involving a metric (incoming + outgoing)."""
+        return await self.get_neighbors(user_id, metric_id)
+
+    async def get_recent_correlations(
+        self, user_id: int, hours: int = 24, limit: int = 20
+    ) -> list[HealthMetricEdge]:
+        """Get recently created edge correlations."""
+        from datetime import datetime, timedelta, timezone
+        cutoff = datetime.now(timezone.utc) - timedelta(hours=hours)
+        result = await self.db.execute(
+            select(HealthMetricEdge)
+            .where(HealthMetricEdge.user_id == user_id, HealthMetricEdge.created_at >= cutoff)
+            .order_by(desc(HealthMetricEdge.created_at))
+            .limit(limit)
+        )
+        return list(result.scalars().all())
+
+    async def get_edge_statistics(self, user_id: int) -> dict:
+        """Get aggregate statistics for graph edges."""
+        result = await self.db.execute(
+            select(
+                self.db.func.count(HealthMetricEdge.id).label("total_edges"),
+                self.db.func.avg(HealthMetricEdge.confidence).label("avg_confidence"),
+            ).where(HealthMetricEdge.user_id == user_id)
+        )
+        row = result.first()
+        return {
+            "total_edges": row.total_edges or 0,
+            "avg_confidence": round(row.avg_confidence or 0, 3),
+        }
 
     async def _assert_metric_ownership(self, user_id: int, metric_id: int) -> HealthMetric:
         result = await self.db.execute(

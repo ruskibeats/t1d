@@ -1,7 +1,7 @@
 /** @jsxImportSource @emotion/react */
 import { useEffect, useState } from 'react'
 import axios from 'axios'
-import { Brain, Dumbbell, Moon, RefreshCw, Utensils } from 'lucide-react'
+import { CheckCircle2, Dumbbell, Moon, RefreshCw, Utensils, AlertTriangle, Clock } from 'lucide-react'
 import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { cn } from '@/lib/utils'
@@ -11,12 +11,45 @@ const emptyPatternAnalysis = {
   statistics: { average: 0, min_value: null, max_value: null, std_dev: null, total_readings: 0 },
 }
 
-const gradeStyles: Record<string, string> = {
-  A: 'text-[oklch(0.43_0.13_178)]',
-  B: 'text-[oklch(0.46_0.15_255)]',
-  C: 'text-[oklch(0.52_0.12_73)]',
-  D: 'text-[oklch(0.52_0.14_48)]',
-  F: 'text-[oklch(0.52_0.16_27)]',
+type SignalLevel = 'good' | 'watch' | 'attention'
+
+function getSignalLevel(grade: string): SignalLevel {
+  if (['A', 'B'].includes(grade)) return 'good'
+  if (['C'].includes(grade)) return 'watch'
+  if (['D', 'F'].includes(grade)) return 'attention'
+  return 'good'
+}
+
+function getSignalMeta(level: SignalLevel) {
+  switch (level) {
+    case 'good':
+      return {
+        label: 'Good',
+        icon: CheckCircle2,
+        color: 'text-[oklch(0.43_0.13_178)]',
+        bg: 'bg-[oklch(0.72_0.15_178/0.1)]',
+        border: 'border-[oklch(0.72_0.15_178/0.2)]',
+        description: 'Your glucose has been stable. Keep doing what you are doing.',
+      }
+    case 'watch':
+      return {
+        label: 'Worth watching',
+        icon: Clock,
+        color: 'text-[oklch(0.52_0.12_73)]',
+        bg: 'bg-[oklch(0.85_0.12_85/0.1)]',
+        border: 'border-[oklch(0.85_0.12_85/0.2)]',
+        description: 'Some patterns are emerging. Nothing urgent, but worth keeping an eye on.',
+      }
+    case 'attention':
+      return {
+        label: 'Needs attention',
+        icon: AlertTriangle,
+        color: 'text-[oklch(0.52_0.16_27)]',
+        bg: 'bg-[oklch(0.76_0.15_72/0.1)]',
+        border: 'border-[oklch(0.76_0.15_72/0.2)]',
+        description: 'A few patterns stand out. Consider discussing with your diabetes team.',
+      }
+  }
 }
 
 export function PatternsPage() {
@@ -25,7 +58,6 @@ export function PatternsPage() {
   const [spikes, setSpikes] = useState<any[]>([])
   const [overnight, setOvernight] = useState<any[]>([])
   const [exercise, setExercise] = useState<any[]>([])
-
 
   const runAnalysis = async () => {
     setLoading(true)
@@ -41,13 +73,12 @@ export function PatternsPage() {
         axios.post('/api/v1/patterns/overnight'),
         axios.post('/api/v1/patterns/exercise'),
       ])
-
       setAnalysis(analysisRes.data ?? emptyPatternAnalysis)
       setSpikes(spikesRes.data?.spikes ?? [])
       setOvernight(overnightRes.data?.events ?? [])
       setExercise(exerciseRes.data?.impacts ?? [])
-    } catch (error) {
-      console.info('Pattern API unavailable or no records yet.', error)
+    } catch {
+      console.info('Pattern API unavailable or no records yet.')
       setAnalysis(emptyPatternAnalysis)
       setSpikes([])
       setOvernight([])
@@ -57,110 +88,154 @@ export function PatternsPage() {
     }
   }
 
-  useEffect(() => {
-    runAnalysis()
-  }, [])
+  useEffect(() => { runAnalysis() }, [])
 
   const tir = analysis?.analysis?.tir ?? emptyPatternAnalysis.analysis.tir
   const statistics = analysis?.statistics ?? emptyPatternAnalysis.statistics
   const grade = analysis?.analysis?.grade ?? '—'
+  const signalLevel = getSignalLevel(grade)
+  const signal = getSignalMeta(signalLevel)
+  const SignalIcon = signal.icon
 
   return (
-    <div className="page-shell space-y-7">
+    <div className="page-shell space-y-6">
       <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div>
-          <div className="kicker"><span className="kicker-dot" /> Pattern engine</div>
-          <h1 className="mt-2 text-4xl font-black tracking-[-0.06em] text-[oklch(0.22_0.04_255)]">Pattern analysis</h1>
-          <p className="mt-2 max-w-2xl text-sm leading-6 text-[oklch(0.48_0.035_255)]">Translate glucose, meals, movement, and nights into repeatable personal signals. Live analysis from your records.</p>
+          <div className="kicker"><span className="kicker-dot" /> Pattern analysis</div>
+          <h1 className="mt-2 text-3xl font-black tracking-[-0.06em] text-[oklch(0.22_0.04_255)]">Your patterns</h1>
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-[oklch(0.48_0.035_255)]">
+            Plain-English signals from your glucose, meals, activity, and sleep.
+          </p>
         </div>
         <Button onClick={runAnalysis} disabled={loading}>
           <RefreshCw className={cn('h-4 w-4', loading && 'animate-spin')} />
-          {loading ? 'Analyzing' : 'Refresh'}
+          {loading ? 'Analysing' : 'Refresh'}
         </Button>
       </div>
 
-      <div className="grid grid-cols-1 gap-6 xl:grid-cols-[0.9fr_1.1fr]">
-        <Card className="hero-surface p-6">
-          <div className="relative z-10">
-            <div className="flex items-center justify-between">
-              <span className="signal-pill">Weekly control grade</span>
-              <Brain className="h-5 w-5 text-[oklch(0.74_0.13_178)]" />
+      {/* Main signal card */}
+      <Card className={cn('p-6', signal.bg, signal.border, 'border')}>
+        <div className="flex items-start gap-4">
+          <div className={cn('grid h-14 w-14 place-items-center rounded-2xl', signal.bg)}>
+            <SignalIcon className={cn('h-7 w-7', signal.color)} />
+          </div>
+          <div className="flex-1">
+            <div className="flex items-center gap-3">
+              <span className={cn('text-2xl font-black', signal.color)}>{signal.label}</span>
+              <span className="text-sm font-semibold text-[oklch(0.48_0.035_255)]">Grade {grade}</span>
             </div>
-            <div className={cn('mt-7 text-8xl font-black tracking-[-0.08em]', gradeStyles[grade] ?? 'text-[oklch(0.72_0.15_178)]')}>{grade}</div>
-            <p className="mt-3 max-w-md text-sm leading-6 text-[oklch(0.86_0.025_245)]">{tir.percentage.toFixed(0)}% time in range with an estimated A1C of {analysis?.analysis?.estimated_a1c ?? '6.9'}%.</p>
-            <div className="mt-6 grid grid-cols-3 gap-2">
-              <div className="rounded-2xl bg-[oklch(1_0_0/0.08)] p-3"><div className="text-2xl font-black">{tir.percentage.toFixed(0)}%</div><div className="text-[0.68rem] font-bold text-[oklch(0.75_0.04_245)]">In range</div></div>
-              <div className="rounded-2xl bg-[oklch(1_0_0/0.08)] p-3"><div className="text-2xl font-black">{tir.below_range.percentage.toFixed(0)}%</div><div className="text-[0.68rem] font-bold text-[oklch(0.75_0.04_245)]">Below</div></div>
-              <div className="rounded-2xl bg-[oklch(1_0_0/0.08)] p-3"><div className="text-2xl font-black">{tir.above_range.percentage.toFixed(0)}%</div><div className="text-[0.68rem] font-bold text-[oklch(0.75_0.04_245)]">Above</div></div>
+            <p className="mt-2 text-sm leading-6 text-[oklch(0.36_0.035_255)]">{signal.description}</p>
+            <div className="mt-4 grid grid-cols-3 gap-3">
+              <div className="rounded-xl bg-white/60 p-3 text-center">
+                <p className="text-2xl font-black text-[oklch(0.24_0.04_255)]">{tir.percentage.toFixed(0)}%</p>
+                <p className="text-[0.65rem] font-bold text-[oklch(0.48_0.035_255)]">In range</p>
+              </div>
+              <div className="rounded-xl bg-white/60 p-3 text-center">
+                <p className="text-2xl font-black text-[oklch(0.24_0.04_255)]">{statistics.average.toFixed(0)}</p>
+                <p className="text-[0.65rem] font-bold text-[oklch(0.48_0.035_255)]">Avg mg/dL</p>
+              </div>
+              <div className="rounded-xl bg-white/60 p-3 text-center">
+                <p className="text-2xl font-black text-[oklch(0.24_0.04_255)]">{analysis?.analysis?.estimated_a1c ?? '—'}</p>
+                <p className="text-[0.65rem] font-bold text-[oklch(0.48_0.035_255)]">Est. A1C</p>
+              </div>
             </div>
           </div>
-        </Card>
+        </div>
+      </Card>
 
-        <Card className="p-6">
-          <h2 className="text-lg font-black tracking-[-0.03em]">Statistics</h2>
-          <div className="mt-5 grid grid-cols-2 gap-3 md:grid-cols-4">
-            {[
-              ['Average', `${statistics.average.toFixed(0)} mg/dL`],
-              ['Min / max', `${statistics.min_value.toFixed(0)} / ${statistics.max_value.toFixed(0)}`],
-              ['Variability', statistics.std_dev.toFixed(1)],
-              ['Readings', statistics.total_readings],
-            ].map(([label, value]) => (
-              <div key={label} className="panel-subtle p-4">
-                <div className="text-[0.68rem] font-black uppercase tracking-[0.12em] text-[oklch(0.5_0.035_255)]">{label}</div>
-                <div className="mt-2 text-2xl font-black tracking-[-0.05em] text-[oklch(0.24_0.04_255)]">{value}</div>
-              </div>
-            ))}
+      {/* Pattern cards grid */}
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {/* Meals card */}
+        <Card className="p-5">
+          <div className="mb-3 flex items-center gap-2">
+            <Utensils className="h-5 w-5 text-[oklch(0.52_0.12_73)]" />
+            <h3 className="font-black tracking-[-0.02em]">Meals</h3>
           </div>
-          <div className="mt-5 rounded-[24px] bg-[oklch(0.95_0.025_255)] p-4 text-sm leading-6 text-[oklch(0.4_0.04_255)]">
-            The engine is looking for repeatable context, not single bad numbers. It weighs timing, meal composition, exercise proximity, and overnight windows.
-          </div>
-        </Card>
-      </div>
-
-      <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
-        <Card className="p-6">
-          <div className="mb-5 flex items-center gap-3"><Utensils className="h-5 w-5 text-[oklch(0.52_0.12_73)]" /><h2 className="text-lg font-black tracking-[-0.03em]">Post-meal spikes ({spikes.length})</h2></div>
-          <div className="space-y-3">
-            {spikes.map((spike, index) => (
-              <div key={index} className="panel-subtle p-4">
-                <div className="flex justify-between gap-4">
-                  <div><p className="font-black tracking-[-0.02em]">{spike.meal.food_name}</p><p className="text-sm font-semibold text-[oklch(0.48_0.035_255)]">{spike.meal.carbs}g carbs, {spike.timing ?? 'delayed rise'}</p></div>
-                  <span className="chip capitalize">{spike.severity}</span>
-                </div>
-                <div className="mt-3 text-sm font-bold text-[oklch(0.42_0.04_255)]">+{spike.glucose_rise} mg/dL to {spike.peak_value} mg/dL</div>
-              </div>
-            ))}
-          </div>
-        </Card>
-
-        <Card className="p-6">
-          <div className="mb-5 flex items-center gap-3"><Dumbbell className="h-5 w-5 text-[oklch(0.43_0.13_178)]" /><h2 className="text-lg font-black tracking-[-0.03em]">Exercise impacts ({exercise.length})</h2></div>
-          <div className="space-y-3">
-            {exercise.map((impact, index) => (
-              <div key={index} className="panel-subtle flex items-center justify-between gap-4 p-4">
-                <div><p className="font-black capitalize tracking-[-0.02em]">{impact.exercise.intensity} {impact.exercise.exercise_type || 'exercise'}</p><p className="text-sm font-semibold text-[oklch(0.48_0.035_255)]">{impact.exercise.duration_minutes} minutes</p></div>
-                <span className="text-lg font-black text-[oklch(0.43_0.13_178)]">{impact.impact.avg_change_from_baseline > 0 ? '+' : ''}{impact.impact.avg_change_from_baseline.toFixed(0)} mg/dL</span>
-              </div>
-            ))}
-          </div>
-        </Card>
-
-        <Card className="p-6 xl:col-span-2">
-          <div className="mb-5 flex items-center gap-3"><Moon className="h-5 w-5 text-[oklch(0.46_0.15_255)]" /><h2 className="text-lg font-black tracking-[-0.03em]">Overnight hypoglycemia ({overnight.length})</h2></div>
-          {overnight.length === 0 ? (
-            <p className="text-sm font-semibold text-[oklch(0.48_0.035_255)]">No overnight lows detected in this window.</p>
+          {spikes.length === 0 ? (
+            <p className="text-sm text-[oklch(0.48_0.035_255)]">No notable meal spikes this week.</p>
           ) : (
-            <div className="grid gap-3 md:grid-cols-2">
-              {overnight.map((event, index) => (
-                <div key={index} className="panel-subtle flex items-center justify-between p-4">
-                  <div><p className="font-black">{new Date(event.date).toDateString()}</p><p className="text-sm font-semibold text-[oklch(0.48_0.035_255)]">{event.percentage_of_night.toFixed(1)}% of night low</p></div>
-                  <span className="text-2xl font-black text-[oklch(0.52_0.16_27)]">{event.lowest_value}</span>
+            <div className="space-y-2">
+              {spikes.slice(0, 3).map((spike, i) => (
+                <div key={i} className="rounded-xl bg-[oklch(0.96_0.02_245)] p-3">
+                  <div className="flex items-center justify-between">
+                    <p className="text-sm font-bold">{spike.meal.food_name}</p>
+                    <span className={cn(
+                      'rounded-full px-2 py-0.5 text-[0.65rem] font-black uppercase',
+                      spike.severity === 'high' ? 'bg-[oklch(0.76_0.15_72/0.15)] text-[oklch(0.52_0.16_27)]' :
+                      spike.severity === 'moderate' ? 'bg-[oklch(0.85_0.12_85/0.15)] text-[oklch(0.52_0.12_73)]' :
+                      'bg-[oklch(0.72_0.15_178/0.12)] text-[oklch(0.43_0.13_178)]'
+                    )}>{spike.severity}</span>
+                  </div>
+                  <p className="mt-1 text-xs text-[oklch(0.48_0.035_255)]">+{spike.glucose_rise} mg/dL to {spike.peak_value}</p>
+                </div>
+              ))}
+            </div>
+          )}
+        </Card>
+
+        {/* Exercise card */}
+        <Card className="p-5">
+          <div className="mb-3 flex items-center gap-2">
+            <Dumbbell className="h-5 w-5 text-[oklch(0.43_0.13_178)]" />
+            <h3 className="font-black tracking-[-0.02em]">Exercise</h3>
+          </div>
+          {exercise.length === 0 ? (
+            <p className="text-sm text-[oklch(0.48_0.035_255)]">No exercise logged this week.</p>
+          ) : (
+            <div className="space-y-2">
+              {exercise.slice(0, 3).map((impact, i) => (
+                <div key={i} className="rounded-xl bg-[oklch(0.96_0.02_245)] p-3">
+                  <p className="text-sm font-bold capitalize">{impact.exercise.intensity} {impact.exercise.exercise_type || 'exercise'}</p>
+                  <p className="mt-1 text-xs text-[oklch(0.48_0.035_255)]">
+                    {impact.exercise.duration_minutes} min · {impact.impact.avg_change_from_baseline > 0 ? '+' : ''}{impact.impact.avg_change_from_baseline.toFixed(0)} mg/dL
+                  </p>
+                </div>
+              ))}
+            </div>
+          )}
+        </Card>
+
+        {/* Overnight card */}
+        <Card className="p-5">
+          <div className="mb-3 flex items-center gap-2">
+            <Moon className="h-5 w-5 text-[oklch(0.46_0.15_255)]" />
+            <h3 className="font-black tracking-[-0.02em]">Overnight</h3>
+          </div>
+          {overnight.length === 0 ? (
+            <div className="flex items-center gap-2 rounded-xl bg-[oklch(0.72_0.15_178/0.08)] p-3">
+              <CheckCircle2 className="h-4 w-4 text-[oklch(0.43_0.13_178)]" />
+              <p className="text-sm font-semibold text-[oklch(0.43_0.13_178)]">No overnight lows this week.</p>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {overnight.slice(0, 3).map((event, i) => (
+                <div key={i} className="rounded-xl bg-[oklch(0.76_0.15_72/0.08)] p-3">
+                  <p className="text-sm font-bold">{new Date(event.date).toDateString()}</p>
+                  <p className="mt-1 text-xs text-[oklch(0.48_0.035_255)]">Low: {event.lowest_value} mg/dL · {event.percentage_of_night.toFixed(1)}% of night</p>
                 </div>
               ))}
             </div>
           )}
         </Card>
       </div>
+
+      {/* Full statistics */}
+      <Card className="p-5">
+        <h3 className="mb-4 font-black tracking-[-0.02em]">Weekly statistics</h3>
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+          {[
+            ['Average', `${statistics.average.toFixed(0)} mg/dL`],
+            ['Low / high', `${statistics.min_value.toFixed(0)} / ${statistics.max_value.toFixed(0)}`],
+            ['Variability', statistics.std_dev?.toFixed(1) ?? '—'],
+            ['Readings', statistics.total_readings ?? '—'],
+          ].map(([label, value]) => (
+            <div key={label} className="rounded-xl bg-[oklch(0.96_0.02_245)] p-3">
+              <p className="text-[0.65rem] font-black uppercase tracking-[0.1em] text-[oklch(0.48_0.035_255)]">{label}</p>
+              <p className="mt-1 text-lg font-black text-[oklch(0.24_0.04_255)]">{value}</p>
+            </div>
+          ))}
+        </div>
+      </Card>
     </div>
   )
 }

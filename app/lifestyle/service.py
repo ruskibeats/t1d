@@ -7,21 +7,29 @@ from sqlalchemy import desc, select
 from app.lifestyle.models import LifestyleEntry
 from app.lifestyle.schemas import LifestyleEntryCreate
 from app.metrics.types import MetricType
-from app.services.metric_writer import write_metric_if_present
+from app.services.metric_registry import MetricRegistry
 
 
 class LifestyleService:
     def __init__(self, db: AsyncSession):
         self.db = db
+        self._metric_registry = MetricRegistry(db)
 
     async def create(self, user_id: int, data: LifestyleEntryCreate) -> LifestyleEntry:
         entry = LifestyleEntry(user_id=user_id, **data.model_dump())
         self.db.add(entry)
         await self.db.flush()
         await self.db.refresh(entry)
-        await write_metric_if_present(self.db, user_id, MetricType.STRESS_LEVEL, entry.stress_level, "score", entry.measured_at, entry.source)
-        await write_metric_if_present(self.db, user_id, MetricType.ENERGY_LEVEL, entry.energy_level, "score", entry.measured_at, entry.source)
-        await write_metric_if_present(self.db, user_id, MetricType.CAFFEINE, entry.caffeine_mg, "mg", entry.measured_at, entry.source)
+        await self._metric_registry.record_metrics_batch(
+            user_id=user_id,
+            measured_at=entry.measured_at,
+            source=entry.source,
+            metrics=[
+                {"metric_type": MetricType.STRESS_LEVEL, "value": entry.stress_level, "unit": "score"},
+                {"metric_type": MetricType.ENERGY_LEVEL, "value": entry.energy_level, "unit": "score"},
+                {"metric_type": MetricType.CAFFEINE, "value": entry.caffeine_mg, "unit": "mg"},
+            ]
+        )
         return entry
 
     async def get(self, user_id: int, entry_id: int) -> Optional[LifestyleEntry]:

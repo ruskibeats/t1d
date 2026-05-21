@@ -7,19 +7,28 @@ from sqlalchemy import desc, select
 from app.body_battery.models import BodyBatteryEntry
 from app.body_battery.schemas import BodyBatteryEntryCreate
 from app.metrics.types import MetricType
-from app.services.metric_writer import write_metric_if_present
+from app.services.metric_registry import MetricRegistry
 
 
 class BodyBatteryService:
     def __init__(self, db: AsyncSession):
         self.db = db
+        self._metric_registry = MetricRegistry(db)
 
     async def create(self, user_id: int, data: BodyBatteryEntryCreate) -> BodyBatteryEntry:
         entry = BodyBatteryEntry(user_id=user_id, **data.model_dump())
         self.db.add(entry)
         await self.db.flush()
         await self.db.refresh(entry)
-        await write_metric_if_present(self.db, user_id, MetricType.BODY_BATTERY_CHANGE, entry.change, "score_delta", entry.measured_at, entry.source, {"value": entry.value, "charged": entry.charged, "drained": entry.drained})
+        await self._metric_registry.record_metric(
+            user_id=user_id,
+            metric_type=MetricType.BODY_BATTERY_CHANGE,
+            value=entry.change,
+            measured_at=entry.measured_at,
+            unit="score_delta",
+            source=entry.source,
+            meta={"value": entry.value, "charged": entry.charged, "drained": entry.drained},
+        )
         return entry
 
     async def get(self, user_id: int, entry_id: int) -> Optional[BodyBatteryEntry]:

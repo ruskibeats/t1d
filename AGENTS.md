@@ -6,6 +6,25 @@ This project uses a multi-agent architecture for the T1D (Type 1 Diabetes) Compa
 
 **Key Principle**: This is an *educational data companion*, not a medical device. Agents provide pattern recognition and conversational insights while enforcing strict safety guardrails.
 
+## Clanker Ops
+
+Clanker Ops is the project work queue, planning surface, and shutdown/reporting system. When the user asks to learn, understand, remember, add to, plan, report, summarize, dispatch, queue, or review Clanker Ops work, do **not** create skills, memory files, README files, tools, scripts, or other persistent artifacts unless the user explicitly asks for that artifact or destination.
+
+Default behavior:
+
+- Inspect `.pi/todo-state.json`, `.pi/todo-plans/`, and the Clanker Ops extension only as needed.
+- Answer the user directly, or add/update a Clanker Ops work item with a mini-plan.
+- Use `/clanker`, `/clanker eod`, `/clanker lights-off`, or the existing Clanker Ops tool actions.
+- Leave support artifacts such as skills, tools, scripts, and files to the assigned clanker during dispatch, unless the mini-plan explicitly says to use them.
+
+**Agent Allocation**: For task assignment to appropriate agents, see `docs/CLANKER_ROSTER.md` which catalogs ~35 curated agents for T1D Companion development.
+
+Examples:
+
+- "learn clanker ops" means inspect and explain the current queue system; it does not mean create a skill.
+- "add end of day report to clanker ops" means add/update a Clanker Ops work item with a mini-plan unless the user explicitly asks to implement immediately.
+- "add list all .md files in docs folder and add a review todo to clanker ops" means inspect docs as needed, then add the review work item to Clanker Ops.
+
 ---
 
 ## Architecture

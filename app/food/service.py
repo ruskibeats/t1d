@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.food.models import Food, FoodEntry
 from app.food.schemas import FoodCreate, FoodEntryCreate
 from app.metrics.types import MetricType
-from app.services.metric_writer import write_metric_if_present
+from app.services.metric_registry import MetricRegistry
 
 
 def _parse_serving_size(value: str | float | None) -> float | None:
@@ -37,6 +37,7 @@ class FoodService:
 
     def __init__(self, db: AsyncSession):
         self.db = db
+        self._metric_registry = MetricRegistry(db)
 
     # ------------------------------------------------------------------
     # Food CRUD
@@ -272,12 +273,20 @@ class FoodService:
         self.db.add(entry)
         await self.db.flush()
         await self.db.refresh(entry)
-        await write_metric_if_present(self.db, user_id, MetricType.CALORIES, entry.calories, "kcal", entry.entry_date, entry.source)
-        await write_metric_if_present(self.db, user_id, MetricType.PROTEIN, entry.protein, "g", entry.entry_date, entry.source)
-        await write_metric_if_present(self.db, user_id, MetricType.CARBS, entry.carbs, "g", entry.entry_date, entry.source)
-        await write_metric_if_present(self.db, user_id, MetricType.FAT, entry.fat, "g", entry.entry_date, entry.source)
-        await write_metric_if_present(self.db, user_id, MetricType.FIBER, entry.fiber, "g", entry.entry_date, entry.source)
-        await write_metric_if_present(self.db, user_id, MetricType.GLYCEMIC_LOAD, entry.glycemic_load, "score", entry.entry_date, entry.source)
+        # Dual-write via consolidated registry (batch metrics via single call)
+        await self._metric_registry.record_metrics_batch(
+            user_id=user_id,
+            measured_at=entry.entry_date,
+            source=entry.source,
+            metrics=[
+                {"metric_type": MetricType.CALORIES, "value": entry.calories, "unit": "kcal"},
+                {"metric_type": MetricType.PROTEIN, "value": entry.protein, "unit": "g"},
+                {"metric_type": MetricType.CARBS, "value": entry.carbs, "unit": "g"},
+                {"metric_type": MetricType.FAT, "value": entry.fat, "unit": "g"},
+                {"metric_type": MetricType.FIBER, "value": entry.fiber, "unit": "g"},
+                {"metric_type": MetricType.GLYCEMIC_LOAD, "value": entry.glycemic_load, "unit": "score"},
+            ]
+        )
         return entry
 
     async def list_entries(

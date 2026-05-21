@@ -28,7 +28,7 @@ class TestEnvironmentAPI:
             # Create a mock service
             from app.environment.service import EnvironmentService
             service = EnvironmentService(db_session)
-            response = await service.create_entry(test_user.id, data)
+            response = await service.create(test_user.id, data)
 
         assert response.temperature_c == 22.5
         assert response.humidity_percent == 45.0
@@ -46,9 +46,9 @@ class TestEnvironmentAPI:
             measured_at=datetime.now(timezone.utc),
         )
         service = EnvironmentService(db_session)
-        await service.create_entry(test_user.id, data)
+        await service.create(test_user.id, data)
 
-        response = await service.list_entries(user_id=test_user.id)
+        response = await service.list(user_id=test_user.id)
         assert isinstance(response, list)
         assert len(response) >= 1
 
@@ -64,9 +64,9 @@ class TestEnvironmentAPI:
             measured_at=datetime.now(timezone.utc),
         )
         service = EnvironmentService(db_session)
-        created = await service.create_entry(test_user.id, data)
+        created = await service.create(test_user.id, data)
 
-        response = await service.get_entry(test_user.id, created.id)
+        response = await service.get(test_user.id, created.id)
         assert response.temperature_c == 18.5
         assert response.humidity_percent == 60.0
 
@@ -82,14 +82,14 @@ class TestEnvironmentAPI:
             measured_at=datetime.now(timezone.utc),
         )
         service = EnvironmentService(db_session)
-        created = await service.create_entry(test_user.id, data)
+        created = await service.create(test_user.id, data)
 
         update_data = EnvironmentEntryCreate(
             temperature_c=26.0,
             humidity_percent=55.0,
             measured_at=datetime.now(timezone.utc),
         )
-        response = await service.update_entry(test_user.id, created.id, update_data)
+        response = await service.update(test_user.id, created.id, update_data)
         assert response.temperature_c == 26.0
 
     @pytest.mark.asyncio
@@ -103,13 +103,13 @@ class TestEnvironmentAPI:
             measured_at=datetime.now(timezone.utc),
         )
         service = EnvironmentService(db_session)
-        created = await service.create_entry(test_user.id, data)
+        created = await service.create(test_user.id, data)
 
-        success = await service.delete_entry(test_user.id, created.id)
+        success = await service.delete(test_user.id, created.id)
         assert success is True
 
         # Verify deletion
-        response = await service.get_entry(test_user.id, created.id)
+        response = await service.get(test_user.id, created.id)
         assert response is None
 
     @pytest.mark.asyncio
@@ -126,9 +126,9 @@ class TestEnvironmentAPI:
             measured_at=yesterday,
         )
         service = EnvironmentService(db_session)
-        await service.create_entry(test_user.id, data)
+        await service.create(test_user.id, data)
 
-        response = await service.list_entries(
+        response = await service.list(
             user_id=test_user.id,
             start_date=yesterday,
             end_date=now,
@@ -148,7 +148,7 @@ class TestEnvironmentAPI:
             measured_at=datetime.now(timezone.utc),
         )
         service = EnvironmentService(db_session)
-        response = await service.create_entry(test_user.id, data)
+        response = await service.create(test_user.id, data)
 
         assert response.temperature_c is None
         assert response.humidity_percent is None
@@ -165,6 +165,6 @@ class TestEnvironmentAPI:
             measured_at=datetime.now(timezone.utc),
         )
         service = EnvironmentService(db_session)
-        response = await service.create_entry(test_user.id, data)
+        response = await service.create(test_user.id, data)
 
         assert response.source == "manual"

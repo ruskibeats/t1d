@@ -955,6 +955,46 @@ class PatternService:
                         "Split high-fat meals into smaller portions",
                     ],
                 })
+                
+                # Persist graph edge for delayed high-fat meal spike
+                try:
+                    from app.metrics.graph_service import HealthGraphService
+                    from app.metrics.models import HealthMetric
+                    from app.metrics.schemas import HealthMetricEdgeCreate
+                    from app.metrics.types import GraphEdgeType, MetricType
+
+                    # Find fat metric for the meal
+                    fat_metric = await self._nearest_metric(
+                        session, user_id, [MetricType.FAT], event.timestamp, tolerance_minutes=30
+                    )
+                    # Find glucose metric at peak
+                    glucose_metric = await self._nearest_metric(
+                        session, user_id, [MetricType.BLOOD_GLUCOSE], peak.timestamp, tolerance_minutes=20
+                    )
+                    if fat_metric and glucose_metric and fat_metric.id != glucose_metric.id:
+                        delay = int((peak.timestamp.replace(tzinfo=None) - event.timestamp.replace(tzinfo=None)).total_seconds())
+                        await HealthGraphService(session).upsert_edge(
+                            user_id,
+                            HealthMetricEdgeCreate(
+                                source_metric_id=fat_metric.id,
+                                target_metric_id=glucose_metric.id,
+                                edge_type=GraphEdgeType.MEAL_TO_DELAYED_SPIKE,
+                                confidence=min((delay_rise - 30) / 100, 1.0),
+                                time_delay_seconds=delay,
+                                algorithm="pattern_service.delayed_high_fat.v1",
+                                evidence={
+                                    "fat_grams": event.fat_grams,
+                                    "carbs_grams": event.carbs_grams,
+                                    "pre_meal_glucose": round(pre_meal.glucose_value, 1),
+                                    "peak_glucose": round(peak.glucose_value, 1),
+                                    "delayed_rise": round(delay_rise, 1),
+                                    "hours_to_peak": round(hours_to_peak, 1),
+                                    "severity": self._classify_spike_severity(delay_rise, peak.glucose_value),
+                                },
+                            ),
+                        )
+                except Exception as e:
+                    self.logger.warning(f"Failed to persist delayed high-fat graph edge: {e}")
         
         return delayed_effects
 

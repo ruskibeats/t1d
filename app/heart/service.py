@@ -7,21 +7,30 @@ from sqlalchemy import desc, select
 from app.heart.models import HeartRateEntry
 from app.heart.schemas import HeartRateEntryCreate
 from app.metrics.types import MetricType
-from app.services.metric_writer import write_metric_if_present
+from app.services.metric_registry import MetricRegistry
 
 
 class HeartRateService:
     def __init__(self, db: AsyncSession):
         self.db = db
+        self._metric_registry = MetricRegistry(db)
 
     async def create(self, user_id: int, data: HeartRateEntryCreate) -> HeartRateEntry:
         entry = HeartRateEntry(user_id=user_id, **data.model_dump())
         self.db.add(entry)
         await self.db.flush()
         await self.db.refresh(entry)
-        await write_metric_if_present(self.db, user_id, MetricType.HEART_RATE, entry.heart_rate_bpm, "bpm", entry.measured_at, entry.source)
-        await write_metric_if_present(self.db, user_id, MetricType.RESTING_HEART_RATE, entry.resting_heart_rate_bpm, "bpm", entry.measured_at, entry.source)
-        await write_metric_if_present(self.db, user_id, MetricType.HEART_RATE_VARIABILITY, entry.hrv_ms, "ms", entry.measured_at, entry.source)
+        # Dual-write via consolidated registry (batch metrics)
+        await self._metric_registry.record_metrics_batch(
+            user_id=user_id,
+            measured_at=entry.measured_at,
+            source=entry.source,
+            metrics=[
+                {"metric_type": MetricType.HEART_RATE, "value": entry.heart_rate_bpm, "unit": "bpm"},
+                {"metric_type": MetricType.RESTING_HEART_RATE, "value": entry.resting_heart_rate_bpm, "unit": "bpm"},
+                {"metric_type": MetricType.HEART_RATE_VARIABILITY, "value": entry.hrv_ms, "unit": "ms"},
+            ]
+        )
         return entry
 
     async def get(self, user_id: int, entry_id: int) -> Optional[HeartRateEntry]:

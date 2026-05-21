@@ -7,23 +7,32 @@ from sqlalchemy import desc, select
 from app.body_composition.models import BodyCompositionEntry
 from app.body_composition.schemas import BodyCompositionEntryCreate
 from app.metrics.types import MetricType
-from app.services.metric_writer import write_metric_if_present
+from app.services.metric_registry import MetricRegistry
 
 
 class BodyCompositionService:
     def __init__(self, db: AsyncSession):
         self.db = db
+        self._metric_registry = MetricRegistry(db)
 
     async def create(self, user_id: int, data: BodyCompositionEntryCreate) -> BodyCompositionEntry:
         entry = BodyCompositionEntry(user_id=user_id, **data.model_dump())
         self.db.add(entry)
         await self.db.flush()
         await self.db.refresh(entry)
-        await write_metric_if_present(self.db, user_id, MetricType.WEIGHT, entry.weight_kg, "kg", entry.measured_at, entry.source)
-        await write_metric_if_present(self.db, user_id, MetricType.BODY_FAT_PERCENT, entry.body_fat_percent, "%", entry.measured_at, entry.source)
-        await write_metric_if_present(self.db, user_id, MetricType.BMI, entry.bmi, "kg/m2", entry.measured_at, entry.source)
-        await write_metric_if_present(self.db, user_id, MetricType.LEAN_MASS, entry.lean_mass_kg, "kg", entry.measured_at, entry.source)
-        await write_metric_if_present(self.db, user_id, MetricType.WAIST_CIRCUMFERENCE, entry.waist_cm, "cm", entry.measured_at, entry.source)
+        # Dual-write via consolidated registry (batch metrics)
+        await self._metric_registry.record_metrics_batch(
+            user_id=user_id,
+            measured_at=entry.measured_at,
+            source=entry.source,
+            metrics=[
+                {"metric_type": MetricType.WEIGHT, "value": entry.weight_kg, "unit": "kg"},
+                {"metric_type": MetricType.BODY_FAT_PERCENT, "value": entry.body_fat_percent, "unit": "%"},
+                {"metric_type": MetricType.BMI, "value": entry.bmi, "unit": "kg/m2"},
+                {"metric_type": MetricType.LEAN_MASS, "value": entry.lean_mass_kg, "unit": "kg"},
+                {"metric_type": MetricType.WAIST_CIRCUMFERENCE, "value": entry.waist_cm, "unit": "cm"},
+            ]
+        )
         return entry
 
     async def get(self, user_id: int, entry_id: int) -> Optional[BodyCompositionEntry]:

@@ -7,14 +7,15 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.measurements.models import CustomMeasurement
 from app.measurements.schemas import CustomMeasurementCreate
 from app.metrics.types import MetricType
-from app.services.metric_writer import write_metric_if_present
+from app.services.metric_registry import MetricRegistry
 
 
 class MeasurementService:
     def __init__(self, db: AsyncSession):
         self.db = db
+        self._metric_registry = MetricRegistry(db)
 
-    async def create_measurement(self, user_id: int, data: CustomMeasurementCreate) -> CustomMeasurement:
+    async def create(self, user_id: int, data: CustomMeasurementCreate) -> CustomMeasurement:
         measurement = CustomMeasurement(user_id=user_id, **data.model_dump())
         self.db.add(measurement)
         await self.db.flush()
@@ -26,16 +27,25 @@ class MeasurementService:
             "waist_circumference": MetricType.WAIST_CIRCUMFERENCE,
             "lean_mass": MetricType.LEAN_MASS,
         }.get(measurement.metric_name, MetricType.CUSTOM)
-        await write_metric_if_present(self.db, user_id, metric_type, measurement.value, measurement.unit, measurement.measured_at, measurement.source, {"metric_name": measurement.metric_name})
+        if metric_type != MetricType.CUSTOM:
+            await self._metric_registry.record_metric(
+                user_id=user_id,
+                metric_type=metric_type,
+                value=measurement.value,
+                measured_at=measurement.measured_at,
+                unit=measurement.unit,
+                source=measurement.source,
+                meta={"metric_name": measurement.metric_name},
+            )
         return measurement
 
-    async def get_measurement(self, user_id: int, measurement_id: int) -> Optional[CustomMeasurement]:
+    async def get(self, user_id: int, measurement_id: int) -> Optional[CustomMeasurement]:
         result = await self.db.execute(
             select(CustomMeasurement).where(CustomMeasurement.user_id == user_id, CustomMeasurement.id == measurement_id)
         )
         return result.scalar_one_or_none()
 
-    async def list_measurements(
+    async def list(
         self,
         user_id: int,
         start_date: Optional[datetime] = None,
@@ -55,10 +65,10 @@ class MeasurementService:
         result = await self.db.execute(stmt)
         return list(result.scalars().all())
 
-    async def update_measurement(
+    async def update(
         self, user_id: int, measurement_id: int, data: CustomMeasurementCreate
     ) -> Optional[CustomMeasurement]:
-        measurement = await self.get_measurement(user_id, measurement_id)
+        measurement = await self.get(user_id, measurement_id)
         if not measurement:
             return None
         for field, value in data.model_dump(exclude_unset=True).items():
@@ -67,8 +77,8 @@ class MeasurementService:
         await self.db.refresh(measurement)
         return measurement
 
-    async def delete_measurement(self, user_id: int, measurement_id: int) -> bool:
-        measurement = await self.get_measurement(user_id, measurement_id)
+    async def delete(self, user_id: int, measurement_id: int) -> bool:
+        measurement = await self.get(user_id, measurement_id)
         if not measurement:
             return False
         await self.db.delete(measurement)

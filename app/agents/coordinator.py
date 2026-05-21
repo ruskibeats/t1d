@@ -14,13 +14,13 @@ logger = get_logger(__name__)
 
 class AgentCoordinator:
     """Coordinates specialized agents for T1D data analysis and conversation.
-    
+
     This class manages the multi-agent system that handles:
     - Data ingestion from CGM and meal trackers
     - Pattern detection and analysis
     - Natural language conversation
     - Safety monitoring and escalation
-    
+
     Note: This is a lightweight coordinator. In a production system with
     pi-subagents, these would be separate processes. Here we use a simplified
     in-process approach for the Python backend.
@@ -64,14 +64,14 @@ class AgentCoordinator:
 
     async def delegate_task(self, task_type: str, data: dict) -> dict:
         """Delegate a task to the appropriate agent.
-        
+
         Args:
             task_type: Type of task to delegate
             data: Task-specific data
-            
+
         Returns:
             Dict: Task result
-            
+
         Raises:
             ValueError: If task_type is unknown
         """
@@ -102,13 +102,13 @@ class AgentCoordinator:
         conversation_id: int | None = None,
     ) -> dict:
         """Process a chat message through the full agent pipeline.
-        
+
         Args:
             message: User message
             user_id: User ID
             session: Database session (AsyncSession)
             conversation_id: Optional conversation ID
-            
+
         Returns:
             Dict: Response with agent analysis
         """
@@ -174,6 +174,26 @@ class AgentCoordinator:
                 )
                 response["safety_flagged"] = True
                 response["post_safety_result"] = post_safety
+            else:
+                # Disclaimer enforcement: ensure long responses include educational disclaimer
+                DISCLAIMERS = [
+                    "educational insight",
+                    "educational information",
+                    "not medical advice",
+                    "consider discussing",
+                    "consult your health",
+                    "consult your diabetes",
+                    "discuss with your",
+                ]
+                if len(response_text) > 200 and not any(
+                    d in response_text.lower() for d in DISCLAIMERS
+                ):
+                    response["response"] = response_text.rstrip() + (
+                        "\n\n---\n"
+                        "*This is educational information, not medical advice. "
+                        "Consider discussing these patterns with your healthcare team.*"
+                    )
+                    response["disclaimer_appended"] = True
 
         # Add metadata
         response["metadata"] = {
@@ -190,7 +210,7 @@ class BaseAgent:
 
     def __init__(self, name: str):
         """Initialize base agent.
-        
+
         Args:
             name: Agent name for logging
         """
@@ -199,10 +219,10 @@ class BaseAgent:
 
     async def handle(self, data: dict) -> dict:
         """Handle a task.
-        
+
         Args:
             data: Task data
-            
+
         Returns:
             Dict: Task result
         """
@@ -221,13 +241,13 @@ class DataIngestionAgent(BaseAgent):
 
     async def handle(self, data: dict) -> dict:
         """Handle data ingestion tasks.
-        
+
         Delegates to LLMService.retrieve_context() to get real glucose
         readings, events, and pattern summaries from the database.
-        
+
         Args:
             data: Task data with 'action' key and 'session' for DB access
-            
+
         Returns:
             Dict: Context data with glucose, events, patterns, and user profile
         """
@@ -284,13 +304,13 @@ class PatternAgent(BaseAgent):
 
     async def handle(self, data: dict) -> dict:
         """Handle pattern analysis tasks.
-        
+
         Delegates to PatternService for time-in-range, spike detection,
         and overnight hypoglycemia analysis.
-        
+
         Args:
             data: Task data with 'action' key and 'session' for DB access
-            
+
         Returns:
             Dict: Analysis results with TIR, spikes, overnight lows
         """
@@ -377,13 +397,13 @@ class ConversationAgent(BaseAgent):
 
     async def handle(self, data: dict) -> dict:
         """Handle conversation tasks.
-        
+
         Delegates to LLMService.generate_response() for real LLM-powered
         responses grounded in user data and patterns.
-        
+
         Args:
             data: Task data with message, user_id, session, context, patterns
-            
+
         Returns:
             Dict: Response with generated text, confidence, sources
         """
@@ -429,88 +449,73 @@ class ConversationAgent(BaseAgent):
 
 
 class SafetyAgent(BaseAgent):
-    """Agent for safety monitoring and content filtering."""
+    """Agent for safety monitoring and content filtering.
+
+    Delegates all detection logic to SafetyScaffold to avoid
+    duplicating keyword lists and violation patterns.
+    """
 
     def __init__(self):
         super().__init__("safety")
-        self.emergency_keywords = [
-            "emergency", "urgent", "help", "can't wake", "unconscious",
-            "severe", "crisis", "911", "emergency room", "hospital",
-            "kill myself", "suicide", "end it", "give up",
-        ]
-        # Assistant response policy violations (dosing, treatment changes)
-        self._violation_patterns = {
-            "dosing_advice": [
-                r"\btake\b\s+\d+\s*(?:units?|u)\b",
-                r"\bgive\b\s+\d+\s*(?:units?|u)\b",
-                r"\binject\b\s+\d+\s*(?:units?|u)\b",
-                r"\bdose\b\s+\d+\s*(?:units?|u)\b",
-                r"\b\d+\s*(?:units?|u)\s+of\s+insulin\b",
-            ],
-            "treatment_change": [
-                r"\bchange\b.*\btreatment\b",
-                r"\bstop\b.*\b(?:insulin|medication)\b",
-                r"\bdiscontinue\b.*\bmedication\b",
-            ],
-        }
-        self._compiled_violations = {
-            category: [re.compile(p, re.IGNORECASE) for p in patterns]
-            for category, patterns in self._violation_patterns.items()
-        }
+        from app.ai.safety import SafetyScaffold
+        self._scaffold = SafetyScaffold()
 
     async def handle(self, data: dict) -> dict:
         """Handle safety check tasks.
-        
+
+        Delegates to SafetyScaffold for all detection logic.
+
         Args:
             data: Task data with content to check
-            
+
         Returns:
             Dict: Safety check result
         """
-        content = data.get("content", "").lower()
+        content = data.get("content", "")
         content_type = data.get("content_type", "unknown")
 
-        # Check for emergency keywords
-        found_keywords = [
-            kw for kw in self.emergency_keywords
-            if kw in content
-        ]
+        # Use SafetyScaffold as the single source of truth
+        result = self._scaffold.validate(
+            content,
+            context={"source": "assistant" if content_type == "assistant_response" else "user"}
+        )
 
-        is_safe = len(found_keywords) == 0
-        requires_escalation = not is_safe
-        reasons = list(found_keywords)
-
-        # For assistant responses, also check policy violations
-        if content_type == "assistant_response":
-            for category, patterns in self._compiled_violations.items():
-                for pattern in patterns:
-                    if pattern.search(content):
-                        is_safe = False
-                        reasons.append(f"policy_violation:{category}")
-                        break
+        is_safe = result["is_safe"]
+        requires_escalation = result["requires_escalation"]
+        reasons = result["reasons"]
+        matched_conditions = result["matched_conditions"]
 
         if requires_escalation or not is_safe:
             self.logger.warning(
-                f"Safety alert: {'emergency keywords' if found_keywords else 'policy violations'} "
+                f"Safety alert: {matched_conditions} "
                 f"detected in {content_type}: {reasons}"
             )
 
-        return {
-            "is_safe": is_safe,
-            "safety_level": "emergency" if requires_escalation else ("blocked" if not is_safe else "safe"),
-            "reasons": reasons,
-            "requires_escalation": requires_escalation,
-            "message": (
+        # Build response matching the original SafetyAgent interface
+        if requires_escalation:
+            safety_level = "emergency"
+            message = (
                 "Please seek immediate medical attention or call emergency services. "
                 "Your safety is our priority."
-                if requires_escalation
-                else (
-                    "I'm not able to provide that information. "
-                    "Please consult your healthcare team for medical advice."
-                    if not is_safe
-                    else "Content passed safety check"
-                )
-            ),
+            )
+        elif not is_safe:
+            safety_level = "blocked"
+            message = (
+                "I'm not able to provide that information. "
+                "Please consult your healthcare team for medical advice."
+            )
+        else:
+            safety_level = "safe"
+            message = "Content passed safety check"
+
+        return {
+            "is_safe": is_safe,
+            "safety_level": safety_level,
+            "reasons": reasons,
+            "requires_escalation": requires_escalation,
+            "matched_conditions": matched_conditions,
+            "message": message,
+            "scaffold_result": result,
         }
 
 
@@ -522,13 +527,13 @@ class SummaryAgent(BaseAgent):
 
     async def handle(self, data: dict) -> dict:
         """Handle summary generation tasks.
-        
+
         Tries LLM-based summarization first, falls back to rule-based
         summary generated from pattern data.
-        
+
         Args:
             data: Task data with format, patterns, user_id, session
-            
+
         Returns:
             Dict: Summary result with status, format, and summary text
         """

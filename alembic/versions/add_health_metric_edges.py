@@ -39,8 +39,26 @@ def upgrade() -> None:
     is_postgres = bind.dialect.name == "postgresql"
 
     if is_postgres:
-        edge_type = postgresql.ENUM(*EDGE_TYPES, name="graph_edge_type")
-        edge_type.create(bind, checkfirst=True)
+        # Create the ENUM type if it doesn't exist (using raw SQL for IF NOT EXISTS)
+        op.execute("""
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'graph_edge_type') THEN
+        CREATE TYPE graph_edge_type AS ENUM (
+            'meal_to_glucose_spike', 'meal_to_delayed_spike',
+            'exercise_to_glucose_drop', 'exercise_to_glucose_rise',
+            'insulin_to_glucose_change', 'sleep_to_next_day_glucose',
+            'stress_to_glucose_rise', 'heart_rate_to_low_glucose',
+            'hydration_to_glucose_stability', 'correlates_with',
+            'precedes', 'same_event_as'
+        );
+    END IF;
+END
+$$;
+""")
+        # create_type=False so the table creation below doesn't try to
+        # CREATE TYPE a second time (the type already exists at this point)
+        edge_type = postgresql.ENUM(*EDGE_TYPES, name="graph_edge_type", create_type=False)
     else:
         edge_type = sa.String(length=64)
 

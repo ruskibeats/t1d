@@ -7,33 +7,43 @@ from typing import List, Optional
 from app.sleep.models import SleepEntry, SleepStage
 from app.sleep.schemas import SleepEntryCreate, SleepStageCreate
 from app.metrics.types import MetricType
-from app.services.metric_writer import write_metric_if_present
+from app.services.metric_registry import MetricRegistry
 
 
 class SleepService:
     def __init__(self, db: AsyncSession):
         self.db = db
+        self._metric_registry = MetricRegistry(db)
 
-    async def create_entry(self, user_id: int, data: SleepEntryCreate) -> SleepEntry:
+    async def create(self, user_id: int, data: SleepEntryCreate) -> SleepEntry:
         entry = SleepEntry(user_id=user_id, **data.model_dump())
         self.db.add(entry)
         await self.db.flush()
         await self.db.refresh(entry)
-        await write_metric_if_present(self.db, user_id, MetricType.SLEEP_HOURS, (entry.duration_minutes / 60) if entry.duration_minutes else None, "hours", entry.start_time, entry.source)
-        await write_metric_if_present(self.db, user_id, MetricType.SLEEP_SCORE, entry.quality_score, "score", entry.start_time, entry.source)
-        await write_metric_if_present(self.db, user_id, MetricType.SLEEP_DEEP, entry.deep_minutes, "minutes", entry.start_time, entry.source)
-        await write_metric_if_present(self.db, user_id, MetricType.SLEEP_LIGHT, entry.light_minutes, "minutes", entry.start_time, entry.source)
-        await write_metric_if_present(self.db, user_id, MetricType.SLEEP_REM, entry.rem_minutes, "minutes", entry.start_time, entry.source)
-        await write_metric_if_present(self.db, user_id, MetricType.SLEEP_AWAKE, entry.awake_minutes, "minutes", entry.start_time, entry.source)
+        # Dual-write via consolidated registry (batch metrics)
+        duration_hours = (entry.duration_minutes / 60) if entry.duration_minutes else None
+        await self._metric_registry.record_metrics_batch(
+            user_id=user_id,
+            measured_at=entry.start_time,
+            source=entry.source,
+            metrics=[
+                {"metric_type": MetricType.SLEEP_HOURS, "value": duration_hours, "unit": "hours"},
+                {"metric_type": MetricType.SLEEP_SCORE, "value": entry.quality_score, "unit": "score"},
+                {"metric_type": MetricType.SLEEP_DEEP, "value": entry.deep_minutes, "unit": "minutes"},
+                {"metric_type": MetricType.SLEEP_LIGHT, "value": entry.light_minutes, "unit": "minutes"},
+                {"metric_type": MetricType.SLEEP_REM, "value": entry.rem_minutes, "unit": "minutes"},
+                {"metric_type": MetricType.SLEEP_AWAKE, "value": entry.awake_minutes, "unit": "minutes"},
+            ]
+        )
         return entry
 
-    async def get_entry(self, user_id: int, entry_id: int) -> Optional[SleepEntry]:
+    async def get(self, user_id: int, entry_id: int) -> Optional[SleepEntry]:
         result = await self.db.execute(
             select(SleepEntry).where(SleepEntry.user_id == user_id, SleepEntry.id == entry_id)
         )
         return result.scalar_one_or_none()
 
-    async def list_entries(
+    async def list(
         self,
         user_id: int,
         start_date: Optional[datetime] = None,
@@ -66,10 +76,10 @@ class SleepService:
         )
         return list(result.scalars().all())
 
-    async def update_entry(
+    async def update(
         self, user_id: int, entry_id: int, data: SleepEntryCreate
     ) -> Optional[SleepEntry]:
-        entry = await self.get_entry(user_id, entry_id)
+        entry = await self.get(user_id, entry_id)
         if not entry:
             return None
         for field, value in data.model_dump(exclude_unset=True).items():
@@ -78,8 +88,8 @@ class SleepService:
         await self.db.refresh(entry)
         return entry
 
-    async def delete_entry(self, user_id: int, entry_id: int) -> bool:
-        entry = await self.get_entry(user_id, entry_id)
+    async def delete(self, user_id: int, entry_id: int) -> bool:
+        entry = await self.get(user_id, entry_id)
         if not entry:
             return False
         await self.db.delete(entry)

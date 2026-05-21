@@ -9,7 +9,6 @@ from app.metrics.types import GraphEdgeType, MetricType
 
 
 class HealthMetricCreate(BaseModel):
-    event_group_id: Optional[str] = None
     """Schema for creating a health metric entry."""
 
     type: MetricType = Field(..., description="Metric type identifier")
@@ -24,7 +23,6 @@ class HealthMetricCreate(BaseModel):
 
 
 class HealthMetricResponse(BaseModel):
-    event_group_id: Optional[str] = None
     """Schema for a health metric entry response."""
 
     id: int
@@ -71,6 +69,8 @@ class HealthMetricEdgeCreate(BaseModel):
     time_delay_seconds: Optional[int] = Field(None, description="Delay from source metric to target metric")
     algorithm: str = Field("manual", max_length=100)
     evidence: Optional[dict[str, Any]] = Field(None, description="Explainability metadata for this relationship")
+    provenance: Optional[dict[str, Any]] = Field(None, description="Provenance tracking data for this edge")
+    confidence_components: Optional[dict[str, Any]] = Field(None, description="Decomposed confidence components")
 
 
 class HealthMetricEdgeResponse(BaseModel):
@@ -85,6 +85,8 @@ class HealthMetricEdgeResponse(BaseModel):
     time_delay_seconds: Optional[int]
     algorithm: str
     evidence: Optional[dict[str, Any]]
+    provenance: Optional[dict[str, Any]]
+    confidence_components: Optional[dict[str, Any]]
     created_at: datetime
     updated_at: datetime
 

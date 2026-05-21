@@ -1,7 +1,7 @@
 {
   "version": "2.0.0",
   "description": "Lazy-loadable skills registry for T1D Companion AI agents. Skills are loaded on-demand only when needed, reducing initial context window bloat.",
-  "lastUpdated": "2026-05-17",
+  "lastUpdated": "2026-05-21",
   "skills": {
     "impeccable": {
       "name": "impeccable",
@@ -10,7 +10,7 @@
       "category": "design",
       "subcategory": "ui-polish",
       "priority": "high",
-      "file": "impeccable/SKILL.md",
+      "file": "skills-archive/impeccable/SKILL.md",
       "size": "large",
       "tokenEstimate": 1500,
       "triggers": [
@@ -57,7 +57,7 @@
       "category": "design",
       "subcategory": "evaluation",
       "priority": "medium",
-      "file": "design-taste-frontend/SKILL.md",
+      "file": "skills-archive/design-taste-frontend/SKILL.md",
       "size": "medium",
       "tokenEstimate": 800,
       "triggers": [
@@ -92,7 +92,7 @@
       "category": "design",
       "subcategory": "style-system",
       "priority": "critical",
-      "file": "minimalist-ui/SKILL.md",
+      "file": "skills-archive/minimalist-ui/SKILL.md",
       "size": "medium",
       "tokenEstimate": 1000,
       "triggers": [
@@ -139,7 +139,7 @@
       "category": "design",
       "subcategory": "style-system",
       "priority": "medium",
-      "file": "industrial-brutalist-ui/SKILL.md",
+      "file": "skills-archive/industrial-brutalist-ui/SKILL.md",
       "size": "medium",
       "tokenEstimate": 950,
       "triggers": [
@@ -184,7 +184,7 @@
       "category": "design",
       "subcategory": "brand-system",
       "priority": "medium",
-      "file": "brandkit/SKILL.md",
+      "file": "skills-archive/brandkit/SKILL.md",
       "size": "large",
       "tokenEstimate": 1800,
       "triggers": [
@@ -221,7 +221,7 @@
       "category": "design",
       "subcategory": "aesthetics",
       "priority": "low",
-      "file": "high-end-visual-design/SKILL.md",
+      "file": "skills-archive/high-end-visual-design/SKILL.md",
       "size": "medium",
       "tokenEstimate": 1200,
       "triggers": [
@@ -256,7 +256,7 @@
       "category": "design",
       "subcategory": "refactoring",
       "priority": "low",
-      "file": "redesign-existing-projects/SKILL.md",
+      "file": "skills-archive/redesign-existing-projects/SKILL.md",
       "size": "medium",
       "tokenEstimate": 1100,
       "triggers": [
@@ -287,11 +287,11 @@
     "stitch-design-taste": {
       "name": "stitch-design-taste",
       "title": "Semantic Design System Integration",
-      "description": "Semantic Design System Skill for integrating multiple design approaches. Generates agent-friendly DESIGN.md files that enforce premium, anti-generic UI standards — strict typography, calibrated color, asymmetric layouts, perpetual micro-motion, hardware-accelerated performance.",
+      "description": "Semantic Design System Skill for integrating multiple design approaches. Generates agent-friendly DESIGN.md files that enforce premium, anti-generic UI standards \u2014 strict typography, calibrated color, asymmetric layouts, perpetual micro-motion, hardware-accelerated performance.",
       "category": "design",
       "subcategory": "integration",
       "priority": "low",
-      "file": "stitch-design-taste/SKILL.md",
+      "file": "skills-archive/stitch-design-taste/SKILL.md",
       "size": "medium",
       "tokenEstimate": 900,
       "triggers": [
@@ -326,7 +326,7 @@
       "category": "image",
       "subcategory": "generation",
       "priority": "medium",
-      "file": "image-to-code/SKILL.md",
+      "file": "skills-archive/image-to-code/SKILL.md",
       "size": "large",
       "tokenEstimate": 2000,
       "triggers": [
@@ -362,7 +362,7 @@
       "category": "image",
       "subcategory": "generation",
       "priority": "low",
-      "file": "imagegen-frontend-web/SKILL.md",
+      "file": "skills-archive/imagegen-frontend-web/SKILL.md",
       "size": "medium",
       "tokenEstimate": 1500,
       "triggers": [
@@ -396,7 +396,7 @@
       "category": "image",
       "subcategory": "generation",
       "priority": "low",
-      "file": "imagegen-frontend-mobile/SKILL.md",
+      "file": "skills-archive/imagegen-frontend-mobile/SKILL.md",
       "size": "medium",
       "tokenEstimate": 1400,
       "triggers": [
@@ -431,7 +431,7 @@
       "category": "design",
       "subcategory": "advanced-aesthetics",
       "priority": "low",
-      "file": "gpt-taste/SKILL.md",
+      "file": "skills-archive/gpt-taste/SKILL.md",
       "size": "large",
       "tokenEstimate": 1600,
       "triggers": [
@@ -467,7 +467,7 @@
       "category": "utility",
       "subcategory": "output-control",
       "priority": "critical",
-      "file": "full-output-enforcement/SKILL.md",
+      "file": "skills-archive/full-output-enforcement/SKILL.md",
       "size": "small",
       "tokenEstimate": 600,
       "triggers": [
@@ -513,7 +513,7 @@
       "category": "engineering",
       "subcategory": "architecture",
       "priority": "high",
-      "file": "engineering/improve-codebase-architecture/SKILL.md",
+      "file": "skills-archive/engineering/improve-codebase-architecture/SKILL.md",
       "size": "large",
       "tokenEstimate": 1500,
       "triggers": [
@@ -547,7 +547,7 @@
       "category": "engineering",
       "subcategory": "prototyping",
       "priority": "high",
-      "file": "engineering/prototype/SKILL.md",
+      "file": "skills-archive/engineering/prototype/SKILL.md",
       "size": "medium",
       "tokenEstimate": 900,
       "triggers": [
@@ -580,7 +580,7 @@
       "category": "engineering",
       "subcategory": "testing",
       "priority": "high",
-      "file": "engineering/tdd/SKILL.md",
+      "file": "skills-archive/engineering/tdd/SKILL.md",
       "size": "large",
       "tokenEstimate": 1400,
       "triggers": [
@@ -615,7 +615,7 @@
       "category": "engineering",
       "subcategory": "workflow",
       "priority": "medium",
-      "file": "engineering/triage/SKILL.md",
+      "file": "skills-archive/engineering/triage/SKILL.md",
       "size": "medium",
       "tokenEstimate": 800,
       "triggers": [
@@ -647,7 +647,7 @@
       "category": "engineering",
       "subcategory": "debugging",
       "priority": "high",
-      "file": "engineering/diagnose/SKILL.md",
+      "file": "skills-archive/engineering/diagnose/SKILL.md",
       "size": "medium",
       "tokenEstimate": 950,
       "triggers": [
@@ -683,7 +683,7 @@
       "category": "engineering",
       "subcategory": "documentation",
       "priority": "medium",
-      "file": "engineering/to-prd/SKILL.md",
+      "file": "skills-archive/engineering/to-prd/SKILL.md",
       "size": "small",
       "tokenEstimate": 500,
       "triggers": [
@@ -710,12 +710,12 @@
     },
     "zoom-out": {
       "name": "zoom-out",
-      "title": "Zoom Out — Broader Context",
+      "title": "Zoom Out \u2014 Broader Context",
       "description": "Zoom out and give broader context or a higher-level perspective on how a section of code fits into the bigger picture.",
       "category": "engineering",
       "subcategory": "exploration",
       "priority": "medium",
-      "file": "engineering/zoom-out/SKILL.md",
+      "file": "skills-archive/engineering/zoom-out/SKILL.md",
       "size": "small",
       "tokenEstimate": 400,
       "triggers": [
@@ -747,7 +747,7 @@
       "category": "engineering",
       "subcategory": "design",
       "priority": "high",
-      "file": "engineering/grill-with-docs/SKILL.md",
+      "file": "skills-archive/engineering/grill-with-docs/SKILL.md",
       "size": "medium",
       "tokenEstimate": 1000,
       "triggers": [
@@ -779,7 +779,7 @@
       "category": "productivity",
       "subcategory": "handoff",
       "priority": "high",
-      "file": "productivity/handoff/SKILL.md",
+      "file": "skills-archive/productivity/handoff/SKILL.md",
       "size": "small",
       "tokenEstimate": 400,
       "triggers": [
@@ -811,7 +811,7 @@
       "category": "productivity",
       "subcategory": "skill-creation",
       "priority": "high",
-      "file": "productivity/write-a-skill/SKILL.md",
+      "file": "skills-archive/productivity/write-a-skill/SKILL.md",
       "size": "medium",
       "tokenEstimate": 700,
       "triggers": [
@@ -839,12 +839,12 @@
     },
     "grill-me": {
       "name": "grill-me",
-      "title": "Grill Me — Design Interview",
+      "title": "Grill Me \u2014 Design Interview",
       "description": "Interview the user relentlessly about a plan or design until reaching shared understanding, resolving each branch of the decision tree.",
       "category": "productivity",
       "subcategory": "design",
       "priority": "medium",
-      "file": "productivity/grill-me/SKILL.md",
+      "file": "skills-archive/productivity/grill-me/SKILL.md",
       "size": "small",
       "tokenEstimate": 400,
       "triggers": [
@@ -876,7 +876,7 @@
       "category": "misc",
       "subcategory": "git-safety",
       "priority": "high",
-      "file": "misc/git-guardrails-claude-code/SKILL.md",
+      "file": "skills-archive/misc/git-guardrails-claude-code/SKILL.md",
       "size": "small",
       "tokenEstimate": 400,
       "triggers": [
@@ -909,7 +909,7 @@
       "category": "misc",
       "subcategory": "tooling",
       "priority": "medium",
-      "file": "misc/setup-pre-commit/SKILL.md",
+      "file": "skills-archive/misc/setup-pre-commit/SKILL.md",
       "size": "small",
       "tokenEstimate": 500,
       "triggers": [
@@ -942,7 +942,7 @@
       "category": "misc",
       "subcategory": "scaffolding",
       "priority": "low",
-      "file": "misc/scaffold-exercises/SKILL.md",
+      "file": "skills-archive/misc/scaffold-exercises/SKILL.md",
       "size": "small",
       "tokenEstimate": 400,
       "triggers": [
@@ -973,7 +973,7 @@
       "category": "engineering",
       "subcategory": "setup",
       "priority": "high",
-      "file": "engineering/setup-matt-pocock-skills/SKILL.md",
+      "file": "skills-archive/engineering/setup-matt-pocock-skills/SKILL.md",
       "size": "large",
       "tokenEstimate": 1000,
       "triggers": [
@@ -1006,7 +1006,7 @@
       "category": "engineering",
       "subcategory": "workflow",
       "priority": "high",
-      "file": "engineering/to-issues/SKILL.md",
+      "file": "skills-archive/engineering/to-issues/SKILL.md",
       "size": "medium",
       "tokenEstimate": 700,
       "triggers": [
@@ -1037,11 +1037,11 @@
     "review": {
       "name": "review",
       "title": "Code Review",
-      "description": "Review the changes since a fixed point along two axes — Standards (coding standards) and Spec (originating issue/PRD). Runs both reviews in parallel sub-agents.",
+      "description": "Review the changes since a fixed point along two axes \u2014 Standards (coding standards) and Spec (originating issue/PRD). Runs both reviews in parallel sub-agents.",
       "category": "in-progress",
       "subcategory": "code-review",
       "priority": "high",
-      "file": "in-progress/review/SKILL.md",
+      "file": "skills-archive/in-progress/review/SKILL.md",
       "size": "medium",
       "tokenEstimate": 700,
       "triggers": [
@@ -1074,7 +1074,7 @@
       "category": "in-progress",
       "subcategory": "writing",
       "priority": "medium",
-      "file": "in-progress/writing-beats/SKILL.md",
+      "file": "skills-archive/in-progress/writing-beats/SKILL.md",
       "size": "medium",
       "tokenEstimate": 500,
       "triggers": [
@@ -1102,11 +1102,11 @@
     "writing-fragments": {
       "name": "writing-fragments",
       "title": "Writing Fragments",
-      "description": "Grilling session that mines the user for fragments — heterogeneous nuggets of writing — and appends them to a single document as raw material for a future article.",
+      "description": "Grilling session that mines the user for fragments \u2014 heterogeneous nuggets of writing \u2014 and appends them to a single document as raw material for a future article.",
       "category": "in-progress",
       "subcategory": "writing",
       "priority": "medium",
-      "file": "in-progress/writing-fragments/SKILL.md",
+      "file": "skills-archive/in-progress/writing-fragments/SKILL.md",
       "size": "medium",
       "tokenEstimate": 650,
       "triggers": [
@@ -1136,11 +1136,11 @@
     "writing-shape": {
       "name": "writing-shape",
       "title": "Writing Shape",
-      "description": "Take a markdown file of raw material and shape it into an article through a conversational session — drafting candidate openings, growing paragraph by paragraph.",
+      "description": "Take a markdown file of raw material and shape it into an article through a conversational session \u2014 drafting candidate openings, growing paragraph by paragraph.",
       "category": "in-progress",
       "subcategory": "writing",
       "priority": "medium",
-      "file": "in-progress/writing-shape/SKILL.md",
+      "file": "skills-archive/in-progress/writing-shape/SKILL.md",
       "size": "medium",
       "tokenEstimate": 600,
       "triggers": [
@@ -1173,7 +1173,7 @@
       "category": "misc",
       "subcategory": "testing",
       "priority": "low",
-      "file": "misc/migrate-to-shoehorn/SKILL.md",
+      "file": "skills-archive/misc/migrate-to-shoehorn/SKILL.md",
       "size": "large",
       "tokenEstimate": 1000,
       "triggers": [
@@ -1205,7 +1205,7 @@
       "category": "personal",
       "subcategory": "writing",
       "priority": "medium",
-      "file": "personal/edit-article/SKILL.md",
+      "file": "skills-archive/personal/edit-article/SKILL.md",
       "size": "small",
       "tokenEstimate": 300,
       "triggers": [
@@ -1240,7 +1240,7 @@
       "category": "personal",
       "subcategory": "note-taking",
       "priority": "medium",
-      "file": "personal/obsidian-vault/SKILL.md",
+      "file": "skills-archive/personal/obsidian-vault/SKILL.md",
       "size": "medium",
       "tokenEstimate": 500,
       "triggers": [
@@ -1274,7 +1274,7 @@
       "category": "productivity",
       "subcategory": "communication",
       "priority": "medium",
-      "file": "productivity/caveman/SKILL.md",
+      "file": "skills-archive/productivity/caveman/SKILL.md",
       "size": "small",
       "tokenEstimate": 400,
       "triggers": [
@@ -1311,7 +1311,7 @@
       "category": "productivity",
       "name": "context-mode",
       "path": ".agents/skills/context-mode/skills/context-mode/SKILL.md",
-      "file": "context-mode/skills/context-mode/SKILL.md",
+      "file": "skills-archive/context-mode/skills/context-mode/SKILL.md",
       "priority": "critical",
       "description": "Use context-mode tools (ctx_execute, ctx_execute_file) instead of Bash/cat when processing large outputs. Triggers: \"analyze logs\", \"summarize output\", \"process data\", \"parse JSON\", \"filter results\", \"extract errors\", \"check build output\", \"analyze dependencies\", \"process API response\", \"large file analysis\", \"page snapshot\", \"browser snapshot\", \"DOM structure\", \"inspect page\", \"accessibility tree\", \"Playwright snapshot\", \"run tests\", \"test output\", \"coverage report\", \"git log\", \"recent commits\", \"diff between branches\", \"list containers\", \"pod status\", \"disk usage\", \"fetch docs\", \"API reference\", \"index documentation\", \"call API\", \"check response\", \"query results\", \"find TODOs\", \"count lines\", \"codebase statistics\", \"security audit\", \"outdated packages\", \"dependency tree\", \"cloud resources\", \"CI/CD output\". Also triggers on ANY MCP tool output that may exceed 20 lines. Subagent routing is handled automatically via PreToolUse hook.",
       "triggers": [
@@ -1417,7 +1417,7 @@
       "category": "productivity",
       "name": "ctx-insight",
       "path": ".agents/skills/context-mode/skills/ctx-insight/SKILL.md",
-      "file": "context-mode/skills/ctx-insight/SKILL.md",
+      "file": "skills-archive/context-mode/skills/ctx-insight/SKILL.md",
       "priority": "medium",
       "description": "Open the context-mode Insight analytics dashboard in the browser. Shows personal metrics: session activity, tool usage, error rate, parallel work patterns, project focus, and actionable insights. First run installs dependencies (~30s). Subsequent runs open instantly. Trigger: /context-mode:ctx-insight",
       "triggers": [
@@ -1449,7 +1449,7 @@
       "category": "utility",
       "name": "ctx-upgrade",
       "path": ".agents/skills/context-mode/skills/ctx-upgrade/SKILL.md",
-      "file": "context-mode/skills/ctx-upgrade/SKILL.md",
+      "file": "skills-archive/context-mode/skills/ctx-upgrade/SKILL.md",
       "priority": "medium",
       "description": "Update context-mode from GitHub and fix hooks/settings. Pulls latest, builds, installs, updates npm global, configures hooks. Trigger: /context-mode:ctx-upgrade",
       "triggers": [
@@ -1480,9 +1480,9 @@
       "category": "utility",
       "name": "ctx-stats",
       "path": ".agents/skills/context-mode/skills/ctx-stats/SKILL.md",
-      "file": "context-mode/skills/ctx-stats/SKILL.md",
+      "file": "skills-archive/context-mode/skills/ctx-stats/SKILL.md",
       "priority": "medium",
-      "description": "Show how much context window context-mode saved this session. Displays token consumption, context savings ratio, and per-tool breakdown. Read-only — shows stats only, no reset capability. To wipe the knowledge base entirely, use ctx_purge instead. Trigger: /context-mode:ctx-stats",
+      "description": "Show how much context window context-mode saved this session. Displays token consumption, context savings ratio, and per-tool breakdown. Read-only \u2014 shows stats only, no reset capability. To wipe the knowledge base entirely, use ctx_purge instead. Trigger: /context-mode:ctx-stats",
       "triggers": [
         "ctx-stats",
         "context-mode stats",
@@ -1512,7 +1512,7 @@
       "category": "utility",
       "name": "ctx-doctor",
       "path": ".agents/skills/context-mode/skills/ctx-doctor/SKILL.md",
-      "file": "context-mode/skills/ctx-doctor/SKILL.md",
+      "file": "skills-archive/context-mode/skills/ctx-doctor/SKILL.md",
       "priority": "high",
       "description": "Run context-mode diagnostics. Checks runtimes, hooks, FTS5, plugin registration, npm and marketplace versions. Trigger: /context-mode:ctx-doctor",
       "triggers": [
@@ -1544,7 +1544,7 @@
       "category": "utility",
       "name": "ctx-purge",
       "path": ".agents/skills/context-mode/skills/ctx-purge/SKILL.md",
-      "file": "context-mode/skills/ctx-purge/SKILL.md",
+      "file": "skills-archive/context-mode/skills/ctx-purge/SKILL.md",
       "priority": "critical",
       "description": "Purge the context-mode knowledge base. Permanently deletes all indexed content and resets session stats. This is destructive and cannot be undone. Trigger: /context-mode:ctx-purge",
       "triggers": [
@@ -1577,7 +1577,7 @@
       "category": "engineering",
       "name": "context-mode-ops",
       "path": ".agents/skills/context-mode/.claude/skills/context-mode-ops/SKILL.md",
-      "file": "context-mode/.claude/skills/context-mode-ops/SKILL.md",
+      "file": "skills-archive/context-mode/.claude/skills/context-mode-ops/SKILL.md",
       "priority": "critical",
       "description": "Manage context-mode GitHub issues, PRs, releases, and marketing with parallel subagent army. Orchestrates 10-20 dynamic agents per task. Use when triaging issues, reviewing PRs, releasing versions, writing LinkedIn posts, announcing releases, fixing bugs, merging contributions, validating ENV vars, testing adapters, or syncing branches.",
       "triggers": [
@@ -1609,6 +1609,387 @@
         "Triage context-mode issues with subagents",
         "Manage context-mode release process"
       ]
+    },
+    "butler": {
+      "aliases": [
+        "butler",
+        "housekeeping",
+        "eod"
+      ],
+      "category": "productivity",
+      "name": "butler",
+      "path": ".agents/skills/butler/SKILL.md",
+      "file": "skills/butler/SKILL.md",
+      "priority": "medium",
+      "description": "Clanker Ops housekeeper \u2014 board hygiene, audit, duplicate detection. Reports findings only, does NOT edit tasks or write code.",
+      "triggers": [
+        "butler",
+        "eod report",
+        "audit plans",
+        "dupe comb",
+        "board hygiene",
+        "roster sync",
+        "plan cleanup"
+      ],
+      "intentPatterns": [
+        "run.*butler.*audit",
+        "clanker.*eod",
+        "audit.*plans",
+        "dupe.*comb",
+        "daily.*report"
+      ],
+      "tokenEstimate": 500,
+      "title": "Clanker Ops Housekeeper",
+      "useWhen": "Daily board hygiene, plan audits, EOD reporting, duplicate detection",
+      "recommended": true,
+      "size": "small",
+      "subcategory": "housekeeping",
+      "examples": [
+        "Run butler audit plans",
+        "Generate EOD report"
+      ]
+    },
+    "graph-aggregation-helpers": {
+      "name": "graph-aggregation-helpers",
+      "title": "Graph Aggregation Helpers",
+      "description": "Reusable aggregation query patterns for the health metrics graph: edge counts by type, average confidence by type, strongest recurring pairs, and edge statistics. Use when adding dashboard stats or summary queries to HealthGraphService.",
+      "category": "engineering",
+      "subcategory": "graph",
+      "priority": "medium",
+      "file": "graph-aggregation-helpers/SKILL.md",
+      "size": "small",
+      "tokenEstimate": 400,
+      "triggers": [
+        "graph aggregation",
+        "edge statistics",
+        "graph summary",
+        "graph stats"
+      ],
+      "intentPatterns": [
+        ".*graph.*aggregate",
+        ".*edge.*statistics",
+        ".*summary.*graph"
+      ],
+      "recommended": true,
+      "examples": [
+        "Add edge statistics to graph service",
+        "Count edges by type"
+      ],
+      "useWhen": "Adding aggregation or summary queries to HealthGraphService",
+      "aliases": [
+        "graph-stats",
+        "graph-aggregate"
+      ],
+      "path": ".agents/skills/graph-aggregation-helpers/SKILL.md"
+    },
+    "graph-backfill-script": {
+      "name": "graph-backfill-script",
+      "title": "Graph Backfill Script Template",
+      "description": "Create a script to rebuild historical graph edges from existing health_metrics data. Covers backfill functions for meal-to-glucose spikes, exercise-to-glucose drops, and other edge types with upsert logic.",
+      "category": "engineering",
+      "subcategory": "graph",
+      "priority": "medium",
+      "file": "graph-backfill-script/SKILL.md",
+      "size": "medium",
+      "tokenEstimate": 800,
+      "triggers": [
+        "backfill graph",
+        "rebuild edges",
+        "historical graph",
+        "graph backfill"
+      ],
+      "intentPatterns": [
+        ".*backfill.*graph",
+        ".*rebuild.*edges",
+        ".*historical.*graph"
+      ],
+      "recommended": true,
+      "examples": [
+        "Backfill meal-to-glucose edges",
+        "Rebuild graph from historical data"
+      ],
+      "useWhen": "Deploying graph edge persistence and needing to backfill historical data",
+      "aliases": [
+        "graph-backfill"
+      ],
+      "path": ".agents/skills/graph-backfill-script/SKILL.md"
+    },
+    "graph-backfill-script-creation": {
+      "name": "graph-backfill-script-creation",
+      "title": "Graph Backfill Script Creation",
+      "description": "Step-by-step procedure for creating a historical graph backfill script: define backfill functions, set evidence/provenance, handle upsert logic, and test. Use when rebuilding graph edges after adding new edge types or changing the graph schema.",
+      "category": "engineering",
+      "subcategory": "graph",
+      "priority": "medium",
+      "file": "graph-backfill-script-creation/SKILL.md",
+      "size": "small",
+      "tokenEstimate": 500,
+      "triggers": [
+        "create backfill script",
+        "graph backfill script",
+        "rebuild historical edges"
+      ],
+      "intentPatterns": [
+        ".*create.*backfill.*script",
+        ".*rebuild.*historical.*edges"
+      ],
+      "recommended": true,
+      "examples": [
+        "Create graph backfill script",
+        "Backfill historical meal spike edges"
+      ],
+      "useWhen": "Adding new edge types and needing to rebuild historical graph edges",
+      "aliases": [],
+      "path": ".agents/skills/graph-backfill-script-creation/SKILL.md"
+    },
+    "graph-confidence-scoring": {
+      "name": "graph-confidence-scoring",
+      "title": "Graph Confidence Scoring",
+      "description": "Implement confidence scoring for graph edges using decomposed components (pattern_strength, temporal_alignment, effect_magnitude, data_quality) with weighted aggregation (0.4/0.3/0.2/0.1) and confidence threshold categorization (low/medium/high).",
+      "category": "engineering",
+      "subcategory": "graph",
+      "priority": "high",
+      "file": "graph-confidence-scoring/SKILL.md",
+      "size": "large",
+      "tokenEstimate": 1800,
+      "triggers": [
+        "confidence scoring",
+        "graph confidence",
+        "edge confidence",
+        "confidence components",
+        "confidence threshold"
+      ],
+      "intentPatterns": [
+        ".*confidence.*score",
+        ".*graph.*confidence",
+        ".*edge.*confidence"
+      ],
+      "recommended": true,
+      "examples": [
+        "Implement confidence scoring for meal spike edges",
+        "Add ConfidenceComponents to graph edges"
+      ],
+      "useWhen": "Adding or modifying confidence scoring for graph edges with transparent, explainable scores",
+      "aliases": [
+        "confidence-scoring",
+        "graph-confidence"
+      ],
+      "path": ".agents/skills/graph-confidence-scoring/SKILL.md"
+    },
+    "graph-confidence-testing": {
+      "name": "graph-confidence-testing",
+      "title": "Graph Confidence Testing",
+      "description": "Test confidence scoring for graph edges: verify confidence_components JSON structure, threshold language mapping (low/medium/high), and combined score calculation formula accuracy.",
+      "category": "engineering",
+      "subcategory": "graph",
+      "priority": "high",
+      "file": "graph-confidence-testing/SKILL.md",
+      "size": "small",
+      "tokenEstimate": 500,
+      "triggers": [
+        "confidence test",
+        "graph confidence test",
+        "test confidence components"
+      ],
+      "intentPatterns": [
+        ".*test.*confidence",
+        ".*confidence.*test"
+      ],
+      "recommended": true,
+      "examples": [
+        "Test confidence components JSON",
+        "Test confidence threshold mapping"
+      ],
+      "useWhen": "Adding or modifying confidence scoring for graph edges",
+      "aliases": [],
+      "path": ".agents/skills/graph-confidence-testing/SKILL.md"
+    },
+    "graph-edge-wiring-pattern-detection": {
+      "name": "graph-edge-wiring-pattern-detection",
+      "title": "Graph Edge Wiring for Pattern Detection",
+      "description": "Wire pattern detection methods in PatternService to persist graph edges. Covers the reusable boilerplate: lazy imports, nearest_metric lookup, upsert_edge with evidence, try-except wrapping. Use when adding a new pattern detection method that should persist observational evidence as graph edges.",
+      "category": "engineering",
+      "subcategory": "graph",
+      "priority": "high",
+      "file": "graph-edge-wiring-pattern-detection/SKILL.md",
+      "size": "medium",
+      "tokenEstimate": 600,
+      "triggers": [
+        "wire graph edge",
+        "pattern detection graph",
+        "upsert edge",
+        "graph edge wiring"
+      ],
+      "intentPatterns": [
+        ".*wire.*graph.*edge",
+        ".*pattern.*detection.*edge",
+        ".*upsert.*edge"
+      ],
+      "recommended": true,
+      "examples": [
+        "Wire exercise impact detection to graph edges",
+        "Add meal spike edge persistence"
+      ],
+      "useWhen": "Adding a new pattern detection method that should persist edges to health_metric_edges",
+      "aliases": [
+        "graph-edge-wiring"
+      ],
+      "path": ".agents/skills/graph-edge-wiring-pattern-detection/SKILL.md"
+    },
+    "graph-event-group-testing": {
+      "name": "graph-event-group-testing",
+      "title": "Graph Event Group Testing",
+      "description": "Test event grouping, same-event edge deduplication, and link_event_group functionality for graph edges. Covers event_group_id queries, pairwise edge creation, and deduplication assertions.",
+      "category": "engineering",
+      "subcategory": "graph",
+      "priority": "medium",
+      "file": "graph-event-group-testing/SKILL.md",
+      "size": "small",
+      "tokenEstimate": 500,
+      "triggers": [
+        "event group test",
+        "event grouping graph",
+        "same event edge"
+      ],
+      "intentPatterns": [
+        ".*event.*group.*test",
+        ".*same.*event.*edge"
+      ],
+      "recommended": true,
+      "examples": [
+        "Test event group deduplication",
+        "Test link_event_group creates pairwise edges"
+      ],
+      "useWhen": "Implementing event_group_id feature or verifying event grouping behavior",
+      "aliases": [],
+      "path": ".agents/skills/graph-event-group-testing/SKILL.md"
+    },
+    "graph-provenance-testing": {
+      "name": "graph-provenance-testing",
+      "title": "Graph Provenance Testing",
+      "description": "Test graph edge provenance structure: verify detector name, version, and timestamp fields in provenance JSON, check evidence consistency across edge types, and validate RAG evidence inclusion.",
+      "category": "engineering",
+      "subcategory": "graph",
+      "priority": "medium",
+      "file": "graph-provenance-testing/SKILL.md",
+      "size": "small",
+      "tokenEstimate": 400,
+      "triggers": [
+        "provenance test",
+        "graph provenance",
+        "edge provenance",
+        "evidence test"
+      ],
+      "intentPatterns": [
+        ".*provenance.*test",
+        ".*evidence.*graph.*edge"
+      ],
+      "recommended": true,
+      "examples": [
+        "Test edge provenance JSON structure",
+        "Test evidence consistency across edge types"
+      ],
+      "useWhen": "Adding new graph edge types or modifying the provenance structure",
+      "aliases": [],
+      "path": ".agents/skills/graph-provenance-testing/SKILL.md"
+    },
+    "graph-safety-rag-testing": {
+      "name": "graph-safety-rag-testing",
+      "title": "Graph Safety RAG Testing",
+      "description": "Test that graph-derived RAG responses are blocked from producing dosing/treatment advice. Covers safety agent checks for prescription-style completions, dosing questions, and observational language safety verification.",
+      "category": "engineering",
+      "subcategory": "graph",
+      "priority": "critical",
+      "file": "graph-safety-rag-testing/SKILL.md",
+      "size": "small",
+      "tokenEstimate": 500,
+      "triggers": [
+        "safety test graph",
+        "RAG safety",
+        "graph RAG safety",
+        "dosing test",
+        "safety agent graph"
+      ],
+      "intentPatterns": [
+        ".*safety.*graph.*rag",
+        ".*dosing.*advice.*test",
+        ".*graph.*guardrail"
+      ],
+      "recommended": true,
+      "examples": [
+        "Test safety agent catches dosing questions",
+        "Verify observational language is safe"
+      ],
+      "useWhen": "Implementing graph RAG integration or verifying safety guardrails for graph-derived responses",
+      "aliases": [
+        "graph-safety"
+      ],
+      "path": ".agents/skills/graph-safety-rag-testing/SKILL.md"
+    },
+    "graph-service-patterns": {
+      "name": "graph-service-patterns",
+      "title": "Graph Service Patterns",
+      "description": "Reusable patterns for HealthGraphService: create/upsert edges, query with filters, subgraph traversal (BFS), neighbor/incoming/outgoing queries, event group linking, edge statistics. Use when working with the health metrics graph.",
+      "category": "engineering",
+      "subcategory": "graph",
+      "priority": "high",
+      "file": "graph-service-patterns/SKILL.md",
+      "size": "large",
+      "tokenEstimate": 1500,
+      "triggers": [
+        "graph service",
+        "graph patterns",
+        "graph query",
+        "subgraph traversal",
+        "edge query"
+      ],
+      "intentPatterns": [
+        ".*graph.*service",
+        ".*subgraph.*traversal",
+        ".*graph.*query"
+      ],
+      "recommended": true,
+      "examples": [
+        "Query edges by type and confidence",
+        "Traverse subgraph around a metric"
+      ],
+      "useWhen": "Working with the health metrics graph - querying edges, traversing subgraphs, linking event groups",
+      "aliases": [
+        "graph-service"
+      ],
+      "path": ".agents/skills/graph-service-patterns/SKILL.md"
+    },
+    "rag-evidence-contract-testing": {
+      "name": "rag-evidence-contract-testing",
+      "title": "RAG Evidence Contract Testing",
+      "description": "Test that graph edges provide proper evidence for LLM RAG context: verify graph context retrieval formatting, strongest edge selection, evidence JSON structure consistency with detector output, and confidence filtering.",
+      "category": "engineering",
+      "subcategory": "graph",
+      "priority": "medium",
+      "file": "rag-evidence-contract-testing/SKILL.md",
+      "size": "small",
+      "tokenEstimate": 400,
+      "triggers": [
+        "RAG evidence test",
+        "graph evidence",
+        "RAG context test",
+        "evidence contract"
+      ],
+      "intentPatterns": [
+        ".*rag.*evidence.*test",
+        ".*evidence.*contract",
+        ".*graph.*rag.*context"
+      ],
+      "recommended": true,
+      "examples": [
+        "Test graph context retrieval for LLM",
+        "Test evidence JSON structure"
+      ],
+      "useWhen": "Modifying graph edge retrieval or RAG context assembly for LLM responses",
+      "aliases": [
+        "rag-evidence-test"
+      ],
+      "path": ".agents/skills/rag-evidence-contract-testing/SKILL.md"
     }
   },
   "categories": {
@@ -1656,8 +2037,9 @@
     "explicitDetection": true
   },
   "metadata": {
-    "totalSkills": 41,
-    "recommendedSkills": 17,
+    "totalSkills": 56,
+    "recommendedSkills": 31,
     "totalCategories": 9
-  }
+  },
+  "note": "Skills in skills-archive/ \u2014 loaded on-demand only"
 }

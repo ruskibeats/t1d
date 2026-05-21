@@ -1,6 +1,6 @@
 # Clanker Ops #93: [OPS] LibreLink — verify connection is up and running
 
-Status: pending
+Status: in_progress
 Owner: @tom_웃
 Tags: #p1 #cgm #libre #ops
 Branch: dad_1805
@@ -40,34 +40,36 @@ Status:
 
 ## Plan
 
-## Task Plan
-
 ### Intended Outcome
-- Deliver the requested outcome for: [OPS] LibreLink — verify connection is up and running; context: #ops #cgm #libre #p1.
-- Treat the preserved previous plan as source notes, not as permission to broaden scope.
+- Verify Libre CGM data flows through Nightscout to T1D Companion
+- Confirm API endpoint reachable, authentication valid, data syncing
 
-### Likely Files, Modules, Or Commands
-- Review the preserved previous plan notes below.
-- Inspect the current project state and relevant files before editing.
+### Current Status
+Your Libre CGM data flows through Nightscout. The project has:
+- ✅ Nightscout service code ready (`app/services/nightscout_service.py`)
+- ✅ Sync integration ready (`app/services/sync_service.py`)
+- ❌ Nightscout credentials NOT configured in `.env`
 
 ### Steps
-1. Confirm the task is still valid, assigned correctly, and not blocked.
-2. Review the preserved previous plan notes and convert them into concrete execution steps.
-3. Inspect relevant code, data, docs, or external systems before editing.
-4. Make the smallest useful change that satisfies the task.
-5. Update Clanker Ops if scope, blockers, duplicates, or follow-ups are discovered.
-6. Prepare the closeout report before marking the task complete.
+1. Add your Nightscout credentials to `.env`:
+   ```
+   NIGHTSCOUT_URL=https://your-nightscout-url.herokuapp.com
+   NIGHTSCOUT_API_TOKEN=your-api-token-here
+   ```
+   (Leave token empty if your Nightscout is public)
+
+2. Run the test script to verify connection:
+   ```
+   python scripts/test_nightscout.py
+   ```
 
 ### Verification
-- Run the narrowest relevant checks and report exact commands/results.
-- If verification cannot be run, explain why and identify residual risk.
-
-### Blockers, Dependencies, Or Questions
-- Review preserved notes for blockers, dependencies, unanswered questions, or `none`.
-
-### Closeout Notes
-- Use the Closeout Report Template from the Execution Protocol.
+Expected output:
+```
+✓ Connection successful
+✓ Latest reading: {value} mg/dL at {timestamp}
+✓ Data count: {n} readings in last 24h
+```
 
 ### Preserved Previous Plan
-
 Check the LibreLink/LibreLinkUp integration for the T1D Companion system. Verify: (1) API endpoint is reachable, (2) authentication tokens valid, (3) data syncing correctly, (4) any recent service changes broke connectivity. If down, diagnose and restore. This feeds into the CGM data pipeline alongside Dexcom/Nightscout.

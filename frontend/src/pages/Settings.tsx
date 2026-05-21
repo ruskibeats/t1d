@@ -1,10 +1,43 @@
 /** @jsxImportSource @emotion/react */
 import { useEffect, useState } from 'react'
 import axios from 'axios'
-import { Bell, DatabaseZap, ShieldCheck, UserRound } from 'lucide-react'
+import {
+  Activity,
+  Bell,
+  Bike,
+  DatabaseZap,
+  Globe,
+  Heart,
+  HeartPulse,
+  Pencil,
+  Scale,
+  ShieldCheck,
+  UserRound,
+  Watch,
+} from 'lucide-react'
 import { Card } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
 import { useAuth } from '@/contexts/AuthContext'
+
+interface ProviderDetail {
+  name: string
+  key: string
+  connected: boolean
+  last_sync: string | null
+  icon: string
+  category: string
+}
+
+const ICON_MAP: Record<string, React.ElementType> = {
+  Activity,
+  Globe,
+  Watch,
+  Heart,
+  Bike,
+  Scale,
+  HeartPulse,
+  Pencil,
+}
 
 export function SettingsPage() {
   const { user, logout } = useAuth()
@@ -13,11 +46,16 @@ export function SettingsPage() {
   const [nightscoutUrl, setNightscoutUrl] = useState('')
   const [nightscoutToken, setNightscoutToken] = useState('')
   const [nightscoutConnected, setNightscoutConnected] = useState(false)
+  const [providers, setProviders] = useState<ProviderDetail[]>([])
 
   useEffect(() => {
     axios.get('/api/v1/me/nightscout').then((res) => {
       setNightscoutConnected(Boolean(res.data.connected))
       setNightscoutUrl(res.data.url ?? '')
+    }).catch(() => undefined)
+
+    axios.get('/api/v1/providers/status').then((res) => {
+      setProviders(res.data.providers ?? [])
     }).catch(() => undefined)
   }, [])
 
@@ -123,6 +161,48 @@ export function SettingsPage() {
                 {nightscoutConnected && <Button variant="ghost" onClick={handleNightscoutDisconnect}>Disconnect</Button>}
               </div>
             </div>
+          </div>
+        </Card>
+
+        <Card className="p-6 xl:col-span-2">
+          <div className="mb-5 flex items-center gap-3">
+            <Activity className="h-5 w-5 text-[oklch(0.46_0.15_255)]" />
+            <h2 className="text-lg font-black tracking-[-0.03em]">Connected devices</h2>
+          </div>
+          <p className="mb-5 text-sm leading-6 text-[oklch(0.48_0.035_255)]">View and manage connected data providers. Providers with recent data show as active.</p>
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {providers.map((p) => {
+              const Icon = ICON_MAP[p.icon] ?? Activity
+              return (
+                <div
+                  key={p.key}
+                  className={`flex items-center gap-3 rounded-2xl border p-4 transition-colors ${
+                    p.connected
+                      ? 'border-[oklch(0.78_0.08_145)] bg-[oklch(0.96_0.03_145/0.3)]'
+                      : 'border-[oklch(0.88_0.02_250)] bg-white'
+                  }`}
+                >
+                  <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${p.connected ? 'bg-[oklch(0.78_0.12_145)] text-white' : 'bg-[oklch(0.94_0.02_250)] text-[oklch(0.56_0.04_255)]'}`}>
+                    <Icon className="h-5 w-5" />
+                  </div>
+                  <div className="min-w-0">
+                    <div className="text-sm font-black text-[oklch(0.22_0.04_255)]">{p.name}</div>
+                    <div className="text-xs text-[oklch(0.52_0.04_255)]">
+                      {p.connected ? (
+                        <span className="font-bold text-[oklch(0.52_0.12_145)]">Active</span>
+                      ) : (
+                        'Not connected'
+                      )}
+                      {p.last_sync && (
+                        <span className="ml-1 text-[oklch(0.56_0.04_255)]">
+                          · {new Date(p.last_sync).toLocaleDateString()}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )
+            })}
           </div>
         </Card>
 

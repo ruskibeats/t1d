@@ -14,7 +14,7 @@ async def create_entry(
     db: AsyncSession = Depends(get_db),
     user: User = Depends(require_active_user),
 ):
-    return await ExerciseService(db).create_entry(user.id, data)
+    return await ExerciseService(db).create(user.id, data)
 
 @route.get("", response_model=list[ExerciseEntryResponse])
 async def list_entries(
@@ -25,7 +25,7 @@ async def list_entries(
     db: AsyncSession = Depends(get_db),
     user: User = Depends(require_active_user),
 ):
-    return await ExerciseService(db).list_entries(user_id=user.id, limit=limit, offset=offset, db=db)
+    return await ExerciseService(db).list(user_id=user.id, limit=limit, offset=offset, db=db)
 
 @route.get("/{entry_id}", response_model=ExerciseEntryWithSets)
 async def get_entry(
@@ -33,7 +33,7 @@ async def get_entry(
     db: AsyncSession = Depends(get_db),
     user: User = Depends(require_active_user),
 ):
-    entry = await ExerciseService(db).get_entry(user.id, entry_id)
+    entry = await ExerciseService(db).get(user.id, entry_id)
     if not entry:
         raise HTTPException(status_code=404, detail="Exercise entry not found")
     # Load sets

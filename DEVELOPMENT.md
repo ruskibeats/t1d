@@ -1,5 +1,11 @@
 # Development Guidelines
 
+## Clanker Controller Bootstrap
+Whenever you start a session or switch models, run the following:
+`Read .pi/IDENTITY.md and adopt the Clanker Controller role.`
+
+---
+
 ## Code Standards
 
 ### Python Code Style

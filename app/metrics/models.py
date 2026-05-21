@@ -80,6 +80,8 @@ class HealthMetricEdge(Base):
     time_delay_seconds: Mapped[Optional[int]] = mapped_column(Integer, nullable=True)
     algorithm: Mapped[str] = mapped_column(String(100), nullable=False, default="manual")
     evidence: Mapped[Optional[dict[str, Any]]] = mapped_column(JSONB, nullable=True)
+    provenance: Mapped[Optional[dict[str, Any]]] = mapped_column("provenance_json", JSONB, nullable=True)
+    confidence_components: Mapped[Optional[dict[str, Any]]] = mapped_column("confidence_components_json", JSONB, nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
 

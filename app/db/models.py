@@ -20,8 +20,12 @@ from app.db.base import Base
 
 
 def _utcnow() -> datetime:
-    """Return timezone-aware UTC datetime for SQLAlchemy defaults."""
-    return datetime.now(timezone.utc)
+    """Return timezone-naive UTC datetime for SQLAlchemy defaults.
+
+    Uses naive UTC because some DateTime columns lack timezone=True,
+    and asyncpg rejects aware datetimes for naive columns.
+    """
+    return datetime.now(timezone.utc).replace(tzinfo=None)
 
 # Forward references for health metrics models
 # (imported here so Alembic autogenerate discovers them)

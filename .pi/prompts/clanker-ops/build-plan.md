@@ -14,12 +14,13 @@ Include this near the top of the plan:
 ## Execution Protocol
 
 - Register this task on Clanker Ops as `in_progress` before starting substantial work.
-- Read this plan and inspect the current code/state before editing.
+- **Set the task status in Clanker Ops to update the activity timestamp.** (This flags the task as Grey/Active to others).
+- Read this plan, update the `### Current Task State` block at the top, and inspect the current code/state before editing.
 - Keep edits focused on this task and preserve user changes.
 - Do not create skills, tools, scripts, or unrelated files unless the user or this plan explicitly requires them.
 - Update Clanker Ops if the task becomes blocked, duplicated, failed, cancelled, or deferred.
 - Run the verification checks listed below.
-- Close out the task with summary, changed files, checks run, token/cost notes if available, residual risk, and follow-up items.
+- Before closing: update the `### Current Task State` block, run verification, update Clanker Ops with completion summary, and ensure the status is set to `completed`.
 ```
 
 ## Required Sections
