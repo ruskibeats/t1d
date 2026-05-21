@@ -1080,7 +1080,7 @@
         "data",
         "synthetic"
       ],
-      "status": "archived",
+      "status": "completed",
       "createdAt": "2026-05-20T20:22:00.000Z",
       "updatedAt": "2026-05-20T22:41:23.212039Z",
       "description": "Expand SyntheticIngestionMapper from 3 basic methods into full metadata extraction service mapping Synthea CSV output to T1D domain models.\n\n---\n\n**Status**: Archived to `tools/synthea` project. Kept for future external dataset validation.",
@@ -1099,7 +1099,7 @@
         "database",
         "migration"
       ],
-      "status": "archived",
+      "status": "completed",
       "createdAt": "2026-05-20T20:24:00.000Z",
       "updatedAt": "2026-05-20T22:41:23.212059Z",
       "description": "Extend User model with 8 core queryable columns + synthetic_metadata JSON blob for hybrid storage.\n\n---\n\n**Status**: Archived to `tools/synthea` project. Kept for future external dataset validation.",
@@ -1118,7 +1118,7 @@
         "graph",
         "rules"
       ],
-      "status": "archived",
+      "status": "completed",
       "createdAt": "2026-05-20T20:25:00.000Z",
       "updatedAt": "2026-05-20T22:41:23.212061Z",
       "description": "Create GraphEdgeRuleEngine with 20 condition-led rules from YAML and temporal proximity heuristic.\n\n---\n\n**Status**: Archived to `tools/synthea` project. Kept for future external dataset validation.",
@@ -1137,7 +1137,7 @@
         "scripts",
         "validation"
       ],
-      "status": "archived",
+      "status": "completed",
       "createdAt": "2026-05-20T20:28:00.000Z",
       "updatedAt": "2026-05-20T22:41:23.212063Z",
       "description": "Create seed_synthetic.py and validate_synthetic_pool.py scripts for 4-phase validation.\n\n---\n\n**Status**: Archived to `tools/synthea` project. Kept for future external dataset validation.",
@@ -1155,7 +1155,7 @@
         "testing",
         "synthetic"
       ],
-      "status": "archived",
+      "status": "completed",
       "createdAt": "2026-05-20T20:30:00.000Z",
       "updatedAt": "2026-05-20T22:41:23.212064Z",
       "description": "Comprehensive test coverage for synthetic data pipeline with 80-patient test fixture.\n\n---\n\n**Status**: Archived to `tools/synthea` project. Kept for future external dataset validation.",
