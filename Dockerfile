@@ -10,7 +10,7 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Python dependencies
-COPY pyproject.toml README.md ./
+COPY LICENSE pyproject.toml README.md ./
 RUN pip install --no-cache-dir --upgrade pip setuptools wheel
 RUN pip install --no-cache-dir .
 RUN pip install --no-cache-dir asyncpg>=0.29.0
