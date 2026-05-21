@@ -1,0 +1,17 @@
+{
+  "name": "clanker-ops-todo",
+  "version": "1.0.0",
+  "description": "Clanker Ops — standalone task management extension for Pi. Provides the todo tool, /clanker command, and live overlay for tracking work items across sessions.",
+  "type": "module",
+  "license": "MIT",
+  "author": "T1D Companion",
+  "keywords": [
+    "pi-package",
+    "pi-extension",
+    "clanker-ops",
+    "todo"
+  ],
+  "pi": {
+    "extensions": ["./index.ts"]
+  }
+}
