@@ -2,7 +2,7 @@ import type { Task, TaskAction, TaskMutationParams, TaskStatus } from "../tool/t
 import { isTransitionValid } from "./invariants.js";
 import { TransitionValidator } from "./transition-validator.js";
 import { TaskFactory } from "./task-factory.js";
-import { UpdateMutator } from "./update-mutator.js";
+import * as UpdateMutator from "./update-mutator.js";
 import type { TaskState } from "./state.js";
 import { detectCycle } from "./task-graph.js";
 

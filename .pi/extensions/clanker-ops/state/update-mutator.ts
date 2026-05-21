@@ -9,6 +9,37 @@ import type { Task, TaskMutationParams, TaskStatus } from "../tool/types.js";
 import { isTransitionValid } from "./transition-validator.js";
 import { detectCycle } from "./task-graph.js";
 import type { TaskState } from "./state.js";
+import { createTaskWithFields } from "./task-factory.js";
+
+/**
+ * Create a new task in state.
+ */
+export function create(state: TaskState, params: TaskMutationParams): {
+	state: TaskState;
+	task: Task;
+} {
+	const task = createTaskWithFields({
+		item: params.subject ?? params.item ?? "Untitled",
+		subject: params.subject,
+		description: params.description,
+		activeForm: params.activeForm,
+		blockedBy: params.blockedBy,
+		assigned: params.assigned,
+		owner: params.owner,
+		tags: params.tags,
+		planFile: params.planFile,
+		branch: params.branch,
+		project: params.project,
+		metadata: params.metadata,
+	});
+	task.id = state.nextId;
+
+	const newTasks = [...state.tasks, task];
+	return {
+		state: { tasks: newTasks, nextId: state.nextId + 1 },
+		task,
+	};
+}
 
 /**
  * Validates update params before mutation.
