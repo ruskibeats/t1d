@@ -1386,7 +1386,8 @@
       "description": "Implemented Sprint 1 safety features. Created docs/SAFETY.md with FDA/HIPAA regulatory framework. Refactored SafetyAgent to delegate to SafetyScaffold (eliminated duplicate keyword lists). Added disclaimer enforcement to post-LLM check in coordinator.py. Fixed streaming endpoint to check safety before saving/streaming. All 324 tests pass including 30 safety tests. AI acts as diabetic coach with guardrails: no dosing advice, no treatment changes, disclaimer enforced, educational-only responses.",
       "project": "t1d",
       "blockedBy": [],
-      "assigned": "@pi"
+      "assigned": "@pi",
+      "planFile": "#165_plan.md"
     },
     {
       "id": 166,
