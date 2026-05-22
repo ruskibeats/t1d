@@ -266,6 +266,7 @@ def create_app() -> FastAPI:
     # Include routers
     from app.api import (
         activity,
+        admin,
         auth,
         blood_pressure,
         body_battery,
@@ -333,8 +334,9 @@ def create_app() -> FastAPI:
     # ── New unified metrics endpoint ──
     app.include_router(metrics.route, prefix="/api/v1", tags=["Unified Health Metrics"])
     app.include_router(providers.route, prefix="/api/v1", tags=["Providers"])
-    # ── Simulator pipeline ──
     app.include_router(simulator.router, prefix="/api/v1", tags=["Simulator"])
+    # ── Admin endpoints ──
+    app.include_router(admin.router, prefix="/admin", tags=["Admin"])
     logger.info("Application setup complete")
 
     return app

@@ -52,6 +52,7 @@ def compose_meal(items: List[MealItem]) -> MealComposition:
     
     worst_provenance: Optional[FoodProvenance] = None
     worst_confidence = 1.0
+    aggregated_quality_flags: list = []
     
     for item in items:
         # Normalize quantity to grams
@@ -78,13 +79,21 @@ def compose_meal(items: List[MealItem]) -> MealComposition:
         if nutrients.calories_kcal is not None:
             total_calories += nutrients.calories_kcal * factor
         
-        # Track worst provenance
+        # Compute provenance with quality assessment for this item
         prov = compute_provenance(
             source="openfoodfacts",
             barcode=item.food.code,
             query_barcode=item.food.code,
             serving_weight=item.food.serving_quantity,
+            carbs=nutrients.carbs_g,
+            calories=nutrients.calories_kcal,
+            protein=nutrients.protein_g,
+            fat=nutrients.fat_g,
         )
+        # Collect quality flags from this item
+        aggregated_quality_flags.extend(prov.quality_flags)
+        
+        # Track worst provenance
         conf = prov.confidence_score()
         if conf < worst_confidence:
             worst_confidence = conf
@@ -100,15 +109,39 @@ def compose_meal(items: List[MealItem]) -> MealComposition:
         serving_weight_g=round(total_grams, 2),
     )
     
+    # Aggregate quality flags from all items
+    all_quality_flags: list = []
+    seen_flags = set()
+    for flag in aggregated_quality_flags:
+        if flag not in seen_flags:
+            all_quality_flags.append(flag)
+            seen_flags.add(flag)
+    
     # Use worst provenance or default if no items
     if worst_provenance is None:
         provenance = FoodProvenance(
             source_name="empty",
             serving_certainty=0.0,
             source_trust_tier=SourceTrustTier.ESTIMATED,
+            quality_flags=all_quality_flags,
         )
     else:
-        provenance = worst_provenance
+        # Merge quality flags into the worst provenance
+        existing = set(worst_provenance.quality_flags)
+        merged = list(worst_provenance.quality_flags)
+        for flag in all_quality_flags:
+            if flag not in existing:
+                merged.append(flag)
+                existing.add(flag)
+        provenance = FoodProvenance(
+            source_name=worst_provenance.source_name,
+            source_id=worst_provenance.source_id,
+            barcode_match=worst_provenance.barcode_match,
+            serving_certainty=worst_provenance.serving_certainty,
+            source_trust_tier=worst_provenance.source_trust_tier,
+            quality_flags=merged,
+            last_updated=worst_provenance.last_updated,
+        )
     
     return MealComposition(
         total_nutrients=total_nutrients,

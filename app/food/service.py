@@ -231,6 +231,14 @@ class FoodService:
             ).limit(10)
         )
         for food in local.scalars():
+            quality = _assess_food_row_quality(
+                carbs=food.carbs,
+                calories=food.calories,
+                serving_weight=food.serving_size,
+                serving_unit=food.serving_unit,
+                barcode=food.barcode,
+                source="local",
+            )
             results.append({
                 "source": "local",
                 "name": food.name,
@@ -241,6 +249,7 @@ class FoodService:
                 "fat_per_100g": food.fat,
                 "calories_per_100g": food.calories,
                 "serving_size": food.serving_size,
+                "quality_flags": [f.value for f in quality],
             })
         
         if not use_external:
@@ -249,6 +258,8 @@ class FoodService:
         # 2. Search local OpenFoodFacts (Postgres) - before online API
         local_off_results = await self._search_local_off(query, limit=5)
         for product in local_off_results:
+            quality = _assess_food_dict_quality(product, source="openfoodfacts_local")
+            product["quality_flags"] = [f.value for f in quality]
             results.append(product)
             # Note: local OFF products are already in the lookup table,
             # no need to cache them again in foods table
@@ -260,7 +271,8 @@ class FoodService:
             off_results = await off_client.search_by_name(query, page_size=5)
             
             for product in off_results:
-                results.append({
+                quality = _assess_food_dict_quality(product, source="openfoodfacts")
+                entry = {
                     "source": "openfoodfacts",
                     "name": product.name,
                     "brand": product.brand,
@@ -270,7 +282,9 @@ class FoodService:
                     "fat_per_100g": product.fat_per_100g,
                     "calories_per_100g": product.calories_per_100g,
                     "serving_size": product.serving_size,
-                })
+                    "quality_flags": [f.value for f in quality],
+                }
+                results.append(entry)
                 
                 # Cache in local DB
                 cached = Food(
@@ -294,6 +308,7 @@ class FoodService:
             usda_results = await usda_client.search_by_name(query, page_size=5)
             
             for item in usda_results:
+                quality = _assess_food_dict_quality(item, source="usda")
                 results.append({
                     "source": "usda",
                     "name": item.name,
@@ -304,6 +319,7 @@ class FoodService:
                     "fat_per_100g": item.fat_per_100g,
                     "calories_per_100g": item.calories_per_100g,
                     "serving_size": item.serving_size,
+                    "quality_flags": [f.value for f in quality],
                 })
         
         if results:
@@ -847,3 +863,84 @@ class FoodService:
         stmt = stmt.limit(limit)
         result = await self.db.execute(stmt)
         return list(result.scalars().all())
+
+
+# ──────────────────────────────────────────────
+# Quality flag helpers (module-level)
+# ──────────────────────────────────────────────
+
+
+def _assess_food_row_quality(
+    carbs: float | None,
+    calories: float | None,
+    serving_weight: float | None,
+    serving_unit: str | None,
+    barcode: str | None,
+    source: str,
+) -> list:
+    """Assess quality flags for a Food ORM row.
+
+    Thin wrapper around provenance.assess_food_quality for ORM objects.
+    """
+    from app.food.provenance import assess_food_quality, QualityFlag
+    flags = assess_food_quality(
+        carbs=carbs,
+        calories=calories,
+        serving_weight=serving_weight,
+        serving_unit=serving_unit,
+        barcode=barcode,
+        source=source,
+    )
+    return flags
+
+
+def _safe_get(item, key: str, default=None):
+    """Safely get a value from a dict or object.
+
+    Handles dicts (.get), objects (getattr), and Pydantic models.
+    """
+    if isinstance(item, dict):
+        return item.get(key, default)
+    return getattr(item, key, default)
+
+
+def _assess_food_dict_quality(food_item, source: str) -> list:
+    """Assess quality flags for a resolved food item (dict or object).
+
+    Thin wrapper around provenance.assess_food_quality for results
+    that may be dicts or Pydantic/SQLAlchemy models.
+    """
+    from app.food.provenance import assess_food_quality, QualityFlag
+    flags = assess_food_quality(
+        carbs=_safe_get(food_item, "carbs_per_100g"),
+        calories=_safe_get(food_item, "calories_per_100g"),
+        serving_weight=_parse_serving_size(_safe_get(food_item, "serving_size")),
+        serving_unit=_guess_serving_unit(_safe_get(food_item, "serving_size")),
+        barcode=_safe_get(food_item, "barcode"),
+        source=source,
+        protein=_safe_get(food_item, "protein_per_100g"),
+        fat=_safe_get(food_item, "fat_per_100g"),
+    )
+    return flags
+
+
+def _guess_serving_unit(serving_size: str | None) -> str | None:
+    """Guess the serving unit from a serving_size string like '30 g' or '1 slice'."""
+    if not serving_size:
+        return None
+    serving_size = str(serving_size).strip().lower()
+    if "slice" in serving_size:
+        return "slice"
+    if "piece" in serving_size:
+        return "piece"
+    if "cup" in serving_size:
+        return "cup"
+    if "ml" in serving_size:
+        return "ml"
+    if "oz" in serving_size or "fl oz" in serving_size:
+        return "oz"
+    if "g" in serving_size or "gram" in serving_size:
+        return "g"
+    if "serving" in serving_size:
+        return "serving"
+    return None
