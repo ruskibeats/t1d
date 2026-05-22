@@ -81,11 +81,11 @@ export function getFilteredTasks(state: UIState): Task[] {
         // All Active
         filtered = filtered.filter(t => t.status !== 'done');
     } else if (state.leftActiveIndex === 3) {
-        // Assigned
-        filtered = filtered.filter(t => t.status !== 'done' && (state.assignedFilterOwner ? t.owner === state.assignedFilterOwner : !!t.owner));
-    } else if (state.leftActiveIndex === 4) {
         // Completed
         filtered = filtered.filter(t => t.status === 'done');
+    } else if (state.leftActiveIndex === 4) {
+        // Assigned
+        filtered = filtered.filter(t => t.status !== 'done' && (!state.assignedFilterOwner || t.owner === state.assignedFilterOwner));
     } else if (state.leftActiveIndex === 5) {
         // Tags
         filtered = filtered.filter(t => t.tags.includes('ui'));

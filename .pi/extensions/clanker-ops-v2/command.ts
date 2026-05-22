@@ -135,7 +135,7 @@ export function registerClankerCommand(pi: ExtensionAPI) {
                             }
                         }
 
-                        if (state.activePane === 'left' && state.leftActiveIndex === 3) {
+                        if (state.activePane === 'left' && state.leftActiveIndex === 4) {
                             if (data === ' ' || data === '\r' || data === '\n') {
                                 const owners = ['', '@worker', '@builder', '@scout', '@planner', '@researcher', '@dad_웃', '@tom_웃'];
                                 const curr = owners.indexOf(state.assignedFilterOwner || '');
