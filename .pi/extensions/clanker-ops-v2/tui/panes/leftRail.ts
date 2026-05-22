@@ -20,7 +20,10 @@ export function renderLeftRail(state: UIState, layout: LayoutBudget, height: num
     lines.push("");
     lines.push(" VIEWS");
     lines.push(highlight("All Active", 2));
-    lines.push(highlight("Assigned", 3));
+    
+    const assignedLabel = state.assignedFilterOwner ? `Assigned [${state.assignedFilterOwner}]` : "Assigned [Any]";
+    lines.push(highlight(assignedLabel, 3));
+    
     lines.push(highlight("Completed", 4));
     lines.push("");
     lines.push(" TAGS");

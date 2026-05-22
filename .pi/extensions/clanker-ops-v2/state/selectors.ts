@@ -18,7 +18,7 @@ export function formatTaskRow(task: Task, width: number, isSelected: boolean): s
 
 // Generates the content for the right inspector pane
 export function getInspectorViewModel(state: UIState, rightPaneWidth: number): InspectorViewModel {
-    const activeTask = state.tasks[state.activeIndex];
+    const activeTask = getFilteredTasks(state)[state.activeIndex];
     if (!activeTask) {
         return { inspectorContent: ["No active task"] };
     }
@@ -72,4 +72,24 @@ export function getInspectorViewModel(state: UIState, rightPaneWidth: number): I
     }
 
     return { inspectorContent: lines };
+}
+
+export function getFilteredTasks(state: UIState): Task[] {
+    let filtered = state.tasks;
+    
+    if (state.leftActiveIndex === 2) {
+        // All Active
+        filtered = filtered.filter(t => t.status !== 'done');
+    } else if (state.leftActiveIndex === 3) {
+        // Assigned
+        filtered = filtered.filter(t => t.status !== 'done' && (state.assignedFilterOwner ? t.owner === state.assignedFilterOwner : !!t.owner));
+    } else if (state.leftActiveIndex === 4) {
+        // Completed
+        filtered = filtered.filter(t => t.status === 'done');
+    } else if (state.leftActiveIndex === 5) {
+        // Tags
+        filtered = filtered.filter(t => t.tags.includes('ui'));
+    }
+    
+    return filtered;
 }

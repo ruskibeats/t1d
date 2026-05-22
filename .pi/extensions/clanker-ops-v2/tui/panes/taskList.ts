@@ -1,11 +1,12 @@
 import { UIState, LayoutBudget } from "../../state/types.js";
-import { formatTaskRow } from "../../state/selectors.js";
+import { formatTaskRow, getFilteredTasks } from "../../state/selectors.js";
 import { pad, ansi } from "../text.js";
 
 export function renderTaskList(state: UIState, layout: LayoutBudget, height: number): string[] {
     const lines: string[] = [];
     
-    const visibleTasks = state.tasks.slice(state.listScrollOffset, state.listScrollOffset + height);
+    const filteredTasks = getFilteredTasks(state);
+    const visibleTasks = filteredTasks.slice(state.listScrollOffset, state.listScrollOffset + height);
     
     for (let i = 0; i < visibleTasks.length; i++) {
         const globalIndex = state.listScrollOffset + i;
