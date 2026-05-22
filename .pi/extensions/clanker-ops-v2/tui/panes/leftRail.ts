@@ -20,11 +20,11 @@ export function renderLeftRail(state: UIState, layout: LayoutBudget, height: num
     lines.push("");
     lines.push(" VIEWS");
     lines.push(highlight("All Active", 2));
-    lines.push("   Assigned");
-    lines.push("   Completed");
+    lines.push(highlight("Assigned", 3));
+    lines.push(highlight("Completed", 4));
     lines.push("");
     lines.push(" TAGS");
-    lines.push(highlight("ui (3)", 3));
+    lines.push(highlight("ui (3)", 5));
     
     // Pad all generated lines
     const paddedLines = lines.map(line => pad(line, layout.leftWidth));
