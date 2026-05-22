@@ -10,8 +10,8 @@ export function registerClankerCommand(pi: ExtensionAPI) {
             if (!ctx.hasUI) return;
 
             let state: UIState = {
-                width: ctx.ui.columns(),
-                height: ctx.ui.rows(),
+                width: process.stdout.columns || 100,
+                height: process.stdout.rows || 24,
                 tasks: loadTasks(),
                 activeIndex: 0,
                 activePane: 'center',
@@ -27,8 +27,8 @@ export function registerClankerCommand(pi: ExtensionAPI) {
                 ctx.ui.custom({
                     render() {
                         // Update dynamic dimensions
-                        state.width = ctx.ui.columns();
-                        state.height = ctx.ui.rows();
+                        state.width = process.stdout.columns || 100;
+                        state.height = process.stdout.rows || 24;
                         return renderClankerBoardV2(state);
                     },
                     handleKey(key: any) {
