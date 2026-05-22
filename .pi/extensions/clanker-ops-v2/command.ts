@@ -17,6 +17,7 @@ export function registerClankerCommand(pi: ExtensionAPI) {
                 activePane: 'center',
                 activeTab: 'overview',
                 activeBoard: 'Main Ops',
+                leftActiveIndex: 0,
                 searchQuery: '',
                 listScrollOffset: 0,
                 inspectorScrollOffset: 0,
@@ -43,22 +44,36 @@ export function registerClankerCommand(pi: ExtensionAPI) {
                         }
 
                         if (data === "\x1b[A" || data === "k") { // up
-                            if (state.activeIndex > 0) {
-                                state.activeIndex--;
-                                if (state.activeIndex < state.listScrollOffset) {
-                                    state.listScrollOffset = state.activeIndex;
+                            if (state.activePane === 'center') {
+                                if (state.activeIndex > 0) {
+                                    state.activeIndex--;
+                                    if (state.activeIndex < state.listScrollOffset) {
+                                        state.listScrollOffset = state.activeIndex;
+                                    }
                                 }
+                            } else if (state.activePane === 'left') {
+                                if (state.leftActiveIndex > 0) state.leftActiveIndex--;
+                            } else if (state.activePane === 'right') {
+                                if (state.inspectorScrollOffset > 0) state.inspectorScrollOffset--;
                             }
                         }
 
                         if (data === "\x1b[B" || data === "j") { // down
-                            if (state.activeIndex < state.tasks.length - 1) {
-                                state.activeIndex++;
-                                // Assuming approx body height
-                                const visibleItems = state.height - 5;
-                                if (state.activeIndex >= state.listScrollOffset + visibleItems) {
-                                    state.listScrollOffset = state.activeIndex - visibleItems + 1;
+                            if (state.activePane === 'center') {
+                                if (state.activeIndex < state.tasks.length - 1) {
+                                    state.activeIndex++;
+                                    // Assuming approx body height
+                                    const visibleItems = state.height - 5;
+                                    if (state.activeIndex >= state.listScrollOffset + visibleItems) {
+                                        state.listScrollOffset = state.activeIndex - visibleItems + 1;
+                                    }
                                 }
+                            } else if (state.activePane === 'left') {
+                                // Currently 4 hardcoded items in left rail
+                                if (state.leftActiveIndex < 3) state.leftActiveIndex++;
+                            } else if (state.activePane === 'right') {
+                                // Assume max scroll is arbitrary for now (we don't compute right pane total height perfectly here)
+                                state.inspectorScrollOffset++;
                             }
                         }
 

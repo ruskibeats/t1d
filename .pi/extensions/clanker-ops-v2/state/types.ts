@@ -15,6 +15,7 @@ export interface UIState {
     activePane: 'left' | 'center' | 'right';
     activeTab: 'overview' | 'plan' | 'edit';
     activeBoard?: string;
+    leftActiveIndex: number;
     searchQuery: string;
     listScrollOffset: number;
     inspectorScrollOffset: number;
