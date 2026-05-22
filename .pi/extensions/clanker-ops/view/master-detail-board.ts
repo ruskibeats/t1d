@@ -27,7 +27,7 @@ const ansi = {
 // Tab definition
 // ---------------------------------------------------------------------------
 
-type Tab = "overview" | "checklist" | "notes" | "plan";
+type Tab = "overview" | "checklist" | "notes" | "plan" | "edit";
 
 // ---------------------------------------------------------------------------
 // Master-Detail Board Component
@@ -138,6 +138,13 @@ export class MasterDetailBoard implements Component {
 				this.planScrollOffset = Math.max(0, this.planScrollOffset - Math.floor(this.maxViewLines / 2));
 			}
 			this.tui?.requestRender();
+		} else if (data === "E" || data === "e") {
+			// Open edit tab for selected task
+			const selectedTask = tasks[this.selectedIndex];
+			if (selectedTask) {
+				this.activeTab = "edit";
+			}
+			this.tui?.requestRender();
 		} else if (data === "q" || data === "\x1b") {
 			// Close overlay on q or ESC
 			this.tui?.hideOverlay();
@@ -235,7 +242,7 @@ export class MasterDetailBoard implements Component {
 
 		// Header with tabs
 		lines.push(ansi.border("┌" + "─".repeat(innerWidth) + "┐"));
-		const tabNames: Tab[] = ["overview", "checklist", "notes", "plan"];
+		const tabNames: Tab[] = ["overview", "checklist", "notes", "plan", "edit"];
 		const tabLabels = tabNames.map(t => {
 			const base = t === "overview" ? "Details" : t.charAt(0).toUpperCase() + t.slice(1);
 			const hasContent = t === "plan" ? !!task?.planFile : t !== "checklist" && t !== "notes";
@@ -261,6 +268,9 @@ export class MasterDetailBoard implements Component {
 					break;
 				case "notes":
 					lines.push(...this.buildNotesTab(task, innerWidth));
+					break;
+				case "edit":
+					lines.push(...this.buildEditTab(task, innerWidth));
 					break;
 			}
 		}
@@ -364,6 +374,23 @@ export class MasterDetailBoard implements Component {
 		const lines: string[] = [];
 		const innerWidth = width;
 		lines.push(ansi.border("│") + ansi.gray("Notes: not yet implemented").padEnd(innerWidth) + "│");
+		lines.push(ansi.border("│") + ansi.gray("Press E to enter edit mode").padEnd(innerWidth) + "│");
+		return lines;
+	}
+
+	private buildEditTab(task: Task, width: number): string[] {
+		const lines: string[] = [];
+		const innerWidth = width;
+		lines.push(ansi.border("│") + ansi.bold("#" + task.id + " Edit Mode").padEnd(innerWidth) + "│");
+		lines.push(ansi.border("│") + "".padEnd(innerWidth) + "│");
+		if (task.assigned) {
+			lines.push(ansi.border("│") + " Owner: " + ansi.cyan(task.assigned).padEnd(innerWidth - 9) + "│");
+		}
+		if (task.tags && task.tags.length > 0) {
+			lines.push(ansi.border("│") + " Tags: " + task.tags.map(t => "#" + t).join(" ").padEnd(innerWidth - 9) + "│");
+		}
+		lines.push(ansi.border("│") + "".padEnd(innerWidth) + "│");
+		lines.push(ansi.border("│") + ansi.gray("Edit: Press Enter to save, Esc to cancel").padEnd(innerWidth) + "│");
 		return lines;
 	}
 

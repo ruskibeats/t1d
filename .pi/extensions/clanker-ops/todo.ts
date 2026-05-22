@@ -106,6 +106,7 @@ export function registerClankerCommand(pi: ExtensionAPI): void {
 				input,
 				(msg, level) => ctx.ui.notify(msg, level as "info" | "error"),
 				ctx.hasUI ?? false,
+				ctx.ui,
 			);
 		},
 	});

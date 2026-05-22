@@ -271,66 +271,94 @@ export function renderClankerBoardCompact(
 ): string {
 	const board = presentBoard(tasks);
 	const { groups } = board;
+	const inner = options.width ? Math.min(options.width, 100) - 2 : 78;
 
 	const failedCount = tasks.filter((t) => t.status === "failed").length;
 
 	const lines: string[] = [];
 
-	// Header
+	// Build a bordered mini-board with columns
+	// Top border (using blue accent)
+	lines.push(borderLine("┌", "─".repeat(inner), "┐"));
+
+	// Header with summary
 	const summaryParts: string[] = [];
 	if (groups.active.length) summaryParts.push(`${groups.active.length} active`);
-	if (failedCount) summaryParts.push(`${failedCount} failed`);
+	if (failedCount) summaryParts.push(ansi.red(`${failedCount} failed`));
 	summaryParts.push(`${groups.dontForget.length + groups.queued.length} queued`);
-	if (groups.done.length) summaryParts.push(`${groups.done.length} done`);
+	const summary = summaryParts.join(ansi.gray(" · "));
+	const header = ` Clanker Ops`;
+	lines.push(box(`${ansi.bold(header)}${" ".repeat(Math.max(1, inner - header.length - summary.length))}${summary}`, inner));
+	lines.push(headerRule(inner));
 
-	lines.push(`Clanker Ops  ${summaryParts.join(" · ")}`);
+	// Column headers (simplified for widget)
+	const colWidths = { id: 5, work: 45, owner: 12 };
+	lines.push(
+		box(
+			row([
+				["ID", colWidths.id, ansi.gray],
+				["Work", colWidths.work, ansi.gray],
+				["Owner", colWidths.owner, ansi.gray],
+			]),
+			inner,
+		),
+	);
+	lines.push(headerRule(inner));
 
-	// Active section
-	if (groups.active.length) {
-		lines.push("", "Active:");
-		for (const vm of groups.active) {
-			const owner = vm.owner ? ` @${vm.owner}` : "";
-			const active = vm.activeForm ? ` (${vm.activeForm})` : "";
-			const last = ` ${ansi.gray(vm.lastRan)}`;
-			lines.push(`  ◐ #${vm.id} ${vm.item}${active}${owner}${last}`);
-		}
+	// Active tasks (limited to fit widget)
+	const activeTasks = groups.active.slice(0, 4);
+	for (const vm of activeTasks) {
+		const workText = vm.activeForm && vm.status === "in_progress"
+			? `${vm.icon} #${vm.id} ${vm.item} (${vm.activeForm})`
+			: `${vm.icon} #${vm.id} ${vm.item}`;
+		lines.push(
+			box(
+				row([
+					[`#${vm.id}`, colWidths.id, ansi.gray],
+					[workText, colWidths.work, getPaint(vm.paint)],
+					[vm.owner, colWidths.owner, getOwnerPaint(vm.owner), vm.ownerSpanOnly],
+				]),
+				inner,
+			),
+		);
 	}
 
-	// Failed section
-	if (failedCount) {
-		const failed = tasks.filter((t) => t.status === "failed");
-		lines.push("", "Failed:");
-		for (const t of failed) {
-			lines.push(`  ✗ #${t.id} ${t.item}`);
-		}
+	// Reminders section (limited)
+	for (const vm of groups.dontForget.slice(0, 2)) {
+		lines.push(
+			box(
+				row([
+					[`#${vm.id}`, colWidths.id, ansi.gray],
+					[vm.item, colWidths.work, ansi.amber],
+					[vm.owner, colWidths.owner, getOwnerPaint(vm.owner), vm.ownerSpanOnly],
+				]),
+				inner,
+			),
+		);
 	}
 
-	// Dont Forget
-	if (groups.dontForget.length) {
-		lines.push("", "Reminders:");
-		for (const vm of groups.dontForget) {
-			lines.push(`  ! #${vm.id} ${vm.item}`);
-		}
-	}
-
-	// Queued (first 10)
-	if (groups.queued.length) {
-		const show = groups.queued.slice(0, 10);
-		lines.push("", "Queued:");
-		for (const vm of show) {
-			const prefix = vm.paint === "cyan" ? "⊘" : "○";
-			const owner = vm.owner ? ` @${vm.owner}` : "";
-			lines.push(`  ${prefix} #${vm.id} ${vm.item}${owner}`);
-		}
-		if (groups.queued.length > 10) {
-			lines.push(`  ... ${groups.queued.length - 10} more`);
-		}
+	// Queued (limited)
+	for (const vm of groups.queued.slice(0, 3)) {
+		lines.push(
+			box(
+				row([
+					[`#${vm.id}`, colWidths.id, ansi.gray],
+					[vm.item, colWidths.work, getPaint(vm.paint)],
+					[vm.owner, colWidths.owner, getOwnerPaint(vm.owner), vm.ownerSpanOnly],
+				]),
+				inner,
+			),
+		);
 	}
 
 	// Done summary
 	if (groups.done.length) {
-		lines.push("", `✓ ${groups.done.length} done`);
+		lines.push(headerRule(inner));
+		lines.push(box(ansi.gray(` ✓ ${groups.done.length} done`), inner));
 	}
+
+	// Bottom border
+	lines.push(borderLine("└", "─".repeat(inner), "┘"));
 
 	return lines.join("\n");
 }
