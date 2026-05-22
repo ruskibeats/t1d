@@ -9,7 +9,7 @@ export function renderLeftRail(state: UIState, layout: LayoutBudget, height: num
         const isSelected = state.leftActiveIndex === index;
         const prefix = isSelected ? " █ " : "   ";
         const content = isSelected ? ansi.bold(text) : text;
-        const line = prefix + truncateToWidth(content, W - 3, "");
+        const line = prefix + truncateToWidth(content, W - 3, "…");
         return isSelected && state.activePane === "left" ? ansi.accentBg(line) : line;
     };
 
@@ -24,8 +24,10 @@ export function renderLeftRail(state: UIState, layout: LayoutBudget, height: num
     lines.push(highlight("All Active", 2));
     lines.push(highlight("Completed", 3));
 
+    // When an owner filter is active, show just "[owner]" (compact) rather than
+    // "Assigned [owner]" which overflows the 23-col pane for long usernames.
     const assignedLabel = state.assignedFilterOwner
-        ? `Assigned [${state.assignedFilterOwner}]`
+        ? `[${state.assignedFilterOwner}]`
         : "Assigned [Any]";
     lines.push(highlight(assignedLabel, 4));
     lines.push("");
