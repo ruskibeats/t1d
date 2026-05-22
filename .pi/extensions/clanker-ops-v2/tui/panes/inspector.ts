@@ -1,34 +1,37 @@
 import { UIState, LayoutBudget } from "../../state/types.js";
+import { pad, ansi, truncateToWidth } from "../text.js";
 import { getInspectorViewModel } from "../../state/selectors.js";
-import { pad } from "../text.js";
 
 export function renderInspector(state: UIState, layout: LayoutBudget, height: number): string[] {
     const lines: string[] = [];
-    
-    // Render a Tab Header at the top of the right pane
-    const tabHeader = 
-        state.activeTab === 'overview' ? "[O] OVERVIEW  [P] Plan  [E] Edit" :
-        state.activeTab === 'plan'     ? "[O] Overview  [P] PLAN  [E] Edit" :
-                                         "[O] Overview  [P] Plan  [E] EDIT";
-    
-    // Add the tab header as the first line (always visible)
-    lines.push(" " + pad(tabHeader, layout.rightWidth - 1));
-    lines.push(" " + pad("─".repeat(layout.rightWidth - 2), layout.rightWidth - 1));
+    const W = layout.rightWidth;
 
-    // Get pre-formatted view model content
-    const vm = getInspectorViewModel(state, layout.rightWidth - 2);
-    
-    // Apply scrolling
-    const visibleContent = vm.inspectorContent.slice(state.inspectorScrollOffset, state.inspectorScrollOffset + height - 2);
-    
+    // Tab header matching the static /clanker board style
+    const tabO = state.activeTab === 'overview' ? ansi.bold(" [O] OVERVIEW") : ansi.gray(" [O] Overview");
+    const tabP = state.activeTab === 'plan'     ? ansi.bold(" [P] PLAN")     : ansi.gray(" [P] Plan");
+    const tabE = state.activeTab === 'edit'     ? ansi.bold(" [E] EDIT")     : ansi.gray(" [E] Edit");
+    const tabHeader = tabO + tabP + tabE;
+    lines.push(pad(tabHeader, W));
+
+    // Separator
+    lines.push(ansi.gray(" " + "─".repeat(Math.max(0, W - 2))));
+
+    // Content from view model
+    const vm = getInspectorViewModel(state, W - 2);
+    const visibleContent = vm.inspectorContent.slice(
+        state.inspectorScrollOffset,
+        state.inspectorScrollOffset + height - 2
+    );
+
     for (const line of visibleContent) {
-        lines.push(" " + pad(line, layout.rightWidth - 1));
+        lines.push(pad(" " + truncateToWidth(line, W - 2, ""), W));
     }
-    
+
     // Fill the rest of the height
     while (lines.length < height) {
-        lines.push(pad("", layout.rightWidth));
+        lines.push(pad("", W));
     }
-    
-    return lines;
+
+    return lines.slice(0, height);
 }
+

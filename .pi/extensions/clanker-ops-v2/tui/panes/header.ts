@@ -1,29 +1,28 @@
 import { UIState, LayoutBudget } from "../../state/types.js";
-import { pad, ansi } from "../text.js";
+import { pad, ansi, visualWidth } from "../text.js";
+
+export function renderTopBorder(layout: LayoutBudget): string {
+    return ansi.border("╭" + "─".repeat(layout.totalWidth - 2) + "╮");
+}
 
 export function renderHeader(state: UIState, layout: LayoutBudget): string {
-    const leftText = " CLANKER OPS ";
-    const centerText = ` FILTER: ${state.searchQuery || "Type to filter..."}`;
-    const rightText = " (Esc clears / q quits) ";
-
-    let L = pad(leftText, layout.leftWidth);
-    let C = pad(centerText, layout.centerWidth);
-    let R = pad(rightText, layout.rightWidth);
-
-    if (state.activePane === 'left') L = ansi.accentBg(L);
-    if (state.activePane === 'center') C = ansi.accentBg(C);
-    if (state.activePane === 'right') R = ansi.accentBg(R);
-
-    // Join with vertical separators
-    const row = `${L}│${C}│${R}`;
+    const activeCount = state.tasks.filter(t => t.status === "in_progress" || t.status === "todo").length;
+    const totalCount = state.tasks.length;
     
-    // Invert colors for header (simulated by bold or bg)
-    return ansi.bold(row);
+    const headerTitle = ` Clanker Ops [${activeCount} Active | ${totalCount} Total]`;
+    const filterText = state.searchQuery ? `Focus: ${state.searchQuery}` : "";
+    const searchStrip = `Filter: [ ${filterText} ] `;
+
+    const headerInnerWidth = layout.totalWidth - 2;
+    const headerSpacing = Math.max(0, headerInnerWidth - visualWidth(headerTitle) - visualWidth(searchStrip));
+    const headerInner = pad(headerTitle + " ".repeat(headerSpacing) + searchStrip, headerInnerWidth);
+
+    return ansi.border("│") + headerInner + ansi.border("│");
 }
 
 export function renderHeaderSeparator(layout: LayoutBudget): string {
     const L = "─".repeat(layout.leftWidth);
     const C = "─".repeat(layout.centerWidth);
     const R = "─".repeat(layout.rightWidth);
-    return `${L}┼${C}┼${R}`;
+    return ansi.border(`├${L}┬${C}┬${R}┤`);
 }
