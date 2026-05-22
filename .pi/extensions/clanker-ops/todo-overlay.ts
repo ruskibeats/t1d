@@ -100,15 +100,23 @@ export class TodoOverlay {
 	 * Show scrollable overlay for full board navigation.
 	 * Call this from a command handler.
 	 */
-	showScrollableBoard(): void {
-		if (!this.tui) return;
+	showScrollableBoard(uiCtx?: ExtensionUIContext): void {
+		if (!this.tui || !uiCtx) return;
 
-		const board = new MasterDetailBoard({ maxHeight: MAX_WIDGET_LINES, leftWidth: 45 });
-		this.tui.showOverlay(board);
+		uiCtx.custom(async (tui, theme, _keybindings, done) => {
+			const board = new MasterDetailBoard({ maxHeight: 30, leftWidth: 45 });
+			board.setTUI(tui);
+			board.setDone(() => done());
+			return {
+				render: (width) => board.render(width),
+				handleInput: (data) => board.handleInput(data),
+			};
+		}, { overlay: true });
 	}
 
 	/**
 	 * Show scrollable overlay from a command (passes tui directly).
+	 * This uses default TUI overlay without done callback resolution.
 	 */
 	static showFromCommand(tui: TUI): void {
 		const board = new MasterDetailBoard({ maxHeight: 30, leftWidth: 45 });
