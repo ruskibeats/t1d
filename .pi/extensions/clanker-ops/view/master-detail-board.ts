@@ -1,17 +1,27 @@
 /**
- * Master-Detail Board Component — Full-screen workspace for Clanker Ops.
+ * Master-Detail Board Component — Full-screen terminal workspace for Clanker Ops.
  *
  * Uses alternate screen buffer for clean takeover of terminal area.
  * Layout: [Navigation Rail] [Task List] [Inspector/Reader]
+ *
+ * Visual structure:
+ * ┌────────────────────────────────────────────────────────┐
+ * │ Header (title + counts)                                │
+ * ├──────────────┬────────────────────────┬────────────────┤
+ * │ Left rail    │ Task list            │ Inspector      │
+ * │              │                        │                │
+ * ├──────────────┴────────────────────────┴────────────────┤
+ * │ Footer (tabs + shortcuts)                              │
+ * └────────────────────────────────────────────────────────┘
  */
 
 import type { Component, TUI } from "@mariozechner/pi-tui";
 import { existsSync, readFileSync } from "node:fs";
-import { getState } from "../state/store.js";
+import { getState, getNextId } from "../state/store.js";
 import type { Task } from "../tool/types.js";
 
 // ---------------------------------------------------------------------------
-// ANSI helpers - restrained color palette
+// ANSI helpers - restrained palette
 // ---------------------------------------------------------------------------
 
 const S = {
@@ -24,6 +34,13 @@ const S = {
 	reverse: (v: string) => `\x1b[7m${v}\x1b[0m`,
 };
 
+// Box drawing
+const BOX = {
+	h: "─", v: "│", tl: "┌", tr: "┐", bl: "└", br: "┘",
+	tt: "┬", bb: "┴", lt: "├", rt: "┤", cross: "┼",
+	hh: "─", vv: "│",
+};
+
 // ---------------------------------------------------------------------------
 // Tab definition
 // ---------------------------------------------------------------------------
@@ -31,12 +48,32 @@ const S = {
 type Tab = "overview" | "plan" | "edit";
 
 // ---------------------------------------------------------------------------
+// Layout constants
+// ---------------------------------------------------------------------------
+
+const LAYOUT = {
+	headerHeight: 1,
+	footerHeight: 1,
+	minWidth: 80,
+	leftRailWidth: 18,  // Boards, Views, Tags, Owners sections
+	listMinWidth: 30,
+	separator: " │ ",
+};
+
+// Fixed column boundaries for the three panes
+function getColumnBoundaries(width: number) {
+	const leftW = LAYOUT.leftRailWidth;
+	const listW = Math.max(LAYOUT.listMinWidth, Math.floor((width - leftW - 3) * 0.35));
+	const inspectorW = width - leftW - listW - 3;
+	return { leftW, listW, inspectorW, separators: [leftW, leftW + listW + 1] };
+}
+
+// ---------------------------------------------------------------------------
 // Master-Detail Board Component
 // ---------------------------------------------------------------------------
 
 export interface MasterDetailBoardOptions {
-	leftRailWidth?: number;  // Width for navigation rail (default 20)
-	listWidth?: number;      // Width for task list (percentage, default 35)
+	leftRailWidth?: number;
 }
 
 export class MasterDetailBoard implements Component {
@@ -45,13 +82,13 @@ export class MasterDetailBoard implements Component {
 	private activeTab: Tab = "overview";
 	private planScrollOffset = 0;
 	private leftRailWidth: number;
-	private listWidth: number;
 	private tui: TUI | undefined;
 	private done: (() => void) | undefined;
+	private termWidth = 0;
+	private termHeight = 0;
 
 	constructor(options: MasterDetailBoardOptions = {}) {
-		this.leftRailWidth = options.leftRailWidth ?? 20;
-		this.listWidth = options.listWidth ?? 35;
+		this.leftRailWidth = options.leftRailWidth ?? LAYOUT.leftRailWidth;
 	}
 
 	setTUI(tui: TUI): void {
@@ -70,7 +107,7 @@ export class MasterDetailBoard implements Component {
 	handleInput(data: string): void {
 		const tasks = this.getVisibleTasks();
 
-		// Tab keys - overview/plan/edit only
+		// Tab switches
 		if (data === "O" || data === "o") {
 			this.activeTab = "overview";
 			this.tui?.requestRender();
@@ -83,25 +120,6 @@ export class MasterDetailBoard implements Component {
 			this.tui?.requestRender();
 		} else if (data === "\x1b[A") {
 			// Up arrow - move selection
-			this.selectedIndex = Math.max(0, this.selectedIndex - 1);
-			this.ensureSelectedVisible();
-			this.activeTab = "overview";
-			this.tui?.requestRender();
-		} else if (data === "\x1b[B") {
-			// Down arrow - move selection
-			this.selectedIndex = Math.min(Math.max(0, tasks.length - 1), this.selectedIndex + 1);
-			this.ensureSelectedVisible();
-			this.activeTab = "overview";
-			this.tui?.requestRender();
-		} else if (data === "j" || data === "J") {
-			if (this.activeTab === "plan") {
-				this.planScrollOffset += 1;
-			} else {
-				this.selectedIndex = Math.min(Math.max(0, tasks.length - 1), this.selectedIndex + 1);
-			}
-			this.ensureSelectedVisible();
-			this.tui?.requestRender();
-		} else if (data === "k" || data === "K") {
 			if (this.activeTab === "plan") {
 				this.planScrollOffset = Math.max(0, this.planScrollOffset - 1);
 			} else {
@@ -109,150 +127,111 @@ export class MasterDetailBoard implements Component {
 			}
 			this.ensureSelectedVisible();
 			this.tui?.requestRender();
-		} else if (data === " ") {
-			if (this.activeTab === "plan") this.planScrollOffset += 5;
+		} else if (data === "\x1b[B") {
+			// Down arrow - move selection
+			if (this.activeTab === "plan") {
+				this.planScrollOffset += 1;
+			} else {
+				this.selectedIndex = Math.min(Math.max(0, tasks.length - 1), this.selectedIndex + 1);
+			}
+			this.ensureSelectedVisible();
 			this.tui?.requestRender();
-		} else if (data === "b" || data === "B") {
-			if (this.activeTab === "plan") this.planScrollOffset = Math.max(0, this.planScrollOffset - 5);
+		} else if (data === " " || data === "b" || data === "B") {
+			if (data === " " && this.activeTab === "plan") this.planScrollOffset += 5;
+			if (data === "B" && this.activeTab === "plan") this.planScrollOffset = Math.max(0, this.planScrollOffset - 5);
 			this.tui?.requestRender();
 		} else if (data === "q" || data === "\x1b") {
-			// Exit workspace
+			// Exit workspace - both hide overlay AND resolve promise
 			this.tui?.hideOverlay();
 			this.done?.();
 		}
 	}
 
 	render(width: number): string[] {
-		const tasks = this.getVisibleTasks();
-		const selectedTask = tasks[this.selectedIndex];
-		const termHeight = process.stdout.rows || 24;
+		this.termWidth = width;
+		this.termHeight = process.stdout.rows || 24;
 
-		// Calculate pane widths
-		const leftRailW = this.leftRailWidth;
-		const listW = Math.floor((width - leftRailW - 1) * this.listWidth / 100);
-		const inspectorW = width - leftRailW - 1 - listW - 1;
+		const { leftW, listW, inspectorW } = getColumnBoundaries(width);
+
+		// Calculate visible task count (body rows minus header/footer)
+		const bodyRows = this.termHeight - 3; // header + footer + top border
 
 		const result: string[] = [];
 
-		// Build header (full width)
+		// Top border
+		result.push(this.renderTopBorder(width));
+
+		// Header
 		result.push(this.renderHeader(width));
 
-		// Build content rows
-		for (let row = 1; row < termHeight - 3; row++) {
-			const leftRail = this.renderLeftRail(row);
+		// Separator after header
+		result.push(this.renderHeaderSeparator(width, leftW, listW));
+
+		// Body rows - three panes
+		const tasks = this.getVisibleTasks();
+		const selectedTask = tasks[this.selectedIndex];
+
+		for (let row = 0; row < bodyRows; row++) {
+			const leftRail = this.renderLeftRail(row, leftW);
 			const taskList = this.renderTaskList(tasks, row, listW);
 			const inspector = this.renderInspector(selectedTask, row, inspectorW);
-			result.push(`${leftRail}│${taskList}│${inspector}`);
+
+			// Build the row with exact column boundaries
+			const sep1 = BOX.v;
+			const sep2 = BOX.v;
+			result.push(`${leftRail}${sep1}${taskList}${sep2}${inspector}`);
 		}
+
+		// Separator before footer
+		result.push(this.renderFooterSeparator(width, leftW, listW));
 
 		// Footer
 		result.push(this.renderFooter(width));
 
+		// Bottom border
+		result.push(this.renderBottomBorder(width));
+
 		return result;
 	}
 
+	private renderTopBorder(width: number): string {
+		return BOX.tl + BOX.h.repeat(width - 2) + BOX.tr;
+	}
+
+	private renderBottomBorder(width: number): string {
+		return BOX.bl + BOX.h.repeat(width - 2) + BOX.br;
+	}
+
 	private renderHeader(width: number): string {
-		const title = S.bold("Clanker Ops");
 		const counts = this.getTaskCounts();
-		const subtitle = S.gray(`${counts.total} tasks · ${counts.todo} todo · ${counts.done} done`);
-		const padding = width - title.length - 2 - subtitle.length;
-		return ` ${title} ${" ".repeat(Math.max(0, padding))}${subtitle}`;
+		const title = S.bold("Clanker Ops");
+		const subtitle = `${counts.total} tasks │ ${counts.todo} todo │ ${counts.done} done`;
+		const padding = width - title.length - subtitle.length - 2;
+		return `${BOX.v} ${title} ${subtitle.padStart(Math.max(0, padding))} ${BOX.v}`;
 	}
 
-	private renderLeftRail(row: number): string {
-		const items = ["Boards", "Views", "Tags", "Owners"];
-		if (row >= 1 && row <= items.length + 1) {
-			const idx = row - 1;
-			const label = idx < items.length ? items[idx] : "";
-			return S.gray(label.padEnd(this.leftRailWidth - 1));
-		}
-		return " ".repeat(this.leftRailWidth);
+	private renderHeaderSeparator(width: number, leftW: number, listW: number): string {
+		const { separators } = getColumnBoundaries(width);
+		let row = BOX.lt;
+		row += BOX.h.repeat(leftW + 1);
+		row += BOX.cross;
+		row += BOX.h.repeat(listW + 1);
+		row += BOX.cross;
+		row += BOX.h.repeat(width - leftW - listW - 4);
+		row += BOX.rt;
+		return row;
 	}
 
-	private renderTaskList(tasks: readonly Task[], row: number, width: number): string {
-		const visibleCount = process.stdout.rows - 5; // Account for header/footer
-		const taskRow = row - 1;
-
-		if (taskRow < 0 || taskRow >= visibleCount) return "".padEnd(width);
-		if (tasks.length === 0) return S.gray("No tasks".padEnd(width));
-
-		const taskIndex = this.scrollOffset + taskRow;
-		if (taskIndex >= tasks.length) return "".padEnd(width);
-
-		const task = tasks[taskIndex];
-		const isSelected = taskIndex === this.selectedIndex;
-		const statusMark = this.getStatusMark(task.status);
-
-		let line = isSelected ? S.reverse(" ") : " ";
-		line += isSelected ? S.bold(statusMark) : statusMark;
-		line += " ";
-		line += isSelected ? S.bold(`#${task.id} ${task.item || ""}`.slice(0, width - 6)) : `#${task.id} ${task.item || ""}`.slice(0, width - 6);
-
-		return line.padEnd(width);
-	}
-
-	private renderInspector(task: Task | undefined, row: number, width: number): string {
-		if (!task) {
-			const placeholder = ["No task selected", "", "Select a task to view details", "", "", "↑↓ to navigate", "P for plan", "E for edit"];
-			return placeholder[row - 1] ? S.gray(placeholder[row - 1].padEnd(width)) : "".padEnd(width);
-		}
-
-		if (this.activeTab === "overview") {
-			const lines = [
-				`#${task.id} ${S.bold(task.item)}`,
-				"",
-				`Status: ${this.formatStatus(task.status)}`,
-				task.assigned ? `Owner: ${task.assigned}` : "",
-				task.tags && task.tags.length > 0 ? `Tags: ${task.tags.map(t => "#" + t).join(" ")}` : "",
-				"",
-				task.description || "",
-				task.planFile ? `${S.cyan("📄")} ${task.planFile}` : "",
-			];
-			return lines[row - 1] ? lines[row - 1].slice(0, width).padEnd(width) : "".padEnd(width);
-		}
-
-		if (this.activeTab === "plan") {
-			return this.renderPlanContent(task, row, width);
-		}
-
-		if (this.activeTab === "edit") {
-			const lines = [
-				`#${task.id} Edit Mode`,
-				"",
-				`Owner: ${task.assigned || ""}`,
-				task.tags && task.tags.length > 0 ? `Tags: ${task.tags.map(t => "#" + t).join(" ")}` : "",
-				"",
-				S.gray("Save: Enter · Cancel: Esc"),
-			];
-			return lines[row - 1] ? lines[row - 1].slice(0, width).padEnd(width) : "".padEnd(width);
-		}
-
-		return "".padEnd(width);
-	}
-
-	private renderPlanContent(task: Task, row: number, width: number): string {
-		if (!task.planFile) {
-			return S.gray("No plan file. Press P to view plan if available.".padEnd(width));
-		}
-
-		const planPath = `.pi/todo-plans/${task.planFile}`;
-		if (!existsSync(planPath)) {
-			return S.gray(`Plan not found: ${task.planFile}`.padEnd(width));
-		}
-
-		try {
-			const content = readFileSync(planPath, "utf-8");
-			const lines = content.split("\n");
-			const planRow = row - 1;
-			const visibleLine = this.planScrollOffset + planRow;
-
-			if (visibleLine < lines.length) {
-				return lines[visibleLine].slice(0, width).padEnd(width);
-			}
-			return "".padEnd(width);
-		} catch {
-			return S.gray("Failed to read plan".padEnd(width));
-		}
+	private renderFooterSeparator(width: number, leftW: number, listW: number): string {
+		const { separators } = getColumnBoundaries(width);
+		let row = BOX.lt;
+		row += BOX.h.repeat(leftW + 1);
+		row += BOX.cross;
+		row += BOX.h.repeat(listW + 1);
+		row += BOX.cross;
+		row += BOX.h.repeat(width - leftW - listW - 4);
+		row += BOX.rt;
+		return row;
 	}
 
 	private renderFooter(width: number): string {
@@ -261,9 +240,116 @@ export class MasterDetailBoard implements Component {
 			this.activeTab === "plan" ? S.bold("[Plan]") : S.gray("[Plan]"),
 			this.activeTab === "edit" ? S.bold("[Edit]") : S.gray("[Edit]"),
 		];
-		const help = `${S.gray("↑↓ navigate · P plan · E edit · q quit")}`;
-		const padding = width - tabs.join(" ").length - help.length - 2;
-		return ` ${tabs.join(" ")} ${" ".repeat(Math.max(0, padding))}${help}`;
+		const help = `${S.gray("↑↓ move │ P plan │ O overview │ E edit │ q quit")}`;
+		const inner = ` ${tabs.join(" ")} │ ${help} `;
+		const padding = width - inner.length - 2;
+		return `${BOX.v}${inner.padEnd(width - 2)}${BOX.v}`;
+	}
+
+	private renderLeftRail(row: number, width: number): string {
+		const sections = [
+			{ name: "Boards", items: ["default", "ios", "backend"] },
+			{ name: "Views", items: ["all", "todo", "done"] },
+			{ name: "Tags", items: ["#graph", "#ios", "#backend"] },
+			{ name: "Owners", items: ["@worker", "@builder"] },
+		];
+
+		let content = "";
+		let cursor = 0;
+
+		for (const section of sections) {
+			// Section header
+			content += S.bold(section.name);
+			cursor++;
+			if (cursor > row) break;
+
+			// Items under section
+			for (const item of section.items) {
+				const isFirst = section.name === "Boards" && item === "default";
+				const marker = isFirst ? S.accent("▶ ") : "  ";
+				content += `${marker}${item}`;
+				cursor++;
+				if (cursor > row) break;
+			}
+			if (cursor > row) break;
+		}
+
+		return content.padEnd(width);
+	}
+
+	private renderTaskList(tasks: readonly Task[], row: number, width: number): string {
+		if (tasks.length === 0) return S.gray("No tasks".padEnd(width));
+
+		const taskIndex = this.scrollOffset + row;
+		if (taskIndex >= tasks.length) return "".padEnd(width);
+
+		const task = tasks[taskIndex];
+		const isSelected = taskIndex === this.selectedIndex;
+		const statusMark = this.getStatusMark(task.status);
+
+		let line = isSelected ? S.reverse(" ") : " ";
+		line += isSelected ? S.bold(statusMark) : statusMark;
+		line += isSelected ? S.bold(` #${task.id} ${task.item || ""}`.slice(0, width - 6)) : ` #${task.id} ${task.item || ""}`.slice(0, width - 6);
+
+		return line.padEnd(width);
+	}
+
+	private renderInspector(task: Task | undefined, row: number, width: number): string {
+		if (!task) {
+			const lines = ["No task selected", "", "↑↓ to navigate", "", "P for plan", "E for edit"];
+			return (lines[row] ? S.gray(lines[row]) : "").padEnd(width);
+		}
+
+		if (this.activeTab === "overview") {
+			const lines = [
+				`#${task.id} ${S.bold(task.item)}`,
+				"",
+				`Status: ${this.formatStatus(task.status)}`,
+				task.assigned ? `Owner: ${task.assigned}` : "",
+				task.tags?.length ? `Tags: ${task.tags.map(t => `#${t}`).join(" ")}` : "",
+				"",
+				task.description || "",
+				task.planFile ? `${S.cyan("📄")} ${task.planFile}` : "",
+			];
+			return (lines[row] || "").padEnd(width);
+		}
+
+		if (this.activeTab === "plan") {
+			return this.renderPlanContent(task, row, width);
+		}
+
+		// Edit tab
+		const lines = [
+			`#${task.id} Edit Mode`,
+			"",
+			`Owner: ${task.assigned || ""}`,
+			task.tags?.length ? `Tags: ${task.tags.map(t => `#${t}`).join(" ")}` : "",
+			"",
+			S.gray("Save: Enter │ Cancel: Esc"),
+		];
+		return (lines[row] || "").padEnd(width);
+	}
+
+	private renderPlanContent(task: Task, row: number, width: number): string {
+		if (!task.planFile) {
+			return S.gray("No plan file. Press P to view plan if available.").padEnd(width);
+		}
+
+		const planPath = `.pi/todo-plans/${task.planFile}`;
+		if (!existsSync(planPath)) {
+			return S.gray(`Plan not found: ${task.planFile}`).padEnd(width);
+		}
+
+		try {
+			const content = readFileSync(planPath, "utf-8");
+			const lines = content.split("\n");
+			if (this.planScrollOffset + row < lines.length) {
+				return lines[this.planScrollOffset + row].slice(0, width).padEnd(width);
+			}
+			return "".padEnd(width);
+		} catch {
+			return S.gray("Failed to read plan").padEnd(width);
+		}
 	}
 
 	private formatStatus(status: string): string {
@@ -298,11 +384,11 @@ export class MasterDetailBoard implements Component {
 	}
 
 	private ensureSelectedVisible(): void {
-		const visibleCount = (process.stdout.rows || 24) - 5;
+		const bodyRows = (process.stdout.rows || 24) - 3;
 		if (this.selectedIndex < this.scrollOffset) {
 			this.scrollOffset = this.selectedIndex;
-		} else if (this.selectedIndex >= this.scrollOffset + visibleCount) {
-			this.scrollOffset = this.selectedIndex - visibleCount + 1;
+		} else if (this.selectedIndex >= this.scrollOffset + bodyRows) {
+			this.scrollOffset = this.selectedIndex - bodyRows + 1;
 		}
 	}
 

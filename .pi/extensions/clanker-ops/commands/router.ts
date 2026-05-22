@@ -59,24 +59,24 @@ const BOARD_FOOTER = "╰──────────────────�
 // Handlers
 // ---------------------------------------------------------------------------
 
-/** Overlay board — master-detail TUI overlay */
+/** Overlay board — full-screen workspace */
 async function handleOverlay(ctx: CommandContext): Promise<boolean> {
 	if (!ctx.hasUI) {
 		ctx.notify(t("command.requires_interactive", ERR_REQUIRES_INTERACTIVE), "error");
 		return false;
 	}
-	// Use ui.custom() to show the master-detail board as an overlay
+	// Use ui.custom() without overlay option for full-screen workspace
+	// The component must own the full terminal area (no Pi chrome visible)
 	await ctx.ui?.custom(async (tui, _theme, _keybindings, done) => {
 		const { MasterDetailBoard } = await import("../view/master-detail-board.js");
-		const board = new MasterDetailBoard({ leftRailWidth: 20, listWidth: 35 });
+		const board = new MasterDetailBoard({ leftRailWidth: 18 });
 		board.setTUI(tui);
 		board.setDone(() => done());
 		tui.requestRender();
 		return board;
-	}, { overlay: true });
+	});
 	return false;
 }
-
 const handler: Record<string, Handler> = {
 	bulk: handleBulk,
 	compact: handleCompact,
