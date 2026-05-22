@@ -55,14 +55,19 @@ export function registerClankerCommand(pi: ExtensionAPI) {
                                 state.editState.activeFieldIndex = Math.max(0, state.editState.activeFieldIndex - 1);
                             } else if (data === '\x1b[B') { // Down
                                 state.editState.activeFieldIndex = Math.min(2, state.editState.activeFieldIndex + 1);
+                            } else if (data === '\x1b[D' || data === '\x1b[C' || data === ' ') { // Left, Right, Space
+                                if (state.editState.activeFieldIndex === 0) {
+                                    const statuses = ['todo', 'in_progress', 'done'];
+                                    const curr = statuses.indexOf(state.editState.draftStatus);
+                                    const next = (curr + 1) % statuses.length;
+                                    state.editState.draftStatus = statuses[next];
+                                }
                             } else if (data === '\x7f' || data === '\b') { // Backspace
-                                if (state.editState.activeFieldIndex === 0) state.editState.draftStatus = state.editState.draftStatus.slice(0, -1);
-                                else if (state.editState.activeFieldIndex === 1) state.editState.draftOwner = state.editState.draftOwner.slice(0, -1);
+                                if (state.editState.activeFieldIndex === 1) state.editState.draftOwner = state.editState.draftOwner.slice(0, -1);
                                 else if (state.editState.activeFieldIndex === 2) state.editState.draftTags = state.editState.draftTags.slice(0, -1);
                             } else if (data.length === 1 && !data.startsWith('\x1b')) {
                                 // Printable char
-                                if (state.editState.activeFieldIndex === 0) state.editState.draftStatus += data;
-                                else if (state.editState.activeFieldIndex === 1) state.editState.draftOwner += data;
+                                if (state.editState.activeFieldIndex === 1) state.editState.draftOwner += data;
                                 else if (state.editState.activeFieldIndex === 2) state.editState.draftTags += data;
                             }
                             _tui.requestRender();
