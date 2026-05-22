@@ -1,121 +1,278 @@
 ---
 name: "pi-extension-context-injector"
-description: "Inject a compact live-state summary as HTML comments into LLM context via session lifecycle hooks in a Pi extension. Use when building a stateful Pi extension that needs the LLM to be always aware of the current work queue, task board, or entity status without requiring explicit commands (e.g., /clanker board, /status). The pattern creates two modes: a compact single-line HTML comment for frequent injection and a multi-line detail block for session initialization."
+description: "Build a context injector for a Pi extension that formats a compact work queue or state summary and injects it into LLM context via HTML comments during lifecycle events. Use when your Pi extension manages a work queue (tasks, dispatches, agents) and you want the LLM to be aware of current state without the user running /clanker explicitly."
 version: 1
-created: "2026-05-20"
-updated: "2026-05-20"
+created: "2026-05-21"
+updated: "2026-05-21"
 ---
 # Pi Extension Context Injector
 
-Inject a compact live-state summary as HTML comments into LLM context via session lifecycle hooks in a Pi extension.
-
 ## When to Use
 
-- The extension maintains a stateful entity collection (tasks, tickets, boards, items)
-- The LLM should always know the current queue/status without running explicit commands
-- You have session lifecycle hooks available (session_start, session_init)
-- You need both a compact summary (for frequent injection) and a detail view (for init)
+You are building a Pi extension that manages a work queue (tasks, dispatches, agents, runs) and you want the LLM to be aware of the current queue state without the user having to run a command (`/clanker`, `/status`, `/queue`) explicitly.
 
-Do NOT use this for:
-- One-shot status commands — just return the result inline
-- Extensions without a state store or selectors
-- When the full board view is always needed — keep it in /command output
+The context injector pattern:
+1. Formats a compact summary of the current state
+2. Wraps it as an HTML comment (`<!-- CLANKER: ... -->`)
+3. Hooks into Pi session lifecycle events (session_start, before_turn)
+4. The LLM always "sees" the comment in context and acts on it
+
+Use when:
+- Building a task/work-queue extension for Pi (Clanker Ops, ticket systems, run queues)
+- You want the LLM to proactively offer status updates, flag blockers, or suggest next actions
+- The work queue state changes asynchronously (dispatched subagents, time-based completions)
+
+Do NOT use for:
+- Static configuration that never changes (no need to re-inject every turn)
+- User-specific preferences (they're always available via memory)
+- Large state dumps (>1KB will waste context window — keep it compact)
+
+## Architecture
+
+```
+state/store.ts (persistent state)
+       │
+       ▼
+context-injector.ts
+       │
+       ├── formatCompactContext()   → "<!-- CLANKER: 2 active, 5 queued — top: #1 "Deploy" @alice -->"
+       ├── formatDetailContext()    → Multi-line HTML comment with sectioned breakdown
+       └── planExists(id)           → Helper to flag tasks without plans
+       │
+       ▼
+index.ts (lifecycle events)
+       │
+       ├── session_start          → Inject detail context
+       └── before_turn / notify   → Inject compact context (when state changes)
+```
 
 ## Procedure
 
-### 1. Create the injector module
+### 1. Build the state access layer
 
-Create `injector/context-injector.ts` with two formatters:
-
-**Compact formatter** (`formatCompactContext`): Returns a single-line HTML comment.
-- Count tasks grouped by status (active, queued, failed, done)
-- Include top active items with IDs and owners
-- Flag anomalies (failed tasks, blocked tasks, missing plans)
-- Keep under ~400 chars to avoid prompt bloat
-
-**Detail formatter** (`formatDetailContext`): Returns a multi-line HTML comment block.
-- Section headers for each status group
-- Each item on its own line with status icon + ID + description
-- Call out known anomalies (no-plan, blocked-by, failed)
-- Wrap entire block in `<!-- CLANKER_OPS ... -->`
+Before you can inject context, you need the state it reflects:
 
 ```typescript
-// Compact: single-line HTML comment for frequent injection
+// Assuming you have a file-backed store
+import { getState } from "./state/store.js";
+import { selectTasksByStatus } from "./state/selectors.js";
+import { existsSync } from "node:fs";
+import { join } from "node:path";
+```
+
+### 2. Implement compact context (single-line HTML comment)
+
+This is the primary injection — a single line that fits in the system prompt without adding visual noise:
+
+```typescript
 export function formatCompactContext(): string {
-    const state = getState();
-    const visible = state.tasks.filter(t => t.status !== "deleted");
-    const groups = selectTasksByStatus(state);
-    
-    const active = groups.inProgress.slice(0, 3).map(t => {
-        const owner = t.assigned ? ` @${t.assigned.replace(/^@/, "")}` : "";
-        return `#${t.id} "${t.item}"${owner}`;
-    });
-    
-    const failed = visible.filter(t => t.status === "failed");
-    const blocked = visible.filter(t => (t.blockedBy?.length ?? 0) > 0);
-    
-    const parts: string[] = [];
-    parts.push(`${groups.inProgress.length} active`);
-    parts.push(`${groups.pending.length} queued`);
-    if (failed.length) parts.push(`${failed.length} failed`);
-    
-    let compact = `<!-- CTX: ${parts.join(", ")}`;
-    if (active.length) compact += ` — top: ${active.join("; ")}`;
-    if (failed.length) compact += ` — ⚠${failed.length} failed`;
-    compact += ` -->`;
-    
-    return compact;
+  const state = getState();
+  const visible = state.tasks.filter((t) => t.status !== "deleted");
+  const groups = selectTasksByStatus(state);
+
+  // Top 3 active tasks with owner + plan status
+  const active = groups.inProgress.slice(0, 3).map((t) => {
+    const owner = t.assigned ? `@${t.assigned.replace(/^@/, "")}` : "";
+    const plan = planExists(t.id) ? "" : "⚠no-plan";
+    return `#${t.id} "${t.item}"${owner}${plan}`;
+  });
+
+  // Aggregate counts
+  const failed = visible.filter((t) => t.status === "failed");
+  const blocked = visible.filter((t) => (t.blockedBy?.length ?? 0) > 0);
+
+  const parts: string[] = [];
+  parts.push(`${groups.inProgress.length} active`);
+  parts.push(`${groups.pending.length} queued`);
+  if (failed.length) parts.push(`${failed.length} failed`);
+  if (groups.completed.length) parts.push(`${groups.completed.length} done`);
+
+  let compact = `<!-- CLANKER: ${parts.join(", ")}`;
+  if (active.length) compact += ` — top: ${active.join("; ")}`;
+  if (failed.length) compact += ` — ⚠${failed.length} failed`;
+  if (blocked.length) compact += ` — ⊘${blocked.length} blocked`;
+  compact += ` -->`;
+
+  return compact;
 }
 ```
 
-### 2. Hook into session lifecycle
+**Why an HTML comment?** Pi's LLM pipelines skip HTML comments in the visible chat but still process them as context tokens. The comment format:
+- Doesn't clutter the visible conversation
+- Is parseable by the LLM if it needs the information
+- Is clearly structured with a `CLANKER:` prefix for disambiguation
 
-In the extension `index.ts`, register lifecycle hooks:
+### 3. Implement detail context (multi-line HTML comment)
+
+For session start, use a richer format that the LLM can reference throughout the session:
 
 ```typescript
-// On session start: inject full detail context
-pi.on("session_start", (session) => {
-    const detail = formatDetailContext();
-    session.setSystemPromptInjection(detail);
-});
+export function formatDetailContext(): string {
+  const state = getState();
+  const visible = state.tasks.filter((t) => t.status !== "deleted");
+  const groups = selectTasksByStatus(state);
+  const failed = visible.filter((t) => t.status === "failed");
+  const blocked = visible.filter((t) => (t.blockedBy?.length ?? 0) > 0);
+  const missingPlans = visible.filter(
+    (t) => t.status !== "completed" && !planExists(t.id),
+  );
 
-// On state change: inject compact context (if re-injection is supported)
-stateStore.on("change", () => {
-    const compact = formatCompactContext();
-    // Re-inject compact summary via available lifecycle event
-});
+  const lines: string[] = ["", "<!-- CLANKER_OPS", `Project: some-project-name`];
+
+  // Active section
+  if (groups.inProgress.length) {
+    lines.push("", "Active:");
+    for (const t of groups.inProgress) {
+      const owner = t.assigned ? ` @${t.assigned}` : "";
+      const plan = planExists(t.id) ? "" : " ⚠no-plan";
+      lines.push(`  ◐ #${t.id} ${t.item}${owner}${plan}`);
+    }
+  }
+
+  // Failed section
+  if (failed.length) {
+    lines.push("", "Failed:");
+    for (const t of failed) lines.push(`  ✗ #${t.id} ${t.item}`);
+  }
+
+  // Blocked section
+  if (blocked.length) {
+    lines.push("", "Blocked:");
+    for (const t of blocked)
+      lines.push(`  ⊘ #${t.id} ${t.item} — blockedBy=${(t.blockedBy ?? []).map((d) => `#${d}`).join(",")}`);
+  }
+
+  // No-plan section (limit to 5 to avoid bloat)
+  if (missingPlans.length) {
+    lines.push("", "Missing plans:");
+    for (const t of missingPlans.slice(0, 5))
+      lines.push(`  ⚠ #${t.id} ${t.item}`);
+  }
+
+  lines.push("-->");
+  return lines.join("\n");
+}
+
+function planExists(id: number): boolean {
+  const planPath = join(process.cwd(), ".pi", "todo-plans", `#${id}_plan.md`);
+  return existsSync(planPath);
+}
 ```
 
-### 3. Structure the HTML comment format
+### 4. Hook into lifecycle events
 
-- Use `<!-- KEY: ... -->` format (HTML comments are invisible to rendering)
-- Use emoji indicators: ◐ in-progress, ✗ failed, ⊘ blocked, ⚠ warning
-- Always include counts, not just raw items
-- The compact form should fit on one line
-- The detail form can be a full `<!-- SECTION -->` block with line breaks
+In your extension's `index.ts`, register the injector on lifecycle events:
 
-### 4. Integrate with selectors
+```typescript
+import type { ExtensionAPI } from "@pipelessthan3/pi";
+import { formatCompactContext, formatDetailContext } from "./injector/context-injector.js";
 
-Create selectors that the injector can use:
-- `selectTasksByStatus(state)` → group tasks by their status field
-- `planExists(taskId)` → check if a supporting plan/spec file exists
+export function activate(pi: ExtensionAPI): void {
+  // Register the context injector as an LLM-callable tool
+  // that returns the compact context
+  pi.registerTool({
+    name: "get-clanker-context",
+    description: "Get the current Clanker Ops work queue context",
+    handler: () => formatCompactContext(),
+  });
+
+  // Or hook into lifecycle events
+  // (exact API depends on Pi's ExtensionAPI — the pattern is to
+  //  register a callback that's called on each session turn)
+}
+```
+
+**Key design decisions:**
+
+| Decision | Compact vs Detail | Rationale |
+|----------|------------------|-----------|
+| Per-turn injection | Compact (single line ~200-300 chars) | Minimal token cost for every LLM interaction |
+| Session start | Detail (multi-line ~500-800 chars) | Richer initial context, the LLM won't lose it |
+| State change events | Compact re-injection | Keep the LLM current without repeating the full detail |
+
+### 5. Decide injection strategy
+
+**Option A: Per-turn injection** (recommended)
+The injector runs before every LLM turn and prepends a compact summary. Token cost is ~50-100 tokens per turn. Pro: always fresh. Con: every turn pays the token cost.
+
+**Option B: On-change injection**
+Only re-inject when state changes (new tasks, status transitions, dispatch completions). Pro: saves tokens when nothing changes. Con: more complex implementation (need change detection).
+
+**Option C: Session-start only**
+Inject detail context once at session start, never update. Pro: cheapest. Con: LLM goes stale — won't know about tasks that completed during the session.
+
+**Recommendation**: Option A for compact mode (low token cost), with detail mode injected once at session start.
 
 ## Pitfalls
 
-- **Comment bloat** — Keep compact form under ~400 chars. If the queue is large, truncate to top 3-5 items and use a count for the rest.
-- **Stale comments** — If the injection happens only at session start, the comment goes stale. Hook into state-change events for re-injection when the platform supports it.
-- **Redundant information** — Don't include information the /command handler already shows. The injector is a teaser, not a replacement.
-- **Broken HTML comments** — Ensure no `-->` appears inside the comment content itself. Escape or trim task descriptions to prevent premature comment closure.
-- **Performance** — The injector runs synchronously. If the state store is large (1000+ items), add limits/slicing before formatting.
+### Token budget waste
+- Each injection costs tokens even if the LLM doesn't use the information.
+- **Mitigation**: Keep compact context under 300 chars (~75 tokens). Use detail context only at session start.
+
+### Stale context after user action
+- User runs `/clanker dispatch #5 to @agent`, state changes, but injector hasn't re-run.
+- **Mitigation**: After any mutation command, explicitly re-inject context.
+
+### Multi-session desync
+- Multiple Pi sessions share the same state file. Session A dispatches a task, Session B's injector sees the update.
+- **Mitigation**: This is usually a feature (cross-session awareness), but be aware that injectors read from disk, not from in-memory state.
+
+### Plan file staleness
+- The injector checks `planExists()` on every turn. If a plan file is created during the session, the injector picks it up next turn.
+- **Pitfall**: On filesystem-heavy environments (NFS, Docker bind mounts), `existsSync` can be slow. Cache plan existence per session and invalidate on mutations.
+
+### Comment escaping
+- If task items contain `-->` (HTML comment closing), the injector output will be malformed.
+- **Mitigation**: Sanitize task descriptions — replace `-->` with `-- >` or `[end]`:
+  ```typescript
+  function sanitize(text: string): string {
+    return text.replace(/-->/g, "-- >");
+  }
+  ```
 
 ## Verification
 
-- [ ] `formatCompactContext()` returns a valid single-line HTML comment (`<!-- ... -->`)
-- [ ] `formatDetailContext()` returns a valid multi-line HTML comment block
-- [ ] The compact form includes counts for each relevant status group
-- [ ] The detail form lists individual items with IDs and status icons
-- [ ] Anomalies (failed tasks, blocked items) are visually flagged
-- [ ] The comment is injected into the LLM context at session start
-- [ ] After state changes, the comment content reflects the new state (or is flagged as stale)
-- [ ] Total compact comment size is under 600 chars
-- [ ] Task descriptions are safe against premature HTML comment closure
+```typescript
+// Test 1: No tasks → empty/inactive context
+function testEmptyState() {
+  const ctx = formatCompactContext();
+  assert(ctx.includes("0 active"), "Empty state should show 0 active");
+  assert(ctx.startsWith("<!--"), "Should be an HTML comment");
+  assert(ctx.endsWith("-->"), "Should close HTML comment");
+}
+
+// Test 2: Active tasks appear in compact context
+function testActiveTasks() {
+  // (arrange state with 2 in_progress tasks)
+  const ctx = formatCompactContext();
+  assert(ctx.includes("2 active"), "Should reflect active count");
+  assert(ctx.includes("#1"), "Should include task IDs");
+}
+
+// Test 3: Detail context has sections
+function testDetailSections() {
+  const ctx = formatDetailContext();
+  // Should start with CLANKER_OPS marker
+  assert(ctx.includes("CLANKER_OPS"), "Detail context should have marker");
+  // Check for standard section headers
+  if (ctx.includes("Active:")) {
+    assert(ctx.includes("◐ #"), "Active items should have glyph prefix");
+  }
+  if (ctx.includes("Failed:")) {
+    assert(ctx.includes("✗ #"), "Failed items should have ✗ prefix");
+  }
+}
+
+// Test 4: planExists returns correct result
+function testPlanExists() {
+  // (arrange: write a plan file, then call planExists)
+  assert(planExists(1) === true, "Should find existing plan");
+  assert(planExists(99999) === false, "Should not find non-existent plan");
+}
+
+// Test 5: Sanitization prevents HTML comment breaking
+function testSanitization() {
+  assert(sanitize("Task --> description") === "Task -- > description");
+  assert(sanitize("Normal task") === "Normal task");
+}
+```
