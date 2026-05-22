@@ -42,7 +42,6 @@ const CLANKER_HELP = `╭─── Clanker Ops ───╮
 │  /clanker         Show work board
 │  /clanker help    Show this help
 │  /clanker compact Show compact board
-│  /clanker overlay Scrollable overlay board
 │  /clanker dispatch #<id> [to <owner>]
 │  /clanker bulk #id --status <s> [--assigned <o>]
 │  /clanker log     Show dispatch history
@@ -59,24 +58,6 @@ const BOARD_FOOTER = "╰──────────────────�
 // Handlers
 // ---------------------------------------------------------------------------
 
-/** Overlay board — full-screen workspace */
-async function handleOverlay(ctx: CommandContext): Promise<boolean> {
-	if (!ctx.hasUI) {
-		ctx.notify(t("command.requires_interactive", ERR_REQUIRES_INTERACTIVE), "error");
-		return false;
-	}
-	// Use ui.custom() without overlay option for full-screen workspace
-	// The component must own the full terminal area (no Pi chrome visible)
-	await ctx.ui?.custom(async (tui, _theme, _keybindings, done) => {
-		const { MasterDetailBoard } = await import("../view/master-detail-board.js");
-		const board = new MasterDetailBoard({ leftRailWidth: 18 });
-		board.setTUI(tui);
-		board.setDone(() => done());
-		tui.requestRender();
-		return board;
-	});
-	return false;
-}
 const handler: Record<string, Handler> = {
 	bulk: handleBulk,
 	compact: handleCompact,
@@ -88,7 +69,6 @@ const handler: Record<string, Handler> = {
 	eod: handleEod,
 	dispatch: handleDispatch,
 	focus: handleFocus,
-	overlay: handleOverlay,
 };
 
 /** No subcommand — show board */
