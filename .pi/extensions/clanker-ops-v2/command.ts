@@ -33,17 +33,18 @@ export function registerClankerCommand(pi: ExtensionAPI) {
                         return renderClankerBoardV2(state);
                     },
                     handleInput(data: string) {
-                        if (data === "\x1b" || data === "q") {
+                        const lowerData = data.toLowerCase();
+                        if (data === "\x1b" || lowerData === "q") {
                             done(undefined);
                             resolve(); // Exit the TUI
                             return;
                         }
 
-                        if (data === "d") {
+                        if (lowerData === "d") {
                             state.debugEnabled = !state.debugEnabled;
                         }
 
-                        if (data === "\x1b[A" || data === "k") { // up
+                        if (data === "\x1b[A" || lowerData === "k") { // up
                             if (state.activePane === 'center') {
                                 if (state.activeIndex > 0) {
                                     state.activeIndex--;
@@ -58,7 +59,7 @@ export function registerClankerCommand(pi: ExtensionAPI) {
                             }
                         }
 
-                        if (data === "\x1b[B" || data === "j") { // down
+                        if (data === "\x1b[B" || lowerData === "j") { // down
                             if (state.activePane === 'center') {
                                 if (state.activeIndex < state.tasks.length - 1) {
                                     state.activeIndex++;
@@ -77,22 +78,22 @@ export function registerClankerCommand(pi: ExtensionAPI) {
                             }
                         }
 
-                        if (data === "o") {
+                        if (lowerData === "o") {
                             state.activeTab = "overview";
                         }
-                        if (data === "p") {
+                        if (lowerData === "p") {
                             state.activeTab = "plan";
                         }
-                        if (data === "e") {
+                        if (lowerData === "e") {
                             state.activeTab = "edit";
                         }
 
                         // Pane Navigation (h/l, left/right, tab)
-                        if (data === "\x1b[D" || data === "h") { // left
+                        if (data === "\x1b[D" || lowerData === "h") { // left
                             if (state.activePane === 'right') state.activePane = 'center';
                             else if (state.activePane === 'center') state.activePane = 'left';
                         }
-                        if (data === "\x1b[C" || data === "l") { // right
+                        if (data === "\x1b[C" || lowerData === "l") { // right
                             if (state.activePane === 'left') state.activePane = 'center';
                             else if (state.activePane === 'center') state.activePane = 'right';
                         }
