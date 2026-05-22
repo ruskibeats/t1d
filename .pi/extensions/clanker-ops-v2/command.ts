@@ -2,7 +2,7 @@ import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 import { UIState } from "./state/types.js";
 import { loadTasks } from "./state/loadTasks.js";
 import { saveTaskMeta } from "./state/saveTasks.js";
-import { getFilteredTasks } from "./state/selectors.js";
+import { getFilteredTasks, getSortedTags } from "./state/selectors.js";
 import { renderClankerBoardV2 } from "./tui/render.js";
 
 export function registerClankerCommand(pi: ExtensionAPI) {
@@ -123,8 +123,8 @@ export function registerClankerCommand(pi: ExtensionAPI) {
                                     }
                                 }
                             } else if (state.activePane === 'left') {
-                                // Currently 6 hardcoded items in left rail
-                                if (state.leftActiveIndex < 5) {
+                                const maxLeftIndex = 4 + getSortedTags(state.tasks).length;
+                                if (state.leftActiveIndex < maxLeftIndex) {
                                     state.leftActiveIndex++;
                                     state.activeIndex = 0;
                                     state.listScrollOffset = 0;
