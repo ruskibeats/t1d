@@ -6,9 +6,13 @@ export function renderHeader(state: UIState, layout: LayoutBudget): string {
     const centerText = ` FILTER: ${state.searchQuery || "Type to filter..."}`;
     const rightText = " (Esc clears / q quits) ";
 
-    const L = pad(leftText, layout.leftWidth);
-    const C = pad(centerText, layout.centerWidth);
-    const R = pad(rightText, layout.rightWidth);
+    let L = pad(leftText, layout.leftWidth);
+    let C = pad(centerText, layout.centerWidth);
+    let R = pad(rightText, layout.rightWidth);
+
+    if (state.activePane === 'left') L = ansi.accentBg(L);
+    if (state.activePane === 'center') C = ansi.accentBg(C);
+    if (state.activePane === 'right') R = ansi.accentBg(R);
 
     // Join with vertical separators
     const row = `${L}│${C}│${R}`;

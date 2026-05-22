@@ -4,18 +4,27 @@ import { pad, ansi } from "../text.js";
 export function renderLeftRail(state: UIState, layout: LayoutBudget, height: number): string[] {
     const lines: string[] = [];
     
-    // Add static left rail content for v1
+    // Items: 0=Main Ops, 1=Backend, 2=All Active, 3=ui (3)
+    // We don't have true list data yet, so hardcode the active index logic
+    const highlight = (text: string, index: number) => {
+        const isSelected = state.leftActiveIndex === index;
+        const prefix = isSelected ? " > " : "   ";
+        const content = isSelected ? ansi.bold(text) : text;
+        const line = prefix + content;
+        return isSelected && state.activePane === 'left' ? ansi.accentBg(line) : line;
+    };
+
     lines.push(" BOARDS");
-    lines.push(state.activeBoard === "Main Ops" ? ansi.bold(" > Main Ops") : "   Main Ops");
-    lines.push("   Backend");
+    lines.push(highlight("Main Ops", 0));
+    lines.push(highlight("Backend", 1));
     lines.push("");
     lines.push(" VIEWS");
-    lines.push(ansi.bold(" > All Active"));
+    lines.push(highlight("All Active", 2));
     lines.push("   Assigned");
     lines.push("   Completed");
     lines.push("");
     lines.push(" TAGS");
-    lines.push("   ui (3)");
+    lines.push(highlight("ui (3)", 3));
     
     // Pad all generated lines
     const paddedLines = lines.map(line => pad(line, layout.leftWidth));
