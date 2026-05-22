@@ -72,6 +72,26 @@ export function registerClankerCommand(pi: ExtensionAPI) {
                             state.activeTab = "edit";
                         }
 
+                        // Pane Navigation (h/l, left/right, tab)
+                        if (data === "\x1b[D" || data === "h") { // left
+                            if (state.activePane === 'right') state.activePane = 'center';
+                            else if (state.activePane === 'center') state.activePane = 'left';
+                        }
+                        if (data === "\x1b[C" || data === "l") { // right
+                            if (state.activePane === 'left') state.activePane = 'center';
+                            else if (state.activePane === 'center') state.activePane = 'right';
+                        }
+                        if (data === "\t") { // tab cycles left -> center -> right -> left
+                            if (state.activePane === 'left') state.activePane = 'center';
+                            else if (state.activePane === 'center') state.activePane = 'right';
+                            else state.activePane = 'left';
+                        }
+                        if (data === "\x1b[Z") { // shift+tab cycles backward
+                            if (state.activePane === 'left') state.activePane = 'right';
+                            else if (state.activePane === 'center') state.activePane = 'left';
+                            else state.activePane = 'center';
+                        }
+
                         // Re-render
                         _tui.requestRender();
                     },
