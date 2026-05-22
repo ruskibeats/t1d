@@ -46,9 +46,9 @@ export function registerClankerCommand(pi: ExtensionAPI) {
 
                         if (data === "\x1b[A" || lowerData === "k") { // up
                             if (state.activePane === 'center') {
+                                state.activeTab = "overview"; // Always auto-recover to overview when trying to navigate
                                 if (state.activeIndex > 0) {
                                     state.activeIndex--;
-                                    state.activeTab = "overview"; // Auto-recover to overview on navigation
                                     if (state.activeIndex < state.listScrollOffset) {
                                         state.listScrollOffset = state.activeIndex;
                                     }
@@ -62,9 +62,9 @@ export function registerClankerCommand(pi: ExtensionAPI) {
 
                         if (data === "\x1b[B" || lowerData === "j") { // down
                             if (state.activePane === 'center') {
+                                state.activeTab = "overview"; // Always auto-recover to overview when trying to navigate
                                 if (state.activeIndex < state.tasks.length - 1) {
                                     state.activeIndex++;
-                                    state.activeTab = "overview"; // Auto-recover to overview on navigation
                                     // Assuming approx body height
                                     const visibleItems = state.height - 5;
                                     if (state.activeIndex >= state.listScrollOffset + visibleItems) {
@@ -84,10 +84,10 @@ export function registerClankerCommand(pi: ExtensionAPI) {
                             state.activeTab = "overview";
                         }
                         if (lowerData === "p") {
-                            state.activeTab = "plan";
+                            state.activeTab = state.activeTab === "plan" ? "overview" : "plan";
                         }
                         if (lowerData === "e") {
-                            state.activeTab = "edit";
+                            state.activeTab = state.activeTab === "edit" ? "overview" : "edit";
                         }
 
                         // Pane Navigation (h/l, left/right, tab)
