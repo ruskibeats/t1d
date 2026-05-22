@@ -12,10 +12,10 @@ export function renderClankerBoardV2(state: UIState): string[] {
     const layout = calculateLayout(state.width);
     
     // We reserve 1 line for header, 1 for header-sep, 1 for footer-sep, 1 for footer
-    // That's 4 static structural lines.
+    // That's 4 static structural lines. We add 1 extra line (so 5 total) to prevent terminal scroll.
     // Plus debug footer if enabled (1 line).
     const debugHeight = state.debugEnabled ? 1 : 0;
-    const reservedHeight = 4 + debugHeight;
+    const reservedHeight = 5 + debugHeight;
     const bodyHeight = Math.max(1, state.height - reservedHeight);
 
     // Render individual panes

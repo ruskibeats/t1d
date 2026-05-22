@@ -9,9 +9,9 @@ export function formatTaskRow(task: Task, width: number, isSelected: boolean): s
     // 1. Status and ID are never truncated
     const prefix = `${statusBox} ${idStr} `;
     
-    // 2. Title gets heavily truncated if necessary
-    const availableWidth = width - prefix.length;
-    const titleStr = truncateToWidth(task.title, Math.max(0, availableWidth));
+    // 2. Title gets heavily truncated if necessary, leaving 2 chars right margin
+    const availableWidth = Math.max(0, width - prefix.length - 2);
+    const titleStr = truncateToWidth(task.title, availableWidth);
     
     return prefix + titleStr;
 }
