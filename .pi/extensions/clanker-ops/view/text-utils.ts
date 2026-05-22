@@ -57,26 +57,61 @@ export function visualWidth(value: string | number): number {
 
 /**
  * Truncate a string to fit within `width` visual columns,
- * appending "..." if truncated.
+ * appending "..." if truncated. Preserves complete ANSI sequences
+ * and emits a reset at the end if truncated.
  */
-export function truncate(value: string | number, width: number): string {
+export function truncateToWidth(value: string | number, width: number): string {
 	const str = String(value ?? "");
 	if (visualWidth(str) <= width) return str;
 
 	const suffix = "...";
-	const suffixWidth = visualWidth(suffix);
+	const suffixWidth = 3;
 	if (width <= suffixWidth) return suffix.slice(0, width);
 
+	const ansiRegex = /\x1b\[[0-9;]*m/g;
+	let match;
+	let lastIndex = 0;
 	let out = "";
 	let w = 0;
-	for (const char of str) {
-		const cw = visualWidth(char);
-		if (w + cw + suffixWidth > width) return out + suffix;
-		out += char;
-		w += cw;
+	let hasAnsi = false;
+
+	const tokens: {text: string, isAnsi: boolean}[] = [];
+	ansiRegex.lastIndex = 0;
+	while ((match = ansiRegex.exec(str)) !== null) {
+		if (match.index > lastIndex) {
+			tokens.push({ text: str.slice(lastIndex, match.index), isAnsi: false });
+		}
+		tokens.push({ text: match[0], isAnsi: true });
+		lastIndex = ansiRegex.lastIndex;
 	}
+	if (lastIndex < str.length) {
+		tokens.push({ text: str.slice(lastIndex), isAnsi: false });
+	}
+
+	for (const token of tokens) {
+		if (token.isAnsi) {
+			out += token.text;
+			hasAnsi = true;
+		} else {
+			for (const char of token.text) {
+				const cw = visualWidth(char);
+				if (w + cw + suffixWidth > width) {
+					out += suffix;
+					if (hasAnsi) out += "\x1b[0m";
+					return out;
+				}
+				out += char;
+				w += cw;
+			}
+		}
+	}
+	
+	if (hasAnsi) out += "\x1b[0m";
 	return out;
 }
+
+// Keep export for backward compatibility if needed, or point to truncateToWidth
+export const truncate = truncateToWidth;
 
 // ---------------------------------------------------------------------------
 // ANSI-aware padding
@@ -86,7 +121,7 @@ export function truncate(value: string | number, width: number): string {
  * Pad a string to `width` visual columns, truncating if necessary.
  */
 export function pad(value: string | number, width: number): string {
-	const v = truncate(value, width);
+	const v = truncateToWidth(value, width);
 	return v + " ".repeat(Math.max(0, width - visualWidth(v)));
 }
 
