@@ -48,6 +48,7 @@ export function registerClankerCommand(pi: ExtensionAPI) {
                             if (state.activePane === 'center') {
                                 if (state.activeIndex > 0) {
                                     state.activeIndex--;
+                                    state.activeTab = "overview"; // Auto-recover to overview on navigation
                                     if (state.activeIndex < state.listScrollOffset) {
                                         state.listScrollOffset = state.activeIndex;
                                     }
@@ -63,6 +64,7 @@ export function registerClankerCommand(pi: ExtensionAPI) {
                             if (state.activePane === 'center') {
                                 if (state.activeIndex < state.tasks.length - 1) {
                                     state.activeIndex++;
+                                    state.activeTab = "overview"; // Auto-recover to overview on navigation
                                     // Assuming approx body height
                                     const visibleItems = state.height - 5;
                                     if (state.activeIndex >= state.listScrollOffset + visibleItems) {
