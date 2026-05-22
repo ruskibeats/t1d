@@ -2,6 +2,7 @@ import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 import { UIState } from "./state/types.js";
 import { loadTasks } from "./state/loadTasks.js";
 import { saveTaskMeta } from "./state/saveTasks.js";
+import { getFilteredTasks } from "./state/selectors.js";
 import { renderClankerBoardV2 } from "./tui/render.js";
 
 export function registerClankerCommand(pi: ExtensionAPI) {
@@ -41,7 +42,9 @@ export function registerClankerCommand(pi: ExtensionAPI) {
                                 state.activeTab = 'overview';
                             } else if (data === '\r' || data === '\n') {
                                 // Save
-                                const task = state.tasks[state.activeIndex];
+                                const filtered = getFilteredTasks(state);
+                                const task = filtered[state.activeIndex];
+                                if (!task) return;
                                 task.status = state.editState.draftStatus as any;
                                 task.owner = state.editState.draftOwner;
                                 task.tags = state.editState.draftTags.split(',').map(s => s.trim()).filter(Boolean);
@@ -97,7 +100,11 @@ export function registerClankerCommand(pi: ExtensionAPI) {
                                     }
                                 }
                             } else if (state.activePane === 'left') {
-                                if (state.leftActiveIndex > 0) state.leftActiveIndex--;
+                                if (state.leftActiveIndex > 0) {
+                                    state.leftActiveIndex--;
+                                    state.activeIndex = 0;
+                                    state.listScrollOffset = 0;
+                                }
                             } else if (state.activePane === 'right') {
                                 if (state.inspectorScrollOffset > 0) state.inspectorScrollOffset--;
                             }
@@ -106,7 +113,8 @@ export function registerClankerCommand(pi: ExtensionAPI) {
                         if (data === "\x1b[B" || lowerData === "j") { // down
                             if (state.activePane === 'center') {
                                 state.activeTab = "overview"; // Always auto-recover to overview when trying to navigate
-                                if (state.activeIndex < state.tasks.length - 1) {
+                                const filtered = getFilteredTasks(state);
+                                if (state.activeIndex < filtered.length - 1) {
                                     state.activeIndex++;
                                     // Assuming approx body height
                                     const visibleItems = state.height - 5;
@@ -116,10 +124,25 @@ export function registerClankerCommand(pi: ExtensionAPI) {
                                 }
                             } else if (state.activePane === 'left') {
                                 // Currently 6 hardcoded items in left rail
-                                if (state.leftActiveIndex < 5) state.leftActiveIndex++;
+                                if (state.leftActiveIndex < 5) {
+                                    state.leftActiveIndex++;
+                                    state.activeIndex = 0;
+                                    state.listScrollOffset = 0;
+                                }
                             } else if (state.activePane === 'right') {
                                 // Assume max scroll is arbitrary for now (we don't compute right pane total height perfectly here)
                                 state.inspectorScrollOffset++;
+                            }
+                        }
+
+                        if (state.activePane === 'left' && state.leftActiveIndex === 3) {
+                            if (data === ' ' || data === '\r' || data === '\n') {
+                                const owners = ['', '@worker', '@builder', '@scout', '@planner', '@researcher', '@dad_웃', '@tom_웃'];
+                                const curr = owners.indexOf(state.assignedFilterOwner || '');
+                                const next = (curr === -1 ? 0 : curr + 1) % owners.length;
+                                state.assignedFilterOwner = owners[next];
+                                state.activeIndex = 0;
+                                state.listScrollOffset = 0;
                             }
                         }
 
@@ -134,7 +157,8 @@ export function registerClankerCommand(pi: ExtensionAPI) {
                                 state.activeTab = "overview";
                             } else {
                                 state.activeTab = "edit";
-                                const task = state.tasks[state.activeIndex];
+                                const filtered = getFilteredTasks(state);
+                                const task = filtered[state.activeIndex];
                                 if (task) {
                                     state.editState = {
                                         activeFieldIndex: 0,

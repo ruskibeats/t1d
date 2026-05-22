@@ -25,6 +25,7 @@ export interface UIState {
     editState?: EditState;
     activeBoard?: string;
     leftActiveIndex: number;
+    assignedFilterOwner?: string;
     searchQuery: string;
     listScrollOffset: number;
     inspectorScrollOffset: number;
