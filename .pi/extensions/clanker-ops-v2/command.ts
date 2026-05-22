@@ -69,8 +69,8 @@ export function registerClankerCommand(pi: ExtensionAPI) {
                                     }
                                 }
                             } else if (state.activePane === 'left') {
-                                // Currently 4 hardcoded items in left rail
-                                if (state.leftActiveIndex < 3) state.leftActiveIndex++;
+                                // Currently 6 hardcoded items in left rail
+                                if (state.leftActiveIndex < 5) state.leftActiveIndex++;
                             } else if (state.activePane === 'right') {
                                 // Assume max scroll is arbitrary for now (we don't compute right pane total height perfectly here)
                                 state.inspectorScrollOffset++;
