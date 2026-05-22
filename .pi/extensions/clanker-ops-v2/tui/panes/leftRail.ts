@@ -1,41 +1,54 @@
 import { UIState, LayoutBudget } from "../../state/types.js";
-import { pad, ansi } from "../text.js";
+import { pad, ansi, truncateToWidth } from "../text.js";
 
 export function renderLeftRail(state: UIState, layout: LayoutBudget, height: number): string[] {
     const lines: string[] = [];
-    
-    // Items: 0=Main Ops, 1=Backend, 2=All Active, 3=ui (3)
-    // We don't have true list data yet, so hardcode the active index logic
+    const W = layout.leftWidth;
+
     const highlight = (text: string, index: number) => {
         const isSelected = state.leftActiveIndex === index;
-        const prefix = isSelected ? " > " : "   ";
+        const prefix = isSelected ? " █ " : "   ";
         const content = isSelected ? ansi.bold(text) : text;
-        const line = prefix + content;
-        return isSelected && state.activePane === 'left' ? ansi.accentBg(line) : line;
+        const line = prefix + truncateToWidth(content, W - 3, "");
+        return isSelected && state.activePane === "left" ? ansi.accentBg(line) : line;
     };
 
-    lines.push(" BOARDS");
+    // --- BOARDS ---
+    lines.push(ansi.gray(" BOARDS"));
     lines.push(highlight("Main Ops", 0));
     lines.push(highlight("Backend", 1));
     lines.push("");
-    lines.push(" VIEWS");
+
+    // --- VIEWS ---
+    lines.push(ansi.gray(" VIEWS"));
     lines.push(highlight("All Active", 2));
     lines.push(highlight("Completed", 3));
-    
-    const assignedLabel = state.assignedFilterOwner ? `Assigned [${state.assignedFilterOwner}]` : "Assigned [Any]";
+
+    const assignedLabel = state.assignedFilterOwner
+        ? `Assigned [${state.assignedFilterOwner}]`
+        : "Assigned [Any]";
     lines.push(highlight(assignedLabel, 4));
     lines.push("");
-    lines.push(" TAGS");
-    lines.push(highlight("ui (3)", 5));
-    
-    // Pad all generated lines
-    const paddedLines = lines.map(line => pad(line, layout.leftWidth));
-    
-    // Fill the rest of the height with empty padded lines
-    while (paddedLines.length < height) {
-        paddedLines.push(pad("", layout.leftWidth));
+
+    // --- TAGS (dynamic from actual tasks) ---
+    lines.push(ansi.gray(" TAGS"));
+    const tagCounts: Record<string, number> = {};
+    for (const t of state.tasks) {
+        for (const tag of (t.tags || [])) {
+            tagCounts[tag] = (tagCounts[tag] || 0) + 1;
+        }
     }
-    
-    // If it exceeds height (unlikely for static content), slice it
+    const sortedTags = Object.entries(tagCounts).sort((a, b) => b[1] - a[1]);
+    let tagIndex = 5;
+    for (const [tag, count] of sortedTags.slice(0, 8)) {
+        lines.push(highlight(`${tag} (${count})`, tagIndex++));
+    }
+
+    // Pad & slice
+    const paddedLines = lines.map(line => pad(line, W));
+    while (paddedLines.length < height) {
+        paddedLines.push(pad("", W));
+    }
     return paddedLines.slice(0, height);
 }
+

@@ -1,50 +1,43 @@
 import { UIState } from "../state/types.js";
 import { calculateLayout } from "./layout.js";
-import { truncateToWidth } from "./text.js";
-import { renderHeader, renderHeaderSeparator } from "./panes/header.js";
+import { truncateToWidth, ansi } from "./text.js";
+import { renderHeader, renderHeaderSeparator, renderTopBorder } from "./panes/header.js";
 import { renderLeftRail } from "./panes/leftRail.js";
 import { renderTaskList } from "./panes/taskList.js";
 import { renderInspector } from "./panes/inspector.js";
-import { renderFooter, renderFooterSeparator } from "./panes/footer.js";
+import { renderFooter, renderFooterSeparator, renderBottomBorder } from "./panes/footer.js";
 import { renderDebugFooter } from "./debug.js";
 
 export function renderClankerBoardV2(state: UIState): string[] {
     const layout = calculateLayout(state.width);
     
-    // We reserve 1 line for header, 1 for header-sep, 1 for footer-sep, 1 for footer
-    // That's 4 static structural lines. We add 1 extra line (so 5 total) to prevent terminal scroll.
-    // Plus debug footer if enabled (1 line).
-    // Plus top margin of 5 lines as requested.
     const debugHeight = state.debugEnabled ? 1 : 0;
     const topMarginHeight = 5;
-    const reservedHeight = 5 + debugHeight + topMarginHeight;
+    const reservedHeight = 6 + debugHeight + topMarginHeight;
     const bodyHeight = Math.max(1, state.height - reservedHeight);
 
-    // Render individual panes
     const leftPane = renderLeftRail(state, layout, bodyHeight);
     const centerPane = renderTaskList(state, layout, bodyHeight);
     const rightPane = renderInspector(state, layout, bodyHeight);
 
     const out: string[] = [];
 
-    // Top Margin
     for (let i = 0; i < topMarginHeight; i++) {
         out.push("");
     }
 
-    // Header
+    out.push(truncateToWidth(renderTopBorder(layout), state.width, ""));
     out.push(truncateToWidth(renderHeader(state, layout), state.width, ""));
     out.push(truncateToWidth(renderHeaderSeparator(layout), state.width, ""));
 
-    // Body Composition
     for (let i = 0; i < bodyHeight; i++) {
-        const row = `${leftPane[i]}│${centerPane[i]}│${rightPane[i]}`;
+        const row = ansi.border("│") + leftPane[i] + ansi.border("│") + centerPane[i] + ansi.border("│") + rightPane[i] + ansi.border("│");
         out.push(truncateToWidth(row, state.width, ""));
     }
 
-    // Footer
     out.push(truncateToWidth(renderFooterSeparator(layout), state.width, ""));
     out.push(truncateToWidth(renderFooter(state, layout), state.width, ""));
+    out.push(truncateToWidth(renderBottomBorder(layout), state.width, ""));
 
     // Debug
     if (state.debugEnabled) {
