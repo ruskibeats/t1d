@@ -76,7 +76,7 @@ class PatientConfig(BaseModel):
     seed: int = Field(..., description="RNG seed for reproducibility")
     basal_glucose_mean: float = Field(..., description="Basal glucose mean mg/dL", ge=80, le=220)
     basal_glucose_amplitude: float = Field(..., description="Circadian amplitude mg/dL", ge=0, le=40)
-    meal_rise_factor: float = Field(..., description="mg/dL rise per g carb", ge=0.5, le=5.0)
+    meal_rise_factor: float = Field(..., description="mg/dL rise per g carb", ge=0.5, le=8.0)
     insulin_sensitivity: float = Field(..., description="mg/dL drop per insulin unit", ge=10, le=80)
     carb_ratio: float = Field(..., description="grams per insulin unit", ge=5, le=30)
     hypo_risk: float = Field(..., description="Probability 0-1", ge=0, le=1)

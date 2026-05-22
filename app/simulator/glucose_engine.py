@@ -30,7 +30,7 @@ class GlucoseEngine:
     # Mean reversion: fraction of deviation corrected per 5-min step
     # At 0.02, a 100 mg/dL deviation is corrected by 2 mg/dL per step
     # → half-life ≈ ln(2) / 0.02 ≈ 35 steps ≈ 3 hours
-    DRIFT_RATE = 0.015
+    DRIFT_RATE = 0.020
 
     def __init__(self, config: PatientConfig, rng: random.Random, start_time=None):
         self.config = config
@@ -83,16 +83,21 @@ class GlucoseEngine:
                 t = ds + timedelta(minutes=step * 5)
                 h = (step / self.STEPS_PER_HOUR) % 24
 
-                # ── Mean reversion → naturally pulls toward basal ──
-                drift = self.DRIFT_RATE * (self.config.basal_glucose_mean - g)
-
-                # ── Circadian (small ~±10) ──
-                circ = self.config.basal_glucose_amplitude * math.sin((h - 3) / 24 * 2 * math.pi)
+                # ── Circadian target modulation ──
+                # Circadian modulates the target mean, not the rate of change.
+                # At midnight: target drops by ~amplitude*0.7 (gently)
+                # At noon: target rises by ~amplitude*0.7
+                # The drift then smoothly pulls glucose toward this target.
+                circ_offset = self.config.basal_glucose_amplitude * math.sin((h - 3) / 24 * 2 * math.pi)
 
                 # ── Dawn (4-8AM, mild) ──
-                dawn = 0.0
+                dawn_offset = 0.0
                 if 4 <= h <= 8:
-                    dawn = self.config.dawn_effect_strength * 0.5 * math.sin((h - 4) / 4 * math.pi)
+                    dawn_offset = self.config.dawn_effect_strength * 0.5 * math.sin((h - 4) / 4 * math.pi)
+
+                # Combined target = basal mean + circadian + dawn
+                target_g = self.config.basal_glucose_mean + circ_offset + dawn_offset
+                drift = self.DRIFT_RATE * (target_g - g)
 
                 # ── Meals ──
                 meal_delta = 0.0
@@ -130,7 +135,7 @@ class GlucoseEngine:
                 sf = 1.15 if sleep_s and sleep_e and (sleep_s <= t or t < sleep_e) else 1.0
 
                 # ── Combine ──
-                dg = drift + circ + dawn + meal_delta - ins_delta * sf - ex
+                dg = drift + meal_delta - ins_delta * sf - ex
                 g += dg
                 g = self._cap(g)
 

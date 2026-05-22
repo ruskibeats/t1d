@@ -1805,9 +1805,9 @@
     {
       "id": 206,
       "item": "Consolidate user memory entries",
-      "status": "in_progress",
+      "status": "completed",
       "createdAt": "2026-05-22T20:21:12.226Z",
-      "updatedAt": "2026-05-22T20:21:28.988Z",
+      "updatedAt": "2026-05-22T21:15:07.140Z",
       "subject": "Consolidate user memory entries",
       "description": "Reduce 14 user entries to ~4 consolidated entries. Remove redundancies: #5 superseded by #4, #6 superseded by #4, #9 merges into work style, #8 merges into #10, #13 can be condensed into Clanker Ops entry. Target: Work style & communication, Subagent workflow, Branch/project ops, Clanker Ops identity.",
       "activeForm": "removing redundant user entries"
@@ -1825,9 +1825,9 @@
     {
       "id": 208,
       "item": "[BUG] Simulator glucose engine calibration produces unrealistically high baselines",
-      "status": "in_progress",
+      "status": "completed",
       "createdAt": "2026-05-22T20:24:59.888Z",
-      "updatedAt": "2026-05-22T20:41:23.300Z",
+      "updatedAt": "2026-05-22T20:53:52.328Z",
       "subject": "[BUG] Simulator glucose engine calibration produces unrealistically high baselines",
       "description": "Sim anchor profiles (especially \"well_controlled\") generate glucose values pegged at 400 mg/dL ceiling, preventing pattern detectors from finding meaningful spikes. Detector requires ≥50 mg/dL rise, but capped values show only ~4 mg/dL rise. Investigate glucose engine calibration, anchor config, and capping logic.\n\nSQL evidence from user 657 (run 29):\n- 2016 blood_glucose readings, nearly all at 400 mg/dL\n- Pre-meal average ~396, peak ~400 (capped)\n- Detector spike_threshold = 50 → glucose_rise = 4 → never fires\n- All 16 completed runs show 0% detection rate\n\nAcceptance Criteria:\n- \"well_controlled\" anchor generates realistic glucose (e.g., 80-160 mg/dL)\n- Pattern detectors can find actual spikes in sim data (non-zero detection rate)\n- Glucose engine calibration produces distinct post-meal rises of ≥50 mg/dL\n- No regression in other anchor types",
       "tags": [
@@ -1873,6 +1873,21 @@
         "ux",
         "p2",
         "meal-forecast"
+      ]
+    },
+    {
+      "id": 212,
+      "item": "[CAL] Calibrate day_context for 4 priority anchors — realistic physiologic traces",
+      "status": "in_progress",
+      "createdAt": "2026-05-22T21:28:24.004Z",
+      "updatedAt": "2026-05-22T21:28:34.403Z",
+      "subject": "[CAL] Calibrate day_context for 4 priority anchors — realistic physiologic traces",
+      "description": "Full rewrite of day_context event generator to produce clinically plausible 24h glucose traces per user's spec. Fix meal_rise_factor to physiological values (~5 mg/dL/g), fix insulin dosing to be slightly imperfect (Tier 1-2), eliminate 400 ceiling pile-up and overnight crashes.",
+      "activeForm": "rewriting day_context event generator",
+      "tags": [
+        "calibration",
+        "simulator",
+        "p1"
       ]
     }
   ]
