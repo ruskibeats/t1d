@@ -1,0 +1,18 @@
+{
+  "name": "clanker-ops-v2",
+  "version": "1.0.0",
+  "description": "Clanker Ops TUI - v2",
+  "main": "index.ts",
+  "type": "module",
+  "dependencies": {},
+  "devDependencies": {
+    "@types/node": "^20.0.0"
+  },
+  "keywords": [
+    "pi-package",
+    "pi-extension"
+  ],
+  "pi": {
+    "extensions": ["./index.ts"]
+  }
+}
