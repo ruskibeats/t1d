@@ -21,7 +21,8 @@ export function loadTasks(): Task[] {
                         status: mappedStatus,
                         tags: item.tags || [],
                         owner: item.assigned || undefined,
-                        description: item.description || ""
+                        description: item.description || "",
+                        planFile: item.planFile || undefined
                     };
                 });
             }

@@ -5,6 +5,7 @@ export interface Task {
     tags: string[];
     owner?: string;
     description?: string;
+    planFile?: string;
 }
 
 export interface UIState {

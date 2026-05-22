@@ -1,5 +1,5 @@
 import { Task, UIState, InspectorViewModel } from "./types.js";
-import { truncateToWidth } from "../tui/text.js";
+import { truncateToWidth, wrapText } from "../tui/text.js";
 
 // Formats a single task for the center list
 export function formatTaskRow(task: Task, width: number, isSelected: boolean): string {
@@ -17,7 +17,7 @@ export function formatTaskRow(task: Task, width: number, isSelected: boolean): s
 }
 
 // Generates the content for the right inspector pane
-export function getInspectorViewModel(state: UIState): InspectorViewModel {
+export function getInspectorViewModel(state: UIState, rightPaneWidth: number): InspectorViewModel {
     const activeTask = state.tasks[state.activeIndex];
     if (!activeTask) {
         return { inspectorContent: ["No active task"] };
@@ -27,21 +27,23 @@ export function getInspectorViewModel(state: UIState): InspectorViewModel {
     
     if (state.activeTab === 'overview') {
         lines.push(`TASK #${activeTask.id}`);
-        lines.push(activeTask.title);
+        lines.push(...wrapText(activeTask.title, rightPaneWidth));
         lines.push("");
         
         let statusDisplay = "To Do";
         if (activeTask.status === 'in_progress') statusDisplay = "In Progress";
         if (activeTask.status === 'done') statusDisplay = "Done";
-        lines.push(`Status: ${statusDisplay}`);
-        lines.push(`Owner:  ${activeTask.owner || 'Unassigned'}`);
-        lines.push(`Tags:   ${activeTask.tags.length > 0 ? activeTask.tags.join(', ') : 'None'}`);
+        lines.push(`Status:   ${statusDisplay}`);
+        lines.push(`Owner:    ${activeTask.owner || 'Unassigned'}`);
+        lines.push(`Tags:     ${activeTask.tags.length > 0 ? activeTask.tags.join(', ') : 'None'}`);
+        if (activeTask.planFile) {
+            lines.push(`PlanFile: ${activeTask.planFile}`);
+        }
         
         lines.push("");
-        lines.push("Description:");
+        lines.push("Description & Plan:");
         if (activeTask.description) {
-            // Split description by newlines to form display lines
-            lines.push(...activeTask.description.split('\n'));
+            lines.push(...wrapText(activeTask.description, rightPaneWidth));
         } else {
             lines.push("No description provided.");
         }
