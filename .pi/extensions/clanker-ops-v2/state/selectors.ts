@@ -1,6 +1,22 @@
 import { Task, UIState, InspectorViewModel } from "./types.js";
 import { truncateToWidth, wrapText, ansi } from "../tui/text.js";
 
+// ─── Shared tag list ───────────────────────────────────────────────────────────
+// Single source of truth for sorted tags — used by BOTH the left rail renderer
+// and the filter logic so the index-to-tag mapping is always consistent.
+export function getSortedTags(tasks: readonly Task[]): string[] {
+    const counts: Record<string, number> = {};
+    for (const t of tasks) {
+        for (const tag of (t.tags || [])) {
+            counts[tag] = (counts[tag] || 0) + 1;
+        }
+    }
+    return Object.entries(counts)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 8)
+        .map(([tag]) => tag);
+}
+
 // Maps task status to a colored, unambiguously 1-wide marker.
 // NOTE: geometric Unicode symbols (◉ ◎ ✓) are "East Asian Width: Ambiguous"
 // and render as 2 columns in many terminals, causing layout crashes.
@@ -36,7 +52,33 @@ export function formatTaskRow(task: Task, width: number, isSelected: boolean): s
 export function getInspectorViewModel(state: UIState, rightPaneWidth: number): InspectorViewModel {
     const activeTask = getFilteredTasks(state)[state.activeIndex];
     if (!activeTask) {
-        return { inspectorContent: ["No active task"] };
+        // ─── Legend ─────────────────────────────────────────────────────────
+        const lines: string[] = [];
+        lines.push(ansi.bold(" LEGEND"));
+        lines.push("");
+        lines.push(ansi.gray(" Status"));
+        lines.push(" " + ansi.green("[x]") + ansi.gray(" Done"));
+        lines.push(" " + ansi.orange("[~]") + ansi.gray(" In Progress"));
+        lines.push(" " + ansi.cyan("[ ]") + ansi.gray(" To Do"));
+        lines.push("");
+        lines.push(ansi.gray(" Navigation"));
+        lines.push(ansi.gray(" [Tab]    ") + "Cycle panes");
+        lines.push(ansi.gray(" [↑/↓]   ") + "Move cursor");
+        lines.push(ansi.gray(" [h/l]   ") + "Pane left/right");
+        lines.push(ansi.gray(" [Space]  ") + "Cycle owner filter");
+        lines.push("");
+        lines.push(ansi.gray(" Inspector"));
+        lines.push(ansi.gray(" [O]  ") + "Overview");
+        lines.push(ansi.gray(" [P]  ") + "Plan");
+        lines.push(ansi.gray(" [E]  ") + "Edit");
+        lines.push("");
+        lines.push(ansi.gray(" Left rail filters"));
+        lines.push(ansi.gray(" Boards  ") + "show all / backend");
+        lines.push(ansi.gray(" Views   ") + "active / done / owner");
+        lines.push(ansi.gray(" Tags    ") + "filter by tag");
+        lines.push("");
+        lines.push(ansi.gray(" q / Esc  Exit"));
+        return { inspectorContent: lines };
     }
 
     const lines: string[] = [];
@@ -93,20 +135,36 @@ export function getInspectorViewModel(state: UIState, rightPaneWidth: number): I
 
 export function getFilteredTasks(state: UIState): Task[] {
     let filtered = state.tasks;
-    
-    if (state.leftActiveIndex === 2) {
+
+    // ── Board filters (indices 0–1) ──────────────────────────────────────────
+    if (state.leftActiveIndex === 0) {
+        // Main Ops — show everything (no filter)
+    } else if (state.leftActiveIndex === 1) {
+        // Backend — filter by 'backend' tag
+        filtered = filtered.filter(t => t.tags.includes('backend'));
+
+    // ── View filters (indices 2–4) ───────────────────────────────────────────
+    } else if (state.leftActiveIndex === 2) {
         // All Active
         filtered = filtered.filter(t => t.status !== 'done');
     } else if (state.leftActiveIndex === 3) {
         // Completed
         filtered = filtered.filter(t => t.status === 'done');
     } else if (state.leftActiveIndex === 4) {
-        // Assigned
-        filtered = filtered.filter(t => t.status !== 'done' && (!state.assignedFilterOwner || t.owner === state.assignedFilterOwner));
-    } else if (state.leftActiveIndex === 5) {
-        // Tags
-        filtered = filtered.filter(t => t.tags.includes('ui'));
+        // Assigned — active tasks, optionally by owner
+        filtered = filtered.filter(t =>
+            t.status !== 'done' &&
+            (!state.assignedFilterOwner || t.owner === state.assignedFilterOwner)
+        );
+
+    // ── Tag filters (indices 5+) ─────────────────────────────────────────────
+    } else if (state.leftActiveIndex >= 5) {
+        const tags = getSortedTags(state.tasks);
+        const selectedTag = tags[state.leftActiveIndex - 5];
+        if (selectedTag) {
+            filtered = filtered.filter(t => t.tags.includes(selectedTag));
+        }
     }
-    
+
     return filtered;
 }

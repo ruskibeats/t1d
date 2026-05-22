@@ -1,5 +1,6 @@
 import { UIState, LayoutBudget } from "../../state/types.js";
 import { pad, ansi, truncateToWidth } from "../text.js";
+import { getSortedTags } from "../../state/selectors.js";
 
 export function renderLeftRail(state: UIState, layout: LayoutBudget, height: number): string[] {
     const lines: string[] = [];
@@ -32,17 +33,12 @@ export function renderLeftRail(state: UIState, layout: LayoutBudget, height: num
     lines.push(highlight(assignedLabel, 4));
     lines.push("");
 
-    // --- TAGS (dynamic from actual tasks) ---
+    // --- TAGS (dynamic, same sort order as filter logic) ---
     lines.push(ansi.gray(" TAGS"));
-    const tagCounts: Record<string, number> = {};
-    for (const t of state.tasks) {
-        for (const tag of (t.tags || [])) {
-            tagCounts[tag] = (tagCounts[tag] || 0) + 1;
-        }
-    }
-    const sortedTags = Object.entries(tagCounts).sort((a, b) => b[1] - a[1]);
+    const sortedTags = getSortedTags(state.tasks);
     let tagIndex = 5;
-    for (const [tag, count] of sortedTags.slice(0, 8)) {
+    for (const tag of sortedTags) {
+        const count = state.tasks.filter(t => t.tags.includes(tag)).length;
         lines.push(highlight(`${tag} (${count})`, tagIndex++));
     }
 

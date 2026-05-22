@@ -22,8 +22,19 @@ export function renderClankerBoardV2(state: UIState): string[] {
 
     const out: string[] = [];
 
+    const logoLines = [
+        ansi.cyan("▗▄▄▖▗▖    ▗▄▖ ▗▖  ▗▖▗▖ ▗▖▗▄▄▄▖▗▄▄▖      ▗▄▖ ▗▄▄▖  ▗▄▄▖"),
+        ansi.cyan("▐▌   ▐▌   ▐▌ ▐▌▐▛▚▖▐▌▐▌▗▞▘▐▌   ▐▌ ▐▌    ▐▌ ▐▌▐▌ ▐▌▐▌   "),
+        ansi.cyan("▐▌   ▐▌   ▐▛▀▜▌▐▌ ▝▜▌▐▛▚▖ ▐▛▀▀▘▐▛▀▚▖    ▐▌ ▐▌▐▛▀▘  ▝▀▚▖"),
+        ansi.cyan("▝▚▄▄▖▐▙▄▄▖▐▌ ▐▌▐▌  ▐▌▐▌ ▐▌▐▙▄▄▖▐▌ ▐▌    ▝▚▄▞▘▐▌   ▗▄▄▞▘")
+    ];
+
     for (let i = 0; i < topMarginHeight; i++) {
-        out.push("");
+        if (i < logoLines.length) {
+            out.push(logoLines[i]);
+        } else {
+            out.push("");
+        }
     }
 
     out.push(truncateToWidth(renderTopBorder(layout), state.width, ""));
