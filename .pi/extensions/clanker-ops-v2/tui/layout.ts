@@ -10,24 +10,24 @@ export function calculateLayout(terminalWidth: number): LayoutBudget {
 
     if (terminalWidth >= 120) {
         return {
-            leftWidth: 20,
-            centerWidth: usableWidth - 20 - 44, // 52
-            rightWidth: 44,
+            leftWidth: 23,
+            centerWidth: usableWidth - 23 - 34,
+            rightWidth: 34,
             totalWidth: terminalWidth
         };
     } else if (terminalWidth >= 100) {
         // Degrade gracefully between 100 and 120
         const diff = terminalWidth - 100;
         return {
-            leftWidth: 16 + Math.floor(diff * 0.2),
-            centerWidth: 42 + Math.floor(diff * 0.5),
-            rightWidth: usableWidth - (16 + Math.floor(diff * 0.2)) - (42 + Math.floor(diff * 0.5)),
+            leftWidth: 19 + Math.floor(diff * 0.2),
+            centerWidth: 49 + Math.floor(diff * 0.5),
+            rightWidth: usableWidth - (19 + Math.floor(diff * 0.2)) - (49 + Math.floor(diff * 0.5)),
             totalWidth: terminalWidth
         };
     } else {
         // Sub-100 fallback (try to keep composition, shrink heavily)
-        const left = Math.max(10, Math.floor(usableWidth * 0.16));
-        const right = Math.max(26, Math.floor(usableWidth * 0.38));
+        const left = Math.max(13, Math.floor(usableWidth * 0.19));
+        const right = Math.max(16, Math.floor(usableWidth * 0.28));
         return {
             leftWidth: left,
             centerWidth: usableWidth - left - right,
