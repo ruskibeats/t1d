@@ -16,7 +16,7 @@ export function renderInspector(state: UIState, layout: LayoutBudget, height: nu
     lines.push(" " + pad("─".repeat(layout.rightWidth - 2), layout.rightWidth - 1));
 
     // Get pre-formatted view model content
-    const vm = getInspectorViewModel(state);
+    const vm = getInspectorViewModel(state, layout.rightWidth - 2);
     
     // Apply scrolling
     const visibleContent = vm.inspectorContent.slice(state.inspectorScrollOffset, state.inspectorScrollOffset + height - 2);

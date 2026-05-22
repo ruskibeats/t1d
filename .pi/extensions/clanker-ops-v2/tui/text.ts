@@ -71,3 +71,33 @@ export const ansi = {
     gray: (v: string) => `\x1b[90m${v}\x1b[0m`,
     accentBg: (v: string) => `\x1b[48;5;236m${v.replace(/\x1b\[0m/g, "\x1b[0m\x1b[48;5;236m")}\x1b[0m`
 };
+
+export function wrapText(str: string, maxWidth: number): string[] {
+    const lines: string[] = [];
+    const splitByNewline = str.split('\n');
+    for (const block of splitByNewline) {
+        if (!block.trim()) {
+            lines.push("");
+            continue;
+        }
+        
+        const words = block.split(' ');
+        let currentLine = "";
+        
+        for (const word of words) {
+            if (!currentLine) {
+                currentLine = word;
+            } else {
+                const testLine = currentLine + " " + word;
+                if (visualWidth(testLine) <= maxWidth) {
+                    currentLine = testLine;
+                } else {
+                    lines.push(currentLine);
+                    currentLine = word;
+                }
+            }
+        }
+        if (currentLine) lines.push(currentLine);
+    }
+    return lines;
+}
