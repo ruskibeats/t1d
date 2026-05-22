@@ -33,24 +33,24 @@ export default function (pi: ExtensionAPI) {
 
 	pi.on("session_start", async (_event, ctx) => {
 		replaceState(replayFromBranch(ctx));
-		if (ctx.hasUI) {
-			todoOverlay ??= new TodoOverlay();
-			todoOverlay.setUICtx(ctx.ui);
-			todoOverlay.resetCompletedDisplayState();
-			todoOverlay.update();
-		}
+		// if (ctx.hasUI) {
+		// 	todoOverlay ??= new TodoOverlay();
+		// 	todoOverlay.setUICtx(ctx.ui);
+		// 	todoOverlay.resetCompletedDisplayState();
+		// 	todoOverlay.update();
+		// }
 	});
 
 	pi.on("session_compact", async (_event, ctx) => {
 		replaceState(replayFromBranch(ctx));
-		todoOverlay?.resetCompletedDisplayState();
-		todoOverlay?.update();
+		// todoOverlay?.resetCompletedDisplayState();
+		// todoOverlay?.update();
 	});
 
 	pi.on("session_tree", async (_event, ctx) => {
 		replaceState(replayFromBranch(ctx));
-		todoOverlay?.resetCompletedDisplayState();
-		todoOverlay?.update();
+		// todoOverlay?.resetCompletedDisplayState();
+		// todoOverlay?.update();
 	});
 
 	pi.on("session_shutdown", async () => {
@@ -60,10 +60,10 @@ export default function (pi: ExtensionAPI) {
 
 	pi.on("tool_execution_end", async (event) => {
 		if (event.toolName !== TOOL_NAME || event.isError) return;
-		todoOverlay?.update();
+		// todoOverlay?.update();
 	});
 
 	pi.on("agent_start", async () => {
-		todoOverlay?.hideCompletedTasksFromPreviousTurn();
+		// todoOverlay?.hideCompletedTasksFromPreviousTurn();
 	});
 }
