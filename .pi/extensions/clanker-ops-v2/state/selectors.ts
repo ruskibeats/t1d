@@ -68,7 +68,7 @@ export function getInspectorViewModel(state: UIState, rightPaneWidth: number): I
         lines.push(renderField(2, "Tags:", es.draftTags));
         
         lines.push("");
-        lines.push(...wrapText("(Use UP/DOWN to select field, type to edit tags/owner, SPACE to toggle Status, ENTER to save, ESC to cancel)", rightPaneWidth));
+        lines.push(...wrapText("(Use UP/DOWN to select field, type to edit tags, SPACE to toggle Status/Owner, ENTER to save, ESC to cancel)", rightPaneWidth));
     }
 
     return { inspectorContent: lines };

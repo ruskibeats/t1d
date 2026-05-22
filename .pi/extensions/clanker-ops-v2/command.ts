@@ -61,14 +61,17 @@ export function registerClankerCommand(pi: ExtensionAPI) {
                                     const curr = statuses.indexOf(state.editState.draftStatus);
                                     const next = (curr + 1) % statuses.length;
                                     state.editState.draftStatus = statuses[next];
+                                } else if (state.editState.activeFieldIndex === 1) {
+                                    const owners = ['', '@worker', '@builder', '@scout', '@planner', '@researcher', '@dad_웃', '@tom_웃'];
+                                    const curr = owners.indexOf(state.editState.draftOwner);
+                                    const next = (curr === -1 ? 0 : curr + 1) % owners.length;
+                                    state.editState.draftOwner = owners[next];
                                 }
                             } else if (data === '\x7f' || data === '\b') { // Backspace
-                                if (state.editState.activeFieldIndex === 1) state.editState.draftOwner = state.editState.draftOwner.slice(0, -1);
-                                else if (state.editState.activeFieldIndex === 2) state.editState.draftTags = state.editState.draftTags.slice(0, -1);
+                                if (state.editState.activeFieldIndex === 2) state.editState.draftTags = state.editState.draftTags.slice(0, -1);
                             } else if (data.length === 1 && !data.startsWith('\x1b')) {
                                 // Printable char
-                                if (state.editState.activeFieldIndex === 1) state.editState.draftOwner += data;
-                                else if (state.editState.activeFieldIndex === 2) state.editState.draftTags += data;
+                                if (state.editState.activeFieldIndex === 2) state.editState.draftTags += data;
                             }
                             _tui.requestRender();
                             return; // Block normal navigation
