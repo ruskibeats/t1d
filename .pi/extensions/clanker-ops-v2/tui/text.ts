@@ -1,14 +1,45 @@
 // ANSI regex for matching escape sequences
 const ANSI_REGEX = /\x1b\[[0-9;]*m/g;
 
+/**
+ * Returns true for characters that occupy 2 terminal columns.
+ * Covers: CJK Unified Ideographs, Hangul syllables, fullwidth forms,
+ * Hiragana, Katakana, and all surrogate pairs (> U+FFFF).
+ *
+ * East Asian Width "Wide" (W) and "Fullwidth" (F) ranges per Unicode TR#11.
+ * We intentionally do NOT include the "Ambiguous" (A) category here —
+ * the 1-col safety margin in layout.ts handles those.
+ */
+function isWideChar(cp: number): boolean {
+    if (cp > 0xffff) return true; // Surrogate pairs / supplementary planes
+    return (
+        (cp >= 0x1100 && cp <= 0x115f) || // Hangul Jamo
+        (cp >= 0x2e80 && cp <= 0x303e) || // CJK Radicals, Kangxi, etc.
+        (cp >= 0x3040 && cp <= 0x33ff) || // Hiragana, Katakana, Bopomofo, CJK compat
+        (cp >= 0x3400 && cp <= 0x4dbf) || // CJK Extension A
+        (cp >= 0x4e00 && cp <= 0x9fff) || // CJK Unified Ideographs
+        (cp >= 0xa000 && cp <= 0xa4cf) || // Yi Syllables / Radicals
+        (cp >= 0xa960 && cp <= 0xa97f) || // Hangul Jamo Extended-A
+        (cp >= 0xac00 && cp <= 0xd7af) || // Hangul Syllables  ← 웃 is here
+        (cp >= 0xd7b0 && cp <= 0xd7ff) || // Hangul Jamo Extended-B
+        (cp >= 0xf900 && cp <= 0xfaff) || // CJK Compatibility Ideographs
+        (cp >= 0xfe10 && cp <= 0xfe1f) || // Vertical Forms
+        (cp >= 0xfe30 && cp <= 0xfe4f) || // CJK Compatibility Forms
+        (cp >= 0xff00 && cp <= 0xff60) || // Fullwidth Latin, punctuation
+        (cp >= 0xffe0 && cp <= 0xffe6)    // Fullwidth currency signs
+    );
+}
+
 export function visualWidth(str: string): number {
     const plain = str.replace(ANSI_REGEX, "");
     let width = 0;
     for (const char of plain) {
-        width += (char.codePointAt(0) || 0) > 0xffff ? 2 : 1;
+        const cp = char.codePointAt(0) || 0;
+        width += isWideChar(cp) ? 2 : 1;
     }
     return width;
 }
+
 
 export function truncateToWidth(value: string | number, width: number, suffix = "…"): string {
     const str = String(value);
