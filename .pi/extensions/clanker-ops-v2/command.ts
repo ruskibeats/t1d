@@ -24,7 +24,7 @@ export function registerClankerCommand(pi: ExtensionAPI) {
             };
 
             return new Promise<void>((resolve) => {
-                ctx.ui.custom({
+                ctx.ui.custom(() => ({
                     render() {
                         // Update dynamic dimensions
                         state.width = process.stdout.columns || 100;
@@ -75,7 +75,7 @@ export function registerClankerCommand(pi: ExtensionAPI) {
                         ctx.ui.refresh();
                         return true;
                     }
-                });
+                }));
             });
         }
     });
