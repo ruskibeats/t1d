@@ -1,31 +1,36 @@
 import { Task, UIState, InspectorViewModel } from "./types.js";
 import { truncateToWidth, wrapText, ansi } from "../tui/text.js";
 
-// Maps task status to a colored icon matching the static /clanker board
+// Maps task status to a colored, unambiguously 1-wide marker.
+// NOTE: geometric Unicode symbols (◉ ◎ ✓) are "East Asian Width: Ambiguous"
+// and render as 2 columns in many terminals, causing layout crashes.
+// Bracket-style ASCII is safe everywhere.
 function getStatusIcon(task: Task): string {
     switch (task.status) {
-        case 'done':        return ansi.green('✓');
-        case 'in_progress': return ansi.orange('◉');
-        case 'todo':        return ansi.cyan('◎');
-        default:            return ansi.gray('○');
+        case 'done':        return ansi.green('[x]');
+        case 'in_progress': return ansi.orange('[~]');
+        case 'todo':        return ansi.cyan('[ ]');
+        default:            return ansi.gray('[?]');
     }
 }
 
-// Formats a single task for the center list
+// Formats a single task for the center list.
+// Format: " │ [x] #13 Set up CI/CD pipeline"
 export function formatTaskRow(task: Task, width: number, isSelected: boolean): string {
-    const icon   = getStatusIcon(task);
-    const idStr  = ansi.gray(`#${task.id}`);
-    const idRaw  = `#${task.id}`; // plain version for width math
+    const icon    = getStatusIcon(task);
+    const idRaw   = `#${task.id}`;
+    const idStr   = ansi.gray(idRaw);
 
-    // " │ ◉  #13 Set up CI/CD pipeline"
-    const prefixPlain = ` │ ${' '}  ${idRaw} `;
-    const prefixAnsi  = ` │ ${icon}  ${idStr} `;
+    // Prefix is always: " │ " (3) + "[x]" (3) + " " (1) + "#N" (id.len) + " " (1)
+    const prefixVisualWidth = 3 + 3 + 1 + idRaw.length + 1; // = 8 + id.length
+    const prefixAnsi        = ` │ ${icon} ${idStr} `;
 
-    const availableWidth = Math.max(0, width - prefixPlain.length - 5);
+    const availableWidth = Math.max(0, width - prefixVisualWidth - 5);
     const titleStr = truncateToWidth(task.title, availableWidth);
 
     return prefixAnsi + titleStr;
 }
+
 
 // Generates the content for the right inspector pane
 export function getInspectorViewModel(state: UIState, rightPaneWidth: number): InspectorViewModel {
