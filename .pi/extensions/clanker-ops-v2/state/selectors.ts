@@ -51,9 +51,24 @@ export function getInspectorViewModel(state: UIState, rightPaneWidth: number): I
         lines.push(`PLAN: TASK #${activeTask.id}`);
         lines.push("Implementation plan details would go here...");
         // In the future, this would load planText from the task model
-    } else if (state.activeTab === 'edit') {
+    } else if (state.activeTab === 'edit' && state.editState) {
         lines.push(`EDIT: TASK #${activeTask.id}`);
-        lines.push("(Editing interface placeholder)");
+        lines.push(...wrapText(activeTask.title, rightPaneWidth));
+        lines.push("");
+        
+        const es = state.editState;
+        
+        const renderField = (index: number, label: string, value: string) => {
+            const prefix = es.activeFieldIndex === index ? "> " : "  ";
+            return `${prefix}${label.padEnd(8)} [ ${value} ]`;
+        };
+        
+        lines.push(renderField(0, "Status:", es.draftStatus));
+        lines.push(renderField(1, "Owner:", es.draftOwner));
+        lines.push(renderField(2, "Tags:", es.draftTags));
+        
+        lines.push("");
+        lines.push(...wrapText("(Use UP/DOWN to select field, type to edit, ENTER to save, ESC to cancel)", rightPaneWidth));
     }
 
     return { inspectorContent: lines };

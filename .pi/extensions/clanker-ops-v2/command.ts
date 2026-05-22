@@ -1,6 +1,7 @@
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 import { UIState } from "./state/types.js";
 import { loadTasks } from "./state/loadTasks.js";
+import { saveTaskMeta } from "./state/saveTasks.js";
 import { renderClankerBoardV2 } from "./tui/render.js";
 
 export function registerClankerCommand(pi: ExtensionAPI) {
@@ -34,6 +35,40 @@ export function registerClankerCommand(pi: ExtensionAPI) {
                     },
                     handleInput(data: string) {
                         const lowerData = data.toLowerCase();
+
+                        if (state.activeTab === 'edit' && state.editState) {
+                            if (data === '\x1b') {
+                                state.activeTab = 'overview';
+                            } else if (data === '\r' || data === '\n') {
+                                // Save
+                                const task = state.tasks[state.activeIndex];
+                                task.status = state.editState.draftStatus as any;
+                                task.owner = state.editState.draftOwner;
+                                task.tags = state.editState.draftTags.split(',').map(s => s.trim()).filter(Boolean);
+                                saveTaskMeta(task.id, {
+                                    status: task.status,
+                                    owner: task.owner,
+                                    tags: task.tags
+                                });
+                                state.activeTab = 'overview';
+                            } else if (data === '\x1b[A') { // Up
+                                state.editState.activeFieldIndex = Math.max(0, state.editState.activeFieldIndex - 1);
+                            } else if (data === '\x1b[B') { // Down
+                                state.editState.activeFieldIndex = Math.min(2, state.editState.activeFieldIndex + 1);
+                            } else if (data === '\x7f' || data === '\b') { // Backspace
+                                if (state.editState.activeFieldIndex === 0) state.editState.draftStatus = state.editState.draftStatus.slice(0, -1);
+                                else if (state.editState.activeFieldIndex === 1) state.editState.draftOwner = state.editState.draftOwner.slice(0, -1);
+                                else if (state.editState.activeFieldIndex === 2) state.editState.draftTags = state.editState.draftTags.slice(0, -1);
+                            } else if (data.length === 1 && !data.startsWith('\x1b')) {
+                                // Printable char
+                                if (state.editState.activeFieldIndex === 0) state.editState.draftStatus += data;
+                                else if (state.editState.activeFieldIndex === 1) state.editState.draftOwner += data;
+                                else if (state.editState.activeFieldIndex === 2) state.editState.draftTags += data;
+                            }
+                            _tui.requestRender();
+                            return; // Block normal navigation
+                        }
+
                         if (data === "\x1b" || lowerData === "q") {
                             done(undefined);
                             resolve(); // Exit the TUI
@@ -87,7 +122,20 @@ export function registerClankerCommand(pi: ExtensionAPI) {
                             state.activeTab = state.activeTab === "plan" ? "overview" : "plan";
                         }
                         if (lowerData === "e") {
-                            state.activeTab = state.activeTab === "edit" ? "overview" : "edit";
+                            if (state.activeTab === "edit") {
+                                state.activeTab = "overview";
+                            } else {
+                                state.activeTab = "edit";
+                                const task = state.tasks[state.activeIndex];
+                                if (task) {
+                                    state.editState = {
+                                        activeFieldIndex: 0,
+                                        draftStatus: task.status,
+                                        draftOwner: task.owner || '',
+                                        draftTags: task.tags.join(', ')
+                                    };
+                                }
+                            }
                         }
 
                         // Pane Navigation (h/l, left/right, tab)
