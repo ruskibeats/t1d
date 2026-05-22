@@ -143,3 +143,10 @@ export function padOnly(value: string | number, width: number): string {
 export function stripAnsi(value: string): string {
 	return value.replace(/\x1b\[[0-9;]*m/g, "");
 }
+
+/**
+ * Return a string of repeated characters (usually "─").
+ */
+export function borderLine(width: number, char = "─"): string {
+	return char.repeat(Math.max(0, width));
+}
