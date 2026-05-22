@@ -1700,17 +1700,179 @@
       "activeForm": "analyzing conversation for memories and failures"
     },
     {
-      "id": 197,
-      "item": "Consolidate branches — commit, merge, push, cleanup",
-      "status": "pending",
-      "createdAt": "2026-05-22T20:00:11.009Z",
-      "updatedAt": "2026-05-22T20:00:11.009Z",
-      "subject": "Consolidate branches — commit, merge, push, cleanup",
-      "description": "Commit all uncommitted work, merge all feature branches into main, push, delete local and remote branches to simplify the branch landscape.",
-      "activeForm": "committing and consolidating branches",
+      "id": 198,
+      "item": "Organise root folder structure",
+      "status": "completed",
+      "createdAt": "2026-05-22T20:03:55.263Z",
+      "updatedAt": "2026-05-22T20:12:57.113Z",
+      "subject": "Organise root folder structure",
+      "description": "Clean up root of t1d: delete temp artifacts, move docs to docs/, screenshots to docs/screenshots/, scripts to scripts/, misc to appropriate places.",
+      "activeForm": "organising root folder structure"
+    },
+    {
+      "id": 199,
+      "item": "Consolidate user profile entries (USER.md)",
+      "status": "completed",
+      "createdAt": "2026-05-22T20:19:15.204Z",
+      "updatedAt": "2026-05-22T20:20:57.918Z",
+      "subject": "Consolidate user profile entries (USER.md)",
+      "description": "Merge the 5 existing USER.md entries and add missing TUI preference. Target 5-6 well-organized entries.",
       "tags": [
-        "git",
-        "housekeeping"
+        "memory",
+        "consolidation"
+      ],
+      "activeForm": "consolidating USER.md"
+    },
+    {
+      "id": 200,
+      "item": "Consolidate user profile memories",
+      "status": "completed",
+      "createdAt": "2026-05-22T20:19:17.868Z",
+      "updatedAt": "2026-05-22T20:23:18.306Z",
+      "subject": "Consolidate user profile memories",
+      "description": "Reduce 17 user entries + 3 failure entries down to ~5-6 consolidated entries by merging related topics and removing superseded entries.",
+      "tags": [
+        "memory",
+        "cleanup"
+      ],
+      "activeForm": "consolidating work style & autonomy entries"
+    },
+    {
+      "id": 201,
+      "item": "Consolidate user memory entries",
+      "status": "completed",
+      "createdAt": "2026-05-22T20:19:39.674Z",
+      "updatedAt": "2026-05-22T20:39:10.718Z",
+      "subject": "Consolidate user memory entries",
+      "description": "Review 13 user entries listed at capacity. Merge related entries, remove outdated, preserve key facts. Target 3-4 concise entries.",
+      "tags": [
+        "memory",
+        "cleanup"
+      ],
+      "activeForm": "consolidating user memory entries"
+    },
+    {
+      "id": 202,
+      "item": "Consolidate failures.md entries",
+      "status": "completed",
+      "createdAt": "2026-05-22T20:20:03.282Z",
+      "updatedAt": "2026-05-22T20:22:46.854Z",
+      "subject": "Consolidate failures.md entries",
+      "description": "Consolidate the massive failures.md (1064 lines, 50KB+) - merge duplicate topics, remove stale entries, keep unique actionable lessons",
+      "tags": [
+        "memory",
+        "consolidation"
+      ]
+    },
+    {
+      "id": 203,
+      "item": "Consolidate MEMORY.md entries",
+      "status": "completed",
+      "createdAt": "2026-05-22T20:20:03.283Z",
+      "updatedAt": "2026-05-22T20:22:46.855Z",
+      "subject": "Consolidate MEMORY.md entries",
+      "description": "Consolidate MEMORY.md - merge related entries, remove redundant tool corrections already learned",
+      "tags": [
+        "memory",
+        "consolidation"
+      ],
+      "activeForm": "consolidating MEMORY.md"
+    },
+    {
+      "id": 204,
+      "item": "Consolidate t1d project MEMORY.md",
+      "status": "completed",
+      "createdAt": "2026-05-22T20:20:03.283Z",
+      "updatedAt": "2026-05-22T20:25:13.410Z",
+      "subject": "Consolidate t1d project MEMORY.md",
+      "description": "Consolidate t1d/MEMORY.md - merge project-specific memories, remove stale synthetic-data and old session logs",
+      "tags": [
+        "memory",
+        "consolidation"
+      ],
+      "activeForm": "consolidating t1d/MEMORY.md"
+    },
+    {
+      "id": 205,
+      "item": "Consolidate user memory entries",
+      "status": "in_progress",
+      "createdAt": "2026-05-22T20:20:16.150Z",
+      "updatedAt": "2026-05-22T20:20:27.583Z",
+      "subject": "Consolidate user memory entries",
+      "description": "Merge 15 user memories into ~8 consolidated entries. Groups: (1) Work style + autonomous continuation, (2) Branch mgmt + project org, (3) Clanker Ops principles, (4-6) Keep standalone, (7) CGM integration, (8) Matt Pocock skills.",
+      "activeForm": "consolidating work style + autonomous continuation"
+    },
+    {
+      "id": 206,
+      "item": "Consolidate user memory entries",
+      "status": "in_progress",
+      "createdAt": "2026-05-22T20:21:12.226Z",
+      "updatedAt": "2026-05-22T20:21:28.988Z",
+      "subject": "Consolidate user memory entries",
+      "description": "Reduce 14 user entries to ~4 consolidated entries. Remove redundancies: #5 superseded by #4, #6 superseded by #4, #9 merges into work style, #8 merges into #10, #13 can be condensed into Clanker Ops entry. Target: Work style & communication, Subagent workflow, Branch/project ops, Clanker Ops identity.",
+      "activeForm": "removing redundant user entries"
+    },
+    {
+      "id": 207,
+      "item": "Consolidate memory entries",
+      "status": "in_progress",
+      "createdAt": "2026-05-22T20:22:36.148Z",
+      "updatedAt": "2026-05-22T20:22:45.551Z",
+      "subject": "Consolidate memory entries",
+      "description": "Remove all old entries and replace with 5 consolidated entries: (1) Pi Tool & Agent System Quirks, (2) Session Interrupt Protocol, (3) PostgreSQL Quirks, (4) T1D Infra & Docker, (5) Clanker Ops Project Quirks",
+      "activeForm": "removing duplicate/outdated entries"
+    },
+    {
+      "id": 208,
+      "item": "[BUG] Simulator glucose engine calibration produces unrealistically high baselines",
+      "status": "in_progress",
+      "createdAt": "2026-05-22T20:24:59.888Z",
+      "updatedAt": "2026-05-22T20:41:23.300Z",
+      "subject": "[BUG] Simulator glucose engine calibration produces unrealistically high baselines",
+      "description": "Sim anchor profiles (especially \"well_controlled\") generate glucose values pegged at 400 mg/dL ceiling, preventing pattern detectors from finding meaningful spikes. Detector requires ≥50 mg/dL rise, but capped values show only ~4 mg/dL rise. Investigate glucose engine calibration, anchor config, and capping logic.\n\nSQL evidence from user 657 (run 29):\n- 2016 blood_glucose readings, nearly all at 400 mg/dL\n- Pre-meal average ~396, peak ~400 (capped)\n- Detector spike_threshold = 50 → glucose_rise = 4 → never fires\n- All 16 completed runs show 0% detection rate\n\nAcceptance Criteria:\n- \"well_controlled\" anchor generates realistic glucose (e.g., 80-160 mg/dL)\n- Pattern detectors can find actual spikes in sim data (non-zero detection rate)\n- Glucose engine calibration produces distinct post-meal rises of ≥50 mg/dL\n- No regression in other anchor types",
+      "tags": [
+        "bug",
+        "simulator",
+        "calibration",
+        "detectors",
+        "p1"
+      ],
+      "activeForm": "fixing glucose calibration directly"
+    },
+    {
+      "id": 209,
+      "item": "Consolidate failures via memory tool DB (overwritten by auto-sync)",
+      "status": "pending",
+      "createdAt": "2026-05-22T20:25:13.411Z",
+      "updatedAt": "2026-05-22T20:25:13.411Z",
+      "subject": "Consolidate failures via memory tool DB (overwritten by auto-sync)",
+      "description": "The auto-consolidation system reverted failures.md to 240KB. Need to consolidate entries using memory tool operations on the internal DB."
+    },
+    {
+      "id": 210,
+      "item": "Consolidate memory entries",
+      "status": "in_progress",
+      "createdAt": "2026-05-22T20:34:18.993Z",
+      "updatedAt": "2026-05-22T20:34:24.769Z",
+      "subject": "Consolidate memory entries",
+      "description": "Remove duplicate/stale entries across memory/user/failure targets, then add consolidated entries",
+      "activeForm": "removing duplicate failure entries"
+    },
+    {
+      "id": 211,
+      "item": "[FOOD] Improve food search quality — OFF ranking, manual entry, curated staples",
+      "status": "pending",
+      "createdAt": "2026-05-22T20:39:06.901Z",
+      "updatedAt": "2026-05-22T20:39:06.901Z",
+      "subject": "[FOOD] Improve food search quality — OFF ranking, manual entry, curated staples",
+      "description": "Open Food Facts search returns poor matches for common foods (e.g., \"butter\" → peanut butters, \"fried eggs\" → gummy candy). Need multiple entry paths: manual food entry, ingredient-level parsing, curated staples table, brand/region filtering, and confidence-based fallbacks.\n\nCurrent issues:\n- \"fried eggs\" → gummy candy products (OFF is barcode/Collaborative DB, not recipe matcher)\n- \"butter\" → peanut butter, almond butter (dairy butter deprioritised)\n- \"Warburtons\" → brand matches but \"thick sliced\" doesn't always resolve\n- No manual entry fallback when search fails\n\nAcceptance Criteria:\n- \"3 fried eggs + Warburtons toast + butter\" resolves to ~60g protein, ~30g fat, ~50g carbs\n- Butter search biases to dairy butter, deprioritises nut spreads\n- Manual/custom food entry path exists with template defaults\n- Common meals saveable as one-tap presets\n- Curated \"core staples\" table for breakfast/lunch/dinner basics\n- Country+category filtering applied to OFF queries",
+      "tags": [
+        "food",
+        "search",
+        "openfoodfacts",
+        "ux",
+        "p2",
+        "meal-forecast"
       ]
     }
   ]

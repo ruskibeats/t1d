@@ -228,15 +228,21 @@ class DayContextGenerator:
         """Generate insulin doses aligned with meals and basal."""
         insulin_events = []
 
-        # Basal (simplified: once daily at bedtime)
-        basal_units = round(0.4 * self.config.basal_glucose_mean / self.config.insulin_sensitivity * 24, 1)
-        basal_time = day_start.replace(hour=22, minute=0)
-        insulin_events.append({
-            "timestamp": basal_time,
-            "type": "basal",
-            "units": basal_units,
-            "description": f"Basal {basal_units}u",
-        })
+        # Basal — delivered as a continuous trickle: split into small hourly doses
+        # Total daily basal ≈ (0.3 * total_meal_carbs) / carb_ratio
+        total_carbs = sum(m["carbs_grams"] for m in meals)
+        basal_total = round(0.3 * total_carbs / self.config.carb_ratio, 1)
+        per_hour = round(basal_total / 24, 2)
+        for hour in range(0, 24, 2):  # every 2 hours, small dose
+            basal_time = day_start.replace(hour=hour, minute=self.rng.randint(0, 5))
+            dose = round(per_hour * 2, 2)
+            if dose > 0:
+                insulin_events.append({
+                    "timestamp": basal_time,
+                    "type": "basal",
+                    "units": dose,
+                    "description": f"Basal {dose}u",
+                })
 
         # Bolus for each meal
         for meal in meals:

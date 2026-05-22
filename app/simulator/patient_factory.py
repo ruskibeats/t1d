@@ -31,7 +31,8 @@ def generate_patient_config(
         """Sample uniformly within [min, max], rounded to 2 decimal places."""
         return round(rng.uniform(mn, mx), 2)
 
-    return PatientConfig(
+    # Generate raw config from anchor ranges
+    config = PatientConfig(
         anchor_type=anchor_type,
         seed=seed,
         basal_glucose_mean=_rand(*params.basal_glucose_mean),
@@ -45,6 +46,50 @@ def generate_patient_config(
         dawn_effect_strength=_rand(*params.dawn_effect_strength),
         fat_delay_hours=_rand(*params.fat_delay_hours),
         variability_cv=_rand(*params.variability_cv),
+    )
+
+    # IMPORTANT: Compute meal_rise_factor to be self-consistent with
+    # insulin_sensitivity and carb_ratio. This ensures the engine's
+    # meal + insulin effects roughly balance so glucose returns to
+    # baseline between meals instead of ratcheting up.
+    #
+    # For net ≈ 0: meal_rise ≈ insulin_sensitivity * 0.25 / carb_ratio
+    # Multiply by BALANCE_FACTOR to control post-meal excursion size:
+    #   1.0 = no net rise (returns exactly to baseline)
+    #   1.5 = moderate rise (~50% above baseline)
+    #   2.0 = large spike (post_meal_spike anchor)
+    balance_factors = {
+        AnchorType.WELL_CONTROLLED: 1.2,
+        AnchorType.BRITTLE: 1.8,
+        AnchorType.DAWN_PHENOMENON: 1.3,
+        AnchorType.POST_MEAL_SPIKE: 2.0,
+        AnchorType.OVERNIGHT_HYPO: 1.0,
+        AnchorType.EXERCISE_REGIMEN: 1.2,
+        AnchorType.HIGH_FAT_DELAYED: 1.5,
+        AnchorType.HIGH_VARIABILITY: 1.6,
+        AnchorType.INSULIN_RESISTANT: 1.3,
+        AnchorType.INSULIN_SENSITIVE: 0.9,
+        AnchorType.EXERCISE_SENSITIVE: 1.1,
+        AnchorType.NEWLY_DIAGNOSED: 1.5,
+    }
+    bf = balance_factors.get(anchor_type, 1.3)
+    computed_meal_rise = round(config.insulin_sensitivity * 0.25 / config.carb_ratio * bf, 2)
+
+    # Recreate config with the computed meal_rise_factor (Pydantic model is frozen)
+    return PatientConfig(
+        anchor_type=config.anchor_type,
+        seed=config.seed,
+        basal_glucose_mean=config.basal_glucose_mean,
+        basal_glucose_amplitude=config.basal_glucose_amplitude,
+        meal_rise_factor=computed_meal_rise,
+        insulin_sensitivity=config.insulin_sensitivity,
+        carb_ratio=config.carb_ratio,
+        hypo_risk=config.hypo_risk,
+        noise_sd=config.noise_sd,
+        exercise_drop_factor=config.exercise_drop_factor,
+        dawn_effect_strength=config.dawn_effect_strength,
+        fat_delay_hours=config.fat_delay_hours,
+        variability_cv=config.variability_cv,
     )
 
 
