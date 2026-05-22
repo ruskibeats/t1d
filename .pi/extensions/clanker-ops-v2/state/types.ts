@@ -8,6 +8,13 @@ export interface Task {
     planFile?: string;
 }
 
+export interface EditState {
+    activeFieldIndex: number; // 0: Status, 1: Owner, 2: Tags
+    draftStatus: string;
+    draftOwner: string;
+    draftTags: string;
+}
+
 export interface UIState {
     width: number;
     height: number;
@@ -15,6 +22,7 @@ export interface UIState {
     activeIndex: number;
     activePane: 'left' | 'center' | 'right';
     activeTab: 'overview' | 'plan' | 'edit';
+    editState?: EditState;
     activeBoard?: string;
     leftActiveIndex: number;
     searchQuery: string;
