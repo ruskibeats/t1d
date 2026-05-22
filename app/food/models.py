@@ -9,8 +9,8 @@ from typing import Any, Optional, List, TYPE_CHECKING
 if TYPE_CHECKING:
     from app.db.models import User
 
-from sqlalchemy import BigInteger, Boolean, DateTime, Float, ForeignKey, Index, Integer, String, Text, UniqueConstraint, func
-from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy import BigInteger, Boolean, DateTime, Float, ForeignKey, Index, Integer, JSON, String, Text, UniqueConstraint, func
+from sqlalchemy.dialects.postgresql import ARRAY, JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
@@ -80,4 +80,48 @@ class FoodEntry(Base):
     __table_args__ = (
         Index("ix_food_entries_user_date", "user_id", "entry_date"),
         Index("ix_food_entries_user_meal", "user_id", "meal_type", "entry_date"),
+    )
+
+
+class OpenFoodFactsProduct(Base):
+    """Compact Open Food Facts lookup table for barcode and nutrition search.
+
+    This table stores a T1D-focused projection of the upstream JSONL export.
+    The raw export remains on disk and should be streamed, not loaded with
+    pandas or expanded into application memory.
+    """
+
+    __tablename__ = "openfoodfacts_products"
+
+    code: Mapped[str] = mapped_column(String(64), primary_key=True)
+    product_name: Mapped[Optional[str]] = mapped_column(Text)
+    brands: Mapped[Optional[str]] = mapped_column(Text)
+    categories: Mapped[Optional[str]] = mapped_column(Text)
+    categories_tags: Mapped[Optional[list[str]]] = mapped_column(ARRAY(Text).with_variant(JSON, "sqlite"))
+    countries_tags: Mapped[Optional[list[str]]] = mapped_column(ARRAY(Text).with_variant(JSON, "sqlite"))
+    serving_size: Mapped[Optional[str]] = mapped_column(Text)
+    serving_quantity: Mapped[Optional[float]] = mapped_column(Float)
+    product_quantity: Mapped[Optional[float]] = mapped_column(Float)
+    product_quantity_unit: Mapped[Optional[str]] = mapped_column(Text)
+    nutrition_data_per: Mapped[Optional[str]] = mapped_column(Text)
+    carbs_100g: Mapped[Optional[float]] = mapped_column(Float)
+    sugars_100g: Mapped[Optional[float]] = mapped_column(Float)
+    fiber_100g: Mapped[Optional[float]] = mapped_column(Float)
+    proteins_100g: Mapped[Optional[float]] = mapped_column(Float)
+    fat_100g: Mapped[Optional[float]] = mapped_column(Float)
+    saturated_fat_100g: Mapped[Optional[float]] = mapped_column(Float)
+    energy_kcal_100g: Mapped[Optional[float]] = mapped_column(Float)
+    salt_100g: Mapped[Optional[float]] = mapped_column(Float)
+    sodium_100g: Mapped[Optional[float]] = mapped_column(Float)
+    nutriscore_grade: Mapped[Optional[str]] = mapped_column(Text)
+    nutriscore_score: Mapped[Optional[int]] = mapped_column(Integer)
+    nova_group: Mapped[Optional[int]] = mapped_column(Integer)
+    data_quality_tags: Mapped[Optional[list[str]]] = mapped_column(ARRAY(Text).with_variant(JSON, "sqlite"))
+    source_updated_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))
+    imported_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+
+    __table_args__ = (
+        Index("ix_off_products_product_name", "product_name"),
+        Index("ix_off_products_brands", "brands"),
+        Index("ix_off_products_nutrition_carbs", "carbs_100g"),
     )

@@ -68,6 +68,28 @@ class FoodSearchResult(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
+class MealImpactRequest(BaseModel):
+    """Request a rules-based meal impact forecast."""
+
+    items: list[str] = Field(..., min_length=1, description="Meal item names, e.g. ['Big Mac', 'large fries']")
+    eaten_at: Optional[datetime] = Field(None, description="When the meal would be eaten. Defaults to now.")
+    limit_per_item: int = Field(5, ge=1, le=20, description="Food lookup candidates to consider per item.")
+
+
+class MealImpactResponse(BaseModel):
+    """Rules-based meal impact forecast response."""
+
+    question: str
+    eaten_at: str
+    matched_items: list[dict[str, Any]]
+    unmatched_items: list[str]
+    meal_totals: dict[str, Any]
+    glucose_context: dict[str, Any]
+    recent_context: dict[str, Any]
+    forecast: dict[str, Any]
+    safety_note: str
+
+
 class FoodEntryCreate(BaseModel):
     food_id: Optional[int] = None
     quantity: float = Field(1, gt=0)

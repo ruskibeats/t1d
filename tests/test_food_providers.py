@@ -552,6 +552,157 @@ class TestFoodService:
 
 
 # =============================================================================
+# Local OpenFoodFacts Lookup Tests (Postgres)
+# =============================================================================
+
+class TestLocalOFFLookup:
+    """Tests for local OpenFoodFacts Postgres lookup in FoodService."""
+
+    async def test_search_local_off_returns_results(self, db_session):
+        """_search_local_off returns products from openfoodfacts_products table."""
+        import uuid
+        from app.food.models import OpenFoodFactsProduct
+        from app.food.service import FoodService
+
+        # Seed test data in openfoodfacts_products with unique code
+        test_product = OpenFoodFactsProduct(
+            code=f"test_{uuid.uuid4().hex[:12]}",
+            product_name="Test Organic Rolled Oats",
+            brands="Test Brand",
+            carbs_100g=66.0,
+            proteins_100g=13.0,
+            fat_100g=7.0,
+            energy_kcal_100g=389.0,
+            serving_size="40 g",
+            nutriscore_score=10,
+        )
+        db_session.add(test_product)
+        await db_session.commit()
+
+        service = FoodService(db_session)
+        results = await service._search_local_off("rolled oats", limit=5)
+
+        assert len(results) >= 1
+        # Should find our test product
+        oats_results = [r for r in results if "oats" in r["name"].lower()]
+        assert len(oats_results) >= 1
+        found = oats_results[0]
+        assert found["carbs_per_100g"] == 66.0
+        assert found["protein_per_100g"] == 13.0
+        assert found["fat_per_100g"] == 7.0
+        assert found["calories_per_100g"] == 389.0
+        assert found["source"] == "openfoodfacts_local"
+
+    async def test_search_local_off_requires_nutrition(self, db_session):
+        """_search_local_off only returns products with nutrition data."""
+        import uuid
+        from app.food.models import OpenFoodFactsProduct
+        from app.food.service import FoodService
+
+        # Product without nutrition data
+        no_nutrition = OpenFoodFactsProduct(
+            code=f"test_{uuid.uuid4().hex[:12]}",
+            product_name="Test Mystery Product No Nutrition",
+        )
+        db_session.add(no_nutrition)
+        await db_session.commit()
+
+        service = FoodService(db_session)
+        results = await service._search_local_off("mystery product", limit=5)
+
+        # Should not return products without nutrition data
+        assert len(results) == 0
+
+    async def test_search_local_off_fallback_on_missing_similarity(self, db_session):
+        """_search_local_off falls back to ILIKE when similarity function fails."""
+        import uuid
+        from app.food.models import OpenFoodFactsProduct
+        from app.food.service import FoodService
+
+        test_product = OpenFoodFactsProduct(
+            code=f"test_{uuid.uuid4().hex[:12]}",
+            product_name="Test Quinoa Special",
+            carbs_100g=64.0,
+            proteins_100g=14.0,
+            fat_100g=6.0,
+            energy_kcal_100g=368.0,
+        )
+        db_session.add(test_product)
+        await db_session.commit()
+
+        service = FoodService(db_session)
+        # This should work with fallback ILIKE search
+        results = await service._search_local_off("quinoa", limit=5)
+
+        assert len(results) >= 1
+        assert results[0]["name"] == "Test Quinoa Special"
+
+    async def test_search_external_foods_uses_local_off_first(self, db_session, test_user, mock_off_product):
+        """search_external_foods prioritizes local OFF over online API."""
+        import uuid
+        from app.food.models import OpenFoodFactsProduct
+        from app.food.service import FoodService
+
+        # Seed local OFF product with unique code
+        local_product = OpenFoodFactsProduct(
+            code=f"test_{uuid.uuid4().hex[:12]}",
+            product_name="Test Local Chicken Breast",
+            brands="Local Brand",
+            carbs_100g=0.0,
+            proteins_100g=22.0,
+            fat_100g=2.0,
+            energy_kcal_100g=110.0,
+        )
+        db_session.add(local_product)
+        await db_session.commit()
+
+        # Mock online OFF response
+        off_data = {"products": [mock_off_product]}
+        fake_resp = MagicMock(status_code=200)
+        fake_resp.raise_for_status = MagicMock()
+        fake_resp.json = MagicMock(return_value=off_data)
+        fake_client = MagicMock()
+        fake_client.__aenter__ = AsyncMock(return_value=fake_client)
+        fake_client.__aexit__ = AsyncMock(return_value=None)
+        fake_client.get = AsyncMock(return_value=fake_resp)
+
+        service = FoodService(db_session)
+        with patch("httpx.AsyncClient", return_value=fake_client):
+            results = await service.search_external_foods(
+                db_session, test_user.id, "chicken"
+            )
+
+        # Should have local OFF result, not hit online API
+        local_results = [r for r in results if r["source"] == "openfoodfacts_local"]
+        assert len(local_results) >= 1
+        assert local_results[0]["name"] == "Test Local Chicken Breast"
+
+    async def test_search_external_foods_falls_back_to_online_when_local_empty(self, db_session, test_user, mock_off_product):
+        """search_external_foods hits online API when local OFF has no results."""
+        from app.food.service import FoodService
+
+        # Mock online OFF response
+        off_data = {"products": [mock_off_product]}
+        fake_resp = MagicMock(status_code=200)
+        fake_resp.raise_for_status = MagicMock()
+        fake_resp.json = MagicMock(return_value=off_data)
+        fake_client = MagicMock()
+        fake_client.__aenter__ = AsyncMock(return_value=fake_client)
+        fake_client.__aexit__ = AsyncMock(return_value=None)
+        fake_client.get = AsyncMock(return_value=fake_resp)
+
+        service = FoodService(db_session)
+        with patch("httpx.AsyncClient", return_value=fake_client):
+            results = await service.search_external_foods(
+                db_session, test_user.id, "zzzznonexistentonline"
+            )
+
+        # Should hit online API since local OFF won't have results
+        online_results = [r for r in results if r["source"] == "openfoodfacts"]
+        assert len(online_results) >= 1
+
+
+# =============================================================================
 # Food Entry CRUD Tests
 # =============================================================================
 
@@ -602,3 +753,86 @@ class TestFoodEntry:
 
         entries = await service.list_entries(test_user.id)
         assert len(entries) == 3
+
+
+# =============================================================================
+# Meal Impact Forecast Tests
+# =============================================================================
+
+class TestMealImpactForecast:
+    """Tests for rules-based meal impact estimates."""
+
+    async def test_estimate_meal_impact_high_carb_high_fat(self, db_session, test_user):
+        """High-carb, high-fat meals produce a delayed-rise forecast."""
+        from datetime import timedelta
+        from app.db.models import GlucoseReading
+        from app.food.models import OpenFoodFactsProduct
+        from app.food.service import FoodService
+
+        now = datetime.now(timezone.utc).replace(tzinfo=None)
+        db_session.add_all([
+            OpenFoodFactsProduct(
+                code="bigmac-test",
+                product_name="Big Mac",
+                brands="McDonald's",
+                serving_size="219 g",
+                carbs_100g=20.0,
+                sugars_100g=4.0,
+                proteins_100g=12.0,
+                fat_100g=14.0,
+                energy_kcal_100g=232.0,
+            ),
+            OpenFoodFactsProduct(
+                code="fries-test",
+                product_name="Large French Fries",
+                brands="McDonald's",
+                serving_size="150 g",
+                carbs_100g=41.0,
+                sugars_100g=0.3,
+                proteins_100g=3.5,
+                fat_100g=15.0,
+                energy_kcal_100g=312.0,
+            ),
+            GlucoseReading(
+                user_id=test_user.id,
+                timestamp=now - timedelta(minutes=30),
+                glucose_value=145,
+                glucose_units="mg/dL",
+                reading_type="sensor",
+                source="test",
+            ),
+            GlucoseReading(
+                user_id=test_user.id,
+                timestamp=now,
+                glucose_value=185,
+                glucose_units="mg/dL",
+                reading_type="sensor",
+                source="test",
+            ),
+        ])
+        await db_session.commit()
+
+        result = await FoodService(db_session).estimate_meal_impact(
+            user_id=test_user.id,
+            items=["Big Mac", "large fries"],
+            eaten_at=now,
+        )
+
+        assert result["meal_totals"]["carbs_g"] > 90
+        assert result["meal_totals"]["fat_g"] > 25
+        assert result["forecast"]["risk_level"] == "high"
+        assert "delayed" in result["forecast"]["expected_pattern"]
+        assert len(result["matched_items"]) == 2
+
+    async def test_estimate_meal_impact_reports_unmatched_items(self, db_session, test_user):
+        """Unmatched meal items are surfaced in the forecast."""
+        from app.food.service import FoodService
+
+        result = await FoodService(db_session).estimate_meal_impact(
+            user_id=test_user.id,
+            items=["zzzz no such food"],
+        )
+
+        assert result["matched_items"] == []
+        assert result["unmatched_items"] == ["zzzz no such food"]
+        assert result["forecast"]["risk_level"] in {"moderate", "high"}

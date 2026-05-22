@@ -94,3 +94,21 @@ class TestFoodAPI:
             )
 
         assert isinstance(response, list)
+
+    @pytest.mark.asyncio
+    async def test_estimate_meal_impact_endpoint(self, db_session, test_user):
+        """POST /api/v1/food/meal-impact returns a forecast payload."""
+        from app.api.food import estimate_meal_impact
+        from app.food.schemas import MealImpactRequest
+
+        with patch("app.api.food.get_db", return_value=db_session), \
+             patch("app.api.food.require_active_user", return_value=test_user):
+            response = await estimate_meal_impact(
+                data=MealImpactRequest(items=["zzzz no such food"]),
+                user=test_user,
+                db=db_session,
+            )
+
+        assert response["question"] == "Can I eat zzzz no such food now?"
+        assert response["unmatched_items"] == ["zzzz no such food"]
+        assert "safety_note" in response

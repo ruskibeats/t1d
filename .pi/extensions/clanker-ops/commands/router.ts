@@ -66,15 +66,13 @@ async function handleOverlay(ctx: CommandContext): Promise<boolean> {
 		return false;
 	}
 	// Use ui.custom() to show the master-detail board as an overlay
-	await ctx.ui?.custom(async (tui, theme, _keybindings, done) => {
+	await ctx.ui?.custom(async (tui, _theme, _keybindings, done) => {
 		const { MasterDetailBoard } = await import("../view/master-detail-board.js");
-		const board = new MasterDetailBoard({ maxHeight: 25, leftWidth: 45 });
+		const board = new MasterDetailBoard({ leftRailWidth: 20, listWidth: 35 });
 		board.setTUI(tui);
 		board.setDone(() => done());
-		return {
-			render: (width) => board.render(width),
-			handleInput: (data) => board.handleInput(data),
-		};
+		tui.requestRender();
+		return board;
 	}, { overlay: true });
 	return false;
 }

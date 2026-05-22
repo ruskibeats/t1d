@@ -34,7 +34,7 @@ from app.metrics.models import HealthMetric, HealthMetricEdge, HealthDailyAggreg
 from app.simulator.models import SimRun, SimUser, SimHiddenTruth, SimDetectorScore  # noqa: F401
 # Forward references for food models
 # (imported here so Alembic autogenerate discovers them)
-from app.food.models import Food, FoodEntry  # noqa: F401
+from app.food.models import Food, FoodEntry, OpenFoodFactsProduct  # noqa: F401
 from app.exercise.models import ExerciseEntry, ExerciseEntrySet  # noqa: F401
 from app.sleep.models import SleepEntry, SleepStage  # noqa: F401
 from app.measurements.models import CustomMeasurement  # noqa: F401

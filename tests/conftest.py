@@ -97,7 +97,7 @@ async def db_engine():
         )
         from app.exercise.models import ExerciseEntry, ExerciseEntrySet  # noqa: F401
         from app.fasting.models import FastingEntry  # noqa: F401
-        from app.food.models import Food, FoodEntry  # noqa: F401
+        from app.food.models import Food, FoodEntry, OpenFoodFactsProduct  # noqa: F401
         from app.measurements.models import CustomMeasurement  # noqa: F401
         from app.metrics.models import HealthMetric, HealthDailyAggregate, HealthMetricEdge  # noqa: F401
         from app.simulator.models import SimRun, SimUser, SimHiddenTruth, SimDetectorScore  # noqa: F401
