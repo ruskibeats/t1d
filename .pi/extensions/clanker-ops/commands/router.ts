@@ -7,6 +7,7 @@
  */
 
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
+import type { TaskMutationParams } from "../tool/types.js";
 import { getState } from "../state/store.js";
 import { applyTaskMutation } from "../state/state-reducer.js";
 import { commitState } from "../state/store.js";
@@ -27,6 +28,7 @@ export interface CommandContext {
 	subcommand: string;
 	notify: (msg: string, level: string) => void;
 	hasUI: boolean;
+	ui?: import("@earendil-works/pi-coding-agent").ExtensionUIContext;
 }
 
 type Handler = (ctx: CommandContext) => Promise<boolean>;
@@ -57,15 +59,23 @@ const BOARD_FOOTER = "╰──────────────────�
 // Handlers
 // ---------------------------------------------------------------------------
 
-/** Overlay board — scrollable TUI overlay */
+/** Overlay board — master-detail TUI overlay */
 async function handleOverlay(ctx: CommandContext): Promise<boolean> {
 	if (!ctx.hasUI) {
 		ctx.notify(t("command.requires_interactive", ERR_REQUIRES_INTERACTIVE), "error");
 		return false;
 	}
-	// TODO: Implement scrollable overlay via ui.custom()
-	// For now, show compact board as placeholder
-	await handleCompact(ctx);
+	// Use ui.custom() to show the master-detail board as an overlay
+	await ctx.ui?.custom(async (tui, theme, _keybindings, done) => {
+		const { MasterDetailBoard } = await import("../view/master-detail-board.js");
+		const board = new MasterDetailBoard({ maxHeight: 25, leftWidth: 45 });
+		board.setTUI(tui);
+		board.setDone(() => done());
+		return {
+			render: (width) => board.render(width),
+			handleInput: (data) => board.handleInput(data),
+		};
+	}, { overlay: true });
 	return false;
 }
 
@@ -330,9 +340,10 @@ export async function routeCommand(
 	input: string,
 	notify: (msg: string, level: string) => void,
 	hasUI: boolean,
+	ui?: import("@earendil-works/pi-coding-agent").ExtensionUIContext,
 ): Promise<void> {
 	const subcommand = input.split(" ")[0].toLowerCase();
-	const ctx: CommandContext = { input, subcommand, notify, hasUI };
+	const ctx: CommandContext = { input, subcommand, notify, hasUI, ui };
 
 	// Empty command — show board
 	if (!input) {

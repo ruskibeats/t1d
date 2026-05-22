@@ -10,12 +10,15 @@
  */
 
 import type { ExtensionUIContext, Theme } from "@earendil-works/pi-coding-agent";
-import { type TUI } from "@earendil-works/pi-tui";
-import { renderClankerBoard } from "./view/board.js";
+import { type TUI } from "@mariozechner/pi-tui";
+import { renderClankerBoardCompact } from "./view/board.js";
 import { getState } from "./state/store.js";
+import { selectOverlayLayout } from "./state/selectors.js";
+import { MasterDetailBoard } from "./view/master-detail-board.js";
 
 const WIDGET_KEY = "clanker-ops-todos";
 const LEGACY_WIDGET_KEY = "rpiv-todos";
+const MAX_WIDGET_LINES = 12;
 
 export class TodoOverlay {
 	private uiCtx: ExtensionUIContext | undefined;
@@ -69,8 +72,47 @@ export class TodoOverlay {
 
 	private renderWidget(theme: Theme, width: number): string[] {
 		this.uiCtx?.setStatus(WIDGET_KEY, theme.fg("accent", "Clanker Ops"));
-		const tasks = getState().tasks;
-		return renderClankerBoard(tasks, { width }).split("\n");
+		const state = getState();
+
+		// Apply overlay layout to respect height budget
+		const taskBudget = Math.max(1, MAX_WIDGET_LINES - 8 - 1);
+		const { visible, hiddenCompleted, truncatedTail } = selectOverlayLayout(
+			state,
+			taskBudget,
+		);
+
+		// Use compact renderer for widget - cleaner for limited space
+		const boardOutput = renderClankerBoardCompact(visible, { width });
+		const lines = boardOutput.split("\n");
+
+		// Show overflow info
+		if (hiddenCompleted > 0 || truncatedTail > 0) {
+			const parts: string[] = [];
+			if (hiddenCompleted > 0) parts.push(`${hiddenCompleted} done`);
+			if (truncatedTail > 0) parts.push(`${truncatedTail} more`);
+			lines[0] = lines[0] + ` · ${parts.join(", ")}`;
+		}
+
+		return lines;
+	}
+
+	/**
+	 * Show scrollable overlay for full board navigation.
+	 * Call this from a command handler.
+	 */
+	showScrollableBoard(): void {
+		if (!this.tui) return;
+
+		const board = new MasterDetailBoard({ maxHeight: MAX_WIDGET_LINES, leftWidth: 45 });
+		this.tui.showOverlay(board);
+	}
+
+	/**
+	 * Show scrollable overlay from a command (passes tui directly).
+	 */
+	static showFromCommand(tui: TUI): void {
+		const board = new MasterDetailBoard({ maxHeight: 30, leftWidth: 45 });
+		tui.showOverlay(board);
 	}
 
 	dispose(): void {

@@ -18,6 +18,8 @@ import type { Task } from "../tool/types.js";
 const ansi = {
 	gray: (v: string) => `\x1b[90m${v}\x1b[0m`,
 	bold: (v: string) => `\x1b[1m${v}\x1b[0m`,
+	border: (v: string) => `\x1b[38;5;33m${v}\x1b[0m`,
+	amber: (v: string) => `\x1b[33m${v}\x1b[0m`,
 };
 
 // ---------------------------------------------------------------------------
@@ -34,6 +36,7 @@ export class ScrollableBoard implements Component {
 	private allLines: string[] = [];
 	private maxViewLines: number;
 	private tui: TUI | undefined;
+	private done: (() => void) | undefined;
 
 	constructor(options: ScrollableBoardOptions = {}) {
 		this.maxViewLines = options.maxHeight ?? 20;
@@ -41,6 +44,10 @@ export class ScrollableBoard implements Component {
 
 	setTUI(tui: TUI): void {
 		this.tui = tui;
+	}
+
+	setDone(done: () => void): void {
+		this.done = done;
 	}
 
 	invalidate(): void {
@@ -67,8 +74,9 @@ export class ScrollableBoard implements Component {
 			}
 			this.tui?.requestRender();
 		} else if (data === "q" || data === "\x1b") {
-			// Close overlay on q or ESC
+			// Close overlay on q or ESC - hide overlay AND call done() to resolve the promise
 			this.tui?.hideOverlay();
+			this.done?.();
 		}
 	}
 
@@ -107,63 +115,58 @@ export class ScrollableBoard implements Component {
 	private buildLines(width: number): string[] {
 		const tasks = this.getVisibleTasks();
 		const lines: string[] = [];
+		const inner = width - 2;
 
-		// Header
-		const title = ` Clanker Ops Board`;
-		lines.push(title);
+		// Build bordered board with blue accent
+		lines.push(ansi.border(`┌${"─".repeat(inner)}┐`));
 
-		// Tasks grouped by status
-		const inProgress = tasks.filter(t => t.status === "in_progress");
-		const pending = tasks.filter(t => t.status === "pending");
-		const completed = tasks.filter(t => t.status === "completed");
+		// Title with summary
+		const inProgress = tasks.filter(t => t.status === "in_progress").length;
+		const pending = tasks.filter(t => t.status === "pending").length;
+		const completed = tasks.filter(t => t.status === "completed").length;
+		const summary = `${inProgress} active, ${pending} queued, ${completed} done`;
+		lines.push(`│ ${ansi.bold("Clanker Ops Board")} ${ansi.gray(`(${summary})`).slice(0, inner - 20).padEnd(inner - 18)} │`);
+		lines.push(ansi.border(`├${"─".repeat(inner)}┤`));
+
+		// Column headers
+		lines.push(`│ ${ansi.gray("ID").padEnd(5)} ${ansi.gray("Work").padEnd(inner - 18)} ${ansi.gray("Owner")} `.padEnd(inner + 1) + "│");
+		lines.push(ansi.border(`├${"─".repeat(inner)}┤`));
+
+		// Active section
+		const active = tasks.filter(t => t.status === "in_progress").slice(0, 10);
+		for (const t of active) {
+			const work = `${t.item}`.slice(0, inner - 20);
+			lines.push(`│ #${String(t.id).padStart(3)} ${work.padEnd(inner - 20)} ${(t.assigned || "").padEnd(12)} │`);
+		}
+
+		// Reminders
 		const dontForget = tasks.filter(t => {
 			const tags = t.tags ?? [];
 			return tags.some(tag => 
 				["remember", "dont-forget", "don't-forget", "chore", "ops"].includes(tag.toLowerCase())
 			);
-		});
-
-		// Active section
-		if (inProgress.length > 0) {
-			lines.push("");
-			lines.push("Active:");
-			for (const t of inProgress) {
-				const owner = t.assigned ? ` @${t.assigned}` : "";
-				const active = t.activeForm ? ` (${t.activeForm})` : "";
-				lines.push(`  ◐ #${t.id} ${t.item}${active}${owner}`);
-			}
+		}).slice(0, 5);
+		for (const t of dontForget) {
+			const work = `${t.item}`.slice(0, inner - 20);
+			lines.push(`│ #${String(t.id).padStart(3)} ${ansi.amber(work.padEnd(inner - 20))} ${(t.assigned || "").padEnd(12)} │`);
 		}
 
-		// Reminders section
-		if (dontForget.length > 0) {
-			lines.push("");
-			lines.push("Reminders:");
-			for (const t of dontForget) {
-				lines.push(`  ! #${t.id} ${t.item}`);
-			}
+		// Queued
+		const queued = tasks.filter(t => t.status === "pending" && !dontForget.includes(t)).slice(0, 10);
+		for (const t of queued) {
+			const work = `${t.item}`.slice(0, inner - 20);
+			lines.push(`│ #${String(t.id).padStart(3)} ${work.padEnd(inner - 20)} ${(t.assigned || "").padEnd(12)} │`);
 		}
 
-		// Queued section
-		if (pending.length > 0) {
-			lines.push("");
-			lines.push("Queued:");
-			for (const t of pending) {
-				const owner = t.assigned ? ` @${t.assigned}` : "";
-				lines.push(`  ○ #${t.id} ${t.item}${owner}`);
-			}
-		}
-
-		// Completed section - summary only
-		if (completed.length > 0) {
-			lines.push("");
-			lines.push(`✓ ${completed.length} done — use /clanker all to expand`);
+		// Done summary
+		if (completed > 0) {
+			lines.push(ansi.border(`├${"─".repeat(inner)}┤`));
+			lines.push(`│ ${ansi.gray(`✓ ${completed} done — use /clanker all to expand`).slice(0, inner + 1).padEnd(inner + 1)} │`);
 		}
 
 		// Controls help
-		if (lines.length > 0) {
-			lines.push("");
-			lines.push(ansi.gray("[↑↓] scroll  [q/ESC] close"));
-		}
+		lines.push(ansi.border(`└${"─".repeat(inner)}┘`));
+		lines.push(ansi.gray("[↑↓] scroll  [q/ESC] close"));
 
 		return lines;
 	}
