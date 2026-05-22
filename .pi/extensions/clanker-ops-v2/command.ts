@@ -24,24 +24,25 @@ export function registerClankerCommand(pi: ExtensionAPI) {
             };
 
             return new Promise<void>((resolve) => {
-                ctx.ui.custom(() => ({
+                ctx.ui.custom((_tui, _theme, _kb, done) => ({
                     render() {
                         // Update dynamic dimensions
                         state.width = process.stdout.columns || 100;
                         state.height = process.stdout.rows || 24;
                         return renderClankerBoardV2(state);
                     },
-                    handleKey(key: any) {
-                        if (key.name === "escape" || key.name === "q") {
+                    handleInput(data: string) {
+                        if (data === "\x1b" || data === "q") {
+                            done(undefined);
                             resolve(); // Exit the TUI
-                            return true;
+                            return;
                         }
 
-                        if (key.name === "d") {
+                        if (data === "d") {
                             state.debugEnabled = !state.debugEnabled;
                         }
 
-                        if (key.name === "up") {
+                        if (data === "\x1b[A" || data === "k") { // up
                             if (state.activeIndex > 0) {
                                 state.activeIndex--;
                                 if (state.activeIndex < state.listScrollOffset) {
@@ -50,7 +51,7 @@ export function registerClankerCommand(pi: ExtensionAPI) {
                             }
                         }
 
-                        if (key.name === "down") {
+                        if (data === "\x1b[B" || data === "j") { // down
                             if (state.activeIndex < state.tasks.length - 1) {
                                 state.activeIndex++;
                                 // Assuming approx body height
@@ -61,20 +62,20 @@ export function registerClankerCommand(pi: ExtensionAPI) {
                             }
                         }
 
-                        if (key.name === "o") {
+                        if (data === "o") {
                             state.activeTab = "overview";
                         }
-                        if (key.name === "p") {
+                        if (data === "p") {
                             state.activeTab = "plan";
                         }
-                        if (key.name === "e") {
+                        if (data === "e") {
                             state.activeTab = "edit";
                         }
 
                         // Re-render
-                        ctx.ui.refresh();
-                        return true;
-                    }
+                        _tui.requestRender();
+                    },
+                    invalidate() {}
                 }));
             });
         }
