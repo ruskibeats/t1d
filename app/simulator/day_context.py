@@ -184,9 +184,9 @@ class DayContextGenerator:
         sens = self.config.insulin_sensitivity
 
         for meal in meals:
-            # Add small pre-meal basal (0.3-0.5u) 30 min before meal to prevent drift
+            # Add pre-meal basal (0.5-1.0u) 30 min before meal to prevent drift
             basal_time = meal["timestamp"] - timedelta(minutes=30)
-            basal_units = 0.3 + self.rng.random() * 0.2  # 0.3-0.5u
+            basal_units = 0.5 + self.rng.random() * 0.5  # 0.5-1.0u
             events.append({
                 "timestamp": basal_time,
                 "type": "basal",
@@ -215,7 +215,7 @@ class DayContextGenerator:
                 elif self.config.anchor_type == AnchorType.OVERNIGHT_HYPO and meal["type"] == "dinner":
                     under_bolus_factor = 0.75 + self.rng.random() * 0.10
                 elif self.config.anchor_type == AnchorType.BRITTLE:
-                    under_bolus_factor = 0.65 + self.rng.random() * 0.20
+                    under_bolus_factor = 0.75 + self.rng.random() * 0.15
                 else:
                     # Well-bolused: returns to baseline between meals
                     under_bolus_factor = 0.90 + self.rng.random() * 0.06
