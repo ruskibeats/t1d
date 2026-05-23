@@ -1878,16 +1878,61 @@
     {
       "id": 212,
       "item": "[CAL] Calibrate day_context for 4 priority anchors — realistic physiologic traces",
-      "status": "in_progress",
+      "status": "completed",
       "createdAt": "2026-05-22T21:28:24.004Z",
-      "updatedAt": "2026-05-22T21:28:34.403Z",
+      "updatedAt": "2026-05-22T21:53:29.681Z",
       "subject": "[CAL] Calibrate day_context for 4 priority anchors — realistic physiologic traces",
       "description": "Full rewrite of day_context event generator to produce clinically plausible 24h glucose traces per user's spec. Fix meal_rise_factor to physiological values (~5 mg/dL/g), fix insulin dosing to be slightly imperfect (Tier 1-2), eliminate 400 ceiling pile-up and overnight crashes.",
-      "activeForm": "rewriting day_context event generator",
+      "activeForm": "completed",
       "tags": [
         "calibration",
         "simulator",
         "p1"
+      ]
+    },
+    {
+      "id": 213,
+      "item": "[CAL] Fix cumulative drift across all anchors",
+      "status": "completed",
+      "createdAt": "2026-05-22T21:53:39.026Z",
+      "updatedAt": "2026-05-22T22:06:51.818Z",
+      "subject": "[CAL] Fix cumulative drift across all anchors",
+      "description": "Meals don't fully recover to baseline before the next meal, causing baseline to creep from 118→154→163 across the day. Fix: add small pre-meal basal insulin doses OR increase drift rate OR improve bolus fraction in the post-peak window. This fix is needed before batch-calibrating remaining anchors because the drift affects all of them.",
+      "tags": [
+        "calibration",
+        "simulator",
+        "p1"
+      ]
+    },
+    {
+      "id": 214,
+      "item": "[CAL] Calibrate post_meal_spike and brittle anchors",
+      "status": "completed",
+      "createdAt": "2026-05-22T21:54:05.225Z",
+      "updatedAt": "2026-05-22T22:13:10.205Z",
+      "subject": "[CAL] Calibrate post_meal_spike and brittle anchors",
+      "description": "Post_meal_spike target: baseline 90-160, one meal spikes to 200-240. Currently baseline creeps to 190 and peak hits 335. Brittle target: 60-280, not 106-415 with 8% at ceiling. Both need the cumulative drift fix first (#213), then tune under-bolus factors and meal sizes.",
+      "tags": [
+        "calibration",
+        "simulator",
+        "p1"
+      ]
+    },
+    {
+      "id": 215,
+      "item": "[CAL] Batch-calibrate remaining 8 anchors (dawn, exercise, high-fat, variability, insulin-resist, insulin-sens, exercise-sens, newly-diagnosed)",
+      "status": "pending",
+      "createdAt": "2026-05-22T21:54:11.463Z",
+      "updatedAt": "2026-05-22T21:54:11.463Z",
+      "subject": "[CAL] Batch-calibrate remaining 8 anchors (dawn, exercise, high-fat, variability, insulin-resist, insulin-sens, exercise-sens, newly-diagnosed)",
+      "description": "Apply the calibrated framework from well_controlled/overnight_hypo to the remaining 8 anchors. Each needs: anchor-specific meal sizes, under-bolus factor, exercise frequency, meal_rise_factor, and basal_glucose_mean. Use the same engine + day_context pattern. Verify TIR, range, ceiling %, and meal spike visibility per anchor.",
+      "blockedBy": [
+        213
+      ],
+      "tags": [
+        "calibration",
+        "simulator",
+        "p2"
       ]
     }
   ]

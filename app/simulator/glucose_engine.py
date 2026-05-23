@@ -30,7 +30,7 @@ class GlucoseEngine:
     # Mean reversion: fraction of deviation corrected per 5-min step
     # At 0.02, a 100 mg/dL deviation is corrected by 2 mg/dL per step
     # → half-life ≈ ln(2) / 0.02 ≈ 35 steps ≈ 3 hours
-    DRIFT_RATE = 0.020
+    DRIFT_RATE = 0.025
 
     def __init__(self, config: PatientConfig, rng: random.Random, start_time=None):
         self.config = config

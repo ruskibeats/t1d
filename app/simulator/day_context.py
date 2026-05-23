@@ -76,13 +76,13 @@ class DayContextGenerator:
             "breakfast": (20, 35), "lunch": (30, 50), "dinner": (35, 55), "snack": (8, 15),
         },
         AnchorType.POST_MEAL_SPIKE: {
-            "breakfast": (25, 45), "lunch": (40, 60), "dinner": (45, 70), "snack": (10, 20),
+            "breakfast": (20, 35), "lunch": (30, 45), "dinner": (35, 55), "snack": (8, 15),
         },
         AnchorType.OVERNIGHT_HYPO: {
             "breakfast": (25, 45), "lunch": (35, 60), "dinner": (45, 70), "snack": (10, 20),
         },
         AnchorType.BRITTLE: {
-            "breakfast": (20, 60), "lunch": (30, 80), "dinner": (40, 100), "snack": (10, 30),
+            "breakfast": (20, 45), "lunch": (25, 55), "dinner": (30, 70), "snack": (8, 20),
         },
     }
     # Default for unlisted anchors
@@ -169,10 +169,11 @@ class DayContextGenerator:
         }
 
     def _generate_insulin(self, ds, meals):
-        """Generate meal boluses only. No basal — engine drift handles overnight stability.
+        """Generate meal boluses plus small pre-meal basal to prevent cumulative drift.
 
         Boluses are ~15% smaller than 'perfect' (Tier 1 realism) to produce
         modest post-meal rises of 40-70 mg/dL.
+        Pre-meal basal (0.3-0.5u) prevents baseline from creeping up across the day.
 
         Anchor-specific tweaks:
         - post_meal_spike: one meal per day gets a delayed bolus or under-bolus (~25% short)
@@ -183,6 +184,17 @@ class DayContextGenerator:
         sens = self.config.insulin_sensitivity
 
         for meal in meals:
+            # Add small pre-meal basal (0.3-0.5u) 30 min before meal to prevent drift
+            basal_time = meal["timestamp"] - timedelta(minutes=30)
+            basal_units = 0.3 + self.rng.random() * 0.2  # 0.3-0.5u
+            events.append({
+                "timestamp": basal_time,
+                "type": "basal",
+                "units": round(basal_units, 1),
+                "description": f"Pre-meal basal {basal_units:.1f}u",
+                "meal_carbs": 0,  # basal not tied to carbs
+            })
+
             perfect_bolus = meal["carbs_grams"] / carbs_r
 
             # Anchor-specific imperfection
