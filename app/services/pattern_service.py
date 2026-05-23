@@ -11,7 +11,7 @@ import statistics
 from datetime import datetime, time, timedelta, timezone
 from typing import Any, Dict, List, Optional, Tuple
 
-from sqlalchemy import select
+from sqlalchemy import cast, DateTime, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
@@ -92,8 +92,8 @@ class PatternService:
             select(GlucoseReading)
             .where(
                 GlucoseReading.user_id == user_id,
-                GlucoseReading.timestamp >= start_date,
-                GlucoseReading.timestamp <= end_date,
+                cast(GlucoseReading.timestamp, DateTime) >= start_date,
+                cast(GlucoseReading.timestamp, DateTime) <= end_date,
             )
             .order_by(GlucoseReading.timestamp)
         )
@@ -237,6 +237,12 @@ class PatternService:
         Returns:
             List of detected post-meal spike events
         """
+            # Ensure we are comparing offset-naive datetimes with the database
+        if start_date.tzinfo is not None:
+            start_date = start_date.replace(tzinfo=None)
+        if end_date.tzinfo is not None:
+            end_date = end_date.replace(tzinfo=None)
+        
         # Get meal events with sufficient carbs
         result = await session.execute(
             select(ContextEvent)
@@ -264,8 +270,8 @@ class PatternService:
                 select(GlucoseReading)
                 .where(
                     GlucoseReading.user_id == user_id,
-                    GlucoseReading.timestamp >= window_start,
-                    GlucoseReading.timestamp <= window_end,
+                    cast(GlucoseReading.timestamp, DateTime) >= window_start,
+                    cast(GlucoseReading.timestamp, DateTime) <= window_end,
                 )
                 .order_by(GlucoseReading.timestamp)
             )
@@ -402,6 +408,7 @@ class PatternService:
     ):
         """Find nearest HealthMetric of any given type around a timestamp."""
         from app.metrics.models import HealthMetric
+        from sqlalchemy import cast, DateTime
 
         naive_target = target_time.replace(tzinfo=None) if target_time.tzinfo else target_time
         start = naive_target - timedelta(minutes=tolerance_minutes)
@@ -411,8 +418,8 @@ class PatternService:
             .where(
                 HealthMetric.user_id == user_id,
                 HealthMetric.type.in_(metric_types),
-                HealthMetric.measured_at >= start,
-                HealthMetric.measured_at <= end,
+                cast(HealthMetric.measured_at, DateTime) >= start,
+                cast(HealthMetric.measured_at, DateTime) <= end,
             )
             .order_by(HealthMetric.measured_at)
         )
@@ -502,6 +509,12 @@ class PatternService:
         Returns:
             List of overnight hypoglycemia events
         """
+        # Ensure we are comparing offset-naive datetimes with the database
+        if start_date.tzinfo is not None:
+            start_date = start_date.replace(tzinfo=None)
+        if end_date.tzinfo is not None:
+            end_date = end_date.replace(tzinfo=None)
+        
         # Get all overnight periods
         current = start_date.replace(hour=self.OVERNIGHT_START, minute=0, second=0)
         if current < start_date:
@@ -520,8 +533,8 @@ class PatternService:
                 select(GlucoseReading)
                 .where(
                     GlucoseReading.user_id == user_id,
-                    GlucoseReading.timestamp >= current,
-                    GlucoseReading.timestamp <= overnight_end,
+                    cast(GlucoseReading.timestamp, DateTime) >=current,
+                    cast(GlucoseReading.timestamp, DateTime) <=overnight_end,
                 )
                 .order_by(GlucoseReading.timestamp)
             )
@@ -663,8 +676,8 @@ class PatternService:
                 select(GlucoseReading)
                 .where(
                     GlucoseReading.user_id == user_id,
-                    GlucoseReading.timestamp >= baseline_start,
-                    GlucoseReading.timestamp < baseline_end,
+                    cast(GlucoseReading.timestamp, DateTime) >=baseline_start,
+                    cast(GlucoseReading.timestamp, DateTime) <baseline_end,
                 )
                 .order_by(GlucoseReading.timestamp)
             )
@@ -679,8 +692,8 @@ class PatternService:
                 select(GlucoseReading)
                 .where(
                     GlucoseReading.user_id == user_id,
-                    GlucoseReading.timestamp >= post_start,
-                    GlucoseReading.timestamp <= post_end,
+                    cast(GlucoseReading.timestamp, DateTime) >=post_start,
+                    cast(GlucoseReading.timestamp, DateTime) <=post_end,
                 )
                 .order_by(GlucoseReading.timestamp)
             )
@@ -904,8 +917,8 @@ class PatternService:
                 select(GlucoseReading)
                 .where(
                     GlucoseReading.user_id == user_id,
-                    GlucoseReading.timestamp >= event.timestamp,
-                    GlucoseReading.timestamp < window_start,
+                    cast(GlucoseReading.timestamp, DateTime) >=event.timestamp,
+                    cast(GlucoseReading.timestamp, DateTime) <window_start,
                 )
                 .order_by(GlucoseReading.timestamp.desc())
             )
@@ -916,8 +929,8 @@ class PatternService:
                 select(GlucoseReading)
                 .where(
                     GlucoseReading.user_id == user_id,
-                    GlucoseReading.timestamp >= window_start,
-                    GlucoseReading.timestamp <= window_end,
+                    cast(GlucoseReading.timestamp, DateTime) >=window_start,
+                    cast(GlucoseReading.timestamp, DateTime) <=window_end,
                 )
                 .order_by(GlucoseReading.timestamp)
             )
@@ -1087,8 +1100,8 @@ class PatternService:
                 select(GlucoseReading)
                 .where(
                     GlucoseReading.user_id == user_id,
-                    GlucoseReading.timestamp >= meal.timestamp,
-                    GlucoseReading.timestamp <= window_end,
+                    cast(GlucoseReading.timestamp, DateTime) >=meal.timestamp,
+                    cast(GlucoseReading.timestamp, DateTime) <=window_end,
                     GlucoseReading.glucose_value > self.HYPER_THRESHOLD,
                 )
             )
@@ -1127,8 +1140,8 @@ class PatternService:
                 select(GlucoseReading)
                 .where(
                     GlucoseReading.user_id == user_id,
-                    GlucoseReading.timestamp >= exercise.timestamp,
-                    GlucoseReading.timestamp <= window_end,
+                    cast(GlucoseReading.timestamp, DateTime) >=exercise.timestamp,
+                    cast(GlucoseReading.timestamp, DateTime) <=window_end,
                     GlucoseReading.glucose_value < self.HYPO_THRESHOLD,
                 )
             )
@@ -1171,8 +1184,8 @@ class PatternService:
                 select(GlucoseReading)
                 .where(
                     GlucoseReading.user_id == user_id,
-                    GlucoseReading.timestamp >= insulin_event.timestamp - timedelta(minutes=30),
-                    GlucoseReading.timestamp < insulin_event.timestamp,
+                    cast(GlucoseReading.timestamp, DateTime) >=insulin_event.timestamp - timedelta(minutes=30),
+                    cast(GlucoseReading.timestamp, DateTime) <insulin_event.timestamp,
                 )
                 .order_by(GlucoseReading.timestamp)
             )
@@ -1183,8 +1196,8 @@ class PatternService:
                 select(GlucoseReading)
                 .where(
                     GlucoseReading.user_id == user_id,
-                    GlucoseReading.timestamp >= insulin_event.timestamp,
-                    GlucoseReading.timestamp <= window_end,
+                    cast(GlucoseReading.timestamp, DateTime) >=insulin_event.timestamp,
+                    cast(GlucoseReading.timestamp, DateTime) <=window_end,
                 )
                 .order_by(GlucoseReading.timestamp)
             )

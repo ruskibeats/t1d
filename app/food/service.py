@@ -128,14 +128,14 @@ class FoodService:
         Uses trigram similarity on product_name for fuzzy matching.
         
         Returns list of dicts with normalized nutrition fields matching
-        the OpenFoodFactsProduct response shape.
+        the OpenFoodFactsProduct response shape, sorted by quality (fewer quality flags first).
         """
         results = []
         
         # Use name similarity search - trigram index should be available in Postgres
         # For SQLite compatibility, fall back to ILIKE
         stmt = (
-            select(OpenFoodFactsProduct)
+            select(OpenFoodFactsProduct, func.similarity(OpenFoodFactsProduct.product_name, query).label("similarity"))
             .where(
                 OpenFoodFactsProduct.product_name.isnot(None),
                 OpenFoodFactsProduct.carbs_100g.isnot(None),  # Only products with nutrition data
@@ -149,10 +149,13 @@ class FoodService:
         
         try:
             result = await self.db.execute(stmt)
-            products = list(result.scalars().all())
+            products_with_similarity = list(result.all())
             
-            for product in products:
-                results.append({
+            # Compute quality flags for each product and store similarity
+            products = []
+            for product, similarity in products_with_similarity:
+                quality = _assess_food_dict_quality(product, source="openfoodfacts_local")
+                products.append({
                     "source": "openfoodfacts_local",
                     "name": product.product_name,
                     "brand": product.brands,
@@ -165,7 +168,18 @@ class FoodService:
                     "fiber_per_100g": product.fiber_100g,
                     "sugars_per_100g": product.sugars_100g,
                     "sodium_per_100g": product.sodium_100g,
+                    "_similarity": similarity,
+                    "_quality_flags": quality,
+                    "_num_quality_flags": len(quality),
                 })
+            # Sort by similarity (descending) as primary, then by number of quality flags (ascending) as secondary
+            products.sort(key=lambda p: (-p["_similarity"], p["_num_quality_flags"]))
+            # Strip private fields
+            for p in products:
+                p.pop("_similarity", None)
+                p.pop("_quality_flags", None)
+                p.pop("_num_quality_flags", None)
+            results = products
         except Exception:
             # Fallback for databases without pg_trgm extension or similarity function
             # Use tokenized ILIKE search as fallback so "large fries" can match
@@ -187,6 +201,7 @@ class FoodService:
             products = list(result.scalars().all())
             
             for product in products:
+                quality = _assess_food_dict_quality(product, source="openfoodfacts_local")
                 results.append({
                     "source": "openfoodfacts_local",
                     "name": product.product_name,
@@ -200,7 +215,15 @@ class FoodService:
                     "fiber_per_100g": product.fiber_100g,
                     "sugars_per_100g": product.sugars_100g,
                     "sodium_per_100g": product.sodium_100g,
+                    "_quality_flags": quality,
+                    "_num_quality_flags": len(quality),
                 })
+            # Sort by number of quality flags (ascending) as we don't have similarity
+            results.sort(key=lambda r: r["_num_quality_flags"])
+            # Strip private fields
+            for r in results:
+                r.pop("_quality_flags", None)
+                r.pop("_num_quality_flags", None)
         
         return results
 

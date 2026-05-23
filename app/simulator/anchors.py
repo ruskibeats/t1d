@@ -15,22 +15,22 @@ ANCHOR_PARAMETER_RANGES: dict[AnchorType, AnchorParameterRange] = {
     # 1) Well-controlled Type 1
     AnchorType.WELL_CONTROLLED: AnchorParameterRange(
         anchor_type=AnchorType.WELL_CONTROLLED,
-        basal_glucose_mean=(100, 130),
+        basal_glucose_mean=(100, 120),
         basal_glucose_amplitude=(10, 20),
-        meal_rise_factor=(1.0, 2.0),
-        insulin_sensitivity=(30, 50),
-        carb_ratio=(10, 20),
+        meal_rise_factor=(2.0, 3.0),
+        insulin_sensitivity=(35, 55),
+        carb_ratio=(10, 18),
         hypo_risk=(0.02, 0.08),
         noise_sd=(5, 10),
         exercise_drop_factor=(1.0, 2.0),
-        dawn_effect_strength=(0, 10),
+        dawn_effect_strength=(0, 5),
         fat_delay_hours=(2, 4),
         variability_cv=(15, 25),
     ),
     # 2) Brittle / erratic
     AnchorType.BRITTLE: AnchorParameterRange(
         anchor_type=AnchorType.BRITTLE,
-        basal_glucose_mean=(140, 200),
+        basal_glucose_mean=(100, 140),
         basal_glucose_amplitude=(25, 40),
         meal_rise_factor=(2.5, 4.5),
         insulin_sensitivity=(15, 35),
@@ -135,10 +135,10 @@ ANCHOR_PARAMETER_RANGES: dict[AnchorType, AnchorParameterRange] = {
     # 9) Insulin resistant
     AnchorType.INSULIN_RESISTANT: AnchorParameterRange(
         anchor_type=AnchorType.INSULIN_RESISTANT,
-        basal_glucose_mean=(150, 200),
+        basal_glucose_mean=(140, 180),
         basal_glucose_amplitude=(15, 25),
         meal_rise_factor=(2.5, 4.0),
-        insulin_sensitivity=(10, 25),
+        insulin_sensitivity=(8, 18),
         carb_ratio=(5, 10),
         hypo_risk=(0.02, 0.08),
         noise_sd=(8, 15),
@@ -180,7 +180,7 @@ ANCHOR_PARAMETER_RANGES: dict[AnchorType, AnchorParameterRange] = {
     # 12) Newly diagnosed
     AnchorType.NEWLY_DIAGNOSED: AnchorParameterRange(
         anchor_type=AnchorType.NEWLY_DIAGNOSED,
-        basal_glucose_mean=(140, 200),
+        basal_glucose_mean=(110, 150),
         basal_glucose_amplitude=(15, 30),
         meal_rise_factor=(2.5, 4.5),
         insulin_sensitivity=(15, 35),

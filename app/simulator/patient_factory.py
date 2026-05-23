@@ -52,10 +52,10 @@ def generate_patient_config(
     # These are empirically determined for this engine's impulse model.
     # ~4 mg/dL/g produces 40-70 mg/dL post-meal rises with ~15% under-bolus.
     meal_rise_map = {
-        AnchorType.WELL_CONTROLLED: 3.0,
+        AnchorType.WELL_CONTROLLED: 2.0,
         AnchorType.POST_MEAL_SPIKE: 4.5,
         AnchorType.OVERNIGHT_HYPO: 2.5,
-        AnchorType.BRITTLE: 5.0,
+        AnchorType.BRITTLE: 3.5,
         AnchorType.DAWN_PHENOMENON: 4.0,
         AnchorType.EXERCISE_REGIMEN: 3.5,
         AnchorType.HIGH_FAT_DELAYED: 4.5,
