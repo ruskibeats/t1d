@@ -58,3 +58,5 @@ test-results/
 /blob-report/
 /playwright/.cache/
 /playwright/.auth/
+.agent/
+AGENTS.md
