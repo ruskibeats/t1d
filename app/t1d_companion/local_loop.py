@@ -614,42 +614,18 @@ def _public_candidate(candidate: dict[str, Any]) -> dict[str, Any]:
 
 
 async def search_food_candidates(service: FoodService, food: ParsedFood, limit_per_term: int = 5) -> list[dict[str, Any]]:
-    """Search for food candidates using semantic search first, with lexical fallback.
-    
+    """Search for food candidates using the FoodSearch facade.
+
     Merges semantic and lexical results, keyed by barcode for deduplication.
     Semantic similarity is preserved in _semantic_similarity field.
     """
-    by_barcode: dict[str, dict[str, Any]] = {}
-    
-    # Try semantic search first (uses pgvector with HNSW index)
-    semantic_query = f"{food.item} {' '.join(food.search_terms)}"
-    try:
-        semantic_results = await service._search_local_off_semantic(semantic_query, limit=limit_per_term)
-        for candidate in semantic_results:
-            barcode = str(candidate.get("barcode") or candidate.get("name") or "")
-            if barcode and barcode not in by_barcode:
-                by_barcode[barcode] = candidate
-    except Exception:
-        pass  # Fall through to lexical search
-    
-    # Get lexical results for any gaps or fallback
-    # Use the primary item name + at most 2 alias terms to limit DB round-trips
-    terms = [food.item]
-    alias_terms = (food.search_terms or ALIASES.get(food.item, []))[:2]
-    for at in alias_terms:
-        if at != food.item:
-            terms.append(at)
-    for term in terms:
-        for candidate in await service._search_local_off(term, limit=limit_per_term):
-            barcode = str(candidate.get("barcode") or candidate.get("name") or "")
-            if barcode and barcode not in by_barcode:
-                by_barcode[barcode] = candidate
-    
+    from app.food.search import FoodSearch
+
+    facade = FoodSearch(service)
+    candidates = await facade.search(food, limit=limit_per_term)
+
     # Compute per-name medians for typicality scoring
     medians = await _get_name_medians(service.db, food.item)
-
-    # Sort by candidate score
-    candidates = list(by_barcode.values())
     candidates.sort(key=lambda c: _candidate_score(food, c, medians), reverse=True)
     return candidates
 
