@@ -2745,6 +2745,16 @@
       "subject": "Add mmol/L support throughout the app for UK users",
       "description": "Convert all glucose displays from mg/dL to mmol/L (÷18.0182). Update Nightscout service, CGM API, companion output, and settings to support both units.",
       "activeForm": "adding mmol/L support"
+    },
+    {
+      "id": 280,
+      "item": "T1D Companion: Italy 35°C pizza/chips/eggs/ice cream analysis",
+      "status": "in_progress",
+      "createdAt": "2026-05-25T19:37:01.820Z",
+      "updatedAt": "2026-05-25T19:37:04.461Z",
+      "subject": "T1D Companion: Italy 35°C pizza/chips/eggs/ice cream analysis",
+      "description": "Full T1D companion agent workflow for user in Italy, 35°C, sightseeing, about to eat eggs, pizza, chips, ice cream",
+      "activeForm": "finding FoodService and nutritional data pipeline"
     }
   ]
 }
