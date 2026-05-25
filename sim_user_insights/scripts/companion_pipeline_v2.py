@@ -567,43 +567,31 @@ async def run_companion_pipeline(
     model: str = "deepseek/deepseek-v4-flash",
     interactive: bool = False,
 ) -> CompanionState:
-    """Run the full companion pipeline as a stateless reducer.
-    
+    """Run the full companion pipeline using the declarative stage graph.
+
     Each stage is a pure function that takes state and returns new state.
     This enables testing and replayability.
     """
-    # Initialize LLM capture
-    llm = LLMCapture(provider=LLMProvider.OPENROUTER, model=model)
-    
+    from sim_user_insights.scripts.pipeline import PipelineRunner, LLMCapture
+    from app.services.llm_service import LLMProvider
+
     # Detect question mode
     q_mode = "forecast"
     lower = scenario.lower()
     if "should i" in lower or "what should" in lower:
-        q_mode, q_template = "action", {"safety": "Only monitoring advice."}
+        q_mode = "action"
     elif "compare" in lower:
-        q_mode, q_template = "compare", {"safety": "Educational comparison only."}
-    
-    # Run stages sequentially
-    state = CompanionState(scenario=scenario, anchor_type=anchor_type, question_mode=q_mode)
-    
-    state = await stage_select_profile(state)
-    state = await stage_parse_foods(state, llm)
-    state = await stage_db_lookup(state)
+        q_mode = "compare"
 
-    # Clarification protocol: decide if we need to ask a question
-    state = stage_decide_clarification(state)
-    if state.clarification_needed and state.clarification_prompt and interactive:
-        # Return early with the clarification request
-        return state
+    llm = LLMCapture(provider=LLMProvider.OPENROUTER, model=model)
+    runner = PipelineRunner(llm=llm, interactive=interactive)
+    result = await runner.run(
+        scenario=scenario,
+        anchor_type=anchor_type,
+        question_mode=q_mode,
+    )
 
-    # Apply any existing clarification answer (non-interactive or resumed)
-    if state.clarification_answer:
-        state = stage_apply_clarification(state)
-
-    state = await stage_forecast(state)
-    state = await stage_companion_advice(state, llm)
-    
-    return state
+    return result.state
 
 
 # ── CLI Entry Point ──
@@ -631,41 +619,38 @@ async def main(verbose: bool = False, interactive: bool = False):
     
     # Initialize LLM capture
     llm = LLMCapture(provider=LLMProvider.OPENROUTER, model="deepseek/deepseek-v4-flash")
-    
-    # Run pipeline with verbose output
-    state = CompanionState(scenario=scenario, anchor_type=args.anchor)
-    
-    # Run core pipeline (stages 1-3)
-    state = await stage_select_profile(state)
-    state = await stage_parse_foods(state, llm)
-    state = await stage_db_lookup(state)
 
-    # Clarification protocol
-    state = stage_decide_clarification(state)
+    # Detect question mode
+    q_mode = "forecast"
+    if "should i" in scenario.lower() or "what should" in scenario.lower():
+        q_mode = "action"
+    elif "compare" in scenario.lower():
+        q_mode = "compare"
 
-    if state.clarification_needed and state.clarification_prompt:
+    # Build and run pipeline
+    from sim_user_insights.scripts.pipeline import PipelineRunner
+    runner = PipelineRunner(llm=llm, interactive=args.interactive)
+
+    if args.verbose:
+        print("═"*70)
+        print("VERBOSE PIPELINE TRACE - ALL INTERNAL OUTPUTS")
+        print("═"*70)
+
+    result = await runner.run(
+        scenario=scenario,
+        anchor_type=args.anchor,
+        question_mode=q_mode,
+    )
+
+    # Handle interactive clarification
+    if not result.completed and result.clarification_prompt:
         if args.verbose:
-            print(f"\n[CLARIFICATION NEEDED] {state.clarification_prompt}")
-        if args.interactive:
-            # Ask the user and apply their answer
-            print(f"\n🤖 {state.clarification_prompt}")
-            answer = input("> ").strip()
-            state.clarification_answer = answer
-            state = stage_apply_clarification(state)
-            # Re-run stages that depend on quantity
-            state = await stage_db_lookup(state)
-        else:
-            # Non-interactive: include the question in the LLM context
-            if args.verbose:
-                print(f"  (Non-interactive mode: passing clarification prompt to LLM)")
+            print(f"\n[CLARIFICATION NEEDED] {result.clarification_prompt}")
+        print(f"\n🤖 {result.clarification_prompt}")
+        answer = input("> ").strip()
+        result = await runner.resume_after_clarification(result.state, answer)
 
-    # Apply any pre-existing clarification answer
-    if state.clarification_answer and not (state.clarification_needed and args.interactive):
-        state = stage_apply_clarification(state)
-
-    # Continue with forecast and advice
-    state = await stage_forecast(state)
-    state = await stage_companion_advice(state, llm)
+    state = result.state
 
     if args.verbose:
         print("\n" + "═"*70)
