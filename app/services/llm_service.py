@@ -1,9 +1,11 @@
 """LLM Integration Service for T1D Conversational AI.
 
-Integrates with OpenAI GPT-4o-mini and Anthropic Claude 3.5 Haiku
-to provide natural language responses based on user's glucose data,
-patterns, and context. Includes RAG (Retrieval-Augmented Generation)
-for personalized responses.
+Integrates with OpenAI, Anthropic, OpenRouter, and other providers
+through a unified adapter interface. Provider adapters live in
+app/services/llm_adapters.py — each implements the same execute() seam.
+
+Uses RAG (Retrieval-Augmented Generation) to ground responses
+in the user's actual glucose data and patterns.
 """
 
 import asyncio
@@ -22,6 +24,14 @@ from app.core.security import decode_token
 from app.db.models import ContextEvent, Conversation, ConversationMessage, GlucoseReading, User
 from app.core.errors import SafetyViolationError
 from app.services.pattern_service import PatternService
+from app.services.llm_adapters import (
+    ProviderAdapter,
+    ProviderRegistry,
+    OpenAIAdapter,
+    AnthropicAdapter,
+    OpenRouterAdapter,
+    LLMResponse,
+)
 
 
 logger = logging.getLogger(__name__)
@@ -115,7 +125,7 @@ class LLMService:
         provider_pool: Optional[list[tuple[str, str]]] = None,
     ):
         """Initialize LLM service.
-        
+
         Args:
             provider: LLM provider (if None, uses config)
             api_key: API key (if None, uses env var)
@@ -124,16 +134,29 @@ class LLMService:
         """
         from app.config import get_settings
         config = get_settings()
-        
+
         if provider is None:
             provider = LLMProvider(config.llm_provider)
-        
+
         self.provider = provider
         self.api_key = api_key or config.openrouter_api_key
         self.model = model or config.llm_model or self._get_default_model()
         self.provider_pool = provider_pool if provider_pool is not None else config.parse_provider_pool()
         self.pattern_service = PatternService()
         self.logger = logging.getLogger(f"{__name__}.LLMService")
+
+        # Build provider registry from adapters
+        self._registry = ProviderRegistry()
+        openrouter_key = self._get_openrouter_key()
+        openai_key = self._get_openai_key()
+        anthropic_key = self._get_anthropic_key()
+        self._registry.register("openrouter", OpenRouterAdapter(openrouter_key))
+        self._registry.register("openai", OpenAIAdapter(openai_key))
+        self._registry.register("anthropic", AnthropicAdapter(anthropic_key))
+        # MiniMax, DeepSeek, etc. all route through OpenRouter
+        self._registry.register("minimax", OpenRouterAdapter(openrouter_key))
+        self._registry.register("deepseek", OpenRouterAdapter(openrouter_key))
+        self._registry.register("google", OpenRouterAdapter(openrouter_key))
     
     def _get_default_model(self) -> str:
         """Get default model for provider."""
@@ -710,222 +733,51 @@ Ready to help!"""
         return response
 
     async def _call_llm(self, messages: List[Dict], max_tokens: int, stream: bool) -> Dict[str, Any]:
-        """Call the LLM API.
-        
+        """Call the LLM API via the provider registry.
+
         Args:
             messages: List of message objects
             max_tokens: Maximum tokens to generate
             stream: Whether to stream response
-            
+
         Returns:
-            LLM response
+            LLM response dict
         """
-        if self.provider == LLMProvider.OPENAI:
-            key = self._get_openai_key()
-            if not key:
-                raise LLMServiceError("No OpenAI API key configured")
-            return await self._call_openai(messages, max_tokens, stream)
-        elif self.provider == LLMProvider.OPENROUTER:
-            key = self._get_openrouter_key()
-            if not key:
-                raise LLMServiceError("No OpenRouter API key configured")
-            return await self._call_openrouter(messages, max_tokens, stream)
-        elif self.provider == LLMProvider.MINIMAX:
-            key = self._get_openrouter_key()
-            if not key:
-                raise LLMServiceError("No OpenRouter API key configured")
-            return await self._call_minimax(messages, max_tokens, stream)
-        else:
-            key = self._get_anthropic_key()
-            if not key:
-                raise LLMServiceError("No Anthropic API key configured")
-            return await self._call_anthropic(messages, max_tokens, stream)
+        provider_name = self.provider.value
+        try:
+            adapter = self._registry.get(provider_name)
+        except KeyError:
+            raise LLMServiceError(f"No adapter registered for provider: {provider_name}")
+
+        try:
+            result = await adapter.execute(
+                messages=messages,
+                model=self.model,
+                max_tokens=max_tokens,
+                stream=stream,
+                api_key=self.api_key,
+            )
+            return result.to_dict()
+        except Exception as e:
+            self.logger.error(f"{provider_name} API error: {e}")
+            raise LLMServiceError(f"{provider_name} API error: {e}")
     
-    async def _call_openai(self, messages: List[Dict], max_tokens: int, stream: bool) -> Dict[str, Any]:
-        """Call OpenAI API."""
-        api_key = self.api_key or self._get_openai_key()
-        
-        async with httpx.AsyncClient(timeout=60.0) as client:
-            try:
-                response = await client.post(
-                    "https://api.openai.com/v1/chat/completions",
-                    headers={
-                        "Authorization": f"Bearer {api_key}",
-                        "Content-Type": "application/json",
-                    },
-                    json={
-                        "model": self.model,
-                        "messages": messages,
-                        "max_tokens": max_tokens,
-                        "temperature": 0.7,
-                        "stream": stream,
-                    },
-                )
-                response.raise_for_status()
-                data = response.json()
-                
-                content = data["choices"][0]["message"]["content"]
-                tokens = data["usage"]["total_tokens"]
-                
-                return {
-                    "response": content,
-                    "tokens_used": tokens,
-                    "model": self.model,
-                    "provider": "openai",
-                    "streamed": stream,
-                    "safety_flagged": False,
-                }
-                
-            except httpx.HTTPStatusError as e:
-                self.logger.error(f"OpenAI API error: {e.response.text}")
-                raise LLMServiceError(f"OpenAI API error: {e.response.text}")
-    
-    async def _call_anthropic(self, messages: List[Dict], max_tokens: int, stream: bool) -> Dict[str, Any]:
-        """Call Anthropic API."""
-        api_key = self.api_key or self._get_anthropic_key()
-        
-        # Convert OpenAI-style messages to Anthropic format
-        system_message = None
-        formatted_messages = []
-        
-        for msg in messages:
-            if msg["role"] == "system":
-                system_message = msg["content"]
-            else:
-                formatted_messages.append({
-                    "role": msg["role"],
-                    "content": msg["content"],
-                })
-        
-        async with httpx.AsyncClient(timeout=60.0) as client:
-            try:
-                payload = {
-                    "model": self.model,
-                    "max_tokens": max_tokens,
-                    "messages": formatted_messages,
-                    "temperature": 0.7,
-                }
-                
-                if system_message:
-                    payload["system"] = system_message
-                
-                response = await client.post(
-                    "https://api.anthropic.com/v1/messages",
-                    headers={
-                        "x-api-key": api_key,
-                        "anthropic-version": "2023-06-01",
-                        "Content-Type": "application/json",
-                    },
-                    json=payload,
-                )
-                response.raise_for_status()
-                data = response.json()
-                
-                content = data["content"][0]["text"]
-                tokens = data["usage"]["input_tokens"] + data["usage"]["output_tokens"]
-                
-                return {
-                    "response": content,
-                    "tokens_used": tokens,
-                    "model": self.model,
-                    "provider": "anthropic",
-                    "streamed": False,
-                    "safety_flagged": False,
-                }
-                
-            except httpx.HTTPStatusError as e:
-                self.logger.error(f"Anthropic API error: {e}")
-                raise LLMServiceError(f"Anthropic API error: {str(e)}")
-    
-    async def _call_openrouter(self, messages: List[Dict], max_tokens: int, stream: bool) -> Dict[str, Any]:
-        """Call OpenRouter API for unified access to multiple models.
-        
-        OpenRouter provides access to GPT-4o, Claude 3.5, and many other
-        models through a single API with unified pricing.
-        """
-        api_key = self.api_key or self._get_openrouter_key()
-        
-        # OpenRouter uses same format as OpenAI
-        async with httpx.AsyncClient(timeout=60.0) as client:
-            try:
-                response = await client.post(
-                    "https://openrouter.ai/api/v1/chat/completions",
-                    headers={
-                        "Authorization": f"Bearer {api_key}",
-                        "Content-Type": "application/json",
-                        "HTTP-Referer": "https://github.com/ruskibeats/t1d",
-                    },
-                    json={
-                        "model": self.model,
-                        "messages": messages,
-                        "max_tokens": max_tokens,
-                        "temperature": 0.7,
-                        "stream": stream,
-                    },
-                )
-                response.raise_for_status()
-                data = response.json()
-                
-                content = data["choices"][0]["message"]["content"]
-                tokens = data["usage"]["total_tokens"]
-                
-                return {
-                    "response": content,
-                    "tokens_used": tokens,
-                    "model": self.model,
-                    "provider": "openrouter",
-                    "streamed": stream,
-                    "safety_flagged": False,
-                }
-                
-            except httpx.HTTPStatusError as e:
-                self.logger.error(f"OpenRouter API error: {e.response.text}")
-                raise LLMServiceError(f"OpenRouter API error: {e.response.text}")
-    
-    async def _call_minimax(self, messages: List[Dict], max_tokens: int, stream: bool) -> Dict[str, Any]:
-        """Call MiniMax API via OpenRouter (free tier).
-        
-        MiniMax M2.5 is a strong open-weight model available
-        at no cost through OpenRouter.
-        """
-        api_key = self.api_key or self._get_openrouter_key()
-        
-        async with httpx.AsyncClient(timeout=60.0) as client:
-            try:
-                response = await client.post(
-                    "https://openrouter.ai/api/v1/chat/completions",
-                    headers={
-                        "Authorization": f"Bearer {api_key}",
-                        "Content-Type": "application/json",
-                        "HTTP-Referer": "https://github.com/ruskibeats/t1d",
-                    },
-                    json={
-                        "model": self.model,
-                        "messages": messages,
-                        "max_tokens": max_tokens,
-                        "temperature": 0.7,
-                        "stream": stream,
-                    },
-                )
-                response.raise_for_status()
-                data = response.json()
-                
-                content = data["choices"][0]["message"]["content"]
-                tokens = data["usage"]["total_tokens"]
-                
-                return {
-                    "response": content,
-                    "tokens_used": tokens,
-                    "model": self.model,
-                    "provider": "minimax",
-                    "streamed": stream,
-                    "safety_flagged": False,
-                }
-                
-            except httpx.HTTPStatusError as e:
-                self.logger.error(f"MiniMax API error: {e.response.text}")
-                raise LLMServiceError(f"MiniMax API error: {e.response.text}")
-    
+    # Legacy adapter methods kept for backward compatibility.
+    # These delegate to the new adapter registry and can be removed
+    # once all callers use _call_llm directly.
+
+    async def _call_openai(self, messages, max_tokens, stream=False):
+        return await self._call_llm(messages, max_tokens, stream)
+
+    async def _call_anthropic(self, messages, max_tokens, stream=False):
+        return await self._call_llm(messages, max_tokens, stream)
+
+    async def _call_openrouter(self, messages, max_tokens, stream=False):
+        return await self._call_llm(messages, max_tokens, stream)
+
+    async def _call_minimax(self, messages, max_tokens, stream=False):
+        return await self._call_llm(messages, max_tokens, stream)
+
     # -------------------------------------------------------------------
     # Helper Methods
     # -------------------------------------------------------------------
