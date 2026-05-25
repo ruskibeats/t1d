@@ -101,8 +101,12 @@ Each stage is a pure function: `stage(input_state) → output_state`. The `Compa
 - **testability:** test `PipelineRunner` with mock stages, no DB or LLM needed
 - **leverage:** add/remove/reorder stages without changing orchestration code
 
-## Top Recommendation
+## Top Recommendation for Next
 
-**Candidate 1: LLM Service — Provider-Agnostic Adapter Seam**
+**Candidate 5: Pipeline Runner — Declarative Stage Graph**
 
-This is the strongest candidate because the interface change is well-bounded, the duplication is obvious, and the locality gains are immediate. The other candidates (LLMCapture, ForecastStage, FoodSearch facade) all depend on or benefit from having a clean LLM adapter seam first. Starting here creates a clean adapter seam that the LLMCapture module can target, rather than the current mix of direct `_call_llm` calls threaded through closures.
+Now that the provider adapters, LLMCapture, ForecastStage, and FoodSearch are all cleanly encapsulated, the next highest-leverage deepening is making the pipeline itself declarative. Currently `run_companion_pipeline` mixes LLM client creation, stage sequencing, and the interactive clarification loop. A data-driven stage graph would:
+- Make the stage order visible in one data structure
+- Enable dependency injection (stages declare `needs_llm=True`)
+- Wrap `db_lookup` in a `ClarificationWrapper` stage instead of inline if/else
+- Allow testing `PipelineRunner` with mock stages (no DB or LLM needed)
