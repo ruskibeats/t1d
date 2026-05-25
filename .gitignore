@@ -62,3 +62,15 @@ test-results/
 AGENTS.md
 .agent/
 .agents/
+
+# Large data files - not for git
+*.zip
+hupaucm/
+data/ohio-t1dm/
+data/hupa-ucm/
+
+# Large data files - not for git
+*.zip
+hupaucm/
+data/ohio-t1dm/
+data/hupa-ucm/
