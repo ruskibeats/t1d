@@ -61,6 +61,12 @@ class PatternService:
     OVERNIGHT_END = 6         # 6 AM
     EXERCISE_WINDOW = 12      # Hours after exercise to monitor
     
+    # ── TIR cache ──
+    # In-memory cache keyed by (user_id, start_date, end_date)
+    # TTL: 10 minutes (matches knowledge base strategy)
+    _tir_cache: dict = {}
+    _TIR_CACHE_TTL_SECONDS = 600
+    
     def __init__(self):
         """Initialize pattern service."""
         self.logger = logging.getLogger(f"{__name__}.PatternService")
@@ -78,6 +84,10 @@ class PatternService:
     ) -> Dict[str, Any]:
         """Calculate time-in-range statistics for glucose readings.
         
+        Results are cached in-memory for {self._TIR_CACHE_TTL_SECONDS}s per
+        (user_id, date_range) pair to avoid recomputing TIR on every
+        chat message (knowledge base: 10-min cache strategy).
+        
         Args:
             session: Database session
             user_id: ID of the user
@@ -87,6 +97,19 @@ class PatternService:
         Returns:
             Dictionary with TIR statistics
         """
+        # Check cache
+        cache_key = (user_id, start_date.date(), end_date.date())
+        cached = self._tir_cache.get(cache_key)
+        if cached is not None:
+            age = (datetime.now(timezone.utc) - cached["_cached_at"]).total_seconds()
+            if age < self._TIR_CACHE_TTL_SECONDS:
+                self.logger.debug(f"TIR cache hit for user {user_id} ({age:.0f}s old)")
+                return cached["result"]
+            else:
+                del self._tir_cache[cache_key]
+        
+        self.logger.debug(f"TIR cache miss for user {user_id}, computing...")
+        
         # Get all glucose readings in range
         result = await session.execute(
             select(GlucoseReading)
@@ -135,7 +158,7 @@ class PatternService:
         # Glucose variability (coefficient of variation)
         cv = (std_dev / avg_glucose * 100) if avg_glucose > 0 else 0
         
-        return {
+        result = {
             "period": {
                 "start": start_date,
                 "end": end_date,
@@ -169,6 +192,9 @@ class PatternService:
             "estimated_a1c": estimated_a1c,
             "grade": self._calculate_grade(pct_in_range, pct_below),
         }
+        # Cache result
+        self._tir_cache[cache_key] = {"result": result, "_cached_at": datetime.now(timezone.utc)}
+        return result
     
     def _calculate_grade(self, pct_in_range: float, pct_below: float) -> str:
         """Calculate overall glucose control grade.

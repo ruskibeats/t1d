@@ -16,6 +16,7 @@ from pydantic import BaseModel, Field
 
 from app.core.database import AsyncSession
 from app.db.models import GlucoseReading, User
+from app.services.glucose_converter import to_mmol, format_glucose
 
 
 logger = logging.getLogger(__name__)
@@ -217,7 +218,13 @@ class NightscoutService:
             max_count=1,
         )
         return readings[0] if readings else None
-    
+
+    def display_glucose(self, reading: NightscoutGlucoseReading | None, unit: str = "mmol/L") -> str:
+        """Format a glucose reading in the user's preferred units."""
+        if not reading:
+            return "N/A"
+        return format_glucose(float(reading.sgv), unit)
+
     # -------------------------------------------------------------------
     # Data Ingestion
     # -------------------------------------------------------------------

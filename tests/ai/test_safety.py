@@ -304,6 +304,52 @@ def test_validate_mixed_case_keywords():
     assert result["is_safe"] is False
 
 
+def test_config_loaded_from_file():
+    """SafetyScaffold should load keywords from safety_config.json."""
+    from app.ai.safety import _load_config
+
+    config = _load_config()
+
+    assert "diabetes_emergency" in config["emergency_keywords"]
+    assert "mental_health_crisis" in config["emergency_keywords"]
+    assert "general_medical" in config["emergency_keywords"]
+    assert "diabetes_emergency" in config["guardrails"]
+    assert "mental_health_crisis" in config["guardrails"]
+    assert "general_medical" in config["guardrails"]
+    assert len(config["dosing_patterns"]) >= 3
+    assert len(config["treatment_patterns"]) >= 1
+    assert len(config["emergency_keywords"]["diabetes_emergency"]) >= 5
+    assert len(config["emergency_keywords"]["mental_health_crisis"]) >= 5
+    assert len(config["emergency_keywords"]["general_medical"]) >= 5
+
+    scaffold = SafetyScaffold()
+    assert scaffold._config is not None
+    assert len(scaffold._diabetes_emergency_keywords) >= 5
+    assert len(scaffold._dosing_patterns) >= 3
+
+
+def test_config_fallback_when_file_missing():
+    """When config file is unreadable, _load_config should return defaults."""
+    import app.ai.safety as safety_module
+    from pathlib import Path
+    from app.ai.safety import SafetyScaffold, _load_config
+
+    original_paths = list(safety_module._CONFIG_PATHS)
+    try:
+        safety_module._CONFIG_PATHS = [Path("/nonexistent/path.json")]
+        config = _load_config()
+        assert "emergency_keywords" in config
+        assert "guardrails" in config
+        assert "dosing_patterns" in config
+        assert "treatment_patterns" in config
+        assert len(config["emergency_keywords"]["diabetes_emergency"]) >= 5
+
+        scaffold = SafetyScaffold()
+        assert scaffold.validate("severe low", {"source": "user"})["is_safe"] is False
+    finally:
+        safety_module._CONFIG_PATHS = original_paths
+
+
 def test_validate_multiple_conditions():
     """Test content that matches multiple condition categories."""
     scaffold = SafetyScaffold()

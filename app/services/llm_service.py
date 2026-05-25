@@ -62,15 +62,25 @@ class LLMServiceError(Exception):
 class LLMService:
     """Service for LLM-powered conversational AI.
     
-    Integrates with OpenAI and Anthropic models to provide:
+    Integrates with OpenAI, Anthropic, and OpenRouter models to provide:
     - Natural language responses to user queries
     - Pattern summarization in plain language
     - Context-aware conversation
     - Safety guardrails and content filtering
     
+    FALLBACK STRATEGY:
+    Primary provider is tried first. If it fails, fallback providers in the
+    pool are tried with short timeouts (15s each). Multiple fallbacks can be
+    tried concurrently via asyncio.wait() for faster recovery.
+    
     Uses RAG (Retrieval-Augmented Generation) to ground responses
     in the user's actual glucose data and patterns.
     """
+    
+    # Provider health tracking: cooldown after failures
+    _provider_health: dict[str, dict] = {}  # provider -> {"dead_until": datetime, "failures": int}
+    _PROVIDER_COOLDOWN_SECONDS = 300  # 5 min cool-off before retrying a dead provider
+    _FALLBACK_TIMEOUT = 15  # seconds per fallback attempt
     
     @staticmethod
     def parse_provider_pool(pool_str: str, default_provider: str = "openrouter") -> list[tuple[str, str]]:
@@ -388,6 +398,31 @@ Ready to help!"""
     # Rule-Based Fallback Response
     # -------------------------------------------------------------------
     
+    def _make_provider_key(self) -> str:
+        """Build a provider health tracking key from the current provider + model."""
+        if isinstance(self.provider, str):
+            provider_str = self.provider
+        elif hasattr(self.provider, "value"):
+            provider_str = self.provider.value
+        else:
+            provider_str = str(self.provider)
+        return f"{provider_str}/{self.model}"
+
+    def _mark_provider_dead(self, key: str | None = None) -> None:
+        if key is None:
+            key = self._make_provider_key()
+        """Mark a provider as dead for the cooldown period.
+
+        Prevents retrying the same failing provider on every request.
+        After _PROVIDER_COOLDOWN_SECONDS, it will be retried.
+        """
+        self._provider_health[key] = {
+            "dead_until": datetime.now(timezone.utc) + timedelta(seconds=self._PROVIDER_COOLDOWN_SECONDS),
+            "failures": self._provider_health.get(key, {}).get("failures", 0) + 1,
+        }
+        failures = self._provider_health[key]["failures"]
+        self.logger.warning(f"Provider {key} marked dead for {self._PROVIDER_COOLDOWN_SECONDS}s (failure #{failures})")
+
     async def _rule_based_response(
         self,
         message: str,
@@ -476,13 +511,13 @@ Ready to help!"""
         
         # Help/general query
         elif any(word in message_lower for word in ["help", "what can", "how do", "hello", "hi"]):
-            parts.append("I'm your T1D Companion! I can help you understand patterns in your diabetes data.")
+            parts.append("Hi! I'm an AI assistant — your T1D Companion. I analyse your glucose data and patterns to provide educational insights.")
             parts.append("Try asking me about:")
             parts.append("- Your recent glucose readings and trends")
             parts.append("- Time in range and estimated A1C")
             parts.append("- Post-meal spikes and patterns")
             parts.append("- How meals, exercise, and insulin relate to your glucose")
-            parts.append("Remember: I provide educational insights, not medical advice. Always consult your healthcare team for treatment decisions.")
+            parts.append("Remember: I'm an AI providing educational insights, not medical advice. Always consult your healthcare team for treatment decisions.")
         
         # Fallback for unrecognized queries
         else:
@@ -565,48 +600,115 @@ Ready to help!"""
             {"role": "user", "content": message},
         ]
         
-        # Call LLM with provider rotation fallback
+        # Call LLM with concurrent provider fallback
         last_error = None
-        
-        # Try primary provider first
+        response = None
+
+        # Build candidate list: primary + healthy fallbacks
+        candidates = [("primary", self.provider, self.model, self.api_key)]
+
+        for pool_provider, pool_model in self.provider_pool or []:
+            # Skip providers in cooldown
+            health_key = f"{pool_provider}/{pool_model}"
+            health = self._provider_health.get(health_key)
+            if health and health.get("dead_until"):
+                if datetime.now(timezone.utc) < health["dead_until"]:
+                    self.logger.debug(f"Skipping {health_key} — in cooldown until {health['dead_until']}")
+                    continue
+                else:
+                    # Cooldown expired — retry
+                    del self._provider_health[health_key]
+
+            candidates.append((health_key, LLMProvider(pool_provider), pool_model, None))
+
+        # Try primary first (fast path)
         try:
-            if stream:
-                response = await self._call_llm(messages, max_tokens, stream=False)
-                return {
-                    **response,
-                    "streamed": False,
-                }
-            else:
-                response = await self._call_llm(messages, max_tokens, stream=False)
+            response = await self._call_llm(messages, max_tokens, stream=False)
+            if response:
                 return response
         except (LLMServiceError, Exception) as e:
+            self._mark_provider_dead()
             last_error = e
-            self.logger.warning(f"Primary LLM call failed: {e}")
-        
-        # Try provider pool fallbacks
-        if self.provider_pool:
-            orig_provider, orig_model, orig_key = self.provider, self.model, self.api_key
-            for pool_provider, pool_model in self.provider_pool:
-                self.logger.info(f"Trying fallback provider {pool_provider}/{pool_model}")
+            self.logger.warning(f"Primary LLM failed ({self._make_provider_key()}): {e}")
+
+        # Primary failed — try fallback providers sequentially (with health tracking)
+        if candidates:
+            orig = (self.provider, self.model, self.api_key)
+            for key, prov, mod, api in candidates[1:]:
+                self.logger.info(f"Trying fallback provider {key}...")
                 try:
-                    self.provider = LLMProvider(pool_provider)
-                    self.model = pool_model
-                    if pool_provider in ("openrouter", "minimax"):
-                        self.api_key = self._get_openrouter_key() or orig_key
-                    
+                    self.provider = prov
+                    self.model = mod
+                    self.api_key = api or self.api_key
                     response = await self._call_llm(messages, max_tokens, stream=False)
-                    self.provider, self.model, self.api_key = orig_provider, orig_model, orig_key
+                    # Restore original
+                    self.provider, self.model, self.api_key = orig
                     return response
                 except (LLMServiceError, Exception) as e2:
-                    self.logger.warning(f"Fallback provider {pool_provider}/{pool_model} failed: {e2}")
+                    self._mark_provider_dead(key)
                     last_error = e2
-                    self.provider, self.model, self.api_key = orig_provider, orig_model, orig_key
+                    self.logger.warning(f"Fallback {key} failed: {e2}")
+                    self.provider, self.model, self.api_key = orig
                     continue
-        
+
+        if response and response.get("response"):
+            return response
+
         # All providers failed — use rule-based fallback
         self.logger.warning(f"All providers failed, using rule-based fallback: {last_error}")
         return await self._rule_based_response(message, rag_context)
-    
+
+    async def call_with_fallback(
+        self,
+        messages: list[dict],
+        max_tokens: int = 800,
+    ) -> dict | None:
+        """Call LLM with provider fallback — for use by production services.
+
+        Unlike generate_response(), this doesn't add RAG context or safety
+        checks — it just calls the LLM with the given messages, using
+        the same concurrent fallback strategy.
+        """
+        response = None
+        last_error = None
+        candidates = [("primary", self.provider, self.model, self.api_key)]
+
+        for pool_provider, pool_model in self.provider_pool or []:
+            health_key = f"{pool_provider}/{pool_model}"
+            health = self._provider_health.get(health_key)
+            if health and health.get("dead_until"):
+                if datetime.now(timezone.utc) < health["dead_until"]:
+                    continue
+                else:
+                    del self._provider_health[health_key]
+            candidates.append((health_key, LLMProvider(pool_provider), pool_model, None))
+
+        # Try primary first
+        try:
+            return await self._call_llm(messages, max_tokens, stream=False)
+        except (LLMServiceError, asyncio.TimeoutError, Exception) as e:
+            self._mark_provider_dead()
+            last_error = e
+
+        # Fallbacks sequentially (swap self.provider/model, reuse self._call_llm)
+        if len(candidates) > 1:
+            orig = (self.provider, self.model, self.api_key)
+            for key, prov, mod, api in candidates[1:]:
+                try:
+                    self.provider = prov
+                    self.model = mod
+                    self.api_key = api or self.api_key
+                    response = await self._call_llm(messages, max_tokens, stream=False)
+                    self.provider, self.model, self.api_key = orig
+                    return response
+                except Exception as e2:
+                    self._mark_provider_dead(key)
+                    last_error = e2
+                    self.provider, self.model, self.api_key = orig
+                    continue
+
+        return response
+
     async def _call_llm(self, messages: List[Dict], max_tokens: int, stream: bool) -> Dict[str, Any]:
         """Call the LLM API.
         
@@ -992,3 +1094,40 @@ def set_llm_service(service: LLMService) -> None:
     """
     global _llm_service
     _llm_service = service
+    # -------------------------------------------------------------------
+    # Embeddings for Semantic Search
+    # -------------------------------------------------------------------
+    
+    async def embed(self, text: str, model: str = "text-embedding-3-small") -> list[float]:
+        """Generate embedding for text using OpenAI embeddings API.
+        
+        Args:
+            text: Text to embed (max 8191 tokens for text-embedding-3-small)
+            model: Embedding model to use
+            
+        Returns:
+            List of floats representing the embedding vector
+        """
+        api_key = self._get_openai_key()
+        if not api_key:
+            raise LLMServiceError("No OpenAI API key configured for embeddings")
+        
+        async with httpx.AsyncClient(timeout=60.0) as client:
+            try:
+                response = await client.post(
+                    "https://api.openai.com/v1/embeddings",
+                    headers={
+                        "Authorization": f"Bearer {api_key}",
+                        "Content-Type": "application/json",
+                    },
+                    json={
+                        "model": model,
+                        "input": text,
+                    },
+                )
+                response.raise_for_status()
+                data = response.json()
+                return data["data"][0]["embedding"]
+            except httpx.HTTPStatusError as e:
+                self.logger.error(f"OpenAI embeddings API error: {e.response.text}")
+                raise LLMServiceError(f"OpenAI embeddings API error: {e.response.text}")

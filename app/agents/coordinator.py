@@ -175,23 +175,23 @@ class AgentCoordinator:
                 response["safety_flagged"] = True
                 response["post_safety_result"] = post_safety
             else:
-                # Disclaimer enforcement: ensure long responses include educational disclaimer
-                DISCLAIMERS = [
+                # Disclaimer enforcement: ensure responses include educational disclaimer
+                # Uses exact language from safety framework (see SKILL.md)
+                CANONICAL_DISCLAIMER = (
+                    "This application provides educational insights based on your data. "
+                    "It does not diagnose, treat, or prescribe. Always consult your "
+                    "healthcare provider before making treatment decisions."
+                )
+                DISCLAIMER_TRIGGERS = [
                     "educational insight",
-                    "educational information",
                     "not medical advice",
-                    "consider discussing",
                     "consult your health",
-                    "consult your diabetes",
-                    "discuss with your",
+                    "consult your healthcare",
+                    "always consult",
                 ]
-                if len(response_text) > 200 and not any(
-                    d in response_text.lower() for d in DISCLAIMERS
-                ):
+                if not any(d in response_text.lower() for d in DISCLAIMER_TRIGGERS):
                     response["response"] = response_text.rstrip() + (
-                        "\n\n---\n"
-                        "*This is educational information, not medical advice. "
-                        "Consider discussing these patterns with your healthcare team.*"
+                        f"\n\n---\n*{CANONICAL_DISCLAIMER}*"
                     )
                     response["disclaimer_appended"] = True
 

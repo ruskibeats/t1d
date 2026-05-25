@@ -1,0 +1,33 @@
+{
+  "global_kill_switch": false,
+  "simulator_only_mode": true,
+  "cohort_rollout": {
+    "control": {
+      "enabled": true,
+      "weight": 0.5
+    },
+    "treatment_a": {
+      "enabled": true,
+      "weight": 0.3
+    },
+    "treatment_b": {
+      "enabled": false,
+      "weight": 0.2
+    }
+  },
+  "feature_flags": {
+    "confidence_scoring": true,
+    "graph_rag": true,
+    "safety_validators": true,
+    "temporal_analysis": true
+  },
+  "audit_log": {
+    "last_updated": "2026-05-23",
+    "version": "2.0",
+    "changes": [
+      "Added confidence scoring",
+      "Added temporal analysis",
+      "Added safety flags"
+    ]
+  }
+}

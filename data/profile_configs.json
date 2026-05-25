@@ -1,0 +1,326 @@
+{
+  "well_controlled": {
+    "carb_ratio": 15.89,
+    "insulin_sensitivity": 39.46,
+    "fat_delay_hours": 2.06,
+    "patient_config": {
+      "basal_glucose_mean": 112.8,
+      "basal_glucose_amplitude": 10.2,
+      "meal_rise_factor": 2.0,
+      "insulin_sensitivity": 39.46,
+      "carb_ratio": 15.89,
+      "hypo_risk": 0.06,
+      "noise_sd": 9.46,
+      "exercise_drop_factor": 1.09,
+      "dawn_effect_strength": 2.11,
+      "fat_delay_hours": 2.06,
+      "variability_cv": 17.19
+    },
+    "profile": {
+      "anchor_type": "well_controlled",
+      "anchor_label": "Well-Controlled",
+      "description": "Stable glucose with good time-in-range, minimal extremes.",
+      "estimated_tir": 62.9,
+      "estimated_a1c": 6.3,
+      "estimated_hypo_frequency": "low",
+      "variability_category": "low"
+    }
+  },
+  "brittle": {
+    "carb_ratio": 10.16,
+    "insulin_sensitivity": 19.46,
+    "fat_delay_hours": 3.12,
+    "patient_config": {
+      "basal_glucose_mean": 125.6,
+      "basal_glucose_amplitude": 25.4,
+      "meal_rise_factor": 3.5,
+      "insulin_sensitivity": 19.46,
+      "carb_ratio": 10.16,
+      "hypo_risk": 0.32,
+      "noise_sd": 26.6,
+      "exercise_drop_factor": 2.22,
+      "dawn_effect_strength": 25.55,
+      "fat_delay_hours": 3.12,
+      "variability_cv": 39.37
+    },
+    "profile": {
+      "anchor_type": "brittle",
+      "anchor_label": "Brittle / Erratic",
+      "description": "High glycemic variability with unpredictable swings and frequent extremes.",
+      "estimated_tir": 45.1,
+      "estimated_a1c": 7.5,
+      "estimated_hypo_frequency": "high",
+      "variability_category": "high"
+    }
+  },
+  "dawn_phenomenon": {
+    "carb_ratio": 15.89,
+    "insulin_sensitivity": 34.46,
+    "fat_delay_hours": 2.06,
+    "patient_config": {
+      "basal_glucose_mean": 119.2,
+      "basal_glucose_amplitude": 10.2,
+      "meal_rise_factor": 4.0,
+      "insulin_sensitivity": 34.46,
+      "carb_ratio": 15.89,
+      "hypo_risk": 0.08,
+      "noise_sd": 9.46,
+      "exercise_drop_factor": 1.09,
+      "dawn_effect_strength": 40.55,
+      "fat_delay_hours": 2.06,
+      "variability_cv": 22.19
+    },
+    "profile": {
+      "anchor_type": "dawn_phenomenon",
+      "anchor_label": "Dawn Phenomenon",
+      "description": "Significant early-morning glucose rise requiring elevated basal rates overnight.",
+      "estimated_tir": 53.2,
+      "estimated_a1c": 7.6,
+      "estimated_hypo_frequency": "low",
+      "variability_category": "low"
+    }
+  },
+  "post_meal_spike": {
+    "carb_ratio": 13.16,
+    "insulin_sensitivity": 29.46,
+    "fat_delay_hours": 2.06,
+    "patient_config": {
+      "basal_glucose_mean": 125.6,
+      "basal_glucose_amplitude": 10.2,
+      "meal_rise_factor": 4.5,
+      "insulin_sensitivity": 29.46,
+      "carb_ratio": 13.16,
+      "hypo_risk": 0.09,
+      "noise_sd": 9.46,
+      "exercise_drop_factor": 1.13,
+      "dawn_effect_strength": 9.22,
+      "fat_delay_hours": 2.06,
+      "variability_cv": 22.19
+    },
+    "profile": {
+      "anchor_type": "post_meal_spike",
+      "anchor_label": "Post-Meal Spike Dominant",
+      "description": "Pronounced glucose rises after meals, especially high-carb meals.",
+      "estimated_tir": 59.2,
+      "estimated_a1c": 7.7,
+      "estimated_hypo_frequency": "low",
+      "variability_category": "low"
+    }
+  },
+  "overnight_hypo": {
+    "carb_ratio": 22.36,
+    "insulin_sensitivity": 46.7,
+    "fat_delay_hours": 2.06,
+    "patient_config": {
+      "basal_glucose_mean": 119.2,
+      "basal_glucose_amplitude": 5.2,
+      "meal_rise_factor": 2.5,
+      "insulin_sensitivity": 46.7,
+      "carb_ratio": 22.36,
+      "hypo_risk": 0.42,
+      "noise_sd": 9.46,
+      "exercise_drop_factor": 2.17,
+      "dawn_effect_strength": 9.22,
+      "fat_delay_hours": 2.06,
+      "variability_cv": 22.19
+    },
+    "profile": {
+      "anchor_type": "overnight_hypo",
+      "anchor_label": "Overnight Hypo Prone",
+      "description": "Frequent nocturnal hypoglycemia with extended low periods during sleep.",
+      "estimated_tir": 51.0,
+      "estimated_a1c": 6.7,
+      "estimated_hypo_frequency": "high",
+      "variability_category": "low"
+    }
+  },
+  "exercise_sensitive": {
+    "carb_ratio": 15.89,
+    "insulin_sensitivity": 34.46,
+    "fat_delay_hours": 2.06,
+    "patient_config": {
+      "basal_glucose_mean": 119.2,
+      "basal_glucose_amplitude": 10.2,
+      "meal_rise_factor": 3.5,
+      "insulin_sensitivity": 34.46,
+      "carb_ratio": 15.89,
+      "hypo_risk": 0.12,
+      "noise_sd": 9.46,
+      "exercise_drop_factor": 3.17,
+      "dawn_effect_strength": 9.22,
+      "fat_delay_hours": 2.06,
+      "variability_cv": 20.19
+    },
+    "profile": {
+      "anchor_type": "exercise_sensitive",
+      "anchor_label": "Exercise Sensitive",
+      "description": "Dramatic glucose drops during and after physical activity.",
+      "estimated_tir": 59.1,
+      "estimated_a1c": 7.1,
+      "estimated_hypo_frequency": "moderate",
+      "variability_category": "low"
+    }
+  },
+  "high_fat_delayed": {
+    "carb_ratio": 13.89,
+    "insulin_sensitivity": 29.46,
+    "fat_delay_hours": 4.12,
+    "patient_config": {
+      "basal_glucose_mean": 119.2,
+      "basal_glucose_amplitude": 10.2,
+      "meal_rise_factor": 4.5,
+      "insulin_sensitivity": 29.46,
+      "carb_ratio": 13.89,
+      "hypo_risk": 0.08,
+      "noise_sd": 9.46,
+      "exercise_drop_factor": 1.13,
+      "dawn_effect_strength": 9.22,
+      "fat_delay_hours": 4.12,
+      "variability_cv": 22.19
+    },
+    "profile": {
+      "anchor_type": "high_fat_delayed",
+      "anchor_label": "High-Fat Delayed Spike",
+      "description": "Delayed glucose peaks 4-8 hours after high-fat meals.",
+      "estimated_tir": 59.5,
+      "estimated_a1c": 7.4,
+      "estimated_hypo_frequency": "low",
+      "variability_category": "low"
+    }
+  },
+  "insulin_sensitive": {
+    "carb_ratio": 25.36,
+    "insulin_sensitivity": 56.7,
+    "fat_delay_hours": 2.03,
+    "patient_config": {
+      "basal_glucose_mean": 109.2,
+      "basal_glucose_amplitude": 8.2,
+      "meal_rise_factor": 3.5,
+      "insulin_sensitivity": 56.7,
+      "carb_ratio": 25.36,
+      "hypo_risk": 0.2,
+      "noise_sd": 7.57,
+      "exercise_drop_factor": 2.17,
+      "dawn_effect_strength": 3.38,
+      "fat_delay_hours": 2.03,
+      "variability_cv": 15.75
+    },
+    "profile": {
+      "anchor_type": "insulin_sensitive",
+      "anchor_label": "Insulin Sensitive",
+      "description": "Very responsive to small insulin doses with risk of over-correction.",
+      "estimated_tir": 59.6,
+      "estimated_a1c": 6.7,
+      "estimated_hypo_frequency": "moderate",
+      "variability_category": "low"
+    }
+  },
+  "insulin_resistant": {
+    "carb_ratio": 8.68,
+    "insulin_sensitivity": 10.23,
+    "fat_delay_hours": 3.09,
+    "patient_config": {
+      "basal_glucose_mean": 165.6,
+      "basal_glucose_amplitude": 15.2,
+      "meal_rise_factor": 4.5,
+      "insulin_sensitivity": 10.23,
+      "carb_ratio": 8.68,
+      "hypo_risk": 0.06,
+      "noise_sd": 14.25,
+      "exercise_drop_factor": 0.59,
+      "dawn_effect_strength": 16.33,
+      "fat_delay_hours": 3.09,
+      "variability_cv": 24.84
+    },
+    "profile": {
+      "anchor_type": "insulin_resistant",
+      "anchor_label": "Insulin Resistant",
+      "description": "Requires high insulin doses with blunted post-meal response.",
+      "estimated_tir": 37.8,
+      "estimated_a1c": 9.1,
+      "estimated_hypo_frequency": "low",
+      "variability_category": "low"
+    }
+  },
+  "high_variability": {
+    "carb_ratio": 16.84,
+    "insulin_sensitivity": 26.7,
+    "fat_delay_hours": 2.12,
+    "patient_config": {
+      "basal_glucose_mean": 142.0,
+      "basal_glucose_amplitude": 20.4,
+      "meal_rise_factor": 5.0,
+      "insulin_sensitivity": 26.7,
+      "carb_ratio": 16.84,
+      "hypo_risk": 0.24,
+      "noise_sd": 26.6,
+      "exercise_drop_factor": 1.72,
+      "dawn_effect_strength": 20.55,
+      "fat_delay_hours": 2.12,
+      "variability_cv": 39.37
+    },
+    "profile": {
+      "anchor_type": "high_variability",
+      "anchor_label": "High Variability",
+      "description": "Unpredictable glucose swings across all time periods.",
+      "estimated_tir": 38.1,
+      "estimated_a1c": 8.5,
+      "estimated_hypo_frequency": "high",
+      "variability_category": "high"
+    }
+  },
+  "exercise_regimen": {
+    "carb_ratio": 19.36,
+    "insulin_sensitivity": 39.46,
+    "fat_delay_hours": 2.06,
+    "patient_config": {
+      "basal_glucose_mean": 109.2,
+      "basal_glucose_amplitude": 8.2,
+      "meal_rise_factor": 3.5,
+      "insulin_sensitivity": 39.46,
+      "carb_ratio": 19.36,
+      "hypo_risk": 0.1,
+      "noise_sd": 9.46,
+      "exercise_drop_factor": 1.63,
+      "dawn_effect_strength": 4.22,
+      "fat_delay_hours": 2.06,
+      "variability_cv": 17.19
+    },
+    "profile": {
+      "anchor_type": "exercise_regimen",
+      "anchor_label": "Exercise Regimen",
+      "description": "Well-controlled with consistent daily exercise routine.",
+      "estimated_tir": 61.5,
+      "estimated_a1c": 6.7,
+      "estimated_hypo_frequency": "low",
+      "variability_category": "low"
+    }
+  },
+  "newly_diagnosed": {
+    "carb_ratio": 10.16,
+    "insulin_sensitivity": 19.46,
+    "fat_delay_hours": 2.09,
+    "patient_config": {
+      "basal_glucose_mean": 135.6,
+      "basal_glucose_amplitude": 15.4,
+      "meal_rise_factor": 5.0,
+      "insulin_sensitivity": 19.46,
+      "carb_ratio": 10.16,
+      "hypo_risk": 0.2,
+      "noise_sd": 18.92,
+      "exercise_drop_factor": 1.17,
+      "dawn_effect_strength": 18.44,
+      "fat_delay_hours": 2.09,
+      "variability_cv": 31.72
+    },
+    "profile": {
+      "anchor_type": "newly_diagnosed",
+      "anchor_label": "Newly Diagnosed",
+      "description": "Higher average glucose, learning-phase variability, and inconsistent dosing.",
+      "estimated_tir": 51.8,
+      "estimated_a1c": 8.3,
+      "estimated_hypo_frequency": "moderate",
+      "variability_category": "moderate"
+    }
+  }
+}

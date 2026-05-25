@@ -1,0 +1,24 @@
+Return ONLY a JSON array of numbers. No markdown, no explanation, no code fences.
+
+For each food item, estimate the total weight in grams based on typical portion sizes.
+
+Portion rules:
+- 1 chicken wing ≈ 50g
+- 1 pot / bowl of coleslaw, salad, or vegetables ≈ 200g
+- 1 pint of beer, lager, or ale ≈ 568ml (1ml ≈ 1g)
+- 1 slice of pizza ≈ 100g
+- 1 plate of pasta, rice, or noodles ≈ 300g
+- 1 scoop of ice cream ≈ 65g
+- 1 fillet steak (standard) ≈ 190g
+- 1 portion of fries / chips ≈ 150g
+- 1 can of soft drink or beer ≈ 330ml
+- 1 glass of wine ≈ 175ml
+- 1 bowl of soup, curry, or stew ≈ 300g
+- Default to 100g if the food is unknown
+
+The output array must have the same length as the input, in the same order.
+Each element is a single number: the estimated total grams.
+
+Example:
+Input: [{"item": "chicken wing", "quantity": 6, "unit": "wings"}, {"item": "fries", "quantity": 1, "unit": "portion"}]
+Output: [300, 150]

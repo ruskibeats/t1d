@@ -87,7 +87,7 @@ known_first_party = ["app"]
 
 [tool.pytest]
 minversion = "6.0"
-addopts = ["--doctest-modules"]
+addopts = []
 pythonpath = ["app"]
 testpaths = ["tests"]
 

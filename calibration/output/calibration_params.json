@@ -1,0 +1,256 @@
+{
+  "features": {
+    "HUPA0001P": {
+      "tir_70_180": 0.565,
+      "overnight_low_rate": 0.037,
+      "postprandial_spike_rate": 0.33,
+      "variability_cv": 38.9,
+      "mean_glucose": 181.4,
+      "amplitude": 404.0,
+      "bolus_frequency_per_day": 5.3
+    },
+    "HUPA0002P": {
+      "tir_70_180": 0.615,
+      "overnight_low_rate": 0.294,
+      "postprandial_spike_rate": 0.117,
+      "variability_cv": 52.1,
+      "mean_glucose": 113.5,
+      "amplitude": 270.0,
+      "bolus_frequency_per_day": 4.6
+    },
+    "HUPA0003P": {
+      "tir_70_180": 0.677,
+      "overnight_low_rate": 0.178,
+      "postprandial_spike_rate": 0.186,
+      "variability_cv": 42.8,
+      "mean_glucose": 143.3,
+      "amplitude": 322.0,
+      "bolus_frequency_per_day": 8.3
+    },
+    "HUPA0004P": {
+      "tir_70_180": 0.448,
+      "overnight_low_rate": 0.177,
+      "postprandial_spike_rate": 0.371,
+      "variability_cv": 46.0,
+      "mean_glucose": 180.4,
+      "amplitude": 371.0,
+      "bolus_frequency_per_day": 4.1
+    },
+    "HUPA0005P": {
+      "tir_70_180": 0.718,
+      "overnight_low_rate": 0.051,
+      "postprandial_spike_rate": 0.136,
+      "variability_cv": 33.7,
+      "mean_glucose": 147.7,
+      "amplitude": 339.0,
+      "bolus_frequency_per_day": 5.0
+    },
+    "HUPA0006P": {
+      "tir_70_180": 0.56,
+      "overnight_low_rate": 0.176,
+      "postprandial_spike_rate": 0.297,
+      "variability_cv": 51.3,
+      "mean_glucose": 165.2,
+      "amplitude": 396.0,
+      "bolus_frequency_per_day": 5.8
+    },
+    "HUPA0007P": {
+      "tir_70_180": 0.459,
+      "overnight_low_rate": 0.211,
+      "postprandial_spike_rate": 0.372,
+      "variability_cv": 45.4,
+      "mean_glucose": 173.2,
+      "amplitude": 345.0,
+      "bolus_frequency_per_day": 6.6
+    },
+    "HUPA0009P": {
+      "tir_70_180": 0.414,
+      "overnight_low_rate": 0.0,
+      "postprandial_spike_rate": 0.455,
+      "variability_cv": 23.8,
+      "mean_glucose": 193.7,
+      "amplitude": 207.0,
+      "bolus_frequency_per_day": 5.0
+    },
+    "HUPA0010P": {
+      "tir_70_180": 0.748,
+      "overnight_low_rate": 0.164,
+      "postprandial_spike_rate": 0.12,
+      "variability_cv": 42.4,
+      "mean_glucose": 135.9,
+      "amplitude": 375.0,
+      "bolus_frequency_per_day": 7.5
+    },
+    "HUPA0011P": {
+      "tir_70_180": 0.651,
+      "overnight_low_rate": 0.006,
+      "postprandial_spike_rate": 0.227,
+      "variability_cv": 35.9,
+      "mean_glucose": 159.1,
+      "amplitude": 302.0,
+      "bolus_frequency_per_day": 0.0
+    },
+    "HUPA0014P": {
+      "tir_70_180": 0.441,
+      "overnight_low_rate": 0.032,
+      "postprandial_spike_rate": 0.422,
+      "variability_cv": 38.5,
+      "mean_glucose": 188.1,
+      "amplitude": 403.5,
+      "bolus_frequency_per_day": 3.1
+    },
+    "HUPA0015P": {
+      "tir_70_180": 0.587,
+      "overnight_low_rate": 0.032,
+      "postprandial_spike_rate": 0.298,
+      "variability_cv": 41.6,
+      "mean_glucose": 163.5,
+      "amplitude": 330.0,
+      "bolus_frequency_per_day": 0.0
+    },
+    "HUPA0016P": {
+      "tir_70_180": 0.518,
+      "overnight_low_rate": 0.214,
+      "postprandial_spike_rate": 0.271,
+      "variability_cv": 53.2,
+      "mean_glucose": 150.2,
+      "amplitude": 322.0,
+      "bolus_frequency_per_day": 6.8
+    },
+    "HUPA0017P": {
+      "tir_70_180": 0.357,
+      "overnight_low_rate": 0.0,
+      "postprandial_spike_rate": 0.535,
+      "variability_cv": 34.6,
+      "mean_glucose": 200.8,
+      "amplitude": 361.0,
+      "bolus_frequency_per_day": 2.0
+    },
+    "HUPA0018P": {
+      "tir_70_180": 0.513,
+      "overnight_low_rate": 0.072,
+      "postprandial_spike_rate": 0.228,
+      "variability_cv": 48.9,
+      "mean_glucose": 143.7,
+      "amplitude": 318.0,
+      "bolus_frequency_per_day": 0.0
+    },
+    "HUPA0019P": {
+      "tir_70_180": 0.624,
+      "overnight_low_rate": 0.036,
+      "postprandial_spike_rate": 0.248,
+      "variability_cv": 37.2,
+      "mean_glucose": 162.9,
+      "amplitude": 320.0,
+      "bolus_frequency_per_day": 3.9
+    },
+    "HUPA0020P": {
+      "tir_70_180": 0.448,
+      "overnight_low_rate": 0.012,
+      "postprandial_spike_rate": 0.444,
+      "variability_cv": 40.6,
+      "mean_glucose": 194.3,
+      "amplitude": 350.0,
+      "bolus_frequency_per_day": 0.7
+    },
+    "HUPA0021P": {
+      "tir_70_180": 0.75,
+      "overnight_low_rate": 0.045,
+      "postprandial_spike_rate": 0.111,
+      "variability_cv": 33.5,
+      "mean_glucose": 137.3,
+      "amplitude": 232.0,
+      "bolus_frequency_per_day": 2.8
+    },
+    "HUPA0022P": {
+      "tir_70_180": 0.789,
+      "overnight_low_rate": 0.221,
+      "postprandial_spike_rate": 0.021,
+      "variability_cv": 35.9,
+      "mean_glucose": 112.6,
+      "amplitude": 258.0,
+      "bolus_frequency_per_day": 7.4
+    },
+    "HUPA0023P": {
+      "tir_70_180": 0.793,
+      "overnight_low_rate": 0.026,
+      "postprandial_spike_rate": 0.064,
+      "variability_cv": 32.5,
+      "mean_glucose": 133.1,
+      "amplitude": 262.0,
+      "bolus_frequency_per_day": 2.9
+    },
+    "HUPA0024P": {
+      "tir_70_180": 0.484,
+      "overnight_low_rate": 0.134,
+      "postprandial_spike_rate": 0.332,
+      "variability_cv": 39.9,
+      "mean_glucose": 166.9,
+      "amplitude": 317.0,
+      "bolus_frequency_per_day": 2.1
+    },
+    "HUPA0025P": {
+      "tir_70_180": 0.799,
+      "overnight_low_rate": 0.158,
+      "postprandial_spike_rate": 0.017,
+      "variability_cv": 35.2,
+      "mean_glucose": 113.8,
+      "amplitude": 205.0,
+      "bolus_frequency_per_day": 9.3
+    },
+    "HUPA0026P": {
+      "tir_70_180": 0.535,
+      "overnight_low_rate": 0.094,
+      "postprandial_spike_rate": 0.294,
+      "variability_cv": 42.1,
+      "mean_glucose": 163.0,
+      "amplitude": 382.0,
+      "bolus_frequency_per_day": 2.4
+    },
+    "HUPA0027P": {
+      "tir_70_180": 0.795,
+      "overnight_low_rate": 0.069,
+      "postprandial_spike_rate": 0.079,
+      "variability_cv": 35.4,
+      "mean_glucose": 130.8,
+      "amplitude": 357.0,
+      "bolus_frequency_per_day": 3.3
+    },
+    "HUPA0028P": {
+      "tir_70_180": 0.888,
+      "overnight_low_rate": 0.025,
+      "postprandial_spike_rate": 0.027,
+      "variability_cv": 27.6,
+      "mean_glucose": 128.4,
+      "amplitude": 256.0,
+      "bolus_frequency_per_day": 2.5
+    }
+  },
+  "mapping": {
+    "HUPA0001P": "post_meal_spike",
+    "HUPA0002P": "brittle",
+    "HUPA0003P": "brittle",
+    "HUPA0004P": "brittle",
+    "HUPA0005P": "well_controlled",
+    "HUPA0006P": "brittle",
+    "HUPA0007P": "brittle",
+    "HUPA0009P": "post_meal_spike",
+    "HUPA0010P": "brittle",
+    "HUPA0011P": "well_controlled",
+    "HUPA0014P": "post_meal_spike",
+    "HUPA0015P": "brittle",
+    "HUPA0016P": "brittle",
+    "HUPA0017P": "post_meal_spike",
+    "HUPA0018P": "brittle",
+    "HUPA0019P": "well_controlled",
+    "HUPA0020P": "brittle",
+    "HUPA0021P": "well_controlled",
+    "HUPA0022P": "exercise_regimen",
+    "HUPA0023P": "well_controlled",
+    "HUPA0024P": "post_meal_spike",
+    "HUPA0025P": "exercise_regimen",
+    "HUPA0026P": "brittle",
+    "HUPA0027P": "well_controlled",
+    "HUPA0028P": "well_controlled"
+  }
+}

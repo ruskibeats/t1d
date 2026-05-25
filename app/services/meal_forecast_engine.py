@@ -168,7 +168,26 @@ def compute_meal_forecast(
     
     # Clamp confidence
     forecast.confidence = max(0.1, min(1.0, forecast.confidence))
-    
+
+    # ── Post-forecast safety validation ──
+    # Lazy import to avoid circular dependency (forecast_safety_validator imports MealForecast)
+    from app.services.forecast_safety_validator import validate_forecast_text
+
+    safe_evidence: list[ForecastEvidence] = []
+    for ev in forecast.evidence:
+        is_safe, _violations = validate_forecast_text(ev.value)
+        if is_safe:
+            safe_evidence.append(ev)
+        else:
+            safe_evidence.append(
+                ForecastEvidence(
+                    key=ev.key,
+                    value=f"{ev.key}: flagged for safety review (removed specific phrasing)",
+                    weight=ev.weight * 0.5,
+                )
+            )
+    forecast.evidence = safe_evidence
+
     return forecast
 
 

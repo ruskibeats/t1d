@@ -82,6 +82,9 @@ class Settings(BaseSettings):
     # Dexcom
     dexcom_use_sandbox: bool = os.getenv("DEXCOM_USE_SANDBOX", "false").lower() == "true"
 
+    # Glucose units setting (default for UK users)
+    glucose_units: str = os.getenv("GLUCOSE_UNITS", "mmol/L")
+
     # CORS
     cors_origins: list[str] = ["http://localhost:3000", "http://localhost:8000"]
 
@@ -107,11 +110,12 @@ class Settings(BaseSettings):
     openrouter_api_key: Optional[str] = os.getenv("OPENROUTER_API_KEY")
     openrouter_referer: str = os.getenv("OPENROUTER_REFERER", "T1D-Companion")
 
-    # LLM provider pool (comma-separated, format: "provider/model:free")
-    # Used for automatic fallback rotation when primary provider fails
+    # LLM provider pool (comma-separated, format: "provider/model")
+    # Used for automatic fallback rotation when primary provider fails.
+    # Default pool: tries OpenRouter first, then free models as fallbacks.
     llm_provider_pool: str = os.getenv(
         "LLM_PROVIDER_POOL",
-        "",
+        "openrouter/deepseek/deepseek-v4-flash:free,openrouter/microsoft/phi-3-mini-128k-instruct:free,openrouter/google/gemma-2-9b-it:free",
     )
 
     model_config = ConfigDict(

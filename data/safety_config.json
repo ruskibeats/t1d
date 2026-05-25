@@ -1,0 +1,102 @@
+{
+  "version": 2,
+  "description": "T1D Companion safety configuration — editable by non-engineers for MHRA review",
+
+  "emergency_keywords": {
+    "diabetes_emergency": [
+      "severe low",
+      "can't wake",
+      "unconscious",
+      "seizure",
+      "convulsion",
+      "glucagon",
+      "passed out",
+      "blackout",
+      "diabetic shock",
+      "insulin shock",
+      "dk symptoms",
+      "diabetic ketoacidosis",
+      "ketones",
+      "large ketones",
+      "moderate ketones",
+      "vomiting blood sugar",
+      "fruity breath",
+      "can't breathe blood sugar",
+      "chest pain diabetes",
+      "extremely high",
+      "over 600",
+      "blood sugar 600",
+      "bg 600"
+    ],
+    "mental_health_crisis": [
+      "kill myself",
+      "suicide",
+      "end it",
+      "give up",
+      "want to die",
+      "no reason to live",
+      "hurt myself",
+      "self harm",
+      "self-harm",
+      "cutting myself",
+      "overdose on purpose"
+    ],
+    "general_medical": [
+      "emergency",
+      "urgent",
+      "help",
+      "911",
+      "emergency room",
+      "er now",
+      "hospital now",
+      "can't breathe",
+      "chest pain",
+      "confused",
+      "stroke",
+      "heart attack",
+      "allergic reaction",
+      "anaphylaxis",
+      "bleeding out",
+      "unresponsive"
+    ]
+  },
+
+  "guardrails": {
+    "diabetes_emergency": [
+      "NEVER provide insulin dosing recommendations during emergencies.",
+      "NEVER tell users to change their treatment plan.",
+      "ALWAYS recommend seeking immediate medical attention or calling emergency services.",
+      "Emphasize that severe hypoglycemia or DKA symptoms require urgent professional care.",
+      "Mention glucagon only as something to discuss with a care team, not as instruction."
+    ],
+    "mental_health_crisis": [
+      "ALWAYS provide crisis hotline information (e.g., 988 Suicide & Crisis Lifeline in the US).",
+      "NEVER minimize or dismiss the user's feelings.",
+      "Encourage contacting a mental health professional or trusted person immediately.",
+      "Avoid clinical diagnosis; focus on compassionate listening and resource provision."
+    ],
+    "general_medical": [
+      "NEVER provide specific medical treatment instructions.",
+      "ALWAYS recommend consulting a healthcare provider or calling emergency services.",
+      "Acknowledge uncertainty and individual variability in health conditions.",
+      "Do not attempt to triage or diagnose based on limited information."
+    ]
+  },
+
+  "dosing_patterns": [
+    "take\\s+\\d+\\s*(?:units?|u)\\b",
+    "give\\s+\\d+\\s*(?:units?|u)\\b",
+    "inject\\s+\\d+\\s*(?:units?|u)\\b",
+    "dose\\s+\\d+\\s*(?:units?|u)\\b",
+    "\\bdose\\b\\s+(?:of\\s+)?\\d+",
+    "take\\s+(?:a\\s+)?\\d+\\s*(?:unit|u)\\b"
+  ],
+
+  "treatment_patterns": [
+    "change\\b.*\\btreatment\\b",
+    "stop\\b.*\\binsulin\\b",
+    "discontinue\\b.*\\bmedication\\b"
+  ],
+
+  "required_disclaimer": "This application provides educational insights based on your data. It does not diagnose, treat, or prescribe. Always consult your healthcare provider before making treatment decisions."
+}

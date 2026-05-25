@@ -4,98 +4,44 @@ Provides condition-specific safety guardrails, emergency keyword detection,
 and content validation for all AI-generated responses.
 """
 
+import json
 import logging
 import re
-from typing import Dict, List, Optional, Set
+from pathlib import Path
+from typing import Any, Dict, List, Optional
 
 logger = logging.getLogger(__name__)
 
 
-class SafetyScaffold:
-    """Safety guardrail builder and content validator.
-
-    Encapsulates all safety logic previously inline in LLMService,
-    including emergency keyword detection and condition-specific
-    guardrail generation.
-    """
-
-    # ------------------------------------------------------------------
-    # Keyword dictionaries per condition
-    # ------------------------------------------------------------------
-
-    _DIABETES_EMERGENCY_KEYWORDS: List[str] = [
-        # Severe hypoglycemia
-        "severe low",
-        "can't wake",
-        "unconscious",
-        "seizure",
-        "convulsion",
-        "glucagon",
-        "passed out",
-        "blackout",
-        "diabetic shock",
-        "insulin shock",
-        # DKA / hyperglycemia
-        "dk symptoms",
-        "diabetic ketoacidosis",
-        "ketones",
-        "large ketones",
-        "moderate ketones",
-        "vomiting blood sugar",
-        "fruity breath",
-        "can't breathe blood sugar",
-        "chest pain diabetes",
-        "extremely high",
-        "over 600",
-        "blood sugar 600",
-        "bg 600",
-    ]
-
-    _MENTAL_HEALTH_CRISIS_KEYWORDS: List[str] = [
-        "kill myself",
-        "suicide",
-        "end it",
-        "give up",
-        "want to die",
-        "no reason to live",
-        "hurt myself",
-        "self harm",
-        "self-harm",
-        "cutting myself",
-        "overdose on purpose",
-    ]
-
-    _GENERAL_MEDICAL_KEYWORDS: List[str] = [
-        "emergency",
-        "urgent",
-        "help",
-        "911",
-        "emergency room",
-        "er now",
-        "hospital now",
-        "can't breathe",
-        "chest pain",
-        "confused",
-        "stroke",
-        "heart attack",
-        "allergic reaction",
-        "anaphylaxis",
-        "bleeding out",
-        "unresponsive",
-    ]
-
-    # Unified list for backward-compatible simple checks
-    _ALL_EMERGENCY_KEYWORDS: List[str] = (
-        _DIABETES_EMERGENCY_KEYWORDS
-        + _MENTAL_HEALTH_CRISIS_KEYWORDS
-        + _GENERAL_MEDICAL_KEYWORDS
-    )
-
-    # ------------------------------------------------------------------
-    # Guardrail templates per condition
-    # ------------------------------------------------------------------
-
-    _GUARDRAILS: Dict[str, List[str]] = {
+# Defaults — used only when config file is missing or unreadable.
+# These stay as a safety net so the app never starts without guardrails.
+_DEFAULT_CONFIG: Dict[str, Any] = {
+    "emergency_keywords": {
+        "diabetes_emergency": [
+            "severe low", "can't wake", "unconscious", "seizure",
+            "convulsion", "glucagon", "passed out", "blackout",
+            "diabetic shock", "insulin shock",
+            "dk symptoms", "diabetic ketoacidosis", "ketones",
+            "large ketones", "moderate ketones",
+            "vomiting blood sugar", "fruity breath",
+            "can't breathe blood sugar", "chest pain diabetes",
+            "extremely high", "over 600", "blood sugar 600", "bg 600",
+        ],
+        "mental_health_crisis": [
+            "kill myself", "suicide", "end it", "give up",
+            "want to die", "no reason to live", "hurt myself",
+            "self harm", "self-harm", "cutting myself",
+            "overdose on purpose",
+        ],
+        "general_medical": [
+            "emergency", "urgent", "help", "911",
+            "emergency room", "er now", "hospital now",
+            "can't breathe", "chest pain", "confused",
+            "stroke", "heart attack", "allergic reaction",
+            "anaphylaxis", "bleeding out", "unresponsive",
+        ],
+    },
+    "guardrails": {
         "diabetes_emergency": [
             "NEVER provide insulin dosing recommendations during emergencies.",
             "NEVER tell users to change their treatment plan.",
@@ -115,7 +61,94 @@ class SafetyScaffold:
             "Acknowledge uncertainty and individual variability in health conditions.",
             "Do not attempt to triage or diagnose based on limited information.",
         ],
-    }
+    },
+    "dosing_patterns": [
+        r"\btake\b\s+\d+\s*(?:units?|u)\b",
+        r"\bgive\b\s+\d+\s*(?:units?|u)\b",
+        r"\binject\b\s+\d+\s*(?:units?|u)\b",
+        r"\bdose\b\s+\d+\s*(?:units?|u)\b",
+        r"\b\d+\s*(?:units?|u)\s+of\s+insulin\b",
+        r"\b(?:take|give|inject)\b\s+(?:a\s+)?\d+\s*(?:unit|u)\b",
+    ],
+    "treatment_patterns": [
+        r"\bchange\b.*\btreatment\b",
+        r"\bstop\b.*\binsulin\b",
+        r"\bdiscontinue\b.*\bmedication\b",
+    ],
+}
+
+
+# Config search paths (first found wins)
+_CONFIG_PATHS = [
+    Path("/root/t1d/data/safety_config.json"),
+    Path("data/safety_config.json"),
+]
+
+
+def _load_config() -> Dict[str, Any]:
+    """Load safety config from JSON file, falling back to defaults.
+
+    Logs a warning if the config file is missing or unparseable.
+    Returns merged config (file values override defaults).
+    """
+    config = {k: dict(v) if isinstance(v, dict) else list(v) for k, v in _DEFAULT_CONFIG.items()}
+
+    config_path = None
+    for p in _CONFIG_PATHS:
+        if p.exists():
+            config_path = p
+            break
+
+    if config_path is None:
+        logger.info("SafetyConfig: no config file found, using hard-coded defaults.")
+        return config
+
+    try:
+        with open(config_path) as f:
+            file_config = json.load(f)
+    except (json.JSONDecodeError, OSError) as e:
+        logger.warning(f"SafetyConfig: failed to load {config_path}: {e}. Using defaults.")
+        return config
+
+    version = file_config.get("version", 1)
+    logger.info(f"SafetyConfig: loaded version {version} from {config_path}")
+
+    # Merge emergency keywords (file overrides each condition)
+    file_keywords = file_config.get("emergency_keywords", {})
+    for condition in config["emergency_keywords"]:
+        if condition in file_keywords and isinstance(file_keywords[condition], list):
+            config["emergency_keywords"][condition] = list(file_keywords[condition])
+
+    # Merge guardrails (file overrides each condition)
+    file_guardrails = file_config.get("guardrails", {})
+    for condition in config["guardrails"]:
+        if condition in file_guardrails and isinstance(file_guardrails[condition], list):
+            config["guardrails"][condition] = list(file_guardrails[condition])
+
+    # Merge dosing patterns (file replaces entire list)
+    file_dosing = file_config.get("dosing_patterns")
+    if isinstance(file_dosing, list):
+        config["dosing_patterns"] = list(file_dosing)
+
+    # Merge treatment patterns (file replaces entire list)
+    file_treatment = file_config.get("treatment_patterns")
+    if isinstance(file_treatment, list):
+        config["treatment_patterns"] = list(file_treatment)
+
+    return config
+
+
+class SafetyScaffold:
+    """Safety guardrail builder and content validator.
+
+    Encapsulates all safety logic previously inline in LLMService,
+    including emergency keyword detection and condition-specific
+    guardrail generation.
+
+    Keywords and guardrails are loaded from data/safety_config.json
+    (if available), falling back to hard-coded defaults. This lets
+    non-engineers review and edit safety policy without code changes.
+    """
 
     # ------------------------------------------------------------------
     # Severity levels
@@ -124,10 +157,36 @@ class SafetyScaffold:
     _SEVERITY_ORDER: List[str] = ["info", "warning", "critical"]
 
     def __init__(self) -> None:
-        """Initialize SafetyScaffold with compiled keyword regexes."""
+        """Initialize SafetyScaffold — loads config, compiles keyword regexes."""
+        self._config = _load_config()
+
+        # Build keyword maps from config (merged with defaults)
+        kw = self._config["emergency_keywords"]
+        self._diabetes_emergency_keywords: List[str] = kw["diabetes_emergency"]
+        self._mental_health_crisis_keywords: List[str] = kw["mental_health_crisis"]
+        self._general_medical_keywords: List[str] = kw["general_medical"]
+        self._all_emergency_keywords: List[str] = (
+            self._diabetes_emergency_keywords
+            + self._mental_health_crisis_keywords
+            + self._general_medical_keywords
+        )
+
+        # Build guardrail dict from config
+        self._guardrails: Dict[str, List[str]] = {
+            k: list(v) for k, v in self._config["guardrails"].items()
+        }
+
+        # Compile dosing & treatment regexes from config
+        self._dosing_patterns: List[re.Pattern] = [
+            re.compile(p, re.IGNORECASE) for p in self._config["dosing_patterns"]
+        ]
+        self._treatment_patterns: List[re.Pattern] = [
+            re.compile(p, re.IGNORECASE) for p in self._config["treatment_patterns"]
+        ]
+
+        # Compile keyword patterns per condition (for emergency scanning)
         self._compiled_keywords: Dict[str, re.Pattern] = {}
         for condition, keywords in self._keyword_map().items():
-            # Compile as word-boundary regex for more robust matching
             pattern = r"(?:" + "|".join(re.escape(kw) for kw in keywords) + r")"
             self._compiled_keywords[condition] = re.compile(pattern, re.IGNORECASE)
 
@@ -147,7 +206,7 @@ class SafetyScaffold:
         Returns:
             List of guardrail strings.
         """
-        guardrails = list(self._GUARDRAILS.get(condition, []))
+        guardrails = list(self._guardrails.get(condition, []))
 
         if severity == "critical":
             guardrails.insert(
@@ -259,45 +318,33 @@ class SafetyScaffold:
     def _keyword_map(self) -> Dict[str, List[str]]:
         """Return mapping of condition name to keyword list."""
         return {
-            "diabetes_emergency": self._DIABETES_EMERGENCY_KEYWORDS,
-            "mental_health_crisis": self._MENTAL_HEALTH_CRISIS_KEYWORDS,
-            "general_medical": self._GENERAL_MEDICAL_KEYWORDS,
-            "all": self._ALL_EMERGENCY_KEYWORDS,
+            "diabetes_emergency": self._diabetes_emergency_keywords,
+            "mental_health_crisis": self._mental_health_crisis_keywords,
+            "general_medical": self._general_medical_keywords,
+            "all": self._all_emergency_keywords,
         }
 
     def _check_policy_violations(self, text: str) -> List[Dict[str, str]]:
         """Check AI-generated text for policy violations.
 
+        Uses regex patterns loaded from config (with hard-coded fallback).
         Returns list of violation dicts with keys 'reason' and 'level'.
         """
         violations: List[Dict[str, str]] = []
         text_lower = text.lower()
 
-        # Dosing advice detection
-        dosing_patterns = [
-            r"\btake\b\s+\d+\s*(?:units?|u)\b",
-            r"\bgive\b\s+\d+\s*(?:units?|u)\b",
-            r"\binject\b\s+\d+\s*(?:units?|u)\b",
-            r"\bdose\b\s+\d+\s*(?:units?|u)\b",
-            r"\b\d+\s*(?:units?|u)\s+of\s+insulin\b",
-            r"\b(?:take|give|inject)\b\s+(?:a\s+)?\d+\s*(?:unit|u)\b",
-        ]
-        for pattern in dosing_patterns:
-            if re.search(pattern, text_lower):
+        # Dosing advice detection — patterns loaded from config
+        for pattern in self._dosing_patterns:
+            if pattern.search(text_lower):
                 violations.append({
                     "reason": "Detected potential insulin dosing instruction in AI response.",
                     "level": "critical",
                 })
                 break  # One dosing violation is enough
 
-        # Treatment plan change
-        treatment_patterns = [
-            r"\bchange\b.*\btreatment\b",
-            r"\bstop\b.*\binsulin\b",
-            r"\bdiscontinue\b.*\bmedication\b",
-        ]
-        for pattern in treatment_patterns:
-            if re.search(pattern, text_lower):
+        # Treatment plan change — patterns loaded from config
+        for pattern in self._treatment_patterns:
+            if pattern.search(text_lower):
                 violations.append({
                     "reason": "Detected potential treatment plan modification advice.",
                     "level": "critical",

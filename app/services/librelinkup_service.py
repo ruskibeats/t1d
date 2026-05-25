@@ -1,9 +1,7 @@
-"""LibreLinkUp API integration service.
+"""LibreLinkUp API integration — convenience access to CGM data.
 
-Direct connection to Abbott's LibreView/LibreLinkUp API.
-Bypasses the need for a Nightscout instance for development/testing.
-
-Reference: Reverse-engineered from LibreLinkUp iOS app API patterns.
+Nightscout (open source, self-hosted) is the recommended integration path.
+This module provides an alternative for users who don't have Nightscout set up.
 """
 
 from __future__ import annotations

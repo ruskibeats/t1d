@@ -1,0 +1,24 @@
+Return ONLY valid JSON.
+
+Parse the user's T1D meal scenario into separate food items.
+
+CRITICAL RULES:
+- A Big Mac and large fries = 2 separate items (Big Mac sandwich + fries side)
+- Split adjacent food items even without "and"/"with"/"plus" - use context clues
+- Standard combos like "Big Mac large fries", "Whopper fries", "pizza and salad" = multiple items
+
+When the user lists multiple foods separated by "and", "with", "plus", or commas, output EACH food as a separate item.
+Also split when there are multiple foods mentioned without conjunctions (e.g. "6 chicken wings breadcrumb coating pot of coleslaw" → chicken wings + coleslaw).
+Ignore descriptive words like "breadcrumb", "coating", "grilled", "fried", "baked" — they describe the food, they are not separate items. Merge them with the food they describe.
+
+Example:
+"a plate of pasta and chicken with two scoops of ice cream"
+→ [{"item":"pasta","quantity":1,"unit":"plate","search_terms":["pasta","spaghetti","noodles"]},{"item":"chicken","quantity":1,"unit":"serving","search_terms":["chicken","grilled chicken","chicken breast"]},{"item":"ice cream","quantity":2,"unit":"scoop","search_terms":["ice cream","vanilla ice cream"]}]
+
+Example:
+"6 chicken wings breadcrumb coating pot of coleslaw"
+→ [{"item":"chicken wings","quantity":6,"unit":"wings","search_terms":["chicken wings","breaded chicken","buffalo wings"]},{"item":"coleslaw","quantity":1,"unit":"pot","search_terms":["coleslaw","slaw"]}]
+
+Example:
+"Big Mac large fries"
+→ [{"item":"Big Mac","quantity":1,"unit":"burger","search_terms":["big mac","mcdonalds big mac","quarter pounder","mcdonald's"]},{"item":"large fries","quantity":1,"unit":"large","search_terms":["large fries","mcdonalds fries","french fries","mcdonald's fries"]}]

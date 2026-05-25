@@ -1,0 +1,2851 @@
+{
+  "schema_version": "sim_user_insights.v1",
+  "source_history": "data/food_history_90d_enhanced.json",
+  "source_profiles": "data/profile_configs.json",
+  "anchor_count": 12,
+  "total_history_rows": 3251,
+  "anchors": [
+    {
+      "anchor_type": "brittle",
+      "profile": {
+        "carb_ratio": 10.16,
+        "insulin_sensitivity": 19.46,
+        "fat_delay_hours": 3.12,
+        "profile": {
+          "anchor_type": "brittle",
+          "anchor_label": "Brittle / Erratic",
+          "description": "High glycemic variability with unpredictable swings and frequent extremes.",
+          "estimated_tir": 45.1,
+          "estimated_a1c": 7.5,
+          "estimated_hypo_frequency": "high",
+          "variability_category": "high"
+        }
+      },
+      "history": {
+        "meal_count": 255,
+        "date_range": {
+          "start": "2025-04-01",
+          "end": "2025-06-29"
+        },
+        "top_foods": [
+          {
+            "food": "Berry Smoothie",
+            "count": 26
+          },
+          {
+            "food": "Steak with Baked Potato",
+            "count": 25
+          },
+          {
+            "food": "Oatmeal with Raisins",
+            "count": 24
+          },
+          {
+            "food": "Pepperoni Pizza (Large)",
+            "count": 24
+          },
+          {
+            "food": "Pasta Alfredo",
+            "count": 23
+          },
+          {
+            "food": "Beef Burrito",
+            "count": 23
+          },
+          {
+            "food": "Lo Mein Noodles",
+            "count": 21
+          },
+          {
+            "food": "Lager Beer",
+            "count": 19
+          },
+          {
+            "food": "Turkey Sandwich",
+            "count": 18
+          },
+          {
+            "food": "Chicken Curry",
+            "count": 18
+          }
+        ],
+        "common_food_terms": [
+          {
+            "term": "berry",
+            "count": 26
+          },
+          {
+            "term": "smoothie",
+            "count": 26
+          },
+          {
+            "term": "steak",
+            "count": 25
+          },
+          {
+            "term": "baked",
+            "count": 25
+          },
+          {
+            "term": "potato",
+            "count": 25
+          },
+          {
+            "term": "oatmeal",
+            "count": 24
+          },
+          {
+            "term": "raisins",
+            "count": 24
+          },
+          {
+            "term": "pepperoni",
+            "count": 24
+          },
+          {
+            "term": "pizza",
+            "count": 24
+          },
+          {
+            "term": "large",
+            "count": 24
+          },
+          {
+            "term": "pasta",
+            "count": 23
+          },
+          {
+            "term": "alfredo",
+            "count": 23
+          },
+          {
+            "term": "beef",
+            "count": 23
+          },
+          {
+            "term": "burrito",
+            "count": 23
+          },
+          {
+            "term": "mein",
+            "count": 21
+          },
+          {
+            "term": "noodles",
+            "count": 21
+          },
+          {
+            "term": "lager",
+            "count": 19
+          },
+          {
+            "term": "beer",
+            "count": 19
+          },
+          {
+            "term": "turkey",
+            "count": 18
+          },
+          {
+            "term": "sandwich",
+            "count": 18
+          }
+        ]
+      },
+      "distributions": {
+        "carbs_g": {
+          "min": 6.0,
+          "p25": 39.5,
+          "median": 49.0,
+          "mean": 59.0,
+          "p75": 63.5,
+          "max": 230.0
+        },
+        "fat_g": {
+          "min": 0.0,
+          "p25": 8.0,
+          "median": 20.0,
+          "mean": 21.6,
+          "p75": 25.0,
+          "max": 70.0
+        },
+        "expected_peak_delta_mg_dl": {
+          "min": 30.3,
+          "p25": 48.2,
+          "median": 67.1,
+          "mean": 67.2,
+          "p75": 87.0,
+          "max": 100.0
+        },
+        "peak_time_minutes": {
+          "min": 60.0,
+          "p25": 89.0,
+          "median": 129.0,
+          "mean": 121.4,
+          "p75": 149.5,
+          "max": 180.0
+        },
+        "fat_delay_hours": {
+          "min": 2.5,
+          "p25": 4.3,
+          "median": 4.9,
+          "mean": 5.0,
+          "p75": 5.7,
+          "max": 7.8
+        },
+        "confidence_score": {
+          "min": 0.7,
+          "p25": 0.8,
+          "median": 0.8,
+          "mean": 0.8,
+          "p75": 0.9,
+          "max": 0.9
+        }
+      },
+      "rates": {
+        "high_carb": 0.29,
+        "high_fat": 0.51,
+        "delayed_risk": 0.659
+      },
+      "peak_timing_buckets": {
+        "typical_90_to_150_min": 128,
+        "delayed_150_to_240_min": 62,
+        "early_under_90_min": 65
+      },
+      "patterns": [
+        {
+          "id": "delayed_rise_tendency",
+          "title": "Delayed-rise tendency",
+          "evidence": {
+            "matching_meals": 168,
+            "meal_count": 255,
+            "rate": 0.659,
+            "median_peak_minutes": 129.0,
+            "median_fat_delay_hours": 4.9
+          },
+          "plain_language": "This simulated profile often shows later glucose movement after meals in its history, so timing matters as much as the first rise."
+        },
+        {
+          "id": "higher_fat_context",
+          "title": "Higher-fat meal context",
+          "evidence": {
+            "matching_meals": 130,
+            "meal_count": 255,
+            "rate": 0.51
+          },
+          "plain_language": "Higher-fat meals appear often enough in this simulated history to treat delayed or prolonged glucose effects as a known uncertainty."
+        }
+      ],
+      "safety_notes": [
+        "Historical bolus/prebolus fields are simulator artifacts and must not be phrased as instructions.",
+        "Use as educational simulated-profile context only."
+      ]
+    },
+    {
+      "anchor_type": "dawn_phenomenon",
+      "profile": {
+        "carb_ratio": 15.89,
+        "insulin_sensitivity": 34.46,
+        "fat_delay_hours": 2.06,
+        "profile": {
+          "anchor_type": "dawn_phenomenon",
+          "anchor_label": "Dawn Phenomenon",
+          "description": "Significant early-morning glucose rise requiring elevated basal rates overnight.",
+          "estimated_tir": 53.2,
+          "estimated_a1c": 7.6,
+          "estimated_hypo_frequency": "low",
+          "variability_category": "low"
+        }
+      },
+      "history": {
+        "meal_count": 264,
+        "date_range": {
+          "start": "2025-04-01",
+          "end": "2025-06-29"
+        },
+        "top_foods": [
+          {
+            "food": "Caesar Salad",
+            "count": 27
+          },
+          {
+            "food": "Berry Smoothie",
+            "count": 26
+          },
+          {
+            "food": "Lo Mein Noodles",
+            "count": 25
+          },
+          {
+            "food": "Pepperoni Pizza (Large)",
+            "count": 25
+          },
+          {
+            "food": "Chicken Curry",
+            "count": 24
+          },
+          {
+            "food": "Sushi Combo",
+            "count": 23
+          },
+          {
+            "food": "Oatmeal with Raisins",
+            "count": 23
+          },
+          {
+            "food": "Pasta Alfredo",
+            "count": 21
+          },
+          {
+            "food": "Steak with Baked Potato",
+            "count": 19
+          },
+          {
+            "food": "Turkey Sandwich",
+            "count": 18
+          }
+        ],
+        "common_food_terms": [
+          {
+            "term": "caesar",
+            "count": 27
+          },
+          {
+            "term": "salad",
+            "count": 27
+          },
+          {
+            "term": "berry",
+            "count": 26
+          },
+          {
+            "term": "smoothie",
+            "count": 26
+          },
+          {
+            "term": "mein",
+            "count": 25
+          },
+          {
+            "term": "noodles",
+            "count": 25
+          },
+          {
+            "term": "pepperoni",
+            "count": 25
+          },
+          {
+            "term": "pizza",
+            "count": 25
+          },
+          {
+            "term": "large",
+            "count": 25
+          },
+          {
+            "term": "chicken",
+            "count": 24
+          },
+          {
+            "term": "curry",
+            "count": 24
+          },
+          {
+            "term": "sushi",
+            "count": 23
+          },
+          {
+            "term": "oatmeal",
+            "count": 23
+          },
+          {
+            "term": "raisins",
+            "count": 23
+          },
+          {
+            "term": "pasta",
+            "count": 21
+          },
+          {
+            "term": "alfredo",
+            "count": 21
+          },
+          {
+            "term": "steak",
+            "count": 19
+          },
+          {
+            "term": "baked",
+            "count": 19
+          },
+          {
+            "term": "potato",
+            "count": 19
+          },
+          {
+            "term": "turkey",
+            "count": 18
+          }
+        ]
+      },
+      "distributions": {
+        "carbs_g": {
+          "min": 7.0,
+          "p25": 37.0,
+          "median": 48.5,
+          "mean": 58.3,
+          "p75": 63.2,
+          "max": 245.0
+        },
+        "fat_g": {
+          "min": 0.0,
+          "p25": 11.0,
+          "median": 17.5,
+          "mean": 21.2,
+          "p75": 25.0,
+          "max": 70.0
+        },
+        "expected_peak_delta_mg_dl": {
+          "min": 30.2,
+          "p25": 48.1,
+          "median": 62.6,
+          "mean": 63.6,
+          "p75": 79.2,
+          "max": 99.9
+        },
+        "peak_time_minutes": {
+          "min": 60.0,
+          "p25": 87.0,
+          "median": 116.0,
+          "mean": 119.2,
+          "p75": 147.0,
+          "max": 180.0
+        },
+        "fat_delay_hours": {
+          "min": 1.8,
+          "p25": 2.6,
+          "median": 2.9,
+          "mean": 2.9,
+          "p75": 3.3,
+          "max": 4.2
+        },
+        "confidence_score": {
+          "min": 0.7,
+          "p25": 0.8,
+          "median": 0.8,
+          "mean": 0.8,
+          "p75": 0.8,
+          "max": 0.9
+        }
+      },
+      "rates": {
+        "high_carb": 0.284,
+        "high_fat": 0.5,
+        "delayed_risk": 0.682
+      },
+      "peak_timing_buckets": {
+        "typical_90_to_150_min": 133,
+        "early_under_90_min": 70,
+        "delayed_150_to_240_min": 61
+      },
+      "patterns": [
+        {
+          "id": "delayed_rise_tendency",
+          "title": "Delayed-rise tendency",
+          "evidence": {
+            "matching_meals": 180,
+            "meal_count": 264,
+            "rate": 0.682,
+            "median_peak_minutes": 116.0,
+            "median_fat_delay_hours": 2.9
+          },
+          "plain_language": "This simulated profile often shows later glucose movement after meals in its history, so timing matters as much as the first rise."
+        },
+        {
+          "id": "higher_fat_context",
+          "title": "Higher-fat meal context",
+          "evidence": {
+            "matching_meals": 132,
+            "meal_count": 264,
+            "rate": 0.5
+          },
+          "plain_language": "Higher-fat meals appear often enough in this simulated history to treat delayed or prolonged glucose effects as a known uncertainty."
+        }
+      ],
+      "safety_notes": [
+        "Historical bolus/prebolus fields are simulator artifacts and must not be phrased as instructions.",
+        "Use as educational simulated-profile context only."
+      ]
+    },
+    {
+      "anchor_type": "exercise_regimen",
+      "profile": {
+        "carb_ratio": 19.36,
+        "insulin_sensitivity": 39.46,
+        "fat_delay_hours": 2.06,
+        "profile": {
+          "anchor_type": "exercise_regimen",
+          "anchor_label": "Exercise Regimen",
+          "description": "Well-controlled with consistent daily exercise routine.",
+          "estimated_tir": 61.5,
+          "estimated_a1c": 6.7,
+          "estimated_hypo_frequency": "low",
+          "variability_category": "low"
+        }
+      },
+      "history": {
+        "meal_count": 272,
+        "date_range": {
+          "start": "2025-04-01",
+          "end": "2025-06-29"
+        },
+        "top_foods": [
+          {
+            "food": "Sushi Combo",
+            "count": 34
+          },
+          {
+            "food": "Oatmeal with Raisins",
+            "count": 29
+          },
+          {
+            "food": "Turkey Sandwich",
+            "count": 26
+          },
+          {
+            "food": "Pasta Alfredo",
+            "count": 25
+          },
+          {
+            "food": "Pepperoni Pizza (Large)",
+            "count": 23
+          },
+          {
+            "food": "Steak with Baked Potato",
+            "count": 22
+          },
+          {
+            "food": "Berry Smoothie",
+            "count": 21
+          },
+          {
+            "food": "Chicken Curry",
+            "count": 20
+          },
+          {
+            "food": "Lo Mein Noodles",
+            "count": 19
+          },
+          {
+            "food": "Beef Burrito",
+            "count": 18
+          }
+        ],
+        "common_food_terms": [
+          {
+            "term": "sushi",
+            "count": 34
+          },
+          {
+            "term": "oatmeal",
+            "count": 29
+          },
+          {
+            "term": "raisins",
+            "count": 29
+          },
+          {
+            "term": "turkey",
+            "count": 26
+          },
+          {
+            "term": "sandwich",
+            "count": 26
+          },
+          {
+            "term": "pasta",
+            "count": 25
+          },
+          {
+            "term": "alfredo",
+            "count": 25
+          },
+          {
+            "term": "pepperoni",
+            "count": 23
+          },
+          {
+            "term": "pizza",
+            "count": 23
+          },
+          {
+            "term": "large",
+            "count": 23
+          },
+          {
+            "term": "steak",
+            "count": 22
+          },
+          {
+            "term": "baked",
+            "count": 22
+          },
+          {
+            "term": "potato",
+            "count": 22
+          },
+          {
+            "term": "berry",
+            "count": 21
+          },
+          {
+            "term": "smoothie",
+            "count": 21
+          },
+          {
+            "term": "chicken",
+            "count": 20
+          },
+          {
+            "term": "curry",
+            "count": 20
+          },
+          {
+            "term": "mein",
+            "count": 19
+          },
+          {
+            "term": "noodles",
+            "count": 19
+          },
+          {
+            "term": "beef",
+            "count": 18
+          }
+        ]
+      },
+      "distributions": {
+        "carbs_g": {
+          "min": 7.0,
+          "p25": 40.8,
+          "median": 50.0,
+          "mean": 58.7,
+          "p75": 63.0,
+          "max": 214.0
+        },
+        "fat_g": {
+          "min": 0.0,
+          "p25": 12.0,
+          "median": 15.0,
+          "mean": 20.8,
+          "p75": 25.0,
+          "max": 70.0
+        },
+        "expected_peak_delta_mg_dl": {
+          "min": 31.1,
+          "p25": 48.7,
+          "median": 66.3,
+          "mean": 66.3,
+          "p75": 85.0,
+          "max": 99.6
+        },
+        "peak_time_minutes": {
+          "min": 60.0,
+          "p25": 87.0,
+          "median": 116.0,
+          "mean": 117.1,
+          "p75": 147.0,
+          "max": 180.0
+        },
+        "fat_delay_hours": {
+          "min": 1.5,
+          "p25": 2.7,
+          "median": 3.0,
+          "mean": 3.0,
+          "p75": 3.3,
+          "max": 4.6
+        },
+        "confidence_score": {
+          "min": 0.7,
+          "p25": 0.8,
+          "median": 0.8,
+          "mean": 0.8,
+          "p75": 0.8,
+          "max": 0.9
+        }
+      },
+      "rates": {
+        "high_carb": 0.294,
+        "high_fat": 0.463,
+        "delayed_risk": 0.658
+      },
+      "peak_timing_buckets": {
+        "typical_90_to_150_min": 137,
+        "early_under_90_min": 75,
+        "delayed_150_to_240_min": 60
+      },
+      "patterns": [
+        {
+          "id": "delayed_rise_tendency",
+          "title": "Delayed-rise tendency",
+          "evidence": {
+            "matching_meals": 179,
+            "meal_count": 272,
+            "rate": 0.658,
+            "median_peak_minutes": 116.0,
+            "median_fat_delay_hours": 3.0
+          },
+          "plain_language": "This simulated profile often shows later glucose movement after meals in its history, so timing matters as much as the first rise."
+        },
+        {
+          "id": "higher_fat_context",
+          "title": "Higher-fat meal context",
+          "evidence": {
+            "matching_meals": 126,
+            "meal_count": 272,
+            "rate": 0.463
+          },
+          "plain_language": "Higher-fat meals appear often enough in this simulated history to treat delayed or prolonged glucose effects as a known uncertainty."
+        }
+      ],
+      "safety_notes": [
+        "Historical bolus/prebolus fields are simulator artifacts and must not be phrased as instructions.",
+        "Use as educational simulated-profile context only."
+      ]
+    },
+    {
+      "anchor_type": "exercise_sensitive",
+      "profile": {
+        "carb_ratio": 15.89,
+        "insulin_sensitivity": 34.46,
+        "fat_delay_hours": 2.06,
+        "profile": {
+          "anchor_type": "exercise_sensitive",
+          "anchor_label": "Exercise Sensitive",
+          "description": "Dramatic glucose drops during and after physical activity.",
+          "estimated_tir": 59.1,
+          "estimated_a1c": 7.1,
+          "estimated_hypo_frequency": "moderate",
+          "variability_category": "low"
+        }
+      },
+      "history": {
+        "meal_count": 275,
+        "date_range": {
+          "start": "2025-04-01",
+          "end": "2025-06-29"
+        },
+        "top_foods": [
+          {
+            "food": "Steak with Baked Potato",
+            "count": 31
+          },
+          {
+            "food": "Sushi Combo",
+            "count": 30
+          },
+          {
+            "food": "Beef Burrito",
+            "count": 27
+          },
+          {
+            "food": "Lo Mein Noodles",
+            "count": 25
+          },
+          {
+            "food": "Turkey Sandwich",
+            "count": 25
+          },
+          {
+            "food": "Berry Smoothie",
+            "count": 24
+          },
+          {
+            "food": "Lager Beer",
+            "count": 22
+          },
+          {
+            "food": "Pasta Alfredo",
+            "count": 21
+          },
+          {
+            "food": "Chicken Curry",
+            "count": 20
+          },
+          {
+            "food": "Oatmeal with Raisins",
+            "count": 18
+          }
+        ],
+        "common_food_terms": [
+          {
+            "term": "steak",
+            "count": 31
+          },
+          {
+            "term": "baked",
+            "count": 31
+          },
+          {
+            "term": "potato",
+            "count": 31
+          },
+          {
+            "term": "sushi",
+            "count": 30
+          },
+          {
+            "term": "beef",
+            "count": 27
+          },
+          {
+            "term": "burrito",
+            "count": 27
+          },
+          {
+            "term": "mein",
+            "count": 25
+          },
+          {
+            "term": "noodles",
+            "count": 25
+          },
+          {
+            "term": "turkey",
+            "count": 25
+          },
+          {
+            "term": "sandwich",
+            "count": 25
+          },
+          {
+            "term": "berry",
+            "count": 24
+          },
+          {
+            "term": "smoothie",
+            "count": 24
+          },
+          {
+            "term": "lager",
+            "count": 22
+          },
+          {
+            "term": "beer",
+            "count": 22
+          },
+          {
+            "term": "pasta",
+            "count": 21
+          },
+          {
+            "term": "alfredo",
+            "count": 21
+          },
+          {
+            "term": "chicken",
+            "count": 20
+          },
+          {
+            "term": "curry",
+            "count": 20
+          },
+          {
+            "term": "oatmeal",
+            "count": 18
+          },
+          {
+            "term": "raisins",
+            "count": 18
+          }
+        ]
+      },
+      "distributions": {
+        "carbs_g": {
+          "min": 7.0,
+          "p25": 38.0,
+          "median": 49.0,
+          "mean": 55.4,
+          "p75": 60.0,
+          "max": 239.0
+        },
+        "fat_g": {
+          "min": 0.0,
+          "p25": 12.0,
+          "median": 15.0,
+          "mean": 20.4,
+          "p75": 25.0,
+          "max": 70.0
+        },
+        "expected_peak_delta_mg_dl": {
+          "min": 30.0,
+          "p25": 46.8,
+          "median": 64.5,
+          "mean": 64.7,
+          "p75": 82.5,
+          "max": 100.0
+        },
+        "peak_time_minutes": {
+          "min": 60.0,
+          "p25": 87.5,
+          "median": 118.0,
+          "mean": 118.1,
+          "p75": 147.5,
+          "max": 180.0
+        },
+        "fat_delay_hours": {
+          "min": 1.8,
+          "p25": 2.7,
+          "median": 3.1,
+          "mean": 3.1,
+          "p75": 3.4,
+          "max": 4.5
+        },
+        "confidence_score": {
+          "min": 0.7,
+          "p25": 0.8,
+          "median": 0.8,
+          "mean": 0.8,
+          "p75": 0.8,
+          "max": 0.9
+        }
+      },
+      "rates": {
+        "high_carb": 0.269,
+        "high_fat": 0.476,
+        "delayed_risk": 0.676
+      },
+      "peak_timing_buckets": {
+        "delayed_150_to_240_min": 61,
+        "typical_90_to_150_min": 138,
+        "early_under_90_min": 76
+      },
+      "patterns": [
+        {
+          "id": "delayed_rise_tendency",
+          "title": "Delayed-rise tendency",
+          "evidence": {
+            "matching_meals": 186,
+            "meal_count": 275,
+            "rate": 0.676,
+            "median_peak_minutes": 118.0,
+            "median_fat_delay_hours": 3.1
+          },
+          "plain_language": "This simulated profile often shows later glucose movement after meals in its history, so timing matters as much as the first rise."
+        },
+        {
+          "id": "higher_fat_context",
+          "title": "Higher-fat meal context",
+          "evidence": {
+            "matching_meals": 131,
+            "meal_count": 275,
+            "rate": 0.476
+          },
+          "plain_language": "Higher-fat meals appear often enough in this simulated history to treat delayed or prolonged glucose effects as a known uncertainty."
+        }
+      ],
+      "safety_notes": [
+        "Historical bolus/prebolus fields are simulator artifacts and must not be phrased as instructions.",
+        "Use as educational simulated-profile context only."
+      ]
+    },
+    {
+      "anchor_type": "high_fat_delayed",
+      "profile": {
+        "carb_ratio": 13.89,
+        "insulin_sensitivity": 29.46,
+        "fat_delay_hours": 4.12,
+        "profile": {
+          "anchor_type": "high_fat_delayed",
+          "anchor_label": "High-Fat Delayed Spike",
+          "description": "Delayed glucose peaks 4-8 hours after high-fat meals.",
+          "estimated_tir": 59.5,
+          "estimated_a1c": 7.4,
+          "estimated_hypo_frequency": "low",
+          "variability_category": "low"
+        }
+      },
+      "history": {
+        "meal_count": 271,
+        "date_range": {
+          "start": "2025-04-01",
+          "end": "2025-06-29"
+        },
+        "top_foods": [
+          {
+            "food": "Oatmeal with Raisins",
+            "count": 34
+          },
+          {
+            "food": "Beef Burrito",
+            "count": 28
+          },
+          {
+            "food": "Sushi Combo",
+            "count": 25
+          },
+          {
+            "food": "Lo Mein Noodles",
+            "count": 24
+          },
+          {
+            "food": "Pepperoni Pizza (Large)",
+            "count": 24
+          },
+          {
+            "food": "Chicken Curry",
+            "count": 24
+          },
+          {
+            "food": "Turkey Sandwich",
+            "count": 23
+          },
+          {
+            "food": "Berry Smoothie",
+            "count": 21
+          },
+          {
+            "food": "Lager Beer",
+            "count": 19
+          },
+          {
+            "food": "Pasta Alfredo",
+            "count": 19
+          }
+        ],
+        "common_food_terms": [
+          {
+            "term": "oatmeal",
+            "count": 34
+          },
+          {
+            "term": "raisins",
+            "count": 34
+          },
+          {
+            "term": "beef",
+            "count": 28
+          },
+          {
+            "term": "burrito",
+            "count": 28
+          },
+          {
+            "term": "sushi",
+            "count": 25
+          },
+          {
+            "term": "mein",
+            "count": 24
+          },
+          {
+            "term": "noodles",
+            "count": 24
+          },
+          {
+            "term": "pepperoni",
+            "count": 24
+          },
+          {
+            "term": "pizza",
+            "count": 24
+          },
+          {
+            "term": "large",
+            "count": 24
+          },
+          {
+            "term": "chicken",
+            "count": 24
+          },
+          {
+            "term": "curry",
+            "count": 24
+          },
+          {
+            "term": "turkey",
+            "count": 23
+          },
+          {
+            "term": "sandwich",
+            "count": 23
+          },
+          {
+            "term": "berry",
+            "count": 21
+          },
+          {
+            "term": "smoothie",
+            "count": 21
+          },
+          {
+            "term": "lager",
+            "count": 19
+          },
+          {
+            "term": "beer",
+            "count": 19
+          },
+          {
+            "term": "pasta",
+            "count": 19
+          },
+          {
+            "term": "alfredo",
+            "count": 19
+          }
+        ]
+      },
+      "distributions": {
+        "carbs_g": {
+          "min": 8.0,
+          "p25": 40.0,
+          "median": 51.0,
+          "mean": 59.1,
+          "p75": 65.0,
+          "max": 214.0
+        },
+        "fat_g": {
+          "min": 0.0,
+          "p25": 8.0,
+          "median": 15.0,
+          "mean": 20.5,
+          "p75": 25.0,
+          "max": 70.0
+        },
+        "expected_peak_delta_mg_dl": {
+          "min": 30.2,
+          "p25": 48.1,
+          "median": 64.2,
+          "mean": 64.9,
+          "p75": 81.9,
+          "max": 99.2
+        },
+        "peak_time_minutes": {
+          "min": 61.0,
+          "p25": 85.5,
+          "median": 116.0,
+          "mean": 117.2,
+          "p75": 149.5,
+          "max": 180.0
+        },
+        "fat_delay_hours": {
+          "min": 3.2,
+          "p25": 5.4,
+          "median": 6.0,
+          "mean": 6.0,
+          "p75": 6.7,
+          "max": 8.5
+        },
+        "confidence_score": {
+          "min": 0.7,
+          "p25": 0.8,
+          "median": 0.8,
+          "mean": 0.8,
+          "p75": 0.8,
+          "max": 0.9
+        }
+      },
+      "rates": {
+        "high_carb": 0.321,
+        "high_fat": 0.461,
+        "delayed_risk": 0.642
+      },
+      "peak_timing_buckets": {
+        "typical_90_to_150_min": 125,
+        "early_under_90_min": 79,
+        "delayed_150_to_240_min": 67
+      },
+      "patterns": [
+        {
+          "id": "delayed_rise_tendency",
+          "title": "Delayed-rise tendency",
+          "evidence": {
+            "matching_meals": 174,
+            "meal_count": 271,
+            "rate": 0.642,
+            "median_peak_minutes": 116.0,
+            "median_fat_delay_hours": 6.0
+          },
+          "plain_language": "This simulated profile often shows later glucose movement after meals in its history, so timing matters as much as the first rise."
+        },
+        {
+          "id": "higher_fat_context",
+          "title": "Higher-fat meal context",
+          "evidence": {
+            "matching_meals": 125,
+            "meal_count": 271,
+            "rate": 0.461
+          },
+          "plain_language": "Higher-fat meals appear often enough in this simulated history to treat delayed or prolonged glucose effects as a known uncertainty."
+        }
+      ],
+      "safety_notes": [
+        "Historical bolus/prebolus fields are simulator artifacts and must not be phrased as instructions.",
+        "Use as educational simulated-profile context only."
+      ]
+    },
+    {
+      "anchor_type": "high_variability",
+      "profile": {
+        "carb_ratio": 16.84,
+        "insulin_sensitivity": 26.7,
+        "fat_delay_hours": 2.12,
+        "profile": {
+          "anchor_type": "high_variability",
+          "anchor_label": "High Variability",
+          "description": "Unpredictable glucose swings across all time periods.",
+          "estimated_tir": 38.1,
+          "estimated_a1c": 8.5,
+          "estimated_hypo_frequency": "high",
+          "variability_category": "high"
+        }
+      },
+      "history": {
+        "meal_count": 278,
+        "date_range": {
+          "start": "2025-04-01",
+          "end": "2025-06-29"
+        },
+        "top_foods": [
+          {
+            "food": "Steak with Baked Potato",
+            "count": 29
+          },
+          {
+            "food": "Pasta Alfredo",
+            "count": 27
+          },
+          {
+            "food": "Caesar Salad",
+            "count": 27
+          },
+          {
+            "food": "Turkey Sandwich",
+            "count": 26
+          },
+          {
+            "food": "Lager Beer",
+            "count": 25
+          },
+          {
+            "food": "Pepperoni Pizza (Large)",
+            "count": 23
+          },
+          {
+            "food": "Berry Smoothie",
+            "count": 22
+          },
+          {
+            "food": "Lo Mein Noodles",
+            "count": 21
+          },
+          {
+            "food": "Beef Burrito",
+            "count": 21
+          },
+          {
+            "food": "Chicken Curry",
+            "count": 20
+          }
+        ],
+        "common_food_terms": [
+          {
+            "term": "steak",
+            "count": 29
+          },
+          {
+            "term": "baked",
+            "count": 29
+          },
+          {
+            "term": "potato",
+            "count": 29
+          },
+          {
+            "term": "pasta",
+            "count": 27
+          },
+          {
+            "term": "alfredo",
+            "count": 27
+          },
+          {
+            "term": "caesar",
+            "count": 27
+          },
+          {
+            "term": "salad",
+            "count": 27
+          },
+          {
+            "term": "turkey",
+            "count": 26
+          },
+          {
+            "term": "sandwich",
+            "count": 26
+          },
+          {
+            "term": "lager",
+            "count": 25
+          },
+          {
+            "term": "beer",
+            "count": 25
+          },
+          {
+            "term": "pepperoni",
+            "count": 23
+          },
+          {
+            "term": "pizza",
+            "count": 23
+          },
+          {
+            "term": "large",
+            "count": 23
+          },
+          {
+            "term": "berry",
+            "count": 22
+          },
+          {
+            "term": "smoothie",
+            "count": 22
+          },
+          {
+            "term": "mein",
+            "count": 21
+          },
+          {
+            "term": "noodles",
+            "count": 21
+          },
+          {
+            "term": "beef",
+            "count": 21
+          },
+          {
+            "term": "burrito",
+            "count": 21
+          }
+        ]
+      },
+      "distributions": {
+        "carbs_g": {
+          "min": 7.0,
+          "p25": 37.0,
+          "median": 48.0,
+          "mean": 55.4,
+          "p75": 63.8,
+          "max": 245.0
+        },
+        "fat_g": {
+          "min": 0.0,
+          "p25": 12.0,
+          "median": 20.0,
+          "mean": 21.3,
+          "p75": 25.0,
+          "max": 70.0
+        },
+        "expected_peak_delta_mg_dl": {
+          "min": 30.5,
+          "p25": 47.3,
+          "median": 67.3,
+          "mean": 65.3,
+          "p75": 81.7,
+          "max": 99.9
+        },
+        "peak_time_minutes": {
+          "min": 60.0,
+          "p25": 87.0,
+          "median": 123.0,
+          "mean": 121.1,
+          "p75": 152.0,
+          "max": 180.0
+        },
+        "fat_delay_hours": {
+          "min": 1.5,
+          "p25": 3.4,
+          "median": 4.1,
+          "mean": 4.1,
+          "p75": 4.8,
+          "max": 7.2
+        },
+        "confidence_score": {
+          "min": 0.7,
+          "p25": 0.8,
+          "median": 0.8,
+          "mean": 0.8,
+          "p75": 0.8,
+          "max": 0.9
+        }
+      },
+      "rates": {
+        "high_carb": 0.306,
+        "high_fat": 0.529,
+        "delayed_risk": 0.673
+      },
+      "peak_timing_buckets": {
+        "typical_90_to_150_min": 127,
+        "delayed_150_to_240_min": 77,
+        "early_under_90_min": 74
+      },
+      "patterns": [
+        {
+          "id": "delayed_rise_tendency",
+          "title": "Delayed-rise tendency",
+          "evidence": {
+            "matching_meals": 187,
+            "meal_count": 278,
+            "rate": 0.673,
+            "median_peak_minutes": 123.0,
+            "median_fat_delay_hours": 4.1
+          },
+          "plain_language": "This simulated profile often shows later glucose movement after meals in its history, so timing matters as much as the first rise."
+        },
+        {
+          "id": "higher_fat_context",
+          "title": "Higher-fat meal context",
+          "evidence": {
+            "matching_meals": 147,
+            "meal_count": 278,
+            "rate": 0.529
+          },
+          "plain_language": "Higher-fat meals appear often enough in this simulated history to treat delayed or prolonged glucose effects as a known uncertainty."
+        }
+      ],
+      "safety_notes": [
+        "Historical bolus/prebolus fields are simulator artifacts and must not be phrased as instructions.",
+        "Use as educational simulated-profile context only."
+      ]
+    },
+    {
+      "anchor_type": "insulin_resistant",
+      "profile": {
+        "carb_ratio": 8.68,
+        "insulin_sensitivity": 10.23,
+        "fat_delay_hours": 3.09,
+        "profile": {
+          "anchor_type": "insulin_resistant",
+          "anchor_label": "Insulin Resistant",
+          "description": "Requires high insulin doses with blunted post-meal response.",
+          "estimated_tir": 37.8,
+          "estimated_a1c": 9.1,
+          "estimated_hypo_frequency": "low",
+          "variability_category": "low"
+        }
+      },
+      "history": {
+        "meal_count": 280,
+        "date_range": {
+          "start": "2025-04-01",
+          "end": "2025-06-29"
+        },
+        "top_foods": [
+          {
+            "food": "Beef Burrito",
+            "count": 36
+          },
+          {
+            "food": "Caesar Salad",
+            "count": 29
+          },
+          {
+            "food": "Sushi Combo",
+            "count": 29
+          },
+          {
+            "food": "Lo Mein Noodles",
+            "count": 26
+          },
+          {
+            "food": "Chicken Curry",
+            "count": 24
+          },
+          {
+            "food": "Oatmeal with Raisins",
+            "count": 23
+          },
+          {
+            "food": "Berry Smoothie",
+            "count": 23
+          },
+          {
+            "food": "Turkey Sandwich",
+            "count": 20
+          },
+          {
+            "food": "Lager Beer",
+            "count": 19
+          },
+          {
+            "food": "Steak with Baked Potato",
+            "count": 18
+          }
+        ],
+        "common_food_terms": [
+          {
+            "term": "beef",
+            "count": 36
+          },
+          {
+            "term": "burrito",
+            "count": 36
+          },
+          {
+            "term": "caesar",
+            "count": 29
+          },
+          {
+            "term": "salad",
+            "count": 29
+          },
+          {
+            "term": "sushi",
+            "count": 29
+          },
+          {
+            "term": "mein",
+            "count": 26
+          },
+          {
+            "term": "noodles",
+            "count": 26
+          },
+          {
+            "term": "chicken",
+            "count": 24
+          },
+          {
+            "term": "curry",
+            "count": 24
+          },
+          {
+            "term": "oatmeal",
+            "count": 23
+          },
+          {
+            "term": "raisins",
+            "count": 23
+          },
+          {
+            "term": "berry",
+            "count": 23
+          },
+          {
+            "term": "smoothie",
+            "count": 23
+          },
+          {
+            "term": "turkey",
+            "count": 20
+          },
+          {
+            "term": "sandwich",
+            "count": 20
+          },
+          {
+            "term": "lager",
+            "count": 19
+          },
+          {
+            "term": "beer",
+            "count": 19
+          },
+          {
+            "term": "steak",
+            "count": 18
+          },
+          {
+            "term": "baked",
+            "count": 18
+          },
+          {
+            "term": "potato",
+            "count": 18
+          }
+        ]
+      },
+      "distributions": {
+        "carbs_g": {
+          "min": 8.0,
+          "p25": 39.0,
+          "median": 50.5,
+          "mean": 54.9,
+          "p75": 64.0,
+          "max": 260.0
+        },
+        "fat_g": {
+          "min": 0.0,
+          "p25": 12.0,
+          "median": 17.5,
+          "mean": 19.8,
+          "p75": 25.0,
+          "max": 70.0
+        },
+        "expected_peak_delta_mg_dl": {
+          "min": 30.0,
+          "p25": 46.3,
+          "median": 65.4,
+          "mean": 65.8,
+          "p75": 84.3,
+          "max": 99.9
+        },
+        "peak_time_minutes": {
+          "min": 60.0,
+          "p25": 91.8,
+          "median": 121.0,
+          "mean": 120.9,
+          "p75": 150.0,
+          "max": 180.0
+        },
+        "fat_delay_hours": {
+          "min": 2.2,
+          "p25": 4.0,
+          "median": 4.5,
+          "mean": 4.5,
+          "p75": 5.0,
+          "max": 6.6
+        },
+        "confidence_score": {
+          "min": 0.7,
+          "p25": 0.8,
+          "median": 0.8,
+          "mean": 0.8,
+          "p75": 0.8,
+          "max": 0.9
+        }
+      },
+      "rates": {
+        "high_carb": 0.314,
+        "high_fat": 0.5,
+        "delayed_risk": 0.696
+      },
+      "peak_timing_buckets": {
+        "early_under_90_min": 67,
+        "typical_90_to_150_min": 146,
+        "delayed_150_to_240_min": 67
+      },
+      "patterns": [
+        {
+          "id": "delayed_rise_tendency",
+          "title": "Delayed-rise tendency",
+          "evidence": {
+            "matching_meals": 195,
+            "meal_count": 280,
+            "rate": 0.696,
+            "median_peak_minutes": 121.0,
+            "median_fat_delay_hours": 4.5
+          },
+          "plain_language": "This simulated profile often shows later glucose movement after meals in its history, so timing matters as much as the first rise."
+        },
+        {
+          "id": "higher_fat_context",
+          "title": "Higher-fat meal context",
+          "evidence": {
+            "matching_meals": 140,
+            "meal_count": 280,
+            "rate": 0.5
+          },
+          "plain_language": "Higher-fat meals appear often enough in this simulated history to treat delayed or prolonged glucose effects as a known uncertainty."
+        }
+      ],
+      "safety_notes": [
+        "Historical bolus/prebolus fields are simulator artifacts and must not be phrased as instructions.",
+        "Use as educational simulated-profile context only."
+      ]
+    },
+    {
+      "anchor_type": "insulin_sensitive",
+      "profile": {
+        "carb_ratio": 25.36,
+        "insulin_sensitivity": 56.7,
+        "fat_delay_hours": 2.03,
+        "profile": {
+          "anchor_type": "insulin_sensitive",
+          "anchor_label": "Insulin Sensitive",
+          "description": "Very responsive to small insulin doses with risk of over-correction.",
+          "estimated_tir": 59.6,
+          "estimated_a1c": 6.7,
+          "estimated_hypo_frequency": "moderate",
+          "variability_category": "low"
+        }
+      },
+      "history": {
+        "meal_count": 293,
+        "date_range": {
+          "start": "2025-04-01",
+          "end": "2025-06-29"
+        },
+        "top_foods": [
+          {
+            "food": "Chicken Curry",
+            "count": 34
+          },
+          {
+            "food": "Lo Mein Noodles",
+            "count": 32
+          },
+          {
+            "food": "Lager Beer",
+            "count": 29
+          },
+          {
+            "food": "Caesar Salad",
+            "count": 27
+          },
+          {
+            "food": "Berry Smoothie",
+            "count": 27
+          },
+          {
+            "food": "Sushi Combo",
+            "count": 24
+          },
+          {
+            "food": "Pasta Alfredo",
+            "count": 21
+          },
+          {
+            "food": "Beef Burrito",
+            "count": 21
+          },
+          {
+            "food": "Steak with Baked Potato",
+            "count": 20
+          },
+          {
+            "food": "Oatmeal with Raisins",
+            "count": 20
+          }
+        ],
+        "common_food_terms": [
+          {
+            "term": "chicken",
+            "count": 34
+          },
+          {
+            "term": "curry",
+            "count": 34
+          },
+          {
+            "term": "mein",
+            "count": 32
+          },
+          {
+            "term": "noodles",
+            "count": 32
+          },
+          {
+            "term": "lager",
+            "count": 29
+          },
+          {
+            "term": "beer",
+            "count": 29
+          },
+          {
+            "term": "caesar",
+            "count": 27
+          },
+          {
+            "term": "salad",
+            "count": 27
+          },
+          {
+            "term": "berry",
+            "count": 27
+          },
+          {
+            "term": "smoothie",
+            "count": 27
+          },
+          {
+            "term": "sushi",
+            "count": 24
+          },
+          {
+            "term": "pasta",
+            "count": 21
+          },
+          {
+            "term": "alfredo",
+            "count": 21
+          },
+          {
+            "term": "beef",
+            "count": 21
+          },
+          {
+            "term": "burrito",
+            "count": 21
+          },
+          {
+            "term": "steak",
+            "count": 20
+          },
+          {
+            "term": "baked",
+            "count": 20
+          },
+          {
+            "term": "potato",
+            "count": 20
+          },
+          {
+            "term": "oatmeal",
+            "count": 20
+          },
+          {
+            "term": "raisins",
+            "count": 20
+          }
+        ]
+      },
+      "distributions": {
+        "carbs_g": {
+          "min": 6.0,
+          "p25": 36.0,
+          "median": 49.0,
+          "mean": 54.7,
+          "p75": 63.0,
+          "max": 255.0
+        },
+        "fat_g": {
+          "min": 0.0,
+          "p25": 8.0,
+          "median": 15.0,
+          "mean": 19.5,
+          "p75": 25.0,
+          "max": 70.0
+        },
+        "expected_peak_delta_mg_dl": {
+          "min": 30.3,
+          "p25": 48.5,
+          "median": 64.3,
+          "mean": 64.6,
+          "p75": 81.1,
+          "max": 99.9
+        },
+        "peak_time_minutes": {
+          "min": 60.0,
+          "p25": 89.0,
+          "median": 120.0,
+          "mean": 120.4,
+          "p75": 152.0,
+          "max": 180.0
+        },
+        "fat_delay_hours": {
+          "min": 1.7,
+          "p25": 2.3,
+          "median": 2.5,
+          "mean": 2.5,
+          "p75": 2.7,
+          "max": 3.2
+        },
+        "confidence_score": {
+          "min": 0.7,
+          "p25": 0.8,
+          "median": 0.8,
+          "mean": 0.8,
+          "p75": 0.8,
+          "max": 0.9
+        }
+      },
+      "rates": {
+        "high_carb": 0.297,
+        "high_fat": 0.488,
+        "delayed_risk": 0.679
+      },
+      "peak_timing_buckets": {
+        "typical_90_to_150_min": 142,
+        "early_under_90_min": 74,
+        "delayed_150_to_240_min": 77
+      },
+      "patterns": [
+        {
+          "id": "delayed_rise_tendency",
+          "title": "Delayed-rise tendency",
+          "evidence": {
+            "matching_meals": 199,
+            "meal_count": 293,
+            "rate": 0.679,
+            "median_peak_minutes": 120.0,
+            "median_fat_delay_hours": 2.5
+          },
+          "plain_language": "This simulated profile often shows later glucose movement after meals in its history, so timing matters as much as the first rise."
+        },
+        {
+          "id": "higher_fat_context",
+          "title": "Higher-fat meal context",
+          "evidence": {
+            "matching_meals": 143,
+            "meal_count": 293,
+            "rate": 0.488
+          },
+          "plain_language": "Higher-fat meals appear often enough in this simulated history to treat delayed or prolonged glucose effects as a known uncertainty."
+        }
+      ],
+      "safety_notes": [
+        "Historical bolus/prebolus fields are simulator artifacts and must not be phrased as instructions.",
+        "Use as educational simulated-profile context only."
+      ]
+    },
+    {
+      "anchor_type": "newly_diagnosed",
+      "profile": {
+        "carb_ratio": 10.16,
+        "insulin_sensitivity": 19.46,
+        "fat_delay_hours": 2.09,
+        "profile": {
+          "anchor_type": "newly_diagnosed",
+          "anchor_label": "Newly Diagnosed",
+          "description": "Higher average glucose, learning-phase variability, and inconsistent dosing.",
+          "estimated_tir": 51.8,
+          "estimated_a1c": 8.3,
+          "estimated_hypo_frequency": "moderate",
+          "variability_category": "moderate"
+        }
+      },
+      "history": {
+        "meal_count": 261,
+        "date_range": {
+          "start": "2025-04-01",
+          "end": "2025-06-29"
+        },
+        "top_foods": [
+          {
+            "food": "Beef Burrito",
+            "count": 30
+          },
+          {
+            "food": "Sushi Combo",
+            "count": 30
+          },
+          {
+            "food": "Pepperoni Pizza (Large)",
+            "count": 29
+          },
+          {
+            "food": "Oatmeal with Raisins",
+            "count": 23
+          },
+          {
+            "food": "Lo Mein Noodles",
+            "count": 23
+          },
+          {
+            "food": "Pasta Alfredo",
+            "count": 22
+          },
+          {
+            "food": "Caesar Salad",
+            "count": 22
+          },
+          {
+            "food": "Turkey Sandwich",
+            "count": 20
+          },
+          {
+            "food": "Berry Smoothie",
+            "count": 18
+          },
+          {
+            "food": "Steak with Baked Potato",
+            "count": 18
+          }
+        ],
+        "common_food_terms": [
+          {
+            "term": "beef",
+            "count": 30
+          },
+          {
+            "term": "burrito",
+            "count": 30
+          },
+          {
+            "term": "sushi",
+            "count": 30
+          },
+          {
+            "term": "pepperoni",
+            "count": 29
+          },
+          {
+            "term": "pizza",
+            "count": 29
+          },
+          {
+            "term": "large",
+            "count": 29
+          },
+          {
+            "term": "oatmeal",
+            "count": 23
+          },
+          {
+            "term": "raisins",
+            "count": 23
+          },
+          {
+            "term": "mein",
+            "count": 23
+          },
+          {
+            "term": "noodles",
+            "count": 23
+          },
+          {
+            "term": "pasta",
+            "count": 22
+          },
+          {
+            "term": "alfredo",
+            "count": 22
+          },
+          {
+            "term": "caesar",
+            "count": 22
+          },
+          {
+            "term": "salad",
+            "count": 22
+          },
+          {
+            "term": "turkey",
+            "count": 20
+          },
+          {
+            "term": "sandwich",
+            "count": 20
+          },
+          {
+            "term": "berry",
+            "count": 18
+          },
+          {
+            "term": "smoothie",
+            "count": 18
+          },
+          {
+            "term": "steak",
+            "count": 18
+          },
+          {
+            "term": "baked",
+            "count": 18
+          }
+        ]
+      },
+      "distributions": {
+        "carbs_g": {
+          "min": 8.0,
+          "p25": 41.0,
+          "median": 52.0,
+          "mean": 62.5,
+          "p75": 67.0,
+          "max": 223.0
+        },
+        "fat_g": {
+          "min": 0.0,
+          "p25": 12.0,
+          "median": 20.0,
+          "mean": 22.6,
+          "p75": 25.0,
+          "max": 70.0
+        },
+        "expected_peak_delta_mg_dl": {
+          "min": 30.0,
+          "p25": 51.0,
+          "median": 69.9,
+          "mean": 67.4,
+          "p75": 83.0,
+          "max": 99.4
+        },
+        "peak_time_minutes": {
+          "min": 60.0,
+          "p25": 90.0,
+          "median": 115.0,
+          "mean": 118.7,
+          "p75": 145.0,
+          "max": 180.0
+        },
+        "fat_delay_hours": {
+          "min": 0.8,
+          "p25": 3.0,
+          "median": 3.5,
+          "mean": 3.5,
+          "p75": 3.9,
+          "max": 5.5
+        },
+        "confidence_score": {
+          "min": 0.7,
+          "p25": 0.8,
+          "median": 0.8,
+          "mean": 0.8,
+          "p75": 0.8,
+          "max": 0.9
+        }
+      },
+      "rates": {
+        "high_carb": 0.375,
+        "high_fat": 0.502,
+        "delayed_risk": 0.705
+      },
+      "peak_timing_buckets": {
+        "early_under_90_min": 60,
+        "typical_90_to_150_min": 140,
+        "delayed_150_to_240_min": 61
+      },
+      "patterns": [
+        {
+          "id": "delayed_rise_tendency",
+          "title": "Delayed-rise tendency",
+          "evidence": {
+            "matching_meals": 184,
+            "meal_count": 261,
+            "rate": 0.705,
+            "median_peak_minutes": 115.0,
+            "median_fat_delay_hours": 3.5
+          },
+          "plain_language": "This simulated profile often shows later glucose movement after meals in its history, so timing matters as much as the first rise."
+        },
+        {
+          "id": "frequent_high_carb_meals",
+          "title": "Frequent high-carb meals",
+          "evidence": {
+            "matching_meals": 98,
+            "meal_count": 261,
+            "rate": 0.375
+          },
+          "plain_language": "A sizeable share of this simulated profile's history involves higher-carb meals, which makes post-meal monitoring especially relevant."
+        },
+        {
+          "id": "higher_fat_context",
+          "title": "Higher-fat meal context",
+          "evidence": {
+            "matching_meals": 131,
+            "meal_count": 261,
+            "rate": 0.502
+          },
+          "plain_language": "Higher-fat meals appear often enough in this simulated history to treat delayed or prolonged glucose effects as a known uncertainty."
+        }
+      ],
+      "safety_notes": [
+        "Historical bolus/prebolus fields are simulator artifacts and must not be phrased as instructions.",
+        "Use as educational simulated-profile context only."
+      ]
+    },
+    {
+      "anchor_type": "overnight_hypo",
+      "profile": {
+        "carb_ratio": 22.36,
+        "insulin_sensitivity": 46.7,
+        "fat_delay_hours": 2.06,
+        "profile": {
+          "anchor_type": "overnight_hypo",
+          "anchor_label": "Overnight Hypo Prone",
+          "description": "Frequent nocturnal hypoglycemia with extended low periods during sleep.",
+          "estimated_tir": 51.0,
+          "estimated_a1c": 6.7,
+          "estimated_hypo_frequency": "high",
+          "variability_category": "low"
+        }
+      },
+      "history": {
+        "meal_count": 271,
+        "date_range": {
+          "start": "2025-04-01",
+          "end": "2025-06-29"
+        },
+        "top_foods": [
+          {
+            "food": "Pasta Alfredo",
+            "count": 29
+          },
+          {
+            "food": "Oatmeal with Raisins",
+            "count": 28
+          },
+          {
+            "food": "Lo Mein Noodles",
+            "count": 27
+          },
+          {
+            "food": "Chicken Curry",
+            "count": 26
+          },
+          {
+            "food": "Turkey Sandwich",
+            "count": 25
+          },
+          {
+            "food": "Berry Smoothie",
+            "count": 25
+          },
+          {
+            "food": "Caesar Salad",
+            "count": 23
+          },
+          {
+            "food": "Sushi Combo",
+            "count": 22
+          },
+          {
+            "food": "Steak with Baked Potato",
+            "count": 21
+          },
+          {
+            "food": "Lager Beer",
+            "count": 18
+          }
+        ],
+        "common_food_terms": [
+          {
+            "term": "pasta",
+            "count": 29
+          },
+          {
+            "term": "alfredo",
+            "count": 29
+          },
+          {
+            "term": "oatmeal",
+            "count": 28
+          },
+          {
+            "term": "raisins",
+            "count": 28
+          },
+          {
+            "term": "mein",
+            "count": 27
+          },
+          {
+            "term": "noodles",
+            "count": 27
+          },
+          {
+            "term": "chicken",
+            "count": 26
+          },
+          {
+            "term": "curry",
+            "count": 26
+          },
+          {
+            "term": "turkey",
+            "count": 25
+          },
+          {
+            "term": "sandwich",
+            "count": 25
+          },
+          {
+            "term": "berry",
+            "count": 25
+          },
+          {
+            "term": "smoothie",
+            "count": 25
+          },
+          {
+            "term": "caesar",
+            "count": 23
+          },
+          {
+            "term": "salad",
+            "count": 23
+          },
+          {
+            "term": "sushi",
+            "count": 22
+          },
+          {
+            "term": "steak",
+            "count": 21
+          },
+          {
+            "term": "baked",
+            "count": 21
+          },
+          {
+            "term": "potato",
+            "count": 21
+          },
+          {
+            "term": "lager",
+            "count": 18
+          },
+          {
+            "term": "beer",
+            "count": 18
+          }
+        ]
+      },
+      "distributions": {
+        "carbs_g": {
+          "min": 9.0,
+          "p25": 38.5,
+          "median": 48.0,
+          "mean": 50.6,
+          "p75": 60.0,
+          "max": 217.0
+        },
+        "fat_g": {
+          "min": 0.0,
+          "p25": 8.0,
+          "median": 15.0,
+          "mean": 18.1,
+          "p75": 25.0,
+          "max": 70.0
+        },
+        "expected_peak_delta_mg_dl": {
+          "min": 30.6,
+          "p25": 52.7,
+          "median": 64.8,
+          "mean": 66.1,
+          "p75": 81.8,
+          "max": 99.9
+        },
+        "peak_time_minutes": {
+          "min": 60.0,
+          "p25": 88.5,
+          "median": 122.0,
+          "mean": 119.0,
+          "p75": 150.0,
+          "max": 180.0
+        },
+        "fat_delay_hours": {
+          "min": 1.8,
+          "p25": 2.7,
+          "median": 3.0,
+          "mean": 3.0,
+          "p75": 3.3,
+          "max": 4.5
+        },
+        "confidence_score": {
+          "min": 0.7,
+          "p25": 0.8,
+          "median": 0.8,
+          "mean": 0.8,
+          "p75": 0.8,
+          "max": 0.9
+        }
+      },
+      "rates": {
+        "high_carb": 0.255,
+        "high_fat": 0.465,
+        "delayed_risk": 0.646
+      },
+      "peak_timing_buckets": {
+        "early_under_90_min": 71,
+        "delayed_150_to_240_min": 66,
+        "typical_90_to_150_min": 134
+      },
+      "patterns": [
+        {
+          "id": "delayed_rise_tendency",
+          "title": "Delayed-rise tendency",
+          "evidence": {
+            "matching_meals": 175,
+            "meal_count": 271,
+            "rate": 0.646,
+            "median_peak_minutes": 122.0,
+            "median_fat_delay_hours": 3.0
+          },
+          "plain_language": "This simulated profile often shows later glucose movement after meals in its history, so timing matters as much as the first rise."
+        },
+        {
+          "id": "higher_fat_context",
+          "title": "Higher-fat meal context",
+          "evidence": {
+            "matching_meals": 126,
+            "meal_count": 271,
+            "rate": 0.465
+          },
+          "plain_language": "Higher-fat meals appear often enough in this simulated history to treat delayed or prolonged glucose effects as a known uncertainty."
+        }
+      ],
+      "safety_notes": [
+        "Historical bolus/prebolus fields are simulator artifacts and must not be phrased as instructions.",
+        "Use as educational simulated-profile context only."
+      ]
+    },
+    {
+      "anchor_type": "post_meal_spike",
+      "profile": {
+        "carb_ratio": 13.16,
+        "insulin_sensitivity": 29.46,
+        "fat_delay_hours": 2.06,
+        "profile": {
+          "anchor_type": "post_meal_spike",
+          "anchor_label": "Post-Meal Spike Dominant",
+          "description": "Pronounced glucose rises after meals, especially high-carb meals.",
+          "estimated_tir": 59.2,
+          "estimated_a1c": 7.7,
+          "estimated_hypo_frequency": "low",
+          "variability_category": "low"
+        }
+      },
+      "history": {
+        "meal_count": 252,
+        "date_range": {
+          "start": "2025-04-01",
+          "end": "2025-06-29"
+        },
+        "top_foods": [
+          {
+            "food": "Chicken Curry",
+            "count": 25
+          },
+          {
+            "food": "Lo Mein Noodles",
+            "count": 25
+          },
+          {
+            "food": "Turkey Sandwich",
+            "count": 24
+          },
+          {
+            "food": "Beef Burrito",
+            "count": 23
+          },
+          {
+            "food": "Steak with Baked Potato",
+            "count": 21
+          },
+          {
+            "food": "Oatmeal with Raisins",
+            "count": 21
+          },
+          {
+            "food": "Lager Beer",
+            "count": 20
+          },
+          {
+            "food": "Sushi Combo",
+            "count": 20
+          },
+          {
+            "food": "Caesar Salad",
+            "count": 20
+          },
+          {
+            "food": "Berry Smoothie",
+            "count": 19
+          }
+        ],
+        "common_food_terms": [
+          {
+            "term": "chicken",
+            "count": 25
+          },
+          {
+            "term": "curry",
+            "count": 25
+          },
+          {
+            "term": "mein",
+            "count": 25
+          },
+          {
+            "term": "noodles",
+            "count": 25
+          },
+          {
+            "term": "turkey",
+            "count": 24
+          },
+          {
+            "term": "sandwich",
+            "count": 24
+          },
+          {
+            "term": "beef",
+            "count": 23
+          },
+          {
+            "term": "burrito",
+            "count": 23
+          },
+          {
+            "term": "steak",
+            "count": 21
+          },
+          {
+            "term": "baked",
+            "count": 21
+          },
+          {
+            "term": "potato",
+            "count": 21
+          },
+          {
+            "term": "oatmeal",
+            "count": 21
+          },
+          {
+            "term": "raisins",
+            "count": 21
+          },
+          {
+            "term": "lager",
+            "count": 20
+          },
+          {
+            "term": "beer",
+            "count": 20
+          },
+          {
+            "term": "sushi",
+            "count": 20
+          },
+          {
+            "term": "caesar",
+            "count": 20
+          },
+          {
+            "term": "salad",
+            "count": 20
+          },
+          {
+            "term": "berry",
+            "count": 19
+          },
+          {
+            "term": "smoothie",
+            "count": 19
+          }
+        ]
+      },
+      "distributions": {
+        "carbs_g": {
+          "min": 7.0,
+          "p25": 38.0,
+          "median": 48.0,
+          "mean": 53.3,
+          "p75": 60.0,
+          "max": 206.0
+        },
+        "fat_g": {
+          "min": 0.0,
+          "p25": 12.0,
+          "median": 15.0,
+          "mean": 19.7,
+          "p75": 25.0,
+          "max": 70.0
+        },
+        "expected_peak_delta_mg_dl": {
+          "min": 30.2,
+          "p25": 44.6,
+          "median": 64.8,
+          "mean": 63.2,
+          "p75": 79.1,
+          "max": 99.9
+        },
+        "peak_time_minutes": {
+          "min": 62.0,
+          "p25": 88.8,
+          "median": 121.0,
+          "mean": 120.7,
+          "p75": 156.2,
+          "max": 180.0
+        },
+        "fat_delay_hours": {
+          "min": 1.6,
+          "p25": 2.7,
+          "median": 3.1,
+          "mean": 3.0,
+          "p75": 3.4,
+          "max": 4.2
+        },
+        "confidence_score": {
+          "min": 0.7,
+          "p25": 0.7,
+          "median": 0.8,
+          "mean": 0.8,
+          "p75": 0.8,
+          "max": 0.9
+        }
+      },
+      "rates": {
+        "high_carb": 0.258,
+        "high_fat": 0.488,
+        "delayed_risk": 0.667
+      },
+      "peak_timing_buckets": {
+        "delayed_150_to_240_min": 73,
+        "typical_90_to_150_min": 112,
+        "early_under_90_min": 67
+      },
+      "patterns": [
+        {
+          "id": "delayed_rise_tendency",
+          "title": "Delayed-rise tendency",
+          "evidence": {
+            "matching_meals": 168,
+            "meal_count": 252,
+            "rate": 0.667,
+            "median_peak_minutes": 121.0,
+            "median_fat_delay_hours": 3.1
+          },
+          "plain_language": "This simulated profile often shows later glucose movement after meals in its history, so timing matters as much as the first rise."
+        },
+        {
+          "id": "higher_fat_context",
+          "title": "Higher-fat meal context",
+          "evidence": {
+            "matching_meals": 123,
+            "meal_count": 252,
+            "rate": 0.488
+          },
+          "plain_language": "Higher-fat meals appear often enough in this simulated history to treat delayed or prolonged glucose effects as a known uncertainty."
+        }
+      ],
+      "safety_notes": [
+        "Historical bolus/prebolus fields are simulator artifacts and must not be phrased as instructions.",
+        "Use as educational simulated-profile context only."
+      ]
+    },
+    {
+      "anchor_type": "well_controlled",
+      "profile": {
+        "carb_ratio": 15.89,
+        "insulin_sensitivity": 39.46,
+        "fat_delay_hours": 2.06,
+        "profile": {
+          "anchor_type": "well_controlled",
+          "anchor_label": "Well-Controlled",
+          "description": "Stable glucose with good time-in-range, minimal extremes.",
+          "estimated_tir": 62.9,
+          "estimated_a1c": 6.3,
+          "estimated_hypo_frequency": "low",
+          "variability_category": "low"
+        }
+      },
+      "history": {
+        "meal_count": 279,
+        "date_range": {
+          "start": "2025-04-01",
+          "end": "2025-06-29"
+        },
+        "top_foods": [
+          {
+            "food": "Pepperoni Pizza (Large)",
+            "count": 31
+          },
+          {
+            "food": "Beef Burrito",
+            "count": 27
+          },
+          {
+            "food": "Caesar Salad",
+            "count": 27
+          },
+          {
+            "food": "Lo Mein Noodles",
+            "count": 27
+          },
+          {
+            "food": "Steak with Baked Potato",
+            "count": 23
+          },
+          {
+            "food": "Turkey Sandwich",
+            "count": 23
+          },
+          {
+            "food": "Lager Beer",
+            "count": 22
+          },
+          {
+            "food": "Pasta Alfredo",
+            "count": 22
+          },
+          {
+            "food": "Sushi Combo",
+            "count": 21
+          },
+          {
+            "food": "Oatmeal with Raisins",
+            "count": 20
+          }
+        ],
+        "common_food_terms": [
+          {
+            "term": "pepperoni",
+            "count": 31
+          },
+          {
+            "term": "pizza",
+            "count": 31
+          },
+          {
+            "term": "large",
+            "count": 31
+          },
+          {
+            "term": "beef",
+            "count": 27
+          },
+          {
+            "term": "burrito",
+            "count": 27
+          },
+          {
+            "term": "caesar",
+            "count": 27
+          },
+          {
+            "term": "salad",
+            "count": 27
+          },
+          {
+            "term": "mein",
+            "count": 27
+          },
+          {
+            "term": "noodles",
+            "count": 27
+          },
+          {
+            "term": "steak",
+            "count": 23
+          },
+          {
+            "term": "baked",
+            "count": 23
+          },
+          {
+            "term": "potato",
+            "count": 23
+          },
+          {
+            "term": "turkey",
+            "count": 23
+          },
+          {
+            "term": "sandwich",
+            "count": 23
+          },
+          {
+            "term": "lager",
+            "count": 22
+          },
+          {
+            "term": "beer",
+            "count": 22
+          },
+          {
+            "term": "pasta",
+            "count": 22
+          },
+          {
+            "term": "alfredo",
+            "count": 22
+          },
+          {
+            "term": "sushi",
+            "count": 21
+          },
+          {
+            "term": "oatmeal",
+            "count": 20
+          }
+        ]
+      },
+      "distributions": {
+        "carbs_g": {
+          "min": 7.0,
+          "p25": 37.5,
+          "median": 50.0,
+          "mean": 60.0,
+          "p75": 67.0,
+          "max": 229.0
+        },
+        "fat_g": {
+          "min": 0.0,
+          "p25": 12.0,
+          "median": 20.0,
+          "mean": 22.8,
+          "p75": 25.0,
+          "max": 70.0
+        },
+        "expected_peak_delta_mg_dl": {
+          "min": 30.5,
+          "p25": 46.8,
+          "median": 67.1,
+          "mean": 65.6,
+          "p75": 83.9,
+          "max": 99.8
+        },
+        "peak_time_minutes": {
+          "min": 61.0,
+          "p25": 90.0,
+          "median": 114.0,
+          "mean": 118.4,
+          "p75": 151.5,
+          "max": 180.0
+        },
+        "fat_delay_hours": {
+          "min": 1.5,
+          "p25": 2.7,
+          "median": 3.1,
+          "mean": 3.0,
+          "p75": 3.3,
+          "max": 4.6
+        },
+        "confidence_score": {
+          "min": 0.7,
+          "p25": 0.8,
+          "median": 0.8,
+          "mean": 0.8,
+          "p75": 0.8,
+          "max": 0.9
+        }
+      },
+      "rates": {
+        "high_carb": 0.337,
+        "high_fat": 0.534,
+        "delayed_risk": 0.706
+      },
+      "peak_timing_buckets": {
+        "typical_90_to_150_min": 140,
+        "delayed_150_to_240_min": 71,
+        "early_under_90_min": 68
+      },
+      "patterns": [
+        {
+          "id": "delayed_rise_tendency",
+          "title": "Delayed-rise tendency",
+          "evidence": {
+            "matching_meals": 197,
+            "meal_count": 279,
+            "rate": 0.706,
+            "median_peak_minutes": 114.0,
+            "median_fat_delay_hours": 3.1
+          },
+          "plain_language": "This simulated profile often shows later glucose movement after meals in its history, so timing matters as much as the first rise."
+        },
+        {
+          "id": "higher_fat_context",
+          "title": "Higher-fat meal context",
+          "evidence": {
+            "matching_meals": 149,
+            "meal_count": 279,
+            "rate": 0.534
+          },
+          "plain_language": "Higher-fat meals appear often enough in this simulated history to treat delayed or prolonged glucose effects as a known uncertainty."
+        }
+      ],
+      "safety_notes": [
+        "Historical bolus/prebolus fields are simulator artifacts and must not be phrased as instructions.",
+        "Use as educational simulated-profile context only."
+      ]
+    }
+  ]
+}

@@ -1,7 +1,9 @@
 """Service layer for food domain with multi-provider search."""
 
+import json
+import math
 from datetime import datetime, timedelta, timezone
-from typing import Any, Dict, List, Optional
+from typing import Any, Callable, Dict, List, Optional
 
 from sqlalchemy import and_, desc, select, func
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -124,106 +126,72 @@ class FoodService:
     async def _search_local_off(self, query: str, limit: int = 5) -> List[Dict[str, Any]]:
         """Search the local Open Food Facts Postgres table.
         
-        Queries openfoodfacts_products table for matching products.
-        Uses trigram similarity on product_name for fuzzy matching.
-        
-        Returns list of dicts with normalized nutrition fields matching
-        the OpenFoodFactsProduct response shape, sorted by quality (fewer quality flags first).
+        Uses ILIKE with trigram index for fast index-assisted filtering.
+        Multi-word queries AND the word conditions to narrow results.
+        Single-word queries use word-boundary regex to avoid false matches
+        (e.g. 'ale' matching 'paleo**le**').
+        Candidates are then quality-ranked by the caller.
         """
-        results = []
+        words = [w for w in query.replace("-", " ").split() if len(w) >= 3]
+        if not words:
+            words = [query]
         
-        # Use name similarity search - trigram index should be available in Postgres
-        # For SQLite compatibility, fall back to ILIKE
+        # Build per-word conditions using ILIKE (uses trigram GIN index).
+        # For single words, also try common spelling variants to improve recall.
+        from sqlalchemy import or_ as sa_or
+        
+        all_word_conditions = []
+        for w in words:
+            variants = [w]
+            # Common UK/US spelling variants
+            spelling_map = {
+                'doughnut': ['donut'], 'donut': ['doughnut'],
+                'yoghurt': ['yogurt'], 'yogurt': ['yoghurt'],
+                'chips': ['crisps'], 'crisps': ['chips'],
+                'aubergine': ['eggplant'], 'eggplant': ['aubergine'],
+                'courgette': ['zucchini'], 'zucchini': ['courgette'],
+            }
+            if w.lower() in spelling_map:
+                variants.extend(spelling_map[w.lower()])
+            
+            word_conds = [
+                OpenFoodFactsProduct.product_name.ilike(f"%{v}%")
+                for v in variants
+            ]
+            all_word_conditions.append(sa_or(*word_conds))
+        
+        if len(all_word_conditions) >= 2:
+            filter_cond = and_(*all_word_conditions)
+        else:
+            filter_cond = all_word_conditions[0]
+        
         stmt = (
-            select(OpenFoodFactsProduct, func.similarity(OpenFoodFactsProduct.product_name, query).label("similarity"))
+            select(OpenFoodFactsProduct)
             .where(
-                OpenFoodFactsProduct.product_name.isnot(None),
-                OpenFoodFactsProduct.carbs_100g.isnot(None),  # Only products with nutrition data
+                filter_cond,
+                OpenFoodFactsProduct.carbs_100g.isnot(None),
             )
-            .order_by(
-                func.similarity(OpenFoodFactsProduct.product_name, query).desc(),
-                OpenFoodFactsProduct.nutriscore_score.asc().nullslast(),  # Better nutrition scores first
-            )
-            .limit(limit)
+            .limit(max(limit * 3, 20))  # Return extra candidates for quality ranking
         )
+        result = await self.db.execute(stmt)
+        products = list(result.scalars().all())
         
-        try:
-            result = await self.db.execute(stmt)
-            products_with_similarity = list(result.all())
-            
-            # Compute quality flags for each product and store similarity
-            products = []
-            for product, similarity in products_with_similarity:
-                quality = _assess_food_dict_quality(product, source="openfoodfacts_local")
-                products.append({
-                    "source": "openfoodfacts_local",
-                    "name": product.product_name,
-                    "brand": product.brands,
-                    "barcode": product.code,
-                    "carbs_per_100g": product.carbs_100g,
-                    "protein_per_100g": product.proteins_100g,
-                    "fat_per_100g": product.fat_100g,
-                    "calories_per_100g": product.energy_kcal_100g,
-                    "serving_size": product.serving_size,
-                    "fiber_per_100g": product.fiber_100g,
-                    "sugars_per_100g": product.sugars_100g,
-                    "sodium_per_100g": product.sodium_100g,
-                    "_similarity": similarity,
-                    "_quality_flags": quality,
-                    "_num_quality_flags": len(quality),
-                })
-            # Sort by similarity (descending) as primary, then by number of quality flags (ascending) as secondary
-            products.sort(key=lambda p: (-p["_similarity"], p["_num_quality_flags"]))
-            # Strip private fields
-            for p in products:
-                p.pop("_similarity", None)
-                p.pop("_quality_flags", None)
-                p.pop("_num_quality_flags", None)
-            results = products
-        except Exception:
-            # Fallback for databases without pg_trgm extension or similarity function
-            # Use tokenized ILIKE search as fallback so "large fries" can match
-            # product names such as "Large French Fries".
-            terms = [term for term in query.replace("-", " ").split() if term]
-            name_conditions = [
-                OpenFoodFactsProduct.product_name.ilike(f"%{term}%")
-                for term in terms
-            ] or [OpenFoodFactsProduct.product_name.ilike(f"%{query}%")]
-            stmt = (
-                select(OpenFoodFactsProduct)
-                .where(
-                    and_(*name_conditions),
-                    OpenFoodFactsProduct.carbs_100g.isnot(None),
-                )
-                .limit(limit)
-            )
-            result = await self.db.execute(stmt)
-            products = list(result.scalars().all())
-            
-            for product in products:
-                quality = _assess_food_dict_quality(product, source="openfoodfacts_local")
-                results.append({
-                    "source": "openfoodfacts_local",
-                    "name": product.product_name,
-                    "brand": product.brands,
-                    "barcode": product.code,
-                    "carbs_per_100g": product.carbs_100g,
-                    "protein_per_100g": product.proteins_100g,
-                    "fat_per_100g": product.fat_100g,
-                    "calories_per_100g": product.energy_kcal_100g,
-                    "serving_size": product.serving_size,
-                    "fiber_per_100g": product.fiber_100g,
-                    "sugars_per_100g": product.sugars_100g,
-                    "sodium_per_100g": product.sodium_100g,
-                    "_quality_flags": quality,
-                    "_num_quality_flags": len(quality),
-                })
-            # Sort by number of quality flags (ascending) as we don't have similarity
-            results.sort(key=lambda r: r["_num_quality_flags"])
-            # Strip private fields
-            for r in results:
-                r.pop("_quality_flags", None)
-                r.pop("_num_quality_flags", None)
+        results = []
+        for product in products:
+            results.append({
+                "source": "openfoodfacts_local",
+                "name": product.product_name,
+                "brand": product.brands,
+                "barcode": product.code,
+                "carbs_per_100g": product.carbs_100g,
+                "protein_per_100g": product.proteins_100g,
+                "fat_per_100g": product.fat_100g,
+                "calories_per_100g": product.energy_kcal_100g,
+                "serving_size": product.serving_size,
+                "fiber_per_100g": product.fiber_100g,
+                "sugars_per_100g": product.sugars_100g,
+                "sodium_per_100g": product.sodium_100g,
+            })
         
         return results
 
@@ -841,6 +809,120 @@ class FoodService:
             "recommendation": recommendation,
             "reasons": reasons,
         }
+
+    # ------------------------------------------------------------------
+    # Semantic Search (Embedding-based)
+    # ------------------------------------------------------------------
+
+    async def _search_local_off_semantic(
+        self, query: str, limit: int = 5, embed_call = None
+    ) -> List[Dict[str, Any]]:
+        """Search using semantic similarity on embeddings with pgvector.
+
+        Uses sentence-transformers embeddings and finds similar food items
+        via pgvector's native L2 distance on halfvec columns.
+
+        Args:
+            query: Search text (e.g., "chicken wings" or "fried rice")
+            limit: Maximum number of results
+            embed_call: Optional callable that returns embedding list (sync or async)
+
+        Returns:
+            List of dicts with normalized nutrition fields
+        """
+        from sqlalchemy import text
+
+        # Semantic search requires an embed_call - we do not load HF model at runtime.
+        # All item embeddings are precomputed via scripts/generate_food_embeddings.py
+        if embed_call is None:
+            return []
+
+        # Embed the query
+        try:
+            query_vec = embed_call(query)
+            if hasattr(query_vec, '__await__'):
+                query_vec = await query_vec
+        except Exception:
+            # Fallback to lexical search if embedding fails
+            return await self._search_local_off(query, limit)
+
+        # Format embedding as PostgreSQL array literal for halfvec comparison
+        embedding_str = '[' + ','.join(str(x) for x in query_vec) + ']'
+
+        # Use raw SQL to leverage pgvector's native similarity operator
+        # The <=> operator computes L2 distance (for halfvec_l2_ops index)
+        # We interpolate embedding_str directly since it's a controlled numeric array
+        stmt = text(f"""
+            SELECT code, product_name, brands, carbs_100g, proteins_100g, fat_100g,
+                   energy_kcal_100g, serving_size, fiber_100g, sugars_100g, sodium_100g,
+                   embedding_vec <=> '{embedding_str}'::halfvec(768) AS distance
+            FROM openfoodfacts_products
+            WHERE embedding_vec IS NOT NULL 
+              AND carbs_100g IS NOT NULL
+            ORDER BY embedding_vec <=> '{embedding_str}'::halfvec(768)
+            LIMIT :limit
+        """)
+        
+        result = await self.db.execute(stmt, {"limit": limit})
+        rows = result.fetchall()
+
+        # Build results
+        results = []
+        for row in rows:
+            try:
+                code, name, brands, carbs, proteins, fat, energy, serving_size, fiber, sugars, sodium, distance = row
+                
+                # Convert distance to similarity (0-1 scale, lower distance = higher similarity)
+                similarity = 1.0 / (1.0 + distance)
+                
+                quality = _assess_food_dict_quality({
+                    "carbs_per_100g": carbs,
+                    "protein_per_100g": proteins,
+                    "fat_per_100g": fat,
+                    "calories_per_100g": energy,
+                    "serving_size": serving_size,
+                    "fiber_per_100g": fiber,
+                    "sugars_per_100g": sugars,
+                    "sodium_per_100g": sodium,
+                }, source="openfoodfacts_local")
+                
+                results.append({
+                    "source": "openfoodfacts_local",
+                    "name": name,
+                    "brand": brands,
+                    "barcode": code,
+                    "carbs_per_100g": carbs,
+                    "protein_per_100g": proteins,
+                    "fat_per_100g": fat,
+                    "calories_per_100g": energy,
+                    "serving_size": serving_size,
+                    "fiber_per_100g": fiber,
+                    "sugars_per_100g": sugars,
+                    "sodium_per_100g": sodium,
+                    "_semantic_similarity": similarity,
+                    "quality_flags": [f.value for f in quality],
+                })
+            except (TypeError, ValueError):
+                continue
+
+        # Sort by similarity (descending)
+        results.sort(key=lambda p: -p["_semantic_similarity"])
+
+        return results
+
+    def _cosine_similarity(self, vec1: list, vec2: list) -> float:
+        """Compute cosine similarity between two vectors."""
+        if len(vec1) != len(vec2):
+            return 0.0
+
+        dot = sum(a * b for a, b in zip(vec1, vec2))
+        norm1 = math.sqrt(sum(a * a for a in vec1))
+        norm2 = math.sqrt(sum(b * b for b in vec2))
+
+        if norm1 == 0 or norm2 == 0:
+            return 0.0
+
+        return dot / (norm1 * norm2)
 
     # ------------------------------------------------------------------
     # Food Entry CRUD

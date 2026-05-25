@@ -97,6 +97,98 @@ async def get_latest_glucose(
     return GlucoseReadingResponse.model_validate(reading)
 
 
+@router.post("/bluetooth", response_model=GlucoseReadingResponse, status_code=status.HTTP_201_CREATED)
+async def log_bluetooth_meter_reading(
+    reading_data: GlucoseReadingCreate,
+    session: AsyncSession = Depends(get_db),
+    user: User = Depends(require_active_user),
+) -> GlucoseReadingResponse:
+    """Log a reading from a Bluetooth-connected glucose meter.
+
+    Designed for mobile apps that pair with BG meters via Bluetooth.
+    The phone handles the Bluetooth pairing; this endpoint receives
+    the reading with meter metadata.
+
+    Supported meter types (detected from source field):
+    - accuchek: Accu-Chek Guide, Guide Me
+    - contour: Contour Next One, Next EZ
+    - onetouch: OneTouch Verio Flex, Verio IQ
+    - glukomen: GlucoMen Areo
+    - other: Any Bluetooth meter, logged as-is
+    """
+    from app.services.glucose_converter import to_mgdl
+    from app.db.models import GlucoseReading
+
+    value = reading_data.glucose_value
+    units = reading_data.glucose_units
+    if units.lower() in ("mmol/l", "mmol"):
+        value = to_mgdl(value)
+        units = "mg/dL"
+
+    meter_source = reading_data.source or "bluetooth_meter"
+    meter_device_id = reading_data.source_device_id
+
+    reading = GlucoseReading(
+        user_id=user.id,
+        glucose_value=value,
+        glucose_units=units,
+        timestamp=reading_data.timestamp,
+        reading_type="fingerstick",
+        source=meter_source,
+        source_device_id=meter_device_id,
+        confidence_level=reading_data.confidence_level or 90,
+    )
+
+    session.add(reading)
+    await session.commit()
+    await session.refresh(reading)
+
+    return GlucoseReadingResponse.model_validate(reading)
+
+
+@router.post("/manual", response_model=GlucoseReadingResponse, status_code=status.HTTP_201_CREATED)
+async def log_fingerstick_reading(
+    reading_data: GlucoseReadingCreate,
+    session: AsyncSession = Depends(get_db),
+    user: User = Depends(require_active_user),
+) -> GlucoseReadingResponse:
+    """Log a manual finger prick glucose reading.
+
+    Designed for users without a CGM who test with fingerstick meters.
+    Accepts values in mg/dL or mmol/L (converted automatically).
+
+    A log book replacement: quick, simple, no device needed.
+    """
+    from app.services.glucose_converter import to_mgdl
+    from app.db.models import GlucoseReading
+
+    # Convert mmol/L to mg/dL if needed
+    value = reading_data.glucose_value
+    units = reading_data.glucose_units
+    if units.lower() in ("mmol/l", "mmol"):
+        value = to_mgdl(value)
+        units = "mg/dL"
+
+    reading = GlucoseReading(
+        user_id=user.id,
+        glucose_value=value,
+        glucose_units=units,
+        timestamp=reading_data.timestamp,
+        reading_type="fingerstick",
+        source="manual",
+    )
+
+    session.add(reading)
+    await session.commit()
+    await session.refresh(reading)
+
+    from app.services.glucose_converter import format_glucose
+    glucose_unit = getattr(user, "glucose_units", "mmol/L") or "mmol/L"
+    logger.info(f"Manual reading logged: {format_glucose(value, glucose_unit)} for user {user.id}")
+
+    return GlucoseReadingResponse.model_validate(reading)
+
+
 @router.post("/", response_model=GlucoseReadingResponse, status_code=status.HTTP_201_CREATED)
 async def create_glucose_reading(
     reading_data: GlucoseReadingCreate,

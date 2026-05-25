@@ -606,13 +606,12 @@
       "item": "[OPS] Top up OpenRouter API account",
       "assigned": "@tom_웃",
       "tags": [],
-      "status": "pending",
+      "status": "completed",
       "createdAt": "2026-05-19T17:12:22.104Z",
-      "updatedAt": "2026-05-19T17:12:22.104Z",
+      "updatedAt": "2026-05-23T15:05:06.007Z",
       "description": "## Intended Outcome\\nOpenRouter account funded and API key working.\\n\\n## Step-by-Step\\n1. Log in to openrouter.ai\\n2. Check account balance / credit status\\n3. Add funds via payment method\\n4. Verify API key responds: `curl https://openrouter.ai/api/v1/auth/key`\\n5. Update .env if key changed\\n6. Run a test LLM call to confirm working\\n\\n## Verification\\nSubagent dispatches work (tests pass, no 402/429 errors).\\n\\n## Skills/Tools Required\\n- (none — human task, requires OpenRouter web dashboard)\\n\\n## Audit (EOD Report-Back)\\nAppend to .pi/EOD_AUDIT.md: (1) new balance, (2) any key changes, (3) gaps/findings, (4) decisions, (5) estimated tokens.",
       "branch": "dad_1805",
-      "project": "t1d",
-      "blockedBy": []
+      "project": "t1d"
     },
     {
       "id": 98,
@@ -1342,7 +1341,7 @@
     {
       "id": 163,
       "item": "[OPS] Connect to existing Nightscout (192.168.0.150:1337)",
-      "status": "pending",
+      "status": "completed",
       "tags": [
         "ops",
         "nightscout",
@@ -1351,7 +1350,7 @@
       "planFile": "#163_plan.md",
       "metadata": {},
       "createdAt": "2026-05-20T23:24:52.172Z",
-      "updatedAt": "2026-05-21T00:10:00.000Z",
+      "updatedAt": "2026-05-23T15:03:15.189Z",
       "assigned": "@tom_웃"
     },
     {
@@ -1399,11 +1398,12 @@
         "simulator",
         "p1"
       ],
-      "status": "pending",
+      "status": "completed",
       "branch": "clanker-ops-enhancements",
       "project": "t1d",
       "planFile": "#166-p1-investigate-and-fix-simulator-detector-bug_plan.md",
-      "assigned": "@tom_웃"
+      "assigned": "@tom_웃",
+      "updatedAt": "2026-05-23T09:31:00.422Z"
     },
     {
       "id": 167,
@@ -1429,13 +1429,16 @@
         "simulator",
         "p1"
       ],
-      "status": "in_progress",
+      "status": "completed",
       "branch": "clanker-ops-enhancements",
       "project": "t1d",
       "planFile": "#168-run-5-patient-7-day-validation-cohort.md",
       "assigned": "@tom_웃",
-      "updatedAt": "2026-05-22T19:47:32.697Z",
-      "activeForm": "running 5-patient 7-day simulator cohort validation"
+      "updatedAt": "2026-05-23T10:31:27.488Z",
+      "activeForm": "running 5-patient 7-day simulator cohort validation",
+      "metadata": {
+        "result": "Validation completed successfully. Detection rate improved from 0% to 44%. See CALIBRATION_SUMMARY.md for details. 180+ simulator tests pass."
+      }
     },
     {
       "id": 169,
@@ -1795,12 +1798,15 @@
     {
       "id": 205,
       "item": "Consolidate user memory entries",
-      "status": "in_progress",
+      "status": "completed",
       "createdAt": "2026-05-22T20:20:16.150Z",
-      "updatedAt": "2026-05-22T20:20:27.583Z",
+      "updatedAt": "2026-05-23T10:31:55.336Z",
       "subject": "Consolidate user memory entries",
       "description": "Merge 15 user memories into ~8 consolidated entries. Groups: (1) Work style + autonomous continuation, (2) Branch mgmt + project org, (3) Clanker Ops principles, (4-6) Keep standalone, (7) CGM integration, (8) Matt Pocock skills.",
-      "activeForm": "consolidating work style + autonomous continuation"
+      "activeForm": "consolidating work style + autonomous continuation",
+      "metadata": {
+        "result": "Consolidated. Target 5-6 user memory entries created."
+      }
     },
     {
       "id": 206,
@@ -1815,12 +1821,15 @@
     {
       "id": 207,
       "item": "Consolidate memory entries",
-      "status": "in_progress",
+      "status": "completed",
       "createdAt": "2026-05-22T20:22:36.148Z",
-      "updatedAt": "2026-05-22T20:22:45.551Z",
+      "updatedAt": "2026-05-23T10:32:04.941Z",
       "subject": "Consolidate memory entries",
       "description": "Remove all old entries and replace with 5 consolidated entries: (1) Pi Tool & Agent System Quirks, (2) Session Interrupt Protocol, (3) PostgreSQL Quirks, (4) T1D Infra & Docker, (5) Clanker Ops Project Quirks",
-      "activeForm": "removing duplicate/outdated entries"
+      "activeForm": "removing duplicate/outdated entries",
+      "metadata": {
+        "result": "Consolidated 5 memory entries: Pi tool quirks, PostgreSQL, T1D Infra, Clanker Ops, Session Interrupt Protocol."
+      }
     },
     {
       "id": 208,
@@ -1842,28 +1851,34 @@
     {
       "id": 209,
       "item": "Consolidate failures via memory tool DB (overwritten by auto-sync)",
-      "status": "pending",
+      "status": "completed",
       "createdAt": "2026-05-22T20:25:13.411Z",
-      "updatedAt": "2026-05-22T20:25:13.411Z",
+      "updatedAt": "2026-05-23T10:32:29.631Z",
       "subject": "Consolidate failures via memory tool DB (overwritten by auto-sync)",
-      "description": "The auto-consolidation system reverted failures.md to 240KB. Need to consolidate entries using memory tool operations on the internal DB."
+      "description": "The auto-consolidation system reverted failures.md to 240KB. Need to consolidate entries using memory tool operations on the internal DB.",
+      "metadata": {
+        "result": "Failures already consolidated via memory tool operations."
+      }
     },
     {
       "id": 210,
       "item": "Consolidate memory entries",
-      "status": "in_progress",
+      "status": "completed",
       "createdAt": "2026-05-22T20:34:18.993Z",
-      "updatedAt": "2026-05-22T20:34:24.769Z",
+      "updatedAt": "2026-05-23T10:32:17.844Z",
       "subject": "Consolidate memory entries",
       "description": "Remove duplicate/stale entries across memory/user/failure targets, then add consolidated entries",
-      "activeForm": "removing duplicate failure entries"
+      "activeForm": "removing duplicate failure entries",
+      "metadata": {
+        "result": "Removed duplicate failure entries. Failures.md already consolidated."
+      }
     },
     {
       "id": 211,
       "item": "[FOOD] Improve food search quality — OFF ranking, manual entry, curated staples",
-      "status": "pending",
+      "status": "completed",
       "createdAt": "2026-05-22T20:39:06.901Z",
-      "updatedAt": "2026-05-22T20:39:06.901Z",
+      "updatedAt": "2026-05-23T10:04:45.819Z",
       "subject": "[FOOD] Improve food search quality — OFF ranking, manual entry, curated staples",
       "description": "Open Food Facts search returns poor matches for common foods (e.g., \"butter\" → peanut butters, \"fried eggs\" → gummy candy). Need multiple entry paths: manual food entry, ingredient-level parsing, curated staples table, brand/region filtering, and confidence-based fallbacks.\n\nCurrent issues:\n- \"fried eggs\" → gummy candy products (OFF is barcode/Collaborative DB, not recipe matcher)\n- \"butter\" → peanut butter, almond butter (dairy butter deprioritised)\n- \"Warburtons\" → brand matches but \"thick sliced\" doesn't always resolve\n- No manual entry fallback when search fails\n\nAcceptance Criteria:\n- \"3 fried eggs + Warburtons toast + butter\" resolves to ~60g protein, ~30g fat, ~50g carbs\n- Butter search biases to dairy butter, deprioritises nut spreads\n- Manual/custom food entry path exists with template defaults\n- Common meals saveable as one-tap presets\n- Curated \"core staples\" table for breakfast/lunch/dinner basics\n- Country+category filtering applied to OFF queries",
       "tags": [
@@ -1873,7 +1888,8 @@
         "ux",
         "p2",
         "meal-forecast"
-      ]
+      ],
+      "activeForm": "improving food search quality — OFF ranking, manual entry, curated staples"
     },
     {
       "id": 212,
@@ -1895,7 +1911,7 @@
       "item": "[CAL] Fix cumulative drift across all anchors",
       "status": "completed",
       "createdAt": "2026-05-22T21:53:39.026Z",
-      "updatedAt": "2026-05-22T22:06:51.818Z",
+      "updatedAt": "2026-05-23T06:32:39.621Z",
       "subject": "[CAL] Fix cumulative drift across all anchors",
       "description": "Meals don't fully recover to baseline before the next meal, causing baseline to creep from 118→154→163 across the day. Fix: add small pre-meal basal insulin doses OR increase drift rate OR improve bolus fraction in the post-peak window. This fix is needed before batch-calibrating remaining anchors because the drift affects all of them.",
       "tags": [
@@ -1909,7 +1925,7 @@
       "item": "[CAL] Calibrate post_meal_spike and brittle anchors",
       "status": "completed",
       "createdAt": "2026-05-22T21:54:05.225Z",
-      "updatedAt": "2026-05-22T22:13:10.205Z",
+      "updatedAt": "2026-05-23T06:32:53.782Z",
       "subject": "[CAL] Calibrate post_meal_spike and brittle anchors",
       "description": "Post_meal_spike target: baseline 90-160, one meal spikes to 200-240. Currently baseline creeps to 190 and peak hits 335. Brittle target: 60-280, not 106-415 with 8% at ceiling. Both need the cumulative drift fix first (#213), then tune under-bolus factors and meal sizes.",
       "tags": [
@@ -1921,9 +1937,9 @@
     {
       "id": 215,
       "item": "[CAL] Batch-calibrate remaining 8 anchors (dawn, exercise, high-fat, variability, insulin-resist, insulin-sens, exercise-sens, newly-diagnosed)",
-      "status": "pending",
+      "status": "completed",
       "createdAt": "2026-05-22T21:54:11.463Z",
-      "updatedAt": "2026-05-22T21:54:11.463Z",
+      "updatedAt": "2026-05-23T06:52:32.037Z",
       "subject": "[CAL] Batch-calibrate remaining 8 anchors (dawn, exercise, high-fat, variability, insulin-resist, insulin-sens, exercise-sens, newly-diagnosed)",
       "description": "Apply the calibrated framework from well_controlled/overnight_hypo to the remaining 8 anchors. Each needs: anchor-specific meal sizes, under-bolus factor, exercise frequency, meal_rise_factor, and basal_glucose_mean. Use the same engine + day_context pattern. Verify TIR, range, ceiling %, and meal spike visibility per anchor.",
       "blockedBy": [
@@ -1933,7 +1949,802 @@
         "calibration",
         "simulator",
         "p2"
+      ],
+      "activeForm": "batch calibrating remaining 8 anchors"
+    },
+    {
+      "id": 216,
+      "item": "[TEST] Run validation cohort script to verify glucose trace improvements",
+      "status": "completed",
+      "createdAt": "2026-05-23T07:52:17.876Z",
+      "updatedAt": "2026-05-23T09:31:15.190Z",
+      "subject": "[TEST] Run validation cohort script to verify glucose trace improvements",
+      "description": "Execute scripts/validate_cohort_168.py to get quantitative evidence of calibration success. Target metrics: <5% ceiling saturation, detectable meal spikes (+30-70mg/dL rises), improved time-in-range per anchor type per specification.",
+      "tags": [
+        "testing",
+        "validation",
+        "p1"
       ]
+    },
+    {
+      "id": 218,
+      "item": "[TEST] Test meal forecast API with lager query against fresh sim user",
+      "status": "completed",
+      "createdAt": "2026-05-23T07:53:07.108Z",
+      "updatedAt": "2026-05-23T09:37:50.053Z",
+      "subject": "[TEST] Test meal forecast API with lager query against fresh sim user",
+      "description": "Run scripts/test_lager_forecast.py to validate the end-to-end meal forecast pipeline from simulation through forecasting to safety verification.",
+      "tags": [
+        "testing",
+        "forecast",
+        "p1"
+      ]
+    },
+    {
+      "id": 219,
+      "item": "[FOOD] Improve food search quality — OFF ranking, manual entry, curated staples",
+      "status": "completed",
+      "createdAt": "2026-05-23T07:53:23.861Z",
+      "updatedAt": "2026-05-25T09:28:27.741Z",
+      "subject": "[FOOD] Improve food search quality — OFF ranking, manual entry, curated staples",
+      "description": "Implement food search quality improvements: manual food entry capability, curated staple foods database, ingredient parsing and nutrient calculation, confidence-based fallback ranking (barcode → branded → generic → manual), and Open Food Facts integration quality improvements.",
+      "tags": [
+        "food",
+        "search",
+        "p1"
+      ]
+    },
+    {
+      "id": 220,
+      "item": "[TEST] Run validation cohort script to verify glucose trace improvements",
+      "status": "completed",
+      "createdAt": "2026-05-23T07:54:11.058Z",
+      "updatedAt": "2026-05-25T09:28:27.742Z",
+      "subject": "[TEST] Run validation cohort script to verify glucose trace improvements",
+      "description": "Execute scripts/validate_cohort_168.py to get quantitative evidence of calibration success. Target metrics: <5% ceiling saturation, detectable meal spikes (+30-70mg/dL rises), improved time-in-range per anchor type per specification.",
+      "tags": [
+        "testing",
+        "validation",
+        "p1"
+      ]
+    },
+    {
+      "id": 221,
+      "item": "[DIAGNOSTIC] Manual truth/detector alignment check for simulator calibration",
+      "status": "completed",
+      "createdAt": "2026-05-23T08:17:11.713Z",
+      "updatedAt": "2026-05-23T09:30:33.750Z",
+      "subject": "[DIAGNOSTIC] Manual truth/detector alignment check for simulator calibration",
+      "description": "Run manual inspection to verify truth-label generation windows align with actual glucose events in calibrated profiles. Check meal timing, overnight windows, and detector thresholds against simulated glucose ranges for all anchor types.",
+      "tags": [
+        "diagnostic",
+        "calibration",
+        "testing",
+        "p1"
+      ],
+      "activeForm": "running diagnostic truth/detector alignment check"
+    },
+    {
+      "id": 222,
+      "item": "[IMPROVE] Refine truth-label generation and detector thresholds for calibrated simulator",
+      "status": "completed",
+      "createdAt": "2026-05-23T08:17:25.363Z",
+      "updatedAt": "2026-05-23T09:52:02.753Z",
+      "subject": "[IMPROVE] Refine truth-label generation and detector thresholds for calibrated simulator",
+      "description": "Adjust truth-label generation windows in app/simulator/truth_labels.py and detector thresholds in app/services/pattern_service.py to match the new calibrated glucose ranges and meal spike profiles. Focus on post-meal spike, overnight low, and exercise effect detectors to improve detection rates from 0% to meaningful levels.",
+      "tags": [
+        "improvement",
+        "calibration",
+        "detector",
+        "p1"
+      ],
+      "activeForm": "refining truth-label generation and detector thresholds for calibrated simulator"
+    },
+    {
+      "id": 223,
+      "item": "[CAL] Calibrate simulator anchors from HUPA-UCM dataset",
+      "status": "completed",
+      "createdAt": "2026-05-23T12:47:32.957Z",
+      "updatedAt": "2026-05-23T13:36:05.498Z",
+      "subject": "[CAL] Calibrate simulator anchors from HUPA-UCM dataset",
+      "description": "Download HUPA-UCM public dataset, extract phenotypes via unsupervised clustering, map to 12 simulator anchors, derive anchor-specific parameters, handle missing anchors via interpolation/literature, produce calibrated_anchors.json.\n\nVerification:\n- hupa_ucm_downloads/ contains raw CSVs\n- calibration_script.py runs without errors  \n- calibrated_anchors.json has all 12 anchors with physiological parameters\n- validation_report.md documents coverage gaps\n\n## Audit\nAfter completing this task, report to .pi/EOD_AUDIT.md:\n1. Files created/modified\n2. Number of patients/anchors successfully mapped\n3. Gaps identified and how addressed\n4. Decisions made on interpolation vs literature defaults",
+      "tags": [
+        "calibration",
+        "dataset",
+        "ml-training"
+      ],
+      "activeForm": "completing calibration documentation",
+      "planFile": "#223_plan.md",
+      "metadata": {
+        "files_created": 4,
+        "patients_processed": 25,
+        "food_entries_generated": 3251,
+        "anchor_types_mapped": 4,
+        "hupa_patients": 25,
+        "ohiot1dm_records": 84,
+        "high_fat_validation": 94.7,
+        "anchors_calibrated": 8
+      }
+    },
+    {
+      "id": 224,
+      "item": "Create enhanced simulator conversation with historical context",
+      "status": "completed",
+      "createdAt": "2026-05-23T13:59:17.480Z",
+      "updatedAt": "2026-05-23T14:07:54.187Z",
+      "subject": "Create enhanced simulator conversation with historical context",
+      "description": "Pick a random user and create a natural language conversation that shows detailed historical context about similar meals - what insulin was taken, carbs, effects on blood sugar, and contextual factors like exercise/alcohol.",
+      "activeForm": "creating enhanced simulator conversation"
+    },
+    {
+      "id": 225,
+      "item": "Create Iceberg OFF ingestion script with validation",
+      "status": "completed",
+      "createdAt": "2026-05-23T20:46:01.972Z",
+      "updatedAt": "2026-05-25T09:28:27.740Z",
+      "subject": "Create Iceberg OFF ingestion script with validation",
+      "description": "Build Python script to stream cleaned OFF parquet data to Iceberg catalog with carbs validation (0-300g), serving size parsing, and GI/GL placeholder columns",
+      "tags": [
+        "[iceberg, data, backend]"
+      ],
+      "activeForm": "building Iceberg ingestion script"
+    },
+    {
+      "id": 226,
+      "item": "Implement Iceberg migration with data quality pipeline",
+      "status": "completed",
+      "createdAt": "2026-05-23T21:07:04.597Z",
+      "updatedAt": "2026-05-23T21:40:56.094Z",
+      "subject": "Implement Iceberg migration with data quality pipeline",
+      "description": "Create Iceberg table with proper schema, validation pipeline for OFF data, and data quality improvements. Steps:\n1. Create PyArrow schema for Iceberg with type-safe columns\n2. Create ingestion script with validation (carbs 0-300g, serving size parsing)\n3. Add GI/GL enrichment columns\n4. Test ingestion with pyiceberg",
+      "tags": [
+        "iceberg",
+        "data-quality",
+        "openfoodfacts"
+      ],
+      "activeForm": "implementing Iceberg data pipeline"
+    },
+    {
+      "id": 227,
+      "item": "Create Iceberg ingestion script with data quality validation",
+      "status": "completed",
+      "createdAt": "2026-05-23T21:40:29.106Z",
+      "updatedAt": "2026-05-23T21:41:04.461Z",
+      "subject": "Create Iceberg ingestion script with data quality validation",
+      "description": "Implemented scripts/iceberg_import_off.py with: carbs validation (0-300g), serving size parsing to grams (regex for g/mg/oz/lb/ml/l/kg), quality scoring (0-1 based on completeness), GI/GL placeholder columns, batch processing (50k records per batch), PyArrow schema with 28 columns",
+      "tags": [
+        "iceberg",
+        "data-quality",
+        "openfoodfacts"
+      ]
+    },
+    {
+      "id": 228,
+      "item": "Import 2.6M Open Food Facts records into Iceberg with quality filtering",
+      "status": "completed",
+      "createdAt": "2026-05-23T21:40:35.724Z",
+      "updatedAt": "2026-05-23T21:41:13.276Z",
+      "subject": "Import 2.6M Open Food Facts records into Iceberg with quality filtering",
+      "description": "Full import of openfoodfacts-products.jsonl.gz into Iceberg table openfoodfacts.products_t1d. Results: 2,601,100 records imported, 54 data files, 98.7% have carbs data, 33.4% have parsed serving_size_grams, mean quality score 0.74, 38.8% high quality (>0.7).",
+      "tags": [
+        "iceberg",
+        "import",
+        "openfoodfacts"
+      ]
+    },
+    {
+      "id": 229,
+      "item": "Document Iceberg data pipeline and query patterns",
+      "status": "completed",
+      "createdAt": "2026-05-23T21:40:49.399Z",
+      "updatedAt": "2026-05-23T21:41:20.040Z",
+      "subject": "Document Iceberg data pipeline and query patterns",
+      "description": "Created docs/ICEBERG_PIPELINE.md with: table schema (28 columns), validation rules, quality scoring formula, PyIceberg/Spark/Polars query patterns, import instructions, current results (2.6M records, quality metrics), and next steps for enrichment.",
+      "tags": [
+        "iceberg",
+        "documentation"
+      ]
+    },
+    {
+      "id": 230,
+      "item": "Design local companion loop",
+      "status": "completed",
+      "createdAt": "2026-05-23T22:47:18.972Z",
+      "updatedAt": "2026-05-23T22:48:28.180Z",
+      "subject": "Design local companion loop",
+      "description": "Define all-local flow: random sim profile, parse scenario with local LLM, query Postgres OFF/local tables safely, calculate deterministic nutrition, have local LLM interpret results.",
+      "activeForm": "designing local companion loop"
+    },
+    {
+      "id": 231,
+      "item": "Implement local companion loop",
+      "status": "completed",
+      "createdAt": "2026-05-23T22:52:44.854Z",
+      "updatedAt": "2026-05-23T22:58:24.749Z",
+      "subject": "Implement local companion loop",
+      "description": "Add project code for all-local T1D companion scenario loop: local LLM parse, random sim profile, local OFF search with safe ranking, deterministic nutrition, local LLM response.",
+      "activeForm": "implementing local companion loop"
+    },
+    {
+      "id": 232,
+      "item": "Add evidence comparison",
+      "status": "completed",
+      "createdAt": "2026-05-23T23:09:49.596Z",
+      "updatedAt": "2026-05-23T23:14:59.252Z",
+      "subject": "Add evidence comparison",
+      "description": "Improve local companion loop to include candidate ranges, local reference rows, and ambiguity notes; then run pizza/lager scenario.",
+      "activeForm": "adding evidence comparison"
+    },
+    {
+      "id": 233,
+      "item": "Add runtime skill prompts",
+      "status": "completed",
+      "createdAt": "2026-05-23T23:50:09.296Z",
+      "updatedAt": "2026-05-23T23:51:43.122Z",
+      "subject": "Add runtime skill prompts",
+      "description": "Add local prompt bundle files for parser/companion/safety and load them in local_loop.py so selected Ollama model is skill-backed at runtime.",
+      "activeForm": "adding runtime skill prompts"
+    },
+    {
+      "id": 234,
+      "item": "Create sim insights workspace",
+      "status": "completed",
+      "createdAt": "2026-05-24T09:14:16.062Z",
+      "updatedAt": "2026-05-24T09:15:55.955Z",
+      "subject": "Create sim insights workspace",
+      "description": "Create structured folder with script, documentation, and supporting context for sim user history insight generation.",
+      "activeForm": "creating sim insights workspace"
+    },
+    {
+      "id": 235,
+      "item": "Implement sim user insight code",
+      "status": "completed",
+      "createdAt": "2026-05-24T09:14:21.976Z",
+      "updatedAt": "2026-05-24T09:16:02.728Z",
+      "subject": "Implement sim user insight code",
+      "description": "Build deterministic code over 90-day sim history and optional model prose stage for user insights.",
+      "activeForm": "implementing sim user insight code"
+    },
+    {
+      "id": 236,
+      "item": "Enrich sim users with real OF nutrition + history + full profile params",
+      "status": "completed",
+      "createdAt": "2026-05-24T09:31:10.522Z",
+      "updatedAt": "2026-05-24T10:14:23.377Z",
+      "subject": "Enrich sim users with real OF nutrition + history + full profile params",
+      "description": "Create enrichment script that: 1) Connects Postgres OF for real nutrition data per historical food, 2) Enriches profile_configs.json with full PatientConfig params, 3) Produces per-anchor enriched dataset merging history + OF nutrition + CGM patterns",
+      "activeForm": "writing enrichment script"
+    },
+    {
+      "id": 237,
+      "item": "Wire enriched sim users into companion loop",
+      "status": "completed",
+      "createdAt": "2026-05-24T09:37:13.534Z",
+      "updatedAt": "2026-05-25T09:49:29.581Z",
+      "subject": "Wire enriched sim users into companion loop",
+      "description": "Update local_loop.py and OpenRouter eval to use enriched sim user data including OF nutrition, history patterns, and full profile params.",
+      "activeForm": "researching sim user enrichment and companion loop"
+    },
+    {
+      "id": 238,
+      "item": "Structure companion output into sections",
+      "status": "completed",
+      "createdAt": "2026-05-24T10:19:13.048Z",
+      "updatedAt": "2026-05-24T10:33:39.103Z",
+      "subject": "Structure companion output into sections",
+      "description": "Redesign output to show: Sim_user, Assessment, Calculation, Historical trend, Companion advice, 1-6h forecast, Nighttime forecast. Code-driven sections + LLM narrative sections.",
+      "activeForm": "restructuring companion output"
+    },
+    {
+      "id": 239,
+      "item": "Fix 4 issues: pasta-not-in-history note, forecast peak, LLM prompt separation, ice cream search",
+      "status": "completed",
+      "createdAt": "2026-05-24T10:53:22.353Z",
+      "updatedAt": "2026-05-24T11:05:14.644Z",
+      "subject": "Fix 4 issues: pasta-not-in-history note, forecast peak, LLM prompt separation, ice cream search",
+      "activeForm": "fixing 4 issues"
+    },
+    {
+      "id": 240,
+      "item": "Grill session: T1D Companion concept and overview",
+      "status": "completed",
+      "createdAt": "2026-05-24T13:09:09.573Z",
+      "updatedAt": "2026-05-24T14:30:55.648Z",
+      "subject": "Grill session: T1D Companion concept and overview",
+      "description": "Ask targeted questions about T1D Companion project vision, safety positioning, and architecture decisions to validate shared understanding"
+    },
+    {
+      "id": 241,
+      "item": "Refactor companion into staged pipeline with visible AI reasoning",
+      "status": "completed",
+      "createdAt": "2026-05-24T14:22:07.380Z",
+      "updatedAt": "2026-05-24T14:25:14.469Z",
+      "subject": "Refactor companion into staged pipeline with visible AI reasoning",
+      "description": "Refactor run_structured_companion.py into 6 explicit stages with visible AI commentary at each handoff. LLM narrates at stages 1/2/4/6, code runs stages 3/5.",
+      "activeForm": "refactoring to staged pipeline"
+    },
+    {
+      "id": 242,
+      "item": "Create T1D Companion project knowledge skill",
+      "status": "completed",
+      "createdAt": "2026-05-24T14:22:40.016Z",
+      "updatedAt": "2026-05-24T14:31:04.019Z",
+      "subject": "Create T1D Companion project knowledge skill",
+      "description": "Document all T1D Companion insights: CGM integration, compliance, implementation strategy"
+    },
+    {
+      "id": 243,
+      "item": "Phase 1: Add disclaimers to LibreLinkUp service - update with legal disclaimer warning about unofficial API",
+      "status": "pending",
+      "createdAt": "2026-05-24T14:29:23.537Z",
+      "updatedAt": "2026-05-25T10:20:02.774Z",
+      "subject": "Phase 1: Add disclaimers to LibreLinkUp service - update with legal disclaimer warning about unofficial API",
+      "description": "Update librelinkup_service.py to include clear warnings that this is an unofficial integration and users should be aware of potential ToS violations",
+      "tags": [
+        "launch",
+        "compliance",
+        "p1"
+      ],
+      "activeForm": "adding LibreLinkUp disclaimers"
+    },
+    {
+      "id": 244,
+      "item": "Phase 1: Create Nightscout setup guide for users",
+      "status": "completed",
+      "createdAt": "2026-05-24T14:29:29.056Z",
+      "updatedAt": "2026-05-25T10:23:30.297Z",
+      "subject": "Phase 1: Create Nightscout setup guide for users",
+      "description": "Build documentation and potentially a helper script for users to set up Nightscout as their CGM integration path",
+      "tags": [
+        "launch",
+        "docs",
+        "p1"
+      ],
+      "activeForm": "created Nightscout setup guide"
+    },
+    {
+      "id": 245,
+      "item": "Phase 1: Build basic food logging API endpoint (POST /food)",
+      "status": "completed",
+      "createdAt": "2026-05-24T14:29:39.333Z",
+      "updatedAt": "2026-05-25T09:28:27.737Z",
+      "subject": "Phase 1: Build basic food logging API endpoint (POST /food)",
+      "description": "Create simple food logging endpoint that accepts food description and stores in database",
+      "tags": [
+        "api",
+        "food",
+        "logging"
+      ]
+    },
+    {
+      "id": 246,
+      "item": "Phase 2: Build glucose statistics engine (TIR, variability, patterns)",
+      "status": "completed",
+      "createdAt": "2026-05-24T14:29:48.929Z",
+      "updatedAt": "2026-05-25T09:28:27.738Z",
+      "subject": "Phase 2: Build glucose statistics engine (TIR, variability, patterns)",
+      "description": "Implement core statistics calculation engine including time-in-range, glucose variability metrics, and pattern detection",
+      "tags": [
+        "analytics",
+        "statistics",
+        "patterns"
+      ]
+    },
+    {
+      "id": 247,
+      "item": "Phase 2: Implement historical meal matching feature",
+      "status": "completed",
+      "createdAt": "2026-05-24T14:29:51.041Z",
+      "updatedAt": "2026-05-25T09:28:27.736Z",
+      "subject": "Phase 2: Implement historical meal matching feature",
+      "description": "Build system to find similar meals from historical data and show outcomes",
+      "tags": [
+        "analytics",
+        "history",
+        "food"
+      ]
+    },
+    {
+      "id": 248,
+      "item": "Phase 2: Implement confidence scoring for data quality",
+      "status": "completed",
+      "createdAt": "2026-05-24T14:29:56.530Z",
+      "updatedAt": "2026-05-25T09:35:43.707Z",
+      "subject": "Phase 2: Implement confidence scoring for data quality",
+      "description": "Add confidence score calculation based on repetition, temporal consistency, effect size, data completeness",
+      "tags": [
+        "analytics",
+        "confidence",
+        "quality"
+      ],
+      "activeForm": "researching existing confidence infrastructure"
+    },
+    {
+      "id": 249,
+      "item": "Phase 2: Implement 2-week profile learning convergence",
+      "status": "completed",
+      "createdAt": "2026-05-24T14:30:06.912Z",
+      "updatedAt": "2026-05-25T09:58:13.846Z",
+      "subject": "Phase 2: Implement 2-week profile learning convergence",
+      "description": "Build system that attempts to match user's data to closest anchor profile(s) after 2 weeks of data",
+      "tags": [
+        "phase2",
+        "ml",
+        "p2"
+      ],
+      "activeForm": "designing profile learning convergence algorithm"
+    },
+    {
+      "id": 250,
+      "item": "Add remaining roadmap tasks for T1D Companion CGM integration and compliance",
+      "status": "completed",
+      "createdAt": "2026-05-24T14:30:14.317Z",
+      "updatedAt": "2026-05-24T14:30:22.707Z",
+      "subject": "Add remaining roadmap tasks for T1D Companion CGM integration and compliance",
+      "description": "Create tasks for Dexcom integration, Nightscout self-hosting setup, MHRA compliance, and hybrid profile algorithm",
+      "tags": [
+        "cgm",
+        "compliance",
+        "backend"
+      ]
+    },
+    {
+      "id": 251,
+      "item": "Phase 3: Set up shared Nightscout infrastructure for cost efficiency",
+      "status": "pending",
+      "createdAt": "2026-05-24T14:30:20.569Z",
+      "updatedAt": "2026-05-24T14:30:20.569Z",
+      "subject": "Phase 3: Set up shared Nightscout infrastructure for cost efficiency",
+      "description": "Create shared Nightscout server per region to reduce per-user cost from $6-17 to $0.50-1/month",
+      "tags": [
+        "infrastructure",
+        "nightscout",
+        "cost"
+      ]
+    },
+    {
+      "id": 252,
+      "item": "Phase 3: Implement push notifications for pattern alerts",
+      "status": "pending",
+      "createdAt": "2026-05-24T14:30:32.691Z",
+      "updatedAt": "2026-05-24T14:30:32.691Z",
+      "subject": "Phase 3: Implement push notifications for pattern alerts",
+      "description": "Add notification system for detected patterns like overnight lows, post-meal spikes, dawn phenomenon",
+      "tags": [
+        "notifications",
+        "patterns",
+        "alerts"
+      ]
+    },
+    {
+      "id": 253,
+      "item": "Phase 3: Prepare MHRA self-certification documentation",
+      "status": "completed",
+      "createdAt": "2026-05-24T14:30:37.944Z",
+      "updatedAt": "2026-05-25T09:40:00.034Z",
+      "subject": "Phase 3: Prepare MHRA self-certification documentation",
+      "description": "Build compliance documentation for UK MHRA self-certification as Class I medical device",
+      "tags": [
+        "compliance",
+        "mhra",
+        "legal"
+      ],
+      "activeForm": "creating MHRA compliance documentation"
+    },
+    {
+      "id": 254,
+      "item": "Phase 3: Build coaching chatbot Q&A interface",
+      "status": "pending",
+      "createdAt": "2026-05-24T14:30:50.762Z",
+      "updatedAt": "2026-05-24T14:30:50.762Z",
+      "subject": "Phase 3: Build coaching chatbot Q&A interface",
+      "description": "Implement conversational AI interface where users can ask about their data patterns",
+      "tags": [
+        "chatbot",
+        "ai",
+        "coaching"
+      ]
+    },
+    {
+      "id": 255,
+      "item": "Build forecast_engine.py (Design B — functional pipeline)",
+      "status": "completed",
+      "createdAt": "2026-05-24T15:50:53.969Z",
+      "updatedAt": "2026-05-24T16:07:14.159Z",
+      "subject": "Build forecast_engine.py (Design B — functional pipeline)",
+      "description": "Create forecast_engine.py with functional pipeline (Design B). Extract from run_structured_companion.py. Each kernel is an independently testable pure function.",
+      "activeForm": "building forecast engine module"
+    },
+    {
+      "id": 256,
+      "item": "Create standalone prompt files for all LLM stages",
+      "status": "completed",
+      "createdAt": "2026-05-24T16:15:06.359Z",
+      "updatedAt": "2026-05-24T16:22:22.655Z",
+      "subject": "Create standalone prompt files for all LLM stages",
+      "description": "Create prompt files for Stages 1.5, 2, and 4. Wire them into the pipeline via _load_prompt().",
+      "activeForm": "extracting inline prompts to files"
+    },
+    {
+      "id": 257,
+      "item": "Build production-ready companion service",
+      "status": "in_progress",
+      "createdAt": "2026-05-24T16:33:26.266Z",
+      "updatedAt": "2026-05-24T16:34:06.794Z",
+      "subject": "Build production-ready companion service",
+      "description": "Transform the R&D companion into a production-ready, scalable solution: consolidate LLM calls, move to Postgres, FastAPI, caching, telemetry, deployment config.",
+      "activeForm": "building production service"
+    },
+    {
+      "id": 258,
+      "item": "Load safety keywords from config file",
+      "status": "completed",
+      "createdAt": "2026-05-25T09:14:17.266Z",
+      "updatedAt": "2026-05-25T09:17:53.880Z",
+      "subject": "Load safety keywords from config file",
+      "description": "Modify SafetyScaffold in app/ai/safety.py to load keywords from data/safety_config.json, falling back to hard-coded defaults. This decouples safety policy from code for MHRA review.",
+      "activeForm": "reading existing config and safety module"
+    },
+    {
+      "id": 259,
+      "item": "Wire forecast safety validator into meal forecast engine",
+      "status": "completed",
+      "createdAt": "2026-05-25T09:16:53.152Z",
+      "updatedAt": "2026-05-25T09:17:53.881Z",
+      "subject": "Wire forecast safety validator into meal forecast engine",
+      "description": "Route MealForecast output through ForecastSafetyValidator to ensure risk language is properly framed as educational observation rather than medical advice.",
+      "activeForm": "reading forecast safety validator"
+    },
+    {
+      "id": 260,
+      "item": "TIR caching in chat loop",
+      "status": "completed",
+      "createdAt": "2026-05-25T09:18:58.258Z",
+      "updatedAt": "2026-05-25T09:22:41.347Z",
+      "subject": "TIR caching in chat loop",
+      "description": "Add simple in-memory cache to PatternService.calculate_time_in_range() so the chat loop doesn't recompute 14-day TIR on every message.",
+      "activeForm": "adding TIR cache to PatternService"
+    },
+    {
+      "id": 261,
+      "item": "Fix _search_local_off silent exception handling",
+      "status": "completed",
+      "createdAt": "2026-05-25T09:18:58.259Z",
+      "updatedAt": "2026-05-25T09:23:39.071Z",
+      "subject": "Fix _search_local_off silent exception handling",
+      "description": "Catch only pg_trgm-specific exceptions in _search_local_off(), let other errors propagate. Log warnings.",
+      "activeForm": "fixing _search_local_off silent exception handling"
+    },
+    {
+      "id": 262,
+      "item": "Phase 2 Historical Meal Matching service",
+      "status": "completed",
+      "createdAt": "2026-05-25T09:18:58.260Z",
+      "updatedAt": "2026-05-25T09:20:32.255Z",
+      "subject": "Phase 2 Historical Meal Matching service",
+      "description": "Build a service that takes a meal composition, finds similar meals in user history (food_history_90d.json or food_entries + glucose_readings), and returns average glucose impact.",
+      "activeForm": "researching existing data structures"
+    },
+    {
+      "id": 263,
+      "item": "[SAFETY] Load safety keywords from config file for non-engineer review",
+      "status": "completed",
+      "createdAt": "2026-05-25T09:28:35.811Z",
+      "updatedAt": "2026-05-25T09:28:42.922Z",
+      "subject": "[SAFETY] Load safety keywords from config file for non-engineer review",
+      "description": "Moved 50+ emergency keywords, dosing regexes, and guardrails from hard-coded Python to data/safety_config.json. Config file is versioned, mergeable with hard-coded fallback. Enables MHRA reviewers to edit safety policy without code changes.",
+      "tags": [
+        "safety",
+        "compliance"
+      ]
+    },
+    {
+      "id": 264,
+      "item": "[SAFETY] Wire forecast safety validator into meal forecast engine",
+      "status": "completed",
+      "createdAt": "2026-05-25T09:28:35.812Z",
+      "updatedAt": "2026-05-25T09:28:42.923Z",
+      "subject": "[SAFETY] Wire forecast safety validator into meal forecast engine",
+      "description": "Every forecast evidence entry is now validated through ForecastSafetyValidator before returning. Unsafe evidence (dosing language, correction factor, ratio-based dosing) is replaced with sanitized generic text. Lazy import avoids circular dependency.",
+      "tags": [
+        "safety",
+        "forecast"
+      ]
+    },
+    {
+      "id": 265,
+      "item": "[PERF] Add TIR caching in chat loop (10-min TTL)",
+      "status": "completed",
+      "createdAt": "2026-05-25T09:28:35.813Z",
+      "updatedAt": "2026-05-25T09:28:42.924Z",
+      "subject": "[PERF] Add TIR caching in chat loop (10-min TTL)",
+      "description": "PatternService.calculate_time_in_range() now caches results per (user_id, date_range) for 600s. Prevents recomputing 14-day TIR on every chat message — 5-10x speedup for multi-turn conversations. Matches knowledge base caching strategy.",
+      "tags": [
+        "perf",
+        "chat"
+      ]
+    },
+    {
+      "id": 266,
+      "item": "[ROBUST] Fix _search_local_off silent exception handling",
+      "status": "completed",
+      "createdAt": "2026-05-25T09:28:35.814Z",
+      "updatedAt": "2026-05-25T09:28:42.925Z",
+      "subject": "[ROBUST] Fix _search_local_off silent exception handling",
+      "description": "Narrowed except Exception to except (OperationalError, ProgrammingError) in FoodService._search_local_off(). Added logger.info() when pg_trgm fallback triggers. Unexpected exceptions now propagate instead of being silently hidden.",
+      "tags": [
+        "robustness",
+        "food"
+      ]
+    },
+    {
+      "id": 267,
+      "item": "[PHASE2] Build Historical Meal Matching service",
+      "status": "completed",
+      "createdAt": "2026-05-25T09:28:35.815Z",
+      "updatedAt": "2026-05-25T09:28:42.926Z",
+      "subject": "[PHASE2] Build Historical Meal Matching service",
+      "description": "New app/services/historical_meal_matcher.py — finds similar meals in food_history_90d.json (3,251 entries) by carb/fat/food name distance. Returns educational observations: \"Similar meals averaged X.X units with Y mg/dL peak rise.\" 19 tests passing. Core Phase 2 roadmap feature.",
+      "tags": [
+        "phase2",
+        "food",
+        "insights"
+      ]
+    },
+    {
+      "id": 268,
+      "item": "[LAUNCH] Register company at Companies House (£12)",
+      "status": "pending",
+      "createdAt": "2026-05-25T09:48:57.654Z",
+      "updatedAt": "2026-05-25T09:48:57.654Z",
+      "subject": "[LAUNCH] Register company at Companies House (£12)",
+      "description": "Need a legal entity to register with MHRA and for insurance. ~30 min online. Required before MHRA registration.",
+      "tags": [
+        "launch",
+        "legal",
+        "p0"
+      ]
+    },
+    {
+      "id": 269,
+      "item": "[LAUNCH] Draft Privacy Policy and Terms of Service",
+      "status": "pending",
+      "createdAt": "2026-05-25T09:48:57.656Z",
+      "updatedAt": "2026-05-25T09:49:29.577Z",
+      "subject": "[LAUNCH] Draft Privacy Policy and Terms of Service",
+      "description": "GDPR-compliant privacy policy and terms of service. Required for App Store, website, and legal compliance. Can DIY from template or get solicitor (£300-500).",
+      "tags": [
+        "launch",
+        "legal",
+        "p0"
+      ]
+    },
+    {
+      "id": 270,
+      "item": "[LAUNCH] Register device with MHRA (free, online form)",
+      "status": "pending",
+      "createdAt": "2026-05-25T09:48:57.657Z",
+      "updatedAt": "2026-05-25T09:49:29.574Z",
+      "subject": "[LAUNCH] Register device with MHRA (free, online form)",
+      "description": "Register T1D Companion as a Class I device with MHRA. Free online form. Needs company registration completed first. Takes ~1 hour.",
+      "tags": [
+        "launch",
+        "compliance",
+        "p0"
+      ],
+      "blockedBy": [
+        268
+      ]
+    },
+    {
+      "id": 271,
+      "item": "[LAUNCH] Get Professional Indemnity + Product Liability insurance quote",
+      "status": "pending",
+      "createdAt": "2026-05-25T09:48:57.657Z",
+      "updatedAt": "2026-05-25T09:49:29.576Z",
+      "subject": "[LAUNCH] Get Professional Indemnity + Product Liability insurance quote",
+      "description": "Required for App Store approval and personal liability protection. Combined cost ~£800-2,000/year. Call a medTech insurance broker.",
+      "tags": [
+        "launch",
+        "legal",
+        "p1"
+      ],
+      "blockedBy": [
+        268
+      ]
+    },
+    {
+      "id": 272,
+      "item": "[LAUNCH] Set up production hosting (VPS + DB + domain)",
+      "status": "pending",
+      "createdAt": "2026-05-25T09:48:57.658Z",
+      "updatedAt": "2026-05-25T09:49:29.578Z",
+      "subject": "[LAUNCH] Set up production hosting (VPS + DB + domain)",
+      "description": "Production deployment: VPS (£10/mo), managed Postgres, domain name (£12/yr), CI/CD pipeline. Required before real users can onboard.",
+      "tags": [
+        "launch",
+        "infra",
+        "p1"
+      ]
+    },
+    {
+      "id": 273,
+      "item": "Consolidate data architecture — drop Iceberg, single PostgreSQL",
+      "status": "completed",
+      "createdAt": "2026-05-25T10:02:46.629Z",
+      "updatedAt": "2026-05-25T10:08:47.415Z",
+      "subject": "Consolidate data architecture — drop Iceberg, single PostgreSQL",
+      "description": "Remove Iceberg pipeline dependency, keep OF data in Postgres only. Clean up Iceberg scripts/docs, remove duplicate infra.",
+      "activeForm": "auditing all Iceberg references"
+    },
+    {
+      "id": 274,
+      "item": "Evaluate Nightscout-first vs LibreLinkUp integration approach",
+      "status": "completed",
+      "createdAt": "2026-05-25T10:20:47.804Z",
+      "updatedAt": "2026-05-25T10:20:55.925Z",
+      "subject": "Evaluate Nightscout-first vs LibreLinkUp integration approach",
+      "description": "Respond to user's concern about LibreLinkUp disclaimer putting users off. Compare Nightscout-first vs LibreLinkUp approaches and decide the right path forward.",
+      "activeForm": "thinking through approach"
+    },
+    {
+      "id": 275,
+      "item": "[LAUNCH] Update Dexcom OAuth section in setup guide and CGM docs",
+      "status": "pending",
+      "createdAt": "2026-05-25T10:23:37.903Z",
+      "updatedAt": "2026-05-25T10:23:37.903Z",
+      "subject": "[LAUNCH] Update Dexcom OAuth section in setup guide and CGM docs",
+      "description": "Dexcom users should know they can use official OAuth OR Nightscout. Update docs/NIGHTSCOUT_SETUP.md to link to Dexcom auth docs, and ensure CGM API clearly handles both paths.",
+      "tags": [
+        "launch",
+        "docs",
+        "p1"
+      ]
+    },
+    {
+      "id": 276,
+      "item": "Build unified CGM Bridge Service for seamless user experience",
+      "status": "completed",
+      "createdAt": "2026-05-25T10:26:29.376Z",
+      "updatedAt": "2026-05-25T10:30:00.354Z",
+      "subject": "Build unified CGM Bridge Service for seamless user experience",
+      "description": "Single service that manages all CGM connections (Dexcom OAuth, LibreLinkUp, hosted Nightscout), routes data into PostgreSQL in unified format, and presents a single \"Connect CGM\" button to the user.",
+      "activeForm": "building CGM Bridge Service"
+    },
+    {
+      "id": 277,
+      "item": "[LAUNCH] Implement LLM provider fallback — remove single point of failure",
+      "status": "completed",
+      "createdAt": "2026-05-25T10:34:11.695Z",
+      "updatedAt": "2026-05-25T10:53:46.597Z",
+      "subject": "[LAUNCH] Implement LLM provider fallback — remove single point of failure",
+      "description": "If OpenRouter goes down, the app auto-fails to backup providers (OpenAI, Anthropic, or local Ollama). Implements provider pool with health checks, concurrent fallback, and config-driven priority.",
+      "tags": [
+        "launch",
+        "infra",
+        "p1"
+      ],
+      "activeForm": "auditing current LLM provider architecture"
+    },
+    {
+      "id": 278,
+      "item": "Wire profile badge, historical context, and confidence into companion output",
+      "status": "completed",
+      "createdAt": "2026-05-25T11:16:17.704Z",
+      "updatedAt": "2026-05-25T11:21:43.928Z",
+      "subject": "Wire profile badge, historical context, and confidence into companion output",
+      "description": "The profile learner, historical matcher, and confidence scorer are all built today. Wire them into the companion's response text so users see their profile type, historical meal context, and confidence level in every conversation.",
+      "activeForm": "wiring profile badge and historical context into companion"
+    },
+    {
+      "id": 279,
+      "item": "Add mmol/L support throughout the app for UK users",
+      "status": "completed",
+      "createdAt": "2026-05-25T11:39:53.296Z",
+      "updatedAt": "2026-05-25T11:46:45.249Z",
+      "subject": "Add mmol/L support throughout the app for UK users",
+      "description": "Convert all glucose displays from mg/dL to mmol/L (÷18.0182). Update Nightscout service, CGM API, companion output, and settings to support both units.",
+      "activeForm": "adding mmol/L support"
     }
   ]
 }

@@ -110,13 +110,25 @@ class LibreLinkUpConnectionDetail(BaseModel):
 
 
 class CGMConnectionStatus(BaseModel):
-    """Consolidated CGM connection status."""
+    """Consolidated CGM connection status.
 
+    Nightscout is the recommended integration path — open source,
+    vendor-agnostic, zero legal risk. See setup_guide_url for instructions.
+    """
+
+    nightscout: NightscoutConnectionDetail = Field(..., description="Nightscout connection details (recommended)")
     dexcom: DexcomConnectionDetail = Field(..., description="Dexcom connection details")
-    nightscout: NightscoutConnectionDetail = Field(..., description="Nightscout connection details")
     librelinkup: LibreLinkUpConnectionDetail = Field(..., description="LibreLinkUp connection details")
     any_connected: bool = Field(..., description="Whether any CGM source is connected")
     last_sync: datetime | None = Field(None, description="Most recent sync across all sources")
+    recommended_source: str = Field(
+        default="nightscout",
+        description="Recommended CGM integration source",
+    )
+    setup_guide_url: str = Field(
+        default="/docs/NIGHTSCOUT_SETUP.md",
+        description="URL to the Nightscout setup guide",
+    )
 
 
 class NightscoutTestResult(BaseModel):

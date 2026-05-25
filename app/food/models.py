@@ -4,7 +4,7 @@ Ported from SparkyFitness db_schema_backup.sql food-related tables.
 """
 
 from datetime import datetime
-from typing import Any, Optional, List, TYPE_CHECKING
+from typing import Any, List, Optional, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from app.db.models import User
@@ -12,6 +12,13 @@ if TYPE_CHECKING:
 from sqlalchemy import BigInteger, Boolean, DateTime, Float, ForeignKey, Index, Integer, JSON, String, Text, UniqueConstraint, func
 from sqlalchemy.dialects.postgresql import ARRAY, JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+
+try:
+    from pgvector.sqlalchemy import Vector
+    PGVECTOR_AVAILABLE = True
+except ImportError:
+    PGVECTOR_AVAILABLE = False
+    Vector = None
 
 from app.db.base import Base
 
@@ -119,6 +126,13 @@ class OpenFoodFactsProduct(Base):
     data_quality_tags: Mapped[Optional[list[str]]] = mapped_column(ARRAY(Text).with_variant(JSON, "sqlite"))
     source_updated_at: Mapped[Optional[datetime]] = mapped_column(DateTime(timezone=True))
     imported_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+
+    # Semantic search embedding options:
+    # 1. JSON fallback for non-pgvector deployments (stores 768 floats as JSON string)
+    embedding: Mapped[Optional[str]] = mapped_column(Text, comment="JSON array of embedding floats for pgvector search")
+    # 2. Native pgvector column (768-dim for sentence-transformers/multi-qa-mpnet-base-dot-v1)
+    if PGVECTOR_AVAILABLE:
+        embedding_vec: Mapped[Optional[List[float]]] = mapped_column(Vector(768), comment="Native pgvector column for semantic search")
 
     __table_args__ = (
         Index("ix_off_products_product_name", "product_name"),

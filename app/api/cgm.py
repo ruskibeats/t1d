@@ -63,6 +63,28 @@ class NightscoutDisconnectResponse(BaseModel):
     message: str = Field(..., description="Human-readable message")
 
 
+class CgmConnectRequest(BaseModel):
+    """Unified CGM connection request."""
+    source: str = Field(..., description="cgm source: dexcom, librelinkup, or nightscout")
+    email: str | None = Field(None, description="email (for librelinkup)")
+    password: str | None = Field(None, description="password (for librelinkup)")
+    region: str = Field("EU2", description="region (for librelinkup)")
+    url: str | None = Field(None, description="nightscout URL")
+    api_token: str | None = Field(None, description="nightscout API token")
+    consent_given: bool = Field(False, description="user accepted disclaimer (required for librelinkup)")
+
+
+class CgmSourceInfo(BaseModel):
+    """Available CGM source descriptor for the UI."""
+    id: str
+    name: str
+    description: str
+    requires_setup: bool
+    requires_consent: bool
+    is_recommended: bool
+    setup_url: str | None = None
+
+
 # ── Helpers ──
 
 
@@ -134,8 +156,9 @@ async def get_cgm_status(
 ) -> CGMConnectionStatus:
     """Get consolidated CGM connection status.
 
-    Returns the current connection state for Dexcom, Nightscout, and LibreLinkUp,
+    Returns the current connection state for Nightscout, Dexcom, and LibreLinkUp,
     so the frontend can show a unified devices/sources screen.
+    Nightscout is the recommended source for most users (vendor-agnostic, no legal risk).
     """
     dexcom = _get_dexcom_detail(user)
     nightscout = _get_nightscout_detail(user)
@@ -145,12 +168,24 @@ async def get_cgm_status(
     syncs = [user.last_glucose_sync, user.last_nightscout_sync, user.last_librelinkup_sync]
     last_sync = max((s for s in syncs if s is not None), default=None)
 
+    # Contextual recommendation: Dexcom users have an official API alternative,
+    # but Nightscout is the universal recommendation
+    if dexcom.connected:
+        recommended = "dexcom"
+    elif nightscout.connected:
+        recommended = "nightscout"
+    elif librelinkup.connected:
+        recommended = "nightscout"  # LibreLinkUp users should move to Nightscout
+    else:
+        recommended = "nightscout"
+
     return CGMConnectionStatus(
-        dexcom=dexcom,
         nightscout=nightscout,
+        dexcom=dexcom,
         librelinkup=librelinkup,
         any_connected=dexcom.connected or nightscout.connected or librelinkup.connected,
         last_sync=last_sync,
+        recommended_source=recommended,
     )
 
 
@@ -544,6 +579,121 @@ async def librelinkup_disconnect(
         success=True,
         message="LibreLinkUp disconnected",
         source="librelinkup",
+    )
+
+
+@route.get("/cgm/sources", response_model=list[CgmSourceInfo])
+async def get_cgm_sources() -> list[CgmSourceInfo]:
+    """List available CGM sources.
+
+    Unified source list so the frontend can render a single
+    "Connect CGM" screen without knowing about backends.
+    """
+    from app.services.cgm_bridge_service import CgmBridgeService
+
+    service = CgmBridgeService(None)
+    raw = await service.get_available_sources()
+    return [CgmSourceInfo(**s) for s in raw]
+
+
+@route.post("/cgm/connect", response_model=CGMConnectResponse)
+async def cgm_connect(
+    req: CgmConnectRequest,
+    session: AsyncSession = Depends(get_db),
+    user: User = Depends(require_active_user),
+) -> CGMConnectResponse:
+    """Unified CGM connection endpoint.
+
+    Single endpoint for connecting any CGM source:
+    - Dexcom → returns auth URL
+    - LibreLinkUp → enter email/password (+ consent)
+    - Nightscout → enter URL + token
+
+    The frontend calls this instead of three separate endpoints.
+    """
+    from app.services.cgm_bridge_service import CgmBridgeService, CgmSource
+
+    # Validate consent for LibreLinkUp
+    if req.source == "librelinkup" and not req.consent_given:
+        return CGMConnectResponse(
+            success=False,
+            message="Please accept the disclaimer to use LibreLinkUp.",
+            source="librelinkup",
+        )
+
+    source = CgmSource(req.source)
+    service = CgmBridgeService(session)
+
+    if source == CgmSource.DEXCOM:
+        # Redirect to Dexcom OAuth
+        from app.config import get_settings
+        settings = get_settings()
+        if not settings.dexcom_client_id:
+            return CGMConnectResponse(
+                success=False,
+                message="Dexcom integration not configured.",
+                source="dexcom",
+            )
+        return CGMConnectResponse(
+            success=True,
+            message="dexcom_auth_required",  # frontend should redirect
+            source="dexcom",
+        )
+
+    elif source == CgmSource.LIBRELINKUP:
+        if not req.email or not req.password:
+            return CGMConnectResponse(
+                success=False,
+                message="Email and password required.",
+                source="librelinkup",
+            )
+        # Test connection via bridge
+        result = await service.connect(
+            CgmSource.LIBRELINKUP,
+            user.id,
+            librelinkup_email=req.email,
+            librelinkup_password=req.password,
+            librelinkup_region=req.region,
+        )
+        if result.success:
+            # Store credentials
+            user.librelinkup_email = req.email
+            user.librelinkup_password = req.password
+            user.librelinkup_region = req.region
+            user.updated_at = datetime.now(timezone.utc)
+            await session.commit()
+            return CGMConnectResponse(
+                success=True,
+                message="LibreLinkUp connected successfully.",
+                source="librelinkup",
+            )
+        return CGMConnectResponse(
+            success=False,
+            message=result.message,
+            source="librelinkup",
+        )
+
+    elif source == CgmSource.NIGHTSCOUT:
+        if not req.url:
+            return CGMConnectResponse(
+                success=False,
+                message="Nightscout URL required.",
+                source="nightscout",
+            )
+        user.nightscout_url = req.url
+        user.nightscout_api_token = req.api_token
+        user.updated_at = datetime.now(timezone.utc)
+        await session.commit()
+        return CGMConnectResponse(
+            success=True,
+            message="Nightscout connected.",
+            source="nightscout",
+        )
+
+    return CGMConnectResponse(
+        success=False,
+        message=f"Unknown source: {req.source}",
+        source="unknown",
     )
 
 

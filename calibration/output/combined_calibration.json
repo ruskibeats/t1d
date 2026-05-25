@@ -1,0 +1,1050 @@
+{
+  "hupa_ucm_features": {
+    "HUPA0001P": {
+      "tir_70_180": 0.56494140625,
+      "variability_cv": 38.93473473559322,
+      "mean_glucose": 181.4437255859375,
+      "overnight_low_rate": 0.03718199608610567,
+      "spike_rate": 0.330078125,
+      "bolus_frequency": 5.34375
+    },
+    "HUPA0002P": {
+      "tir_70_180": 0.6149009745363093,
+      "variability_cv": 52.12412354753584,
+      "mean_glucose": 113.46966362779,
+      "overnight_low_rate": 0.29389788293897884,
+      "spike_rate": 0.11662999056900346,
+      "bolus_frequency": 4.617415906947501
+    },
+    "HUPA0003P": {
+      "tir_70_180": 0.676657824933687,
+      "variability_cv": 42.80382185892348,
+      "mean_glucose": 143.2735190097259,
+      "overnight_low_rate": 0.1780821917808219,
+      "spike_rate": 0.18620689655172415,
+      "bolus_frequency": 8.326790450928382
+    },
+    "HUPA0004P": {
+      "tir_70_180": 0.44817839195979897,
+      "variability_cv": 46.02598687879688,
+      "mean_glucose": 180.3779836683417,
+      "overnight_low_rate": 0.17683686176836863,
+      "spike_rate": 0.3709170854271357,
+      "bolus_frequency": 4.07035175879397
+    },
+    "HUPA0005P": {
+      "tir_70_180": 0.7182477967858995,
+      "variability_cv": 33.71130438628075,
+      "mean_glucose": 147.6986237228047,
+      "overnight_low_rate": 0.0505795574288725,
+      "spike_rate": 0.13582166925868325,
+      "bolus_frequency": 5.001555209953343
+    },
+    "HUPA0006P": {
+      "tir_70_180": 0.5602620087336244,
+      "variability_cv": 51.29160264004952,
+      "mean_glucose": 165.20458515283843,
+      "overnight_low_rate": 0.17636986301369864,
+      "spike_rate": 0.2965065502183406,
+      "bolus_frequency": 5.7851528384279485
+    },
+    "HUPA0007P": {
+      "tir_70_180": 0.45864661654135336,
+      "variability_cv": 45.426359357875015,
+      "mean_glucose": 173.15199143178143,
+      "overnight_low_rate": 0.2107481559536354,
+      "spike_rate": 0.371791547835105,
+      "bolus_frequency": 6.645579465906144
+    },
+    "HUPA0009P": {
+      "tir_70_180": 0.4144805876180483,
+      "variability_cv": 23.799970986355348,
+      "mean_glucose": 193.73927110421704,
+      "overnight_low_rate": 0.0,
+      "spike_rate": 0.4546169989506821,
+      "bolus_frequency": 4.986358866736621
+    },
+    "HUPA0010P": {
+      "tir_70_180": 0.7483198924731183,
+      "variability_cv": 42.39127915806207,
+      "mean_glucose": 135.8926481294803,
+      "overnight_low_rate": 0.1643835616438356,
+      "spike_rate": 0.12029569892473119,
+      "bolus_frequency": 7.548387096774194
+    },
+    "HUPA0011P": {
+      "tir_70_180": 0.6506902839281062,
+      "variability_cv": 35.87833667523407,
+      "mean_glucose": 159.10857862290524,
+      "overnight_low_rate": 0.006322444678609062,
+      "spike_rate": 0.226882000520969,
+      "bolus_frequency": 0.0
+    },
+    "HUPA0014P": {
+      "tir_70_180": 0.4405850091407678,
+      "variability_cv": 38.529149532578536,
+      "mean_glucose": 188.0617654740141,
+      "overnight_low_rate": 0.03161222339304531,
+      "spike_rate": 0.42204230869678766,
+      "bolus_frequency": 3.083833899190389
+    },
+    "HUPA0015P": {
+      "tir_70_180": 0.5867616033755274,
+      "variability_cv": 41.61242498302285,
+      "mean_glucose": 163.518723628692,
+      "overnight_low_rate": 0.03161222339304531,
+      "spike_rate": 0.29773206751054854,
+      "bolus_frequency": 0.0
+    },
+    "HUPA0016P": {
+      "tir_70_180": 0.5176010430247718,
+      "variability_cv": 53.15094907596689,
+      "mean_glucose": 150.2083441981747,
+      "overnight_low_rate": 0.21390937829293993,
+      "spike_rate": 0.2706649282920469,
+      "bolus_frequency": 6.833898305084746
+    },
+    "HUPA0017P": {
+      "tir_70_180": 0.3570436232286746,
+      "variability_cv": 34.58673841199181,
+      "mean_glucose": 200.79524404927292,
+      "overnight_low_rate": 0.0,
+      "spike_rate": 0.5351486524034454,
+      "bolus_frequency": 2.000555709919422
+    },
+    "HUPA0018P": {
+      "tir_70_180": 0.5134788189987163,
+      "variability_cv": 48.90778629526288,
+      "mean_glucose": 143.67766367137355,
+      "overnight_low_rate": 0.07165437302423604,
+      "spike_rate": 0.22798459563543003,
+      "bolus_frequency": 0.0
+    },
+    "HUPA0019P": {
+      "tir_70_180": 0.6238210724872002,
+      "variability_cv": 37.15713123164103,
+      "mean_glucose": 162.93047696038803,
+      "overnight_low_rate": 0.03582718651211802,
+      "spike_rate": 0.24764214497440043,
+      "bolus_frequency": 3.880355699272433
+    },
+    "HUPA0020P": {
+      "tir_70_180": 0.44758909853249473,
+      "variability_cv": 40.55207620423026,
+      "mean_glucose": 194.28266946191474,
+      "overnight_low_rate": 0.012328767123287671,
+      "spike_rate": 0.4440950384346611,
+      "bolus_frequency": 0.7044025157232704
+    },
+    "HUPA0021P": {
+      "tir_70_180": 0.7498932991890739,
+      "variability_cv": 33.47951984768349,
+      "mean_glucose": 137.325152937829,
+      "overnight_low_rate": 0.04452054794520548,
+      "spike_rate": 0.11139564660691421,
+      "bolus_frequency": 2.827144686299616
+    },
+    "HUPA0022P": {
+      "tir_70_180": 0.7889634601043997,
+      "variability_cv": 35.900352696249435,
+      "mean_glucose": 112.55058414118817,
+      "overnight_low_rate": 0.2206896551724138,
+      "spike_rate": 0.020879940343027592,
+      "bolus_frequency": 7.373601789709173
+    },
+    "HUPA0023P": {
+      "tir_70_180": 0.792549119673386,
+      "variability_cv": 32.46001363839147,
+      "mean_glucose": 133.05332993110488,
+      "overnight_low_rate": 0.026418786692759294,
+      "spike_rate": 0.06404695075274304,
+      "bolus_frequency": 2.93952538912988
+    },
+    "HUPA0024P": {
+      "tir_70_180": 0.48380427291523087,
+      "variability_cv": 39.861434531388824,
+      "mean_glucose": 166.9436595451413,
+      "overnight_low_rate": 0.13424657534246576,
+      "spike_rate": 0.33184011026878013,
+      "bolus_frequency": 2.0840799448656098
+    },
+    "HUPA0025P": {
+      "tir_70_180": 0.7990514228657014,
+      "variability_cv": 35.18161076146483,
+      "mean_glucose": 113.84560659011483,
+      "overnight_low_rate": 0.15753424657534246,
+      "spike_rate": 0.01672491263105342,
+      "bolus_frequency": 9.345981028457313
+    },
+    "HUPA0026P": {
+      "tir_70_180": 0.5353774165743135,
+      "variability_cv": 42.129707496745475,
+      "mean_glucose": 162.98526659278414,
+      "overnight_low_rate": 0.09397473275024296,
+      "spike_rate": 0.29378155399581335,
+      "bolus_frequency": 2.368969338751385
+    },
+    "HUPA0027P": {
+      "tir_70_180": 0.7946414528208292,
+      "variability_cv": 35.364326954864346,
+      "mean_glucose": 130.82994567650297,
+      "overnight_low_rate": 0.06947162426614481,
+      "spike_rate": 0.07886586088829202,
+      "bolus_frequency": 3.2684113099343035
+    },
+    "HUPA0028P": {
+      "tir_70_180": 0.8878851053972666,
+      "variability_cv": 27.602173696145975,
+      "mean_glucose": 128.43610918075825,
+      "overnight_low_rate": 0.024505327245053273,
+      "spike_rate": 0.026870511929580728,
+      "bolus_frequency": 2.4794996525364836
+    }
+  },
+  "ohiot1dm_food_glucose": [
+    {
+      "patient_id": "001",
+      "food_desc": "Iceberg lettuce with olive oil and vinegar",
+      "calories": 357,
+      "balance": "Unbalance",
+      "quality": "Good quality",
+      "pre_meal_glucose": 172.9728,
+      "peak_glucose": 185.58540000000002,
+      "glucose_rise": 12.612600000000015
+    },
+    {
+      "patient_id": "001",
+      "food_desc": "Tuna salade with boiled egg, asiago cheese  and bread ",
+      "calories": 866,
+      "balance": "Unbalance",
+      "quality": "Good quality",
+      "pre_meal_glucose": 169.3692,
+      "peak_glucose": 187.3872,
+      "glucose_rise": 18.018
+    },
+    {
+      "patient_id": "001",
+      "food_desc": "Asiago cheese",
+      "calories": 190,
+      "balance": "Unbalance",
+      "quality": "Good quality",
+      "pre_meal_glucose": 160.36020000000002,
+      "peak_glucose": 194.5944,
+      "glucose_rise": 34.23419999999999
+    },
+    {
+      "patient_id": "001",
+      "food_desc": "Lemon yogurt, asiago cheese and bread with kiwi",
+      "calories": 1063,
+      "balance": "Balance",
+      "quality": "Good quality",
+      "pre_meal_glucose": 169.3692,
+      "peak_glucose": 264.8646,
+      "glucose_rise": 95.49539999999999
+    },
+    {
+      "patient_id": "001",
+      "food_desc": "Tomatoes with cheese and bread",
+      "calories": 979,
+      "balance": "Unbalance",
+      "quality": "Good quality",
+      "pre_meal_glucose": 189.18900000000002,
+      "peak_glucose": 324.324,
+      "glucose_rise": 135.135
+    },
+    {
+      "patient_id": "001",
+      "food_desc": "Tomatoes",
+      "calories": 42,
+      "balance": "Unbalance",
+      "quality": "Good quality",
+      "pre_meal_glucose": 189.18900000000002,
+      "peak_glucose": 324.324,
+      "glucose_rise": 135.135
+    },
+    {
+      "patient_id": "001",
+      "food_desc": "White bread",
+      "calories": 262,
+      "balance": "Unbalance",
+      "quality": "Low quality",
+      "pre_meal_glucose": 66.6666,
+      "peak_glucose": 228.8286,
+      "glucose_rise": 162.16199999999998
+    },
+    {
+      "patient_id": "001",
+      "food_desc": "Lettuce of tomatoes and carrots salad with olive oil",
+      "calories": 130,
+      "balance": "Unbalance",
+      "quality": "Good quality",
+      "pre_meal_glucose": 171.171,
+      "peak_glucose": 399.9996,
+      "glucose_rise": 228.8286
+    },
+    {
+      "patient_id": "001",
+      "food_desc": "Steak tartar and frites potatoes",
+      "calories": 607,
+      "balance": "Unbalance",
+      "quality": "Medium quality",
+      "pre_meal_glucose": 189.18900000000002,
+      "peak_glucose": 399.9996,
+      "glucose_rise": 210.81059999999997
+    },
+    {
+      "patient_id": "001",
+      "food_desc": "Baguette",
+      "calories": 244,
+      "balance": "Unbalance",
+      "quality": "Low quality",
+      "pre_meal_glucose": 196.39620000000002,
+      "peak_glucose": 399.9996,
+      "glucose_rise": 203.60339999999997
+    },
+    {
+      "patient_id": "001",
+      "food_desc": "Strawberries smothie",
+      "calories": 102,
+      "balance": "Unbalance",
+      "quality": "Good quality",
+      "pre_meal_glucose": 225.22500000000002,
+      "peak_glucose": 399.9996,
+      "glucose_rise": 174.77459999999996
+    },
+    {
+      "patient_id": "001",
+      "food_desc": "Raisin sugar tablets",
+      "calories": 264,
+      "balance": "Unbalance",
+      "quality": "Low quality",
+      "pre_meal_glucose": 77.4774,
+      "peak_glucose": 140.5404,
+      "glucose_rise": 63.063
+    },
+    {
+      "patient_id": "001",
+      "food_desc": "lemon yogurt",
+      "calories": 184,
+      "balance": "Balance",
+      "quality": "Medium quality",
+      "pre_meal_glucose": 93.6936,
+      "peak_glucose": 140.5404,
+      "glucose_rise": 46.8468
+    },
+    {
+      "patient_id": "001",
+      "food_desc": "Meatloaf with coliflower, baked red peppers,baked potatoes",
+      "calories": 743,
+      "balance": "Unbalance",
+      "quality": "Good quality",
+      "pre_meal_glucose": 45.045,
+      "peak_glucose": 178.37820000000002,
+      "glucose_rise": 133.33320000000003
+    },
+    {
+      "patient_id": "001",
+      "food_desc": "gatorade",
+      "calories": 187,
+      "balance": "Unbalance",
+      "quality": "Low quality",
+      "pre_meal_glucose": 309.9096,
+      "peak_glucose": 399.9996,
+      "glucose_rise": 90.08999999999997
+    },
+    {
+      "patient_id": "001",
+      "food_desc": "Iceberg lettuce with olive oil and vinegar, ham sausage, bread and asiago cheese",
+      "calories": 1202,
+      "balance": "Unbalance",
+      "quality": "Medium quality",
+      "pre_meal_glucose": 309.9096,
+      "peak_glucose": 399.9996,
+      "glucose_rise": 90.08999999999997
+    },
+    {
+      "patient_id": "001",
+      "food_desc": "Grapefruit yogurt, kiwi and bread and coffee",
+      "calories": 384,
+      "balance": "Unbalance",
+      "quality": "Good quality",
+      "pre_meal_glucose": 113.5134,
+      "peak_glucose": 254.0538,
+      "glucose_rise": 140.54039999999998
+    },
+    {
+      "patient_id": "001",
+      "food_desc": "Apple and raisinsugar tablets",
+      "calories": 374,
+      "balance": "Unbalance",
+      "quality": "Medium quality",
+      "pre_meal_glucose": 72.072,
+      "peak_glucose": 156.7566,
+      "glucose_rise": 84.68459999999999
+    },
+    {
+      "patient_id": "001",
+      "food_desc": "Boiled fennel with pasta and chicken",
+      "calories": 503,
+      "balance": "Unbalance",
+      "quality": "Medium quality",
+      "pre_meal_glucose": 64.8648,
+      "peak_glucose": 156.7566,
+      "glucose_rise": 91.89179999999999
+    },
+    {
+      "patient_id": "001",
+      "food_desc": "Biscuit vital",
+      "calories": 383,
+      "balance": "Unbalance",
+      "quality": "Low quality",
+      "pre_meal_glucose": 75.6756,
+      "peak_glucose": 156.7566,
+      "glucose_rise": 81.08099999999999
+    },
+    {
+      "patient_id": "001",
+      "food_desc": "Solevita multivitamin",
+      "calories": 195,
+      "balance": "Unbalance",
+      "quality": "Low quality",
+      "pre_meal_glucose": 140.5404,
+      "peak_glucose": 257.6574,
+      "glucose_rise": 117.11699999999999
+    },
+    {
+      "patient_id": "001",
+      "food_desc": "Solevita multivitamin",
+      "calories": 195,
+      "balance": "Unbalance",
+      "quality": "Low quality",
+      "pre_meal_glucose": 140.5404,
+      "peak_glucose": 257.6574,
+      "glucose_rise": 117.11699999999999
+    },
+    {
+      "patient_id": "001",
+      "food_desc": "Lettuce salad witholive oil, asiago cheese, ham,bread and strawberries",
+      "calories": 2303,
+      "balance": "Unbalance",
+      "quality": "Medium quality",
+      "pre_meal_glucose": 185.58540000000002,
+      "peak_glucose": 255.8556,
+      "glucose_rise": 70.27019999999999
+    },
+    {
+      "patient_id": "001",
+      "food_desc": "Lime yogurt and bread",
+      "calories": 377,
+      "balance": "Unbalance",
+      "quality": "Medium quality",
+      "pre_meal_glucose": 100.9008,
+      "peak_glucose": 225.22500000000002,
+      "glucose_rise": 124.32420000000002
+    },
+    {
+      "patient_id": "001",
+      "food_desc": "lemon yogurt",
+      "calories": 184,
+      "balance": "Balance",
+      "quality": "Medium quality",
+      "pre_meal_glucose": 73.8738,
+      "peak_glucose": 120.7206,
+      "glucose_rise": 46.8468
+    },
+    {
+      "patient_id": "001",
+      "food_desc": "Roasted beef sandwich and kaggi chocolate and puff pastry with mermelade",
+      "calories": 1172,
+      "balance": "Unbalance",
+      "quality": "Low quality",
+      "pre_meal_glucose": 59.4594,
+      "peak_glucose": 225.22500000000002,
+      "glucose_rise": 165.7656
+    },
+    {
+      "patient_id": "002",
+      "food_desc": "Margarita pizza and lettuce,tomatoes and cucumber salad",
+      "calories": 231,
+      "balance": "Balance",
+      "quality": "Medium quality",
+      "pre_meal_glucose": 43.2432,
+      "peak_glucose": 129.7296,
+      "glucose_rise": 86.4864
+    },
+    {
+      "patient_id": "002",
+      "food_desc": "Potatoes salade, lettuce and cucumber,sausage,ham and boiled egg",
+      "calories": 1163,
+      "balance": "Unbalance",
+      "quality": "Good quality",
+      "pre_meal_glucose": 99.099,
+      "peak_glucose": 255.8556,
+      "glucose_rise": 156.7566
+    },
+    {
+      "patient_id": "002",
+      "food_desc": "Sausage with lettuce,corn salad and rice",
+      "calories": 757,
+      "balance": "Unbalance",
+      "quality": "Good quality",
+      "pre_meal_glucose": 356.75640000000004,
+      "peak_glucose": 356.75640000000004,
+      "glucose_rise": 0.0
+    },
+    {
+      "patient_id": "002",
+      "food_desc": "Eggplant with rice and lettuce with tomato",
+      "calories": 474,
+      "balance": "Unbalance",
+      "quality": "Good quality",
+      "pre_meal_glucose": 221.62140000000002,
+      "peak_glucose": 225.22500000000002,
+      "glucose_rise": 3.6036
+    },
+    {
+      "patient_id": "002",
+      "food_desc": "Lettuce with tomato salad, spaguetti with pesto",
+      "calories": 619,
+      "balance": "Unbalance",
+      "quality": "Good quality",
+      "pre_meal_glucose": 140.5404,
+      "peak_glucose": 203.60340000000002,
+      "glucose_rise": 63.06300000000002
+    },
+    {
+      "patient_id": "002",
+      "food_desc": "Tomatoes,potatoes, ham and egg and plum pie",
+      "calories": 699,
+      "balance": "Unbalance",
+      "quality": "Medium quality",
+      "pre_meal_glucose": 277.47720000000004,
+      "peak_glucose": 277.47720000000004,
+      "glucose_rise": 0.0
+    },
+    {
+      "patient_id": "003",
+      "food_desc": "Pizza parmesan ham",
+      "calories": 864,
+      "balance": "Unbalance",
+      "quality": "Medium quality",
+      "pre_meal_glucose": 151.3512,
+      "peak_glucose": 153.15300000000002,
+      "glucose_rise": 1.8018000000000143
+    },
+    {
+      "patient_id": "004",
+      "food_desc": "Lettuce with carrots and dressing",
+      "calories": 161,
+      "balance": "Unbalance",
+      "quality": "Good quality",
+      "pre_meal_glucose": 133.3332,
+      "peak_glucose": 198.198,
+      "glucose_rise": 64.8648
+    },
+    {
+      "patient_id": "004",
+      "food_desc": "Salmon with potatoes and hollandese sauce, tomato and alfalfa sprouts",
+      "calories": 1152,
+      "balance": "Unbalance",
+      "quality": "Good quality",
+      "pre_meal_glucose": 126.126,
+      "peak_glucose": 198.198,
+      "glucose_rise": 72.072
+    },
+    {
+      "patient_id": "004",
+      "food_desc": "Pasta with lettuce and pepper",
+      "calories": 289,
+      "balance": "Unbalance",
+      "quality": "Good quality",
+      "pre_meal_glucose": 109.9098,
+      "peak_glucose": 221.62140000000002,
+      "glucose_rise": 111.71160000000002
+    },
+    {
+      "patient_id": "004",
+      "food_desc": "Frites potatoes",
+      "calories": 146,
+      "balance": "Unbalance",
+      "quality": "Low quality",
+      "pre_meal_glucose": 230.6304,
+      "peak_glucose": 322.5222,
+      "glucose_rise": 91.89179999999999
+    },
+    {
+      "patient_id": "004",
+      "food_desc": "Frites potatoes and frite fish ",
+      "calories": 599,
+      "balance": "Unbalance",
+      "quality": "Low quality",
+      "pre_meal_glucose": 75.6756,
+      "peak_glucose": 198.198,
+      "glucose_rise": 122.5224
+    },
+    {
+      "patient_id": "004",
+      "food_desc": "Ham pizza and cooked pizza dough",
+      "calories": 842,
+      "balance": "Unbalance",
+      "quality": "Low quality",
+      "pre_meal_glucose": 205.4052,
+      "peak_glucose": 354.9546,
+      "glucose_rise": 149.54940000000002
+    },
+    {
+      "patient_id": "004",
+      "food_desc": "Proscuito pizza",
+      "calories": 864,
+      "balance": "Unbalance",
+      "quality": "Medium quality",
+      "pre_meal_glucose": 313.5132,
+      "peak_glucose": 399.9996,
+      "glucose_rise": 86.4864
+    },
+    {
+      "patient_id": "006",
+      "food_desc": "Roast beef sandwich ",
+      "calories": 1209,
+      "balance": "Unbalance",
+      "quality": "Low quality",
+      "pre_meal_glucose": 154.9548,
+      "peak_glucose": 160.36020000000002,
+      "glucose_rise": 5.405400000000014
+    },
+    {
+      "patient_id": "006",
+      "food_desc": "Scramble eggs",
+      "calories": 556,
+      "balance": "Unbalance",
+      "quality": "Good quality",
+      "pre_meal_glucose": 77.4774,
+      "peak_glucose": 252.252,
+      "glucose_rise": 174.77460000000002
+    },
+    {
+      "patient_id": "006",
+      "food_desc": "Roast chicken and potatoes",
+      "calories": 581,
+      "balance": "Unbalance",
+      "quality": "Good quality",
+      "pre_meal_glucose": 176.5764,
+      "peak_glucose": 205.4052,
+      "glucose_rise": 28.8288
+    },
+    {
+      "patient_id": "006",
+      "food_desc": "Lasagne and lettuce and tomato salad",
+      "calories": 477,
+      "balance": "Unbalance",
+      "quality": "Medium quality",
+      "pre_meal_glucose": 158.5584,
+      "peak_glucose": 158.5584,
+      "glucose_rise": 0.0
+    },
+    {
+      "patient_id": "006",
+      "food_desc": "Breaded fish with stewed eggplant and zuchinni and ketchup and cream",
+      "calories": 351,
+      "balance": "Unbalance",
+      "quality": "Low quality",
+      "pre_meal_glucose": 75.6756,
+      "peak_glucose": 237.8376,
+      "glucose_rise": 162.162
+    },
+    {
+      "patient_id": "007",
+      "food_desc": "Cantaloupe and couscous",
+      "calories": 375,
+      "balance": "Unbalance",
+      "quality": "Good quality",
+      "pre_meal_glucose": 68.4684,
+      "peak_glucose": 158.5584,
+      "glucose_rise": 90.09
+    },
+    {
+      "patient_id": "007",
+      "food_desc": "Tomatoes salad with feta and bread",
+      "calories": 1137,
+      "balance": "Unbalance",
+      "quality": "Good quality",
+      "pre_meal_glucose": 75.6756,
+      "peak_glucose": 158.5584,
+      "glucose_rise": 82.8828
+    },
+    {
+      "patient_id": "007",
+      "food_desc": "Hamburguer, zuchinni and red wine",
+      "calories": 434,
+      "balance": "Unbalance",
+      "quality": "Good quality",
+      "pre_meal_glucose": 147.7476,
+      "peak_glucose": 158.5584,
+      "glucose_rise": 10.8108
+    },
+    {
+      "patient_id": "007",
+      "food_desc": "Wholegrain bread and milkchocolate",
+      "calories": 304,
+      "balance": "Unbalance",
+      "quality": "Medium quality",
+      "pre_meal_glucose": 140.5404,
+      "peak_glucose": 198.198,
+      "glucose_rise": 57.6576
+    },
+    {
+      "patient_id": "007",
+      "food_desc": "wienerschnitzel, potatoes, coliflower, carrots, bread and beer",
+      "calories": 1691,
+      "balance": "Unbalance",
+      "quality": "Medium quality",
+      "pre_meal_glucose": 149.54940000000002,
+      "peak_glucose": 205.4052,
+      "glucose_rise": 55.85579999999999
+    },
+    {
+      "patient_id": "007",
+      "food_desc": "Wholegrain bread, butter and coffee",
+      "calories": 314,
+      "balance": "Unbalance",
+      "quality": "Good quality",
+      "pre_meal_glucose": 156.7566,
+      "peak_glucose": 243.243,
+      "glucose_rise": 86.4864
+    },
+    {
+      "patient_id": "007",
+      "food_desc": "Wholegrain bread with flaxseeds",
+      "calories": 183,
+      "balance": "Unbalance",
+      "quality": "Good quality",
+      "pre_meal_glucose": 91.8918,
+      "peak_glucose": 210.8106,
+      "glucose_rise": 118.91879999999999
+    },
+    {
+      "patient_id": "007",
+      "food_desc": "Farmer cerealbar and sinergy pills",
+      "calories": 420,
+      "balance": "Unbalance",
+      "quality": "Low quality",
+      "pre_meal_glucose": 91.8918,
+      "peak_glucose": 138.73860000000002,
+      "glucose_rise": 46.846800000000016
+    },
+    {
+      "patient_id": "007",
+      "food_desc": "Lasagne, wine and chocolate ",
+      "calories": 919,
+      "balance": "Unbalance",
+      "quality": "Low quality",
+      "pre_meal_glucose": 84.6846,
+      "peak_glucose": 138.73860000000002,
+      "glucose_rise": 54.054000000000016
+    },
+    {
+      "patient_id": "007",
+      "food_desc": "Wholegrain bread, brie cheese and kiwi and coffee",
+      "calories": 433,
+      "balance": "Balance",
+      "quality": "Good quality",
+      "pre_meal_glucose": 153.15300000000002,
+      "peak_glucose": 183.7836,
+      "glucose_rise": 30.630599999999987
+    },
+    {
+      "patient_id": "007",
+      "food_desc": "Couscous, watermelon and tomato salad and ham with bread",
+      "calories": 1193,
+      "balance": "Unbalance",
+      "quality": "Good quality",
+      "pre_meal_glucose": 171.171,
+      "peak_glucose": 342.342,
+      "glucose_rise": 171.171
+    },
+    {
+      "patient_id": "007",
+      "food_desc": "Chocolate and coffee",
+      "calories": 356,
+      "balance": "Unbalance",
+      "quality": "Medium quality",
+      "pre_meal_glucose": 261.261,
+      "peak_glucose": 261.261,
+      "glucose_rise": 0.0
+    },
+    {
+      "patient_id": "007",
+      "food_desc": "Sinergy pills and olive crackers",
+      "calories": 303,
+      "balance": "Unbalance",
+      "quality": "Low quality",
+      "pre_meal_glucose": 93.6936,
+      "peak_glucose": 97.2972,
+      "glucose_rise": 3.6036
+    },
+    {
+      "patient_id": "007",
+      "food_desc": "Vegetable soup,black bread and ham. m&m package and wine",
+      "calories": 540,
+      "balance": "Balance",
+      "quality": "Low quality",
+      "pre_meal_glucose": 93.6936,
+      "peak_glucose": 120.7206,
+      "glucose_rise": 27.027
+    },
+    {
+      "patient_id": "007",
+      "food_desc": "Crackers",
+      "calories": 394,
+      "balance": "Unbalance",
+      "quality": "Low quality",
+      "pre_meal_glucose": 79.2792,
+      "peak_glucose": 172.9728,
+      "glucose_rise": 93.6936
+    },
+    {
+      "patient_id": "007",
+      "food_desc": "Salad with fried goat cheese ",
+      "calories": 735,
+      "balance": "Unbalance",
+      "quality": "Good quality",
+      "pre_meal_glucose": 102.7026,
+      "peak_glucose": 214.41420000000002,
+      "glucose_rise": 111.71160000000002
+    },
+    {
+      "patient_id": "007",
+      "food_desc": "Wholegrain bread with kiwi and coffee",
+      "calories": 163,
+      "balance": "Unbalance",
+      "quality": "Good quality",
+      "pre_meal_glucose": 144.144,
+      "peak_glucose": 196.39620000000002,
+      "glucose_rise": 52.252200000000016
+    },
+    {
+      "patient_id": "007",
+      "food_desc": "Croissant and chocolate",
+      "calories": 206,
+      "balance": "Unbalance",
+      "quality": "Low quality",
+      "pre_meal_glucose": 162.162,
+      "peak_glucose": 162.162,
+      "glucose_rise": 0.0
+    },
+    {
+      "patient_id": "007",
+      "food_desc": "Cracker and spiral bread",
+      "calories": 380,
+      "balance": "Unbalance",
+      "quality": "Low quality",
+      "pre_meal_glucose": 86.4864,
+      "peak_glucose": 160.36020000000002,
+      "glucose_rise": 73.87380000000002
+    },
+    {
+      "patient_id": "007",
+      "food_desc": "Cantaloupe with ham and pink wine",
+      "calories": 193,
+      "balance": "Unbalance",
+      "quality": "Good quality",
+      "pre_meal_glucose": 113.5134,
+      "peak_glucose": 167.56740000000002,
+      "glucose_rise": 54.054000000000016
+    },
+    {
+      "patient_id": "007",
+      "food_desc": "Pork with potatoes pure and sauce with harricots and ham",
+      "calories": 795,
+      "balance": "Unbalance",
+      "quality": "Medium quality",
+      "pre_meal_glucose": 158.5584,
+      "peak_glucose": 167.56740000000002,
+      "glucose_rise": 9.009000000000015
+    },
+    {
+      "patient_id": "007",
+      "food_desc": "Stracciatela and caramel  icre cream",
+      "calories": 555,
+      "balance": "Unbalance",
+      "quality": "Low quality",
+      "pre_meal_glucose": 124.3242,
+      "peak_glucose": 167.56740000000002,
+      "glucose_rise": 43.243200000000016
+    },
+    {
+      "patient_id": "007",
+      "food_desc": "Lasagne and carrots with wine",
+      "calories": 555,
+      "balance": "Unbalance",
+      "quality": "Low quality",
+      "pre_meal_glucose": 131.5314,
+      "peak_glucose": 147.7476,
+      "glucose_rise": 16.216200000000015
+    },
+    {
+      "patient_id": "008",
+      "food_desc": "Pasta with champignons and parmesan cheesse",
+      "calories": 637.0,
+      "balance": "Balance",
+      "quality": "Good quality",
+      "pre_meal_glucose": 111.7116,
+      "peak_glucose": 124.3242,
+      "glucose_rise": 12.6126
+    },
+    {
+      "patient_id": "008",
+      "food_desc": "Salad with olive oil ",
+      "calories": 88.0,
+      "balance": "Unbalance",
+      "quality": "Good quality",
+      "pre_meal_glucose": 111.7116,
+      "peak_glucose": 124.3242,
+      "glucose_rise": 12.6126
+    },
+    {
+      "patient_id": "008",
+      "food_desc": "Pasta with champignons and parmesan cheesse",
+      "calories": 637.0,
+      "balance": "Balance",
+      "quality": "Good quality",
+      "pre_meal_glucose": 111.7116,
+      "peak_glucose": 124.3242,
+      "glucose_rise": 12.6126
+    },
+    {
+      "patient_id": "008",
+      "food_desc": "Nothing",
+      "calories": NaN,
+      "balance": NaN,
+      "quality": NaN,
+      "pre_meal_glucose": 111.7116,
+      "peak_glucose": 124.3242,
+      "glucose_rise": 12.6126
+    },
+    {
+      "patient_id": "008",
+      "food_desc": "Pumpkin soup",
+      "calories": 93.0,
+      "balance": "Unbalance",
+      "quality": "Good quality",
+      "pre_meal_glucose": 111.7116,
+      "peak_glucose": 124.3242,
+      "glucose_rise": 12.6126
+    },
+    {
+      "patient_id": "008",
+      "food_desc": "Sausages with salad and potatoes chips",
+      "calories": 1059.0,
+      "balance": "Unbalance",
+      "quality": "Medium quality",
+      "pre_meal_glucose": 169.3692,
+      "peak_glucose": 180.18,
+      "glucose_rise": 10.8108
+    },
+    {
+      "patient_id": "008",
+      "food_desc": "Soup,Salmon pastry,grilled vegestables, boiled potatoes and pumpkin pay",
+      "calories": 1678.0,
+      "balance": "Unbalance",
+      "quality": "Medium quality",
+      "pre_meal_glucose": 162.162,
+      "peak_glucose": 246.8466,
+      "glucose_rise": 84.68459999999999
+    },
+    {
+      "patient_id": "008",
+      "food_desc": "Salmon pastry, spinach and potatoes",
+      "calories": 848.0,
+      "balance": "Unbalance",
+      "quality": "Good quality",
+      "pre_meal_glucose": 162.162,
+      "peak_glucose": 246.8466,
+      "glucose_rise": 84.68459999999999
+    },
+    {
+      "patient_id": "008",
+      "food_desc": "Pumpkin pay",
+      "calories": 486.0,
+      "balance": "Unbalance",
+      "quality": "Low quality",
+      "pre_meal_glucose": 162.162,
+      "peak_glucose": 246.8466,
+      "glucose_rise": 84.68459999999999
+    },
+    {
+      "patient_id": "008",
+      "food_desc": "Nothing",
+      "calories": NaN,
+      "balance": NaN,
+      "quality": NaN,
+      "pre_meal_glucose": 176.5764,
+      "peak_glucose": 246.8466,
+      "glucose_rise": 70.27019999999999
+    },
+    {
+      "patient_id": "008",
+      "food_desc": "Spaguetti with rag\u00fbot and bolognese sauce",
+      "calories": 687.0,
+      "balance": "Unbalance",
+      "quality": "Low quality",
+      "pre_meal_glucose": 198.198,
+      "peak_glucose": 212.6124,
+      "glucose_rise": 14.4144
+    },
+    {
+      "patient_id": "008",
+      "food_desc": "Bread and natural yogurt",
+      "calories": 224.0,
+      "balance": "Balance",
+      "quality": "Medium quality",
+      "pre_meal_glucose": 39.6396,
+      "peak_glucose": 218.0178,
+      "glucose_rise": 178.3782
+    },
+    {
+      "patient_id": "008",
+      "food_desc": "Rago\u00fbt beef and frites natural potatoes ",
+      "calories": 476.0,
+      "balance": "Unbalance",
+      "quality": "Low quality",
+      "pre_meal_glucose": 181.9818,
+      "peak_glucose": 185.58540000000002,
+      "glucose_rise": 3.6036000000000286
+    },
+    {
+      "patient_id": "008",
+      "food_desc": "Batata",
+      "calories": 86.0,
+      "balance": "Unbalance",
+      "quality": "Good quality",
+      "pre_meal_glucose": 145.9458,
+      "peak_glucose": 156.7566,
+      "glucose_rise": 10.8108
+    },
+    {
+      "patient_id": "008",
+      "food_desc": "Natural yogurt and cheerios cereal",
+      "calories": 490.0,
+      "balance": "Unbalance",
+      "quality": "Low quality",
+      "pre_meal_glucose": 73.8738,
+      "peak_glucose": 144.144,
+      "glucose_rise": 70.2702
+    },
+    {
+      "patient_id": "009",
+      "food_desc": "Egg pasta with chicken and green beans",
+      "calories": 1160,
+      "balance": "Unbalance",
+      "quality": "Good quality",
+      "pre_meal_glucose": 91.8918,
+      "peak_glucose": 91.8918,
+      "glucose_rise": 0.0
+    }
+  ],
+  "high_fat_analysis": {
+    "count": 29,
+    "avg_glucose_rise": 94.72319999999999
+  }
+}

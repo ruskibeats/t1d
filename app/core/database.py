@@ -12,30 +12,48 @@ from sqlalchemy.ext.asyncio import (
 )
 
 from app.config import get_settings
+from app.core.logging_config import get_logger
 
-# Apply SQLite compatibility patches for PostgreSQL types
-import sqlalchemy.dialects.postgresql.json as pg_json
-from sqlalchemy import types as sa_types
+logger = get_logger(__name__)
 
-class JSONBCompat(sa_types.JSON):
-    __visit_name__ = 'JSONB'
+# SQLite compatibility patches — only applied when using SQLite
+_is_sqlite_patched = False
 
-pg_json.JSONB = JSONBCompat
-sa_types.JSONB = JSONBCompat
 
-from sqlalchemy.dialects.sqlite.base import SQLiteTypeCompiler
+def _patch_sqlite_types() -> None:
+    """Apply SQLite-compatible type handlers for PostgreSQL types.
 
-def _visit_jsonb(self, type_, **kw):
-    return self.visit_JSON(type_, **kw)
-SQLiteTypeCompiler.visit_JSONB = _visit_jsonb
+    Called once at DatabaseManager.init_db() when the URL starts with 'sqlite'.
+    Not invoked in production (PostgreSQL).
+    """
+    global _is_sqlite_patched
+    if _is_sqlite_patched:
+        return
 
-def _visit_enum(self, type_, **kw):
-    return self.visit_VARCHAR(type_, **kw)
-SQLiteTypeCompiler.visit_enum = _visit_enum
+    import sqlalchemy.dialects.postgresql.json as pg_json
+    from sqlalchemy import types as sa_types
 
-def _visit_biginteger(self, type_, **kw):
-    return self.visit_INTEGER(type_, **kw)
-SQLiteTypeCompiler.visit_BigInteger = _visit_biginteger
+    class JSONBCompat(sa_types.JSON):
+        __visit_name__ = 'JSONB'
+
+    pg_json.JSONB = JSONBCompat
+    sa_types.JSONB = JSONBCompat
+
+    from sqlalchemy.dialects.sqlite.base import SQLiteTypeCompiler
+
+    def _visit_jsonb(self, type_, **kw):
+        return self.visit_JSON(type_, **kw)
+    SQLiteTypeCompiler.visit_JSONB = _visit_jsonb
+
+    def _visit_enum(self, type_, **kw):
+        return self.visit_VARCHAR(type_, **kw)
+    SQLiteTypeCompiler.visit_enum = _visit_enum
+
+    def _visit_biginteger(self, type_, **kw):
+        return self.visit_INTEGER(type_, **kw)
+    SQLiteTypeCompiler.visit_BigInteger = _visit_biginteger
+
+    _is_sqlite_patched = True
 
 
 class DatabaseManager:
@@ -48,10 +66,15 @@ class DatabaseManager:
 
     def init_db(self, database_url: str) -> None:
         """Initialize database engine and session factory.
-        
+
+        Applies SQLite type compatibility patches when using SQLite.
+
         Args:
             database_url: Async PostgreSQL connection URL
         """
+        if database_url.startswith("sqlite"):
+            _patch_sqlite_types()
+
         if self._initialized:
             return
 
@@ -137,43 +160,19 @@ async def init_db() -> None:
     # Import Base for table creation
 
     from app.db.base import Base
-    from sqlalchemy import text
-
-    # Create tables if they don't exist
+        # Create tables if they don't exist (uses SQLAlchemy's built-in checkfirst)
     async with db_manager.engine.begin() as conn:
-        # Check if tables exist (SQLite-compatible)
         if settings.database_url.startswith("sqlite"):
-            result = await conn.execute(text(
-                "SELECT name FROM sqlite_master WHERE type='table' AND name='tbl_users'"
-            ))
-            tables_exist = result.scalar() is not None
+            for table in Base.metadata.sorted_tables:
+                try:
+                    await conn.run_sync(table.create, checkfirst=True)
+                except Exception as e:
+                    if "already exists" in str(e):
+                        continue
+                    raise
         else:
-            result = await conn.execute(text("""
-                SELECT EXISTS (
-                    SELECT FROM information_schema.tables 
-                    WHERE table_schema = 'public' 
-                    AND table_name = 'tbl_users'
-                )
-            """))
-            tables_exist = result.scalar()
-
-        if not tables_exist:
-            print("Creating database tables...")
-            # Create tables one at a time to handle duplicate index errors in SQLite
-            # (some models define both index=True AND explicit Index() with same name)
-            if settings.database_url.startswith("sqlite"):
-                for table in Base.metadata.sorted_tables:
-                    try:
-                        await conn.run_sync(table.create, checkfirst=True)
-                    except Exception as e:
-                        if "already exists" in str(e):
-                            continue
-                        raise
-            else:
-                await conn.run_sync(Base.metadata.create_all)
-            print("Database tables created.")
-        else:
-            print("Database tables already exist.")
+            await conn.run_sync(Base.metadata.create_all, checkfirst=True)
+        logger.info("Database tables initialized.")
 
     # Check for and run Alembic migrations
     await run_migrations()
@@ -185,7 +184,7 @@ async def run_migrations() -> None:
     settings = get_settings()
     # Skip Alembic for SQLite (tables created via create_all)
     if settings.database_url.startswith("sqlite"):
-        print("SQLite: skipping Alembic migrations.")
+        logger.info("SQLite: skipping Alembic migrations.")
         return
     try:
         from alembic.config import Config
@@ -199,13 +198,13 @@ async def run_migrations() -> None:
             db_revision = result.scalar()
         head_revision = script.get_current_head()
         if db_revision != head_revision:
-            print(f"Migrating from {db_revision} to {head_revision}...")
+            logger.info(f"Migrating from {db_revision} to {head_revision}...")
             command.upgrade(alembic_cfg, "head")
-            print("Migrations applied.")
+            logger.info("Migrations applied.")
         else:
-            print("Database is up to date.")
+            logger.info("Database is up to date.")
     except Exception as e:
-        print(f"Note: Alembic migrations check skipped: {e}")
+        logger.warning(f"Alembic migrations check skipped: {e}")
 
 
 async def get_db() -> AsyncGenerator[AsyncSession, None]:

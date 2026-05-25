@@ -1,0 +1,112 @@
+{
+  "foods": {
+    "bread": {
+      "carbs": 48.7,
+      "fat": 2.1,
+      "protein": 8.1
+    },
+    "white bread": {
+      "carbs": 48.7,
+      "fat": 2.1,
+      "protein": 8.1
+    },
+    "wholemeal bread": {
+      "carbs": 42.0,
+      "fat": 2.5,
+      "protein": 9.1
+    },
+    "pasta": {
+      "carbs": 25.0,
+      "fat": 1.5,
+      "protein": 5.8
+    },
+    "rice": {
+      "carbs": 28.0,
+      "fat": 0.3,
+      "protein": 2.7
+    },
+    "oatmeal": {
+      "carbs": 12.0,
+      "fat": 2.5,
+      "protein": 2.5
+    },
+    "banana": {
+      "carbs": 20.3,
+      "fat": 0.1,
+      "protein": 2.6
+    },
+    "apple": {
+      "carbs": 13.8,
+      "fat": 0.2,
+      "protein": 0.3
+    },
+    "orange": {
+      "carbs": 9.4,
+      "fat": 0.1,
+      "protein": 0.9
+    },
+    "sausage": {
+      "carbs": 9.6,
+      "fat": 25.0,
+      "protein": 12.5
+    },
+    "pork sausage": {
+      "carbs": 9.6,
+      "fat": 25.0,
+      "protein": 12.5
+    },
+    "chicken curry": {
+      "carbs": 10.0,
+      "fat": 8.0,
+      "protein": 15.0
+    },
+    "pizza": {
+      "carbs": 25.0,
+      "fat": 10.0,
+      "protein": 12.0
+    },
+    "ice cream": {
+      "carbs": 21.0,
+      "fat": 15.0,
+      "protein": 3.5
+    },
+    "cake": {
+      "carbs": 45.0,
+      "fat": 15.0,
+      "protein": 5.0
+    },
+    "beer": {
+      "carbs": 4.6,
+      "fat": 0,
+      "protein": 0
+    },
+    "lager": {
+      "carbs": 4.6,
+      "fat": 0,
+      "protein": 0
+    },
+    "coke": {
+      "carbs": 11.0,
+      "fat": 0,
+      "protein": 0
+    },
+    "cola": {
+      "carbs": 11.0,
+      "fat": 0,
+      "protein": 0
+    }
+  },
+  "serving_sizes": {
+    "slice": 30,
+    "slices": 30,
+    "can": 330,
+    "cans": 330,
+    "pint": 568,
+    "pints": 568,
+    "scoop": 66,
+    "scoops": 66,
+    "cup": 240,
+    "piece": 100,
+    "pieces": 100
+  }
+}

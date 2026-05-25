@@ -312,8 +312,9 @@ class TestProviderPoolIntegration:
 
     def test_service_loads_pool_from_config(self):
         svc = LLMService(provider="openrouter", api_key="test-key", model="test-model")
-        # Default config has empty pool
-        assert svc.provider_pool == []
+        # Default pool has free model fallbacks
+        assert len(svc.provider_pool) >= 1
+        assert svc.provider_pool[0][0] == "openrouter"
 
     def test_service_accepts_explicit_pool(self):
         pool = [("openrouter", "deepseek/deepseek-v4-flash:free")]
