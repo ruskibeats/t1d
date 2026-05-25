@@ -42,7 +42,7 @@ from app.food.service import FoodService
 from app.services.llm_service import LLMProvider
 from app.services.llm_call import LLMCapture
 from app.simulator.schemas import AnchorType
-from sim_user_insights.scripts.forecast_engine import MealTotals, forecast_glucose
+from sim_user_insights.scripts.forecast_engine import MealTotals, ForecastStage
 from sim_user_insights.scripts.sim_current_reading import generate_current_reading
 
 # ── State Management (Factor 5) ──
@@ -494,19 +494,13 @@ def stage_apply_clarification(state: CompanionState) -> CompanionState:
 
 
 async def stage_forecast(state: CompanionState) -> CompanionState:
-    """Compute glucose forecast and find similar meals."""
-    # Forecast
-    forecast = forecast_glucose(
+    """Compute glucose forecast using ForecastStage."""
+    forecast_stage = ForecastStage.from_profile(state.profile_config)
+    forecast = forecast_stage.forecast(
         MealTotals.from_dict(state.totals),
-        basal_mg_dl=state.profile_config.basal_glucose_mean,
-        carb_ratio=state.profile_config.carb_ratio,
-        insulin_sensitivity=state.profile_config.insulin_sensitivity,
-        fat_delay_hours=state.profile_config.fat_delay_hours,
-        exercise_drop_factor=state.profile_config.exercise_drop_factor,
-        anchor_type=state.anchor_type,
         hour=19,
     )
-    
+
     return CompanionState(
         **{**asdict(state), "forecast": forecast}
     )
