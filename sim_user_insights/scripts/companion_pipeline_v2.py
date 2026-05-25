@@ -39,7 +39,8 @@ if _env.exists():
 
 from app.core.database import db_manager, get_settings
 from app.food.service import FoodService
-from app.services.llm_service import LLMProvider, LLMService
+from app.services.llm_service import LLMProvider
+from app.services.llm_call import LLMCapture
 from app.simulator.schemas import AnchorType
 from sim_user_insights.scripts.forecast_engine import MealTotals, forecast_glucose
 from sim_user_insights.scripts.sim_current_reading import generate_current_reading
@@ -577,11 +578,8 @@ async def run_companion_pipeline(
     Each stage is a pure function that takes state and returns new state.
     This enables testing and replayability.
     """
-    # Initialize LLM client
-    llm = LLMService(provider=LLMProvider.OPENROUTER, model=model)
-    async def llm_call(messages, max_tokens=600):
-        result = await llm._call_llm(messages, max_tokens=max_tokens, stream=False)
-        return result["response"] if result else ""
+    # Initialize LLM capture
+    llm = LLMCapture(provider=LLMProvider.OPENROUTER, model=model)
     
     # Detect question mode
     q_mode = "forecast"
@@ -595,12 +593,12 @@ async def run_companion_pipeline(
     state = CompanionState(scenario=scenario, anchor_type=anchor_type, question_mode=q_mode)
     
     state = await stage_select_profile(state)
-    state = await stage_parse_foods(state, llm_call)
+    state = await stage_parse_foods(state, llm)
     state = await stage_db_lookup(state)
 
     # Clarification protocol: decide if we need to ask a question
     state = stage_decide_clarification(state)
-    if state.clarification_needed and state.clarification_prompt and mode == "interactive":
+    if state.clarification_needed and state.clarification_prompt and interactive:
         # Return early with the clarification request
         return state
 
@@ -609,7 +607,7 @@ async def run_companion_pipeline(
         state = stage_apply_clarification(state)
 
     state = await stage_forecast(state)
-    state = await stage_companion_advice(state, llm_call)
+    state = await stage_companion_advice(state, llm)
     
     return state
 
@@ -637,18 +635,15 @@ async def main(verbose: bool = False, interactive: bool = False):
     else:
         scenario = " ".join(args.scenario)
     
-    # Initialize LLM client
-    llm = LLMService(provider=LLMProvider.OPENROUTER, model="deepseek/deepseek-v4-flash")
-    async def llm_call(messages, max_tokens=600):
-        result = await llm._call_llm(messages, max_tokens=max_tokens, stream=False)
-        return result["response"] if result else ""
+    # Initialize LLM capture
+    llm = LLMCapture(provider=LLMProvider.OPENROUTER, model="deepseek/deepseek-v4-flash")
     
     # Run pipeline with verbose output
     state = CompanionState(scenario=scenario, anchor_type=args.anchor)
     
     # Run core pipeline (stages 1-3)
     state = await stage_select_profile(state)
-    state = await stage_parse_foods(state, llm_call)
+    state = await stage_parse_foods(state, llm)
     state = await stage_db_lookup(state)
 
     # Clarification protocol
@@ -676,7 +671,7 @@ async def main(verbose: bool = False, interactive: bool = False):
 
     # Continue with forecast and advice
     state = await stage_forecast(state)
-    state = await stage_companion_advice(state, llm_call)
+    state = await stage_companion_advice(state, llm)
 
     if args.verbose:
         print("\n" + "═"*70)
