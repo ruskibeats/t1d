@@ -853,7 +853,7 @@ Ready to help!"""
                     headers={
                         "Authorization": f"Bearer {api_key}",
                         "Content-Type": "application/json",
-                        "HTTP-Referer": "https://github.com/russell-taylor/T1D-Companion",
+                        "HTTP-Referer": "https://github.com/ruskibeats/t1d",
                     },
                     json={
                         "model": self.model,
@@ -897,7 +897,7 @@ Ready to help!"""
                     headers={
                         "Authorization": f"Bearer {api_key}",
                         "Content-Type": "application/json",
-                        "HTTP-Referer": "https://github.com/russell-taylor/T1D-Companion",
+                        "HTTP-Referer": "https://github.com/ruskibeats/t1d",
                     },
                     json={
                         "model": self.model,

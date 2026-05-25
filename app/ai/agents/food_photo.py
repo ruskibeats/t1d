@@ -118,7 +118,7 @@ Always include the disclaimer field: "This is an AI estimate based on visual ana
         headers = {
             "Authorization": f"Bearer {self.api_key}",
             "Content-Type": "application/json",
-            "HTTP-Referer": "https://github.com/russell-taylor/T1D-Companion",
+            "HTTP-Referer": "https://github.com/ruskibeats/t1d",
         }
 
         last_error: Exception | None = None

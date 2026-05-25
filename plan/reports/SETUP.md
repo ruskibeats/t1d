@@ -39,7 +39,7 @@ This guide will help you set up the T1D Companion development environment.
 ```bash
 cd /root/t1d
 # Or clone fresh:
-# git clone https://github.com/russell-taylor/T1D-Companion.git
+# git clone https://github.com/ruskibeats/t1d.git
 # cd T1D-Companion
 ```
 

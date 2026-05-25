@@ -955,7 +955,7 @@ See `infrastructure/` for deployment templates.
 
 ## Resources
 
-- **Code**: [GitHub Repository](https://github.com/russell-taylor/T1D-Companion)
+- **Code**: [GitHub Repository](https://github.com/ruskibeats/t1d)
 - **Docs**: [API Documentation](http://localhost:8000/docs)
 - **Safety**: [SAFETY.md](docs/SAFETY.md)
 - **Plan**: [PLAN.md](PLAN.md)

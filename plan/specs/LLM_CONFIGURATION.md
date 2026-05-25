@@ -200,4 +200,4 @@ service = LLMService(
 - [OpenRouter Documentation](https://openrouter.ai/docs)
 - [OpenAI API Reference](https://platform.openai.com/docs)
 - [Anthropic API Reference](https://docs.anthropic.com)
-- [T1D Companion GitHub](https://github.com/russell-taylor/T1D-Companion)
+- [T1D Companion GitHub](https://github.com/ruskibeats/t1d)

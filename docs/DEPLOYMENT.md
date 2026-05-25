@@ -107,7 +107,7 @@ sudo -u postgres psql -c "CREATE DATABASE t1d_production OWNER t1d_user;"
 
 ```bash
 cd /opt/t1d
-git clone https://github.com/russell-taylor/T1D-Companion.git .
+git clone https://github.com/ruskibeats/t1d.git .
 python3.12 -m venv venv
 source venv/bin/activate
 pip install -e ".[dev]"
