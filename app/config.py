@@ -1,6 +1,7 @@
 """Application configuration."""
 
 import os
+from pathlib import Path
 from typing import Any, Dict, List, Optional
 from urllib.parse import quote_plus
 
@@ -105,22 +106,23 @@ class Settings(BaseSettings):
     allowed_image_extensions: list[str] = [".jpg", ".jpeg", ".png", ".gif"]
 
     # LLM Configuration
-    llm_provider: str = os.getenv("LLM_PROVIDER", "openrouter")  # openai, anthropic, openrouter
-    llm_model: Optional[str] = os.getenv("LLM_MODEL", "openai/gpt-4o-mini")  # defaults per provider
-    openrouter_api_key: Optional[str] = os.getenv("OPENROUTER_API_KEY")
-    openrouter_referer: str = os.getenv("OPENROUTER_REFERER", "T1D-Companion")
+    llm_provider: str = Field(default="openrouter", validation_alias="LLM_PROVIDER")  # openai, anthropic, openrouter, ollama
+    ollama_base_url: str = Field(default="http://192.168.0.211:11434", validation_alias="OLLAMA_BASE_URL")
+    llm_model: Optional[str] = Field(default="openai/gpt-4o-mini", validation_alias="LLM_MODEL")  # defaults per provider
+    openrouter_api_key: Optional[str] = Field(default=None, validation_alias="OPENROUTER_API_KEY")
+    openrouter_referer: str = Field(default="T1D-Companion", validation_alias="OPENROUTER_REFERER")
 
     # LLM provider pool (comma-separated, format: "provider/model")
     # Used for automatic fallback rotation when primary provider fails.
     # Default pool: tries OpenRouter first, then free models as fallbacks.
-    llm_provider_pool: str = os.getenv(
-        "LLM_PROVIDER_POOL",
-        "openrouter/deepseek/deepseek-v4-flash:free,openrouter/microsoft/phi-3-mini-128k-instruct:free,openrouter/google/gemma-2-9b-it:free",
+    llm_provider_pool: str = Field(
+        default="openrouter/deepseek/deepseek-v4-flash:free,openrouter/microsoft/phi-3-mini-128k-instruct:free,openrouter/google/gemma-2-9b-it:free",
+        validation_alias="LLM_PROVIDER_POOL",
     )
 
     model_config = ConfigDict(
         case_sensitive=True,
-        env_file=".env",
+        env_file=str(Path(__file__).resolve().parent.parent / ".env"),
         env_file_encoding="utf-8",
         extra="ignore",
     )

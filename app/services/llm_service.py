@@ -30,6 +30,7 @@ from app.services.llm_adapters import (
     OpenAIAdapter,
     AnthropicAdapter,
     OpenRouterAdapter,
+    OllamaAdapter,
     LLMResponse,
 )
 
@@ -39,9 +40,10 @@ logger = logging.getLogger(__name__)
 
 class LLMProvider(str, Enum):
     """Available LLM providers."""
-    
+
     OPENAI = "openai"
     ANTHROPIC = "anthropic"
+    OLLAMA = "ollama"
     OPENROUTER = "openrouter"
     MINIMAX = "minimax"
 
@@ -157,6 +159,9 @@ class LLMService:
         self._registry.register("minimax", OpenRouterAdapter(openrouter_key))
         self._registry.register("deepseek", OpenRouterAdapter(openrouter_key))
         self._registry.register("google", OpenRouterAdapter(openrouter_key))
+        # Ollama local LLM
+        ollama_url = getattr(config, 'ollama_base_url', 'http://192.168.0.211:11434')
+        self._registry.register("ollama", OllamaAdapter(base_url=ollama_url))
     
     def _get_default_model(self) -> str:
         """Get default model for provider."""
@@ -166,6 +171,8 @@ class LLMService:
             return "openai/gpt-4o-mini"
         elif self.provider == LLMProvider.MINIMAX:
             return "minimax/minimax-m2.5"
+        elif self.provider == LLMProvider.OLLAMA:
+            return "llama3.1:latest"
         return "claude-3-5-haiku-20241022"
     
     # -------------------------------------------------------------------

@@ -236,6 +236,102 @@ class OpenRouterAdapter(ProviderAdapter):
         return LLMResponse(content, tokens, model, self.name, stream, raw=data)
 
 
+class OllamaAdapter(ProviderAdapter):
+    """Ollama local LLM API.
+
+    Tries /api/chat first (newer Ollama), falls back to /api/generate (older).
+    """
+
+    def __init__(self, base_url: str = "http://192.168.0.211:11434", api_key: str | None = None):
+        self._base_url = base_url.rstrip("/")
+        self._api_key = api_key
+
+    @property
+    def name(self) -> str:
+        return "ollama"
+
+    async def execute(
+        self,
+        messages: List[Dict[str, str]],
+        model: str,
+        max_tokens: int,
+        stream: bool = False,
+        api_key: str | None = None,
+        extra_headers: dict | None = None,
+    ) -> LLMResponse:
+        headers = {"Content-Type": "application/json"}
+        if extra_headers:
+            headers.update(extra_headers)
+
+        # Try /api/chat first (Ollama 0.1.30+), fall back to /api/generate
+        try:
+            return await self._try_chat(messages, model, max_tokens, headers)
+        except Exception as chat_err:
+            logger.debug(f"/api/chat failed ({chat_err}), trying /api/generate")
+            try:
+                return await self._try_generate(messages, model, max_tokens, headers)
+            except Exception as gen_err:
+                raise Exception(f"Ollama both /api/chat and /api/generate failed: {chat_err} / {gen_err}")
+
+    async def _try_chat(
+        self, messages, model, max_tokens, headers
+    ) -> LLMResponse:
+        async with httpx.AsyncClient(timeout=120.0) as client:
+            resp = await client.post(
+                f"{self._base_url}/api/chat",
+                headers=headers,
+                json={
+                    "model": model,
+                    "messages": messages,
+                    "stream": False,
+                    "options": {"num_predict": max_tokens},
+                },
+            )
+            resp.raise_for_status()
+            data = resp.json()
+        content = data.get("message", {}).get("content", "")
+        tokens = data.get("eval_count", 0) + data.get("prompt_eval_count", 0)
+        return LLMResponse(content, tokens, model, self.name, False, raw=data)
+
+    async def _try_generate(
+        self, messages, model, max_tokens, headers
+    ) -> LLMResponse:
+        # Convert messages to a single prompt for /api/generate
+        prompt = self._messages_to_prompt(messages)
+        async with httpx.AsyncClient(timeout=120.0) as client:
+            resp = await client.post(
+                f"{self._base_url}/api/generate",
+                headers=headers,
+                json={
+                    "model": model,
+                    "prompt": prompt,
+                    "stream": False,
+                    "options": {"num_predict": max_tokens},
+                },
+            )
+            resp.raise_for_status()
+            data = resp.json()
+        content = data.get("response", "")
+        tokens = data.get("eval_count", 0) + data.get("prompt_eval_count", 0)
+        return LLMResponse(content, tokens, model, self.name, False, raw=data)
+
+    @staticmethod
+    def _messages_to_prompt(messages: List[Dict[str, str]]) -> str:
+        """Convert OpenAI-style messages to a single prompt string."""
+        parts = []
+        for msg in messages:
+            role = msg["role"]
+            content = msg["content"]
+            if role == "system":
+                parts.append(f"System: {content}")
+            elif role == "user":
+                parts.append(f"User: {content}")
+            elif role == "assistant":
+                parts.append(f"Assistant: {content}")
+        parts.append("Assistant:")
+        return "\n\n".join(parts)
+
+
 class ProviderRegistry:
     """Registry of provider adapters.
 

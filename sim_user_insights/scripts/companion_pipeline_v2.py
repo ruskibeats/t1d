@@ -40,9 +40,10 @@ if _env.exists():
 from app.core.database import db_manager, get_settings
 from app.food.service import FoodService
 from app.services.llm_service import LLMProvider
-from app.services.llm_call import LLMCapture
+from app.services.llm_call import LLMCapture, FirstCallLLMRouter
 from app.simulator.schemas import AnchorType
-from sim_user_insights.scripts.forecast_engine import MealTotals, ForecastStage
+from sim_user_insights.scripts.forecast_engine import MealTotals, ForecastStage, ForecastResult
+from sim_user_insights.scripts.forecast_renderer import render_forecast, build_historical_timeline
 from sim_user_insights.scripts.sim_current_reading import generate_current_reading
 
 # ── State Management (Factor 5) ──
@@ -52,19 +53,23 @@ class CompanionState:
     """Unified execution and business state.
     
     Enables pause/resume and stateful reducer pattern.
+    Note: forecast uses ForecastResult for strong typing; profile_config is PatientConfig
+    (Pydantic BaseModel) for backwards compatibility with simulator schemas.
     """
     scenario: str
     anchor_type: str | None = None
     
     # Stage outputs
     foods: list = field(default_factory=list)
-    profile_config: Any = None
+    profile_config: Any = None  # PatientConfig (Pydantic)
     profile_json: dict = field(default_factory=dict)
     sim_reading: dict = field(default_factory=dict)
     evidence_items: list = field(default_factory=list)
     totals: dict = field(default_factory=dict)
-    forecast: Any = None
+    forecast: ForecastResult | None = None  # Typed: ForecastResult from forecast_engine
     similar_meals: list = field(default_factory=list)
+    historical_timeline: list = field(default_factory=list)
+    historical_summary: dict = field(default_factory=dict)
     llm_responses: dict = field(default_factory=dict)
     response: str = ""
     
@@ -397,39 +402,79 @@ async def stage_db_lookup(state: CompanionState) -> CompanionState:
     )
 
 
+def _clarification_priority(item: str) -> float:
+    """Prioritise clarification for likely carb-driver foods.
+
+    This avoids asking about protein/non-starchy veg when noisy DB candidates
+    create an artificially wide carb range.
+    """
+    item_l = item.lower()
+    carb_driver_terms = (
+        "potato", "rice", "pasta", "noodle", "bread", "toast", "bun", "wrap",
+        "pudding", "beans", "lentil", "chickpea", "pizza", "chips", "fries",
+        "cereal", "oat", "porridge", "cake", "biscuit", "pastry", "dessert",
+    )
+    low_priority_terms = (
+        "beef", "chicken", "pork", "lamb", "fish", "egg", "cheese", "tofu",
+        "broccoli", "carrot", "spinach", "lettuce", "cabbage", "courgette",
+        "zucchini", "aubergine", "eggplant", "pepper", "mushroom", "tomato",
+    )
+    if any(term in item_l for term in carb_driver_terms):
+        return 1.5
+    if any(term in item_l for term in low_priority_terms):
+        return 0.15
+    return 1.0
+
+
+def _clarification_target(evidence_items: list[dict]) -> tuple[dict | None, float, float]:
+    """Pick the food whose uncertainty most affects meal carbs.
+
+    Raw range spread alone can choose low-carb/protein foods when their candidate
+    set includes noisy matches. Weighting by point-estimate carbs and generic
+    carb-driver priority keeps the question clinically useful.
+    """
+    target = None
+    max_spread = 0.0
+    max_impact = 0.0
+    for ev in evidence_items:
+        cmin, cmax = ev.get("carb_range_g", (0.0, 0.0))
+        food_spread = cmax - cmin
+        carbs = float((ev.get("computed") or {}).get("carbs_g") or 0.0)
+        item = (ev.get("parsed") or {}).get("item", "")
+        impact = food_spread * max(carbs, 1.0) * _clarification_priority(item)
+        if impact > max_impact:
+            max_impact = impact
+            max_spread = food_spread
+            target = ev
+    return target, max_spread, max_impact
+
+
 def stage_decide_clarification(state: CompanionState) -> CompanionState:
     """Decide whether to ask a clarifying question based on uncertainty.
 
     Triggers a question when:
     - Meal is clinically significant (>= 40g carbs point estimate)
     - Meal-level range spread is large (>= 20g)
-    - At least one food has high per-food spread (>= 15g) and is not high confidence
+    - At least one food has high per-food spread (>= 15g), weighted toward carb impact
     """
     total_min, total_max = state.total_carbs_g_range
     spread = total_max - total_min
 
-    # Find the most uncertain food (biggest carb range spread)
-    most_uncertain = None
-    max_food_spread = 0.0
-    for ev in state.evidence_items:
-        cmin, cmax = ev.get("carb_range_g", (0.0, 0.0))
-        food_spread = cmax - cmin
-        if food_spread > max_food_spread:
-            max_food_spread = food_spread
-            most_uncertain = ev
+    most_uncertain, max_food_spread, max_impact = _clarification_target(state.evidence_items)
 
     # Trigger clarification when:
     # - Meal is clinically significant (>= 40g carbs)
     # - Meal-level range is wide (>= 20g spread)
     # - At least one food has meaningful carb uncertainty (>= 15g spread)
-    # Note: we don't gate on name-match confidence here because a food can
-    # have a perfect name match (e.g., "coleslaw") but still have high carb
-    # variability across candidates (different recipes, brands, dressings).
+    # Note: target selection weights uncertainty by carb impact so low-carb
+    # protein/veg items do not steal the clarification from potatoes, rice,
+    # bread, pudding, beans, etc.
     if (
         state.totals.get("carbs_g", 0) >= 40.0
         and spread >= 20.0
         and most_uncertain is not None
         and max_food_spread >= 15.0
+        and max_impact >= 150.0
     ):
         item = most_uncertain.get("parsed", {}).get("item", "this item")
         state.clarification_needed = True
@@ -449,15 +494,8 @@ def stage_apply_clarification(state: CompanionState) -> CompanionState:
     if not ans:
         return state
 
-    # Find the most uncertain food in evidence
-    most_uncertain_ev = None
-    max_spread = 0.0
-    for ev in state.evidence_items:
-        cmin, cmax = ev.get("carb_range_g", (0.0, 0.0))
-        if cmax - cmin > max_spread:
-            max_spread = cmax - cmin
-            most_uncertain_ev = ev
-
+    # Adjust the same clinically impactful food we'd ask about.
+    most_uncertain_ev, _, _ = _clarification_target(state.evidence_items)
     if most_uncertain_ev is None:
         return state
 
@@ -506,6 +544,55 @@ async def stage_forecast(state: CompanionState) -> CompanionState:
     )
 
 
+async def stage_historical_context(state: CompanionState) -> CompanionState:
+    """Look up similar meals from historical data.
+    
+    Uses the historical meal matcher to find past instances
+    of similar meals and compute average glucose impact.
+    """
+    from app.services.historical_meal_matcher import summarize_similar_meals
+    
+    # Build food description for matching
+    food_descriptions = [f.get("item", "unknown") if isinstance(f, dict) else f.item for f in state.foods]
+    primary_food = food_descriptions[0] if food_descriptions else "unknown"
+    
+    # Look up historical context
+    summary = summarize_similar_meals(
+        query_description=f"{len(state.foods)} foods: {', '.join(food_descriptions)}",
+        carbs_g=state.totals.get("carbs_g"),
+        fat_g=state.totals.get("fat_g"),
+        food_name=primary_food,
+    )
+    
+    # Build historical timeline for graph visualization
+    historical_timeline = build_historical_timeline(summary)
+    
+    return CompanionState(
+        scenario=state.scenario,
+        anchor_type=state.anchor_type,
+        foods=state.foods,
+        profile_config=state.profile_config,
+        profile_json=state.profile_json,
+        sim_reading=state.sim_reading,
+        evidence_items=state.evidence_items,
+        totals=state.totals,
+        forecast=state.forecast,  # Preserve the forecast object
+        similar_meals=[asdict(m) for m in summary.matched_meals],
+        historical_timeline=historical_timeline,
+        historical_summary={
+            "matches_found": summary.matches_found,
+            "avg_peak_delta_mgdl": summary.avg_peak_delta_mgdl,
+            "avg_peak_time_minutes": summary.avg_peak_time_minutes,
+            "narrative": summary.narrative,
+            "confidence_tier": summary.confidence_tier,
+        },
+        question_mode=state.question_mode,
+        safety_rule=state.safety_rule,
+        total_carbs_g_range=state.total_carbs_g_range,
+        confidence_overall=state.confidence_overall,
+    )
+
+
 async def stage_companion_advice(state: CompanionState, llm_call: Callable) -> CompanionState:
     """Generate companion response using evidence bundle."""
     from app.t1d_companion.local_loop import _load_prompt
@@ -543,7 +630,9 @@ async def stage_companion_advice(state: CompanionState, llm_call: Callable) -> C
             "baseline": state.forecast.baseline_mg_dl,
             "peak": state.forecast.peak_mg_dl,
             "peak_time_min": state.forecast.peak_time_minutes,
+            "forecast_points": [{"hour": p.hour, "glucose_mg_dl": p.glucose_mg_dl} for p in state.forecast.forecast_points] if state.forecast else [],
         } if state.forecast else {},
+        "historical_context": state.historical_summary if hasattr(state, 'historical_summary') else {},
         "question_mode": state.question_mode,
         "safety_rule": state.safety_rule,
     }
@@ -555,7 +644,24 @@ async def stage_companion_advice(state: CompanionState, llm_call: Callable) -> C
     ], 700)
     
     return CompanionState(
-        **{**asdict(state), "response": response, "llm_responses": {**state.llm_responses, "advice": response, "bundle": json.dumps(bundle)}}
+        scenario=state.scenario,
+        anchor_type=state.anchor_type,
+        foods=state.foods,
+        profile_config=state.profile_config,
+        profile_json=state.profile_json,
+        sim_reading=state.sim_reading,
+        evidence_items=state.evidence_items,
+        totals=state.totals,
+        forecast=state.forecast,
+        similar_meals=state.similar_meals,
+        historical_timeline=state.historical_timeline,
+        historical_summary=state.historical_summary,
+        response=response,
+        question_mode=state.question_mode,
+        safety_rule=state.safety_rule,
+        total_carbs_g_range=state.total_carbs_g_range,
+        confidence_overall=state.confidence_overall,
+        llm_responses={**state.llm_responses, "advice": response, "bundle": json.dumps(bundle)},
     )
 
 
@@ -572,7 +678,8 @@ async def run_companion_pipeline(
     Each stage is a pure function that takes state and returns new state.
     This enables testing and replayability.
     """
-    from sim_user_insights.scripts.pipeline import PipelineRunner, LLMCapture
+    from sim_user_insights.scripts.pipeline import PipelineRunner
+    from app.services.llm_call import LLMCapture, FirstCallLLMRouter
     from app.services.llm_service import LLMProvider
 
     # Detect question mode
@@ -583,7 +690,10 @@ async def run_companion_pipeline(
     elif "compare" in lower:
         q_mode = "compare"
 
-    llm = LLMCapture(provider=LLMProvider.OPENROUTER, model=model)
+    llm = FirstCallLLMRouter(
+        first_call=LLMCapture(provider=LLMProvider.OLLAMA, model="llama3.1:latest"),
+        remaining_calls=LLMCapture(provider=LLMProvider.OPENROUTER, model=model),
+    )
     runner = PipelineRunner(llm=llm, interactive=interactive)
     result = await runner.run(
         scenario=scenario,
@@ -617,8 +727,14 @@ async def main(verbose: bool = False, interactive: bool = False):
     else:
         scenario = " ".join(args.scenario)
     
-    # Initialize LLM capture
-    llm = LLMCapture(provider=LLMProvider.OPENROUTER, model="deepseek/deepseek-v4-flash")
+    # First LLM call uses local Ollama; later calls use the configured provider.
+    _cfg = get_settings()
+    _provider = LLMProvider(_cfg.llm_provider)
+    _model = _cfg.llm_model or "deepseek/deepseek-v4-flash"
+    llm = FirstCallLLMRouter(
+        first_call=LLMCapture(provider=LLMProvider.OLLAMA, model="llama3.1:latest"),
+        remaining_calls=LLMCapture(provider=_provider, model=_model),
+    )
 
     # Detect question mode
     q_mode = "forecast"
@@ -629,7 +745,7 @@ async def main(verbose: bool = False, interactive: bool = False):
 
     # Build and run pipeline
     from sim_user_insights.scripts.pipeline import PipelineRunner
-    runner = PipelineRunner(llm=llm, interactive=args.interactive)
+    runner = PipelineRunner(llm=llm, interactive=args.interactive, verbose=args.verbose)
 
     if args.verbose:
         print("═"*70)
@@ -660,6 +776,14 @@ async def main(verbose: bool = False, interactive: bool = False):
     print(f"\n╔══ SIM USER: {state.profile_json.get('anchor_label')} ({state.anchor_type}) ════════\n")
     print(f"CGM: {state.sim_reading.get('cgm_displayed_mg_dl')} mg/dL")
     print(f"\n{state.response}\n")
+    
+    # Show forecast graph with historical context
+    if state.forecast:
+        print(render_forecast(state.forecast, state.historical_timeline))
+        if state.historical_summary and state.historical_summary.get("matches_found", 0) > 0:
+            hs = state.historical_summary
+            print(f"\n📊 Based on {hs.get('matches_found', 0)} similar meals in your history:")
+            print(f"   {hs.get('narrative', '')}")
 
 
 if __name__ == "__main__":

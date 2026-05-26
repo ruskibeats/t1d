@@ -24,6 +24,7 @@ from sim_user_insights.scripts.companion_pipeline_v2 import (
     stage_decide_clarification,
     stage_apply_clarification,
     stage_forecast,
+    stage_historical_context,
     stage_companion_advice,
 )
 
@@ -68,10 +69,12 @@ class PipelineRunner:
         self,
         llm: Any = None,
         interactive: bool = False,
+        verbose: bool = False,
         stages: list[Stage] | None = None,
     ):
         self._llm = llm
         self._interactive = interactive
+        self._verbose = verbose
         self._stages = stages or self._default_stages()
 
     @staticmethod
@@ -83,6 +86,7 @@ class PipelineRunner:
             Stage("db_lookup", stage_db_lookup),
             Stage("decide_clarification", stage_decide_clarification),
             Stage("forecast", stage_forecast),
+            Stage("historical_context", stage_historical_context),
             Stage("companion_advice", stage_companion_advice, needs_llm=True),
         ]
 
@@ -136,7 +140,8 @@ class PipelineRunner:
             state = result
 
             # Verbose output
-            self._print_verbose(stage.name, state)
+            if self._verbose:
+                self._print_verbose(stage.name, state)
 
             # Check if clarification was requested by decide_clarification
             if (
@@ -200,8 +205,19 @@ class PipelineRunner:
                 fc = state.forecast
                 print(f"  Baseline: {fc.baseline_mg_dl} mg/dL")
                 print(f"  Peak: {fc.peak_mg_dl} mg/dL at {fc.peak_time_minutes} min")
+                if fc.forecast_points:
+                    print(f"  Forecast points: {len(fc.forecast_points)} timepoints")
+        elif stage_name == "historical_context":
+            if state.historical_timeline:
+                print(f"\n[STAGE 5] Historical Context")
+                print("-" * 50)
+                print(f"  Similar meals found: {len(state.similar_meals)}")
+                if state.historical_summary:
+                    hs = state.historical_summary
+                    print(f"  Avg peak delta: {hs.get('avg_peak_delta_mgdl')} mg/dL")
+                    print(f"  Avg peak time: {hs.get('avg_peak_time_minutes')} min")
         elif stage_name == "companion_advice":
-            print(f"\n[STAGE 5] Companion Advice")
+            print(f"\n[STAGE 6] Companion Advice")
             print("-" * 50)
             print(f"  Response length: {len(state.response)} chars")
 
@@ -224,7 +240,7 @@ class PipelineRunner:
         # Continue with remaining stages
         remaining = [
             s for s in self._stages
-            if s.name in ("forecast", "companion_advice")
+            if s.name in ("forecast", "historical_context", "companion_advice")
         ]
         for stage in remaining:
             kwargs: dict[str, Any] = {}

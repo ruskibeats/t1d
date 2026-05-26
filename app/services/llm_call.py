@@ -20,6 +20,43 @@ from app.services.llm_service import LLMService, LLMProvider, LLMServiceError
 logger = logging.getLogger(__name__)
 
 
+class FirstCallLLMRouter:
+    """Route only the first LLM call to one capture, then use another.
+
+    This lets the pipeline use a local model for the parser while keeping the
+    richer remote model for the final companion advice.
+    """
+
+    def __init__(self, first_call: "LLMCapture", remaining_calls: "LLMCapture"):
+        self._first_call = first_call
+        self._remaining_calls = remaining_calls
+        self.call_count = 0
+
+    async def __call__(self, messages: List[Dict[str, str]], max_tokens: int = 600) -> str:
+        self.call_count += 1
+        if self.call_count == 1:
+            return await self._first_call(messages, max_tokens=max_tokens)
+        return await self._remaining_calls(messages, max_tokens=max_tokens)
+
+    @property
+    def total_tokens_used(self) -> int:
+        return self._first_call.total_tokens_used + self._remaining_calls.total_tokens_used
+
+    @property
+    def errors(self) -> list[str]:
+        return self._first_call.errors + self._remaining_calls.errors
+
+    def summary(self) -> dict:
+        return {
+            "call_count": self.call_count,
+            "total_tokens_used": self.total_tokens_used,
+            "error_count": len(self.errors),
+            "errors": self.errors,
+            "first_call": self._first_call.summary(),
+            "remaining_calls": self._remaining_calls.summary(),
+        }
+
+
 class LLMCapture:
     """Callable wrapper around LLMService that tracks usage and handles errors.
 

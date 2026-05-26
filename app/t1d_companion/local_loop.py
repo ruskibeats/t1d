@@ -31,7 +31,7 @@ from app.food.service import FoodService
 from app.simulator.patient_factory import generate_patient_config, generate_profile_json
 from app.simulator.schemas import AnchorType
 
-DEFAULT_OLLAMA_URL = os.getenv("OLLAMA_URL", os.getenv("OLLAMA_HOST", "http://192.168.0.62:11434"))
+DEFAULT_OLLAMA_URL = os.getenv("OLLAMA_URL", os.getenv("OLLAMA_HOST", "http://192.168.0.211:11434"))
 DEFAULT_OLLAMA_MODEL = os.getenv("T1D_LOCAL_MODEL", "llama3.1:latest")
 PROMPTS_DIR = Path(__file__).with_name("prompts")
 REFERENCE_CSV = Path("/root/t1d/hupaucm/carbs_and_cals_with_macros.csv")
@@ -143,7 +143,12 @@ def _extract_json(text: str) -> Any:
 
 def _canonical_item(value: str) -> str:
     item = value.strip().lower()
-    singular = item.rstrip("s")
+    if item.endswith("oes"):
+        singular = item[:-2]  # potatoes/tomatoes -> potato/tomato
+    elif item.endswith("ies"):
+        singular = item[:-3] + "y"
+    else:
+        singular = item.rstrip("s")
     if singular in {"donut", "doughnut"}:
         return "donut"
     if item in {"coca cola", "coca-cola", "coke", "cola"}:
@@ -798,24 +803,21 @@ def calculate_food_evidence(food: ParsedFood, candidates: list[dict[str, Any]]) 
 
 
 def find_similar_meals(foods: list[ParsedFood], limit: int = 3) -> list[dict[str, Any]]:
-    path = Path("/root/t1d/data/food_history_90d_enhanced.json")
-    if not path.exists():
-        path = Path("/root/t1d/data/food_history_90d.json")
-    if not path.exists():
-        return []
-    try:
-        records = json.loads(path.read_text())
-    except Exception:
-        return []
-    terms = {food.item.lower().rstrip("s") for food in foods}
-    scored: list[tuple[int, dict[str, Any]]] = []
-    for record in records:
-        food_name = str(record.get("food") or record.get("meal") or "").lower()
-        score = sum(1 for term in terms if term and term in food_name)
-        if score:
-            scored.append((score, record))
-    scored.sort(key=lambda item: item[0], reverse=True)
-    return [record for _, record in scored[:limit]]
+    """Find similar meals using the canonical historical meal matcher.
+    
+    Deprecated: Use app.services.historical_meal_matcher.summarize_similar_meals directly.
+    Kept for compatibility with legacy callers.
+    """
+    from app.services.historical_meal_matcher import find_similar_meals as matcher_find_similar
+    
+    # Get matches directly with the limit
+    matches = matcher_find_similar(
+        food_name=foods[0].item if foods else None,
+        max_matches=limit,
+    )
+    
+    # Return as list of dicts for evidence bundle serialization
+    return [asdict(m) for m in matches]
 
 
 async def generate_companion_response(

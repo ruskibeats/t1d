@@ -11,6 +11,7 @@ A Type 1 Diabetes AI companion that estimates meal carbohydrates with **quantifi
 - [Clarification Protocol](#clarification-protocol)
 - [Food Search & Scoring](#food-search--scoring)
 - [Quick Start](#quick-start)
+- [Human Operator Guide](#human-operator-guide)
 - [File Layout](#file-layout)
 - [Key Design Decisions](#key-design-decisions)
 - [Safety](#safety)
@@ -270,6 +271,106 @@ print(state.response)
 print(f"Carbs: {state.totals['carbs_g']}g (range: {state.total_carbs_g_range})")
 print(f"Confidence: {state.confidence_overall}")
 ```
+
+---
+
+## Human Operator Guide
+
+This is the normal way a person runs the companion from the terminal.
+
+### 1. Start from the repo root
+
+```bash
+cd /root/t1d
+```
+
+The app reads `/root/t1d/.env`. For local LLM parsing, Ollama should be reachable at:
+
+```bash
+OLLAMA_BASE_URL=http://192.168.0.211:11434
+```
+
+### 2. Run a one-shot meal estimate
+
+Use this when you want a quick answer without follow-up questions:
+
+```bash
+python3 sim_user_insights/scripts/companion_pipeline_v2.py "spaghetti bolognese"
+```
+
+The output includes:
+- simulated profile and CGM context
+- estimated carbs and likely carb range
+- confidence level
+- forecast peak timing
+- educational bolus estimate language
+- monitoring/risk notes
+
+### 3. Run interactively for portion clarification
+
+Use this for real human-style use, especially when portion size matters:
+
+```bash
+python3 sim_user_insights/scripts/companion_pipeline_v2.py -i
+```
+
+Example flow:
+
+```text
+🥕 T1D Companion
+What are you about to eat?
+> roast beef, 4 roast potatoes, broccoli, carrots, yorkshire pudding
+
+🤖 For the roast potato, is this more like a small, medium, or large portion?
+> small
+```
+
+The app then recalculates the meal estimate and prints the final companion response.
+
+### 4. Use verbose mode when debugging
+
+Verbose mode shows each pipeline stage: parsed foods, DB evidence, carb range, forecast, and final response length.
+
+```bash
+python3 sim_user_insights/scripts/companion_pipeline_v2.py \
+  "jacket potato with baked beans and coleslaw" \
+  --verbose
+```
+
+Short form:
+
+```bash
+python3 sim_user_insights/scripts/companion_pipeline_v2.py "fish and chips" -v
+```
+
+### 5. Combine interactive + verbose
+
+Useful when checking why the app asked a particular clarification question:
+
+```bash
+python3 sim_user_insights/scripts/companion_pipeline_v2.py -i -v
+```
+
+### 6. Common test meals
+
+```bash
+python3 sim_user_insights/scripts/companion_pipeline_v2.py "spaghetti bolognese"
+python3 sim_user_insights/scripts/companion_pipeline_v2.py "roast beef, 4 roast potatoes, broccoli, carrots, yorkshire pudding"
+python3 sim_user_insights/scripts/companion_pipeline_v2.py "jacket potato with baked beans and coleslaw"
+python3 sim_user_insights/scripts/companion_pipeline_v2.py "sweet and sour chicken with fried rice"
+```
+
+### 7. Expected runtime
+
+A typical run currently takes about **10 seconds** end-to-end. Most time is LLM generation; database food search is fast.
+
+### 8. Important interpretation notes
+
+- This is **educational decision support**, not medical advice.
+- Treat carb totals as estimates, especially when the range is wide.
+- If a clarification question appears, answer `small`, `medium`, or `large`.
+- A wide carb range means portion size or database product matching is uncertain.
+- Check CGM after eating; the app is designed to support monitoring, not replace judgement.
 
 ---
 

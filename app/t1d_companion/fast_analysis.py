@@ -20,7 +20,7 @@ if _env_path.exists():
             os.environ.setdefault(k, v)
 
 PROFILE_CONFIGS_PATH = Path("/root/t1d/data/profile_configs.json")
-DEFAULT_OLLAMA_URL = os.getenv("OLLAMA_URL") or os.getenv("OLLAMA_HOST") or "http://192.168.0.62:11434"
+DEFAULT_OLLAMA_URL = os.getenv("OLLAMA_URL") or os.getenv("OLLAMA_HOST") or "http://192.168.0.211:11434"
 DEFAULT_LOCAL_MODEL = os.getenv("T1D_LOCAL_MODEL", "llama3.1:latest")
 
 # Serving sizes by unit (grams)
@@ -211,7 +211,7 @@ Output:
     
     if use_ollama:
         # Local Ollama API
-        ollama_url = os.getenv("OLLAMA_URL", "http://localhost:11434")
+        ollama_url = os.getenv("OLLAMA_URL", "http://192.168.0.211:11434")
         async with httpx.AsyncClient(timeout=60.0) as client:
             try:
                 response = await client.post(
