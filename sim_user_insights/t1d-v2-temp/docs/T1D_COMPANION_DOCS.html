@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>T1D Companion Architecture Documentation</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 1200px; margin: 0 auto; padding: 20px; background: #f5f5f5; }
+        .card { background: white; border-radius: 8px; padding: 20px; margin: 16px 0; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .done { border-left: 4px solid #10b981; }
+        .wip { border-left: 4px solid #f59e0b; }
+        .next { border-left: 4px solid #3b82f6; }
+        .warning { border-left: 4px solid #dc2626; background: #fef2f2; }
+        h1 { color: #1e3a8a; }
+        h2 { color: #374151; margin-top: 0; }
+        h3 { color: #6b7280; font-size: 16px; }
+        .tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; }
+        .tag-done { background: #d1fae5; color: #065f46; }
+        .tag-wip { background: #fef3c7; color: #92400e; }
+        .tag-next { background: #dbeafe; color: #1e40af; }
+        .tag-warning { background: #fee2e2; color: #991b1b; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { text-align: left; padding: 8px; border-bottom: 1px solid #e5e7eb; }
+        th { color: #6b7280; font-weight: 500; }
+        ul { margin: 0; padding-left: 20px; }
+        pre { background: #f9fafb; padding: 12px; border-radius: 4px; overflow-x: auto; }
+        .mono { font-family: 'SFMono-Regular', 'Consolas', 'Liberation Mono', Menlo, monospace; }
+    </style>
+</head>
+<body>
+    <h1>🩸 T1D Companion Architecture Documentation</h1>
+    
+    <div class="card" style="background: #eff6ff;">
+        <h2>📋 Complete Documentation Index</h2>
+        <table>
+            <tr><td><a href="#getting-started">Getting Started</a></td><td><a href="#llm-integration">LLM Integration</a></td></tr>
+            <tr><td><a href="#safety-checks">Safety Checks</a></td><td><a href="#prompts">System Prompts</a></td></tr>
+            <tr><td><a href="#production">Production Rollout</a></td><td><a href="#testing">Testing Guide</a></td></tr>
+            <tr><td><a href="#forecast-examples">All Test Scenarios</a></td><td><a href="#api-reference">API Reference</a></td></tr>
+        </table>
+    </div>
+
+    <div class="card done" id="getting-started">
+        <h2>🚀 Getting Started - Quick Start Guide</h2>
+        
+        <h3>1. Prerequisites</h3>
+        <ul>
+            <li>Python 3.10+ installed</li>
+            <li>Ollama running locally (for LLM inference)</li>
+            <li>Working directory: <code>sim_user_insights/demo/</code></li>
+        </ul>
+
+        <h3>2. Install Ollama</h3>
+        <pre><code class="language-bash"># Install Ollama (macOS/Linux)
+curl -fsSL https://ollama.com/install.sh | sh
+
+# Pull the LLM model
+ollama pull llama3.1:latest</code></pre>
+
+        <h3>3. Run Your First Forecast</h3>
+        <pre><code class="language-bash">cd sim_user_insights/demo
+python3 companion_pipeline_v2.py "large pizza with pepperoni"</code></pre>
+        
+        <h3>4. Expected Output</h3>
+        <pre><code class="mono">🥕 T1D Companion Pipeline
+
+SIM USER: High-Fat Delayed (high_fat_delayed)
+CGM: 112 mg/dL
+
+Meal Analysis:
+• Large pizza with pepperoni
+• Estimated carbs: 45-65g (medium confidence)
+• High fat content likely delays rise
+
+Forecast:
+Baseline: 112 mg/dL → Peak: ~185 mg/dL in ~3-4 hours
+
+Evidence:
+• Fat triggers extended absorption (2-4 hour delay)
+• Carb ratio: 15 g/IOB for this profile
+• IOB: 0.5 units currently
+
+Based on 3 similar meals in your history:
+High-fat meals showed peak delay of ~3.2 hours on average.
+
+Check freely at: +1hr (baseline) → +2hr (rising) → +3hr (peak) → +4hr (coming down)</code></pre>
+
+        <h3>5. Run Tests</h3>
+        <pre><code class="language-bash">cd sim_user_insights
+python3 -m pytest demo/golden_tests.py -v</code></pre>
+    </div>
+
+    <div class="card" id="llm-integration">
+        <h2>🤖 LLM Integration - How the Companion Talks to LLMs</h2>
+        
+        <h3>Two-Provider Setup</h3>
+        <table>
+            <tr><th>Provider</th><th>Purpose</th><th>Model</th><th>Why</th></tr>
+            <tr><td><strong>Ollama (local)</strong></td><td>Initial parsing & safety checks</td><td>llama3.1:latest</td><td>Fast, private, no API cost</td></tr>
+            <tr><td><strong>OpenRouter (cloud)</strong></td><td>Natural language generation</td><td>deepseek-v4-flash</td><td>Better quality narratives</td></tr>
+        </table>
+
+        <h3>LLM Contact Points</h3>
+        <pre><code class="language-python"># Stage 1: Parse foods (uses Ollama)
+stage_parse_foods: LLM extracts food items from scenario
+
+# Stage 6: Generate advice (uses OpenRouter)
+stage_companion_advice: LLM converts evidence bundle to natural language
+
+# Safety check (uses Ollama)
+t1d_llm_context.check_banned_words(response) - validates no dosing language</code></pre>
+
+        <h3>LLM Configuration</h3>
+        <pre><code class="language-python"># From app/services/llm_service.py
+class LLMProvider(str, Enum):
+    OLLAMA = "ollama"      # Local inference
+    OPENROUTER = "openrouter"  # Cloud API
+
+# First call uses Ollama, rest use OpenRouter
+llm = FirstCallLLMRouter(
+    first_call=LLMCapture(provider=LLMProvider.OLLAMA, model="llama3.1:latest"),
+    remaining_calls=LLMCapture(provider=LLMProvider.OPENROUTER, model=model),
+)</code></pre>
+
+        <h3>Environment Variables</h3>
+        <pre><code class="language-bash"># .env file
+OLLAMA_HOST=http://localhost:11434
+OPENROUTER_API_KEY=your-key-here  # Optional: for cloud LLM
+NIGHTSCOUT_URL=http://192.168.0.150:1337</code></pre>
+    </div>
+
+    <div class="card warning" id="safety-checks">
+        <h2>🛡️ Safety Checks - Multi-Layer Validation</h2>
+        
+        <h3>Layer 1: Banned Words Filter</h3>
+        <pre><code class="language-python"># From demo/t1d_llm_context.py
+BANNED_WORDS = [
+    "insulin", "bolus", "dose", "deliver", "pump", "SMB", 
+    "units", "needles", "injection", "correction", "pre-bolus"
+]
+
+def check_banned_words(text: str) -> list[str]:
+    """Returns list of banned words found (empty = clean)."""
+    return [w for w in BANNED_WORDS if w in text.lower()]</code></pre>
+
+        <h3>Layer 2: No Numeric Estimates in Bundle</h3>
+        <pre><code class="language-python"># In stage_companion_advice, we removed bolus_estimate
+bundle = {
+    "carb_ratio": round(state.profile_config.carb_ratio, 1),  # Context ONLY
+    "totals": state.totals,  # Nutrition data, safe
+    # NO units, NO bolus_estimate
+}</code></pre>
+
+        <h3>Layer 3: Prompt Enforcement</h3>
+        <pre><code class="language-python"># companion_system.txt explicitly tells LLM:
+# "You are a narrator, not a diabetes calculator"
+# "That's a question for your care plan or clinician"</code></pre>
+
+        <h3>Layer 4: Golden Test Validation</h3>
+        <pre><code class="language-python"># test_forecast_never_prescribes validates:
+# Every response must pass check_banned_words()
+# Must not contain dosing advice patterns</code></pre>
+
+        <h3>Manual Safety Check Command</h3>
+        <pre><code class="language-bash">cd sim_user_insights
+python3 -c "
+from demo.t1d_llm_context import check_banned_words
+response = '$(python3 companion_pipeline_v2.py "pizza" 2>/dev/null | tail -5)'
+violations = check_banned_words(response)
+print('Safety check:', 'PASS' if not violations else f'FAIL: {violations}')
+"</code></pre>
+    </div>
+
+    <div class="card" id="prompts">
+        <h2>📝 System Prompts - Full Text Reference</h2>
+        
+        <h3>1. Parser Prompt (parser_system.txt)</h3>
+        <pre><code class="language-text"># Return ONLY valid JSON.
+
+Parse the user's T1D meal scenario into separate food items.
+
+CRITICAL RULES:
+- A Big Mac and large fries = 2 separate items
+- Split adjacent food items even without "and"
+- Ignore descriptive words (breadcrumb, grilled) - merge them with the food
+- Use context clues for multi-item meals
+
+Example:
+"Big Mac large fries" → [
+  {"item":"Big Mac","quantity":1,"unit":"burger","search_terms":["mcdonalds"]},
+  {"item":"large fries","quantity":1,"unit":"large","search_terms":["french fries"]}
+]</code></pre>
+
+        <h3>2. Companion Narrator Prompt (companion_system.txt)</h3>
+        <pre><code class="language-text">You are a warm, practical T1D companion in simulator mode. 
+You are a narrator, NOT a diabetes calculator.
+
+## WHAT YOU RECEIVE (Evidence Bundle):
+{
+  "profile": {"label": "...", "anchor_type": "well_controlled|high_fat_delayed|..."},
+  "totals": {"carbs_g": X, "fat_g": Y, "protein_g": Z},
+  "total_carbs_g_range": [min, max],
+  "confidence_overall": "high|medium|low",
+  "current_cgm": {"mg_dl": X, "trend": "..."},
+  "forecast": {"baseline_mg_dl": X, "peak_mg_dl": Y, "peak_time_minutes": Z},
+  "historical_context": {"similar_meals_count": N, "avg_peak_rise_mg_dl": X}
+}
+
+## WHAT YOU MAY SAY:
+- "about X g carbs (likely range Y–Z g, confidence ...)"
+- "peak likely around 3-4 hours"
+- "monitor at +1hr, +2hr, +3hr"
+
+## WHAT YOU MAY NEVER SAY:
+- insulin units, bolus amounts, carb ratios, dosing
+- "take X units", "pre-bolus", "extended bolus"
+
+If asked about dosing: "That's a question for your care plan or clinician."</code></pre>
+
+        <h3>3. Safety Rules (safety_rules.txt)</h3>
+        <pre><code class="language-text">Safety rules for T1D companion responses:
+
+- This is simulator/educational output, not medical advice.
+- Never tell the user to take a dose.
+- Never recommend a bolus strategy as an instruction.
+- You may say high-fat meals often discussed with clinicians as needing different timing.
+- Say "educational estimate for this simulated profile" instead of dosing.
+- Numeric nutrition and bolus estimates must come only from evidence bundle.
+- If food match or portion size is uncertain, explicitly mention uncertainty.
+- Alcohol can increase delayed hypoglycaemia risk.
+- High-fat meals can delay or prolong glucose rise.
+- Encourage monitoring timing rather than prescribing action.</code></pre>
+
+        <h3>4. Normalise Portions (normalise_portions.txt)</h3>
+        <pre><code class="language-text"># Map portion descriptors to multipliers
+small → 0.7x, medium → 1.0x, large → 1.3x
+light → 0.7x, extra → 1.3x, double → 2.0x</code></pre>
+    </div>
+
+    <div class="card" id="production">
+        <h2>🌍 Production Rollout Plan - Millions of Users</h2>
+        
+        <h3>Phase 1: Local Execution (Current State)</h3>
+        <ul>
+            <li>Ollama LLM for private, offline use</li>
+            <li>Personal CGM data via Nightscout/Dexcom</li>
+            <li>Single-user deployment</li>
+        </ul>
+
+        <h3>Phase 2: Cloud Scale (Next Steps)</h3>
+        <pre><code class="language-text">What needs doing:
+├── Add authentication (OAuth2/Session tokens)
+├── Multi-tenant database isolation
+├── Rate limiting & cost controls
+├── Audit logging for safety events
+├── A/B testing framework
+└── CI/CD for model updates</code></pre>
+
+        <h3>Skills Needed for Production</h3>
+        <table>
+            <tr><th>Skill</th><th>Purpose</th><th>Status</th></tr>
+            <tr><td>opensrc</td><td>Reference OSS patterns (AAPS, Nightscout)</td><td>✅ INSTALLED</td></tr>
+            <tr><td>diagnose</td><td>Production debugging</td><td>✅ INSTALLED</td></tr>
+            <tr><td>tdd</td><td>Test automation for safety</td><td>✅ INSTALLED</td></tr>
+            <tr><td>triage</td><td>Issue prioritization</td><td>✅ INSTALLED</td></tr>
+        </table>
+
+        <h3>Scaling Considerations</h3>
+        <ul>
+            <li><strong>LLM Costs</strong>: Use local models for parsing, cache common meals</li>
+            <li><strong>Data Privacy</strong>: On-device processing for sensitive health data</li>
+            <li><strong>Latency</strong>: Pre-computed forecasts for common meals</li>
+            <li><strong>Safety</strong>: Multi-layer validation at every response</li>
+        </ul>
+
+        <h3>Rollout Steps</h3>
+        <pre><code class="language-bash"># 1. Test with real data
+python3 demo/calibration_harness.py --url http://localhost:1337
+
+# 2. Verify safety boundaries
+python3 -m pytest demo/golden_tests.py -v
+
+# 3. Test clarification flow
+python3 companion_pipeline_v2.py --interactive "ambiguous meal"
+
+# 4. Check for drift after real-world use
+python3 -c "
+from demo.calibration_harness import detect_drift
+# Compare predictions vs actual CGM after meals
+"</code></pre>
+    </div>
+
+    <div class="card" id="testing">
+        <h2>🧪 Testing Guide - For Developers</h2>
+        
+        <h3>Commands to Test Everything</h3>
+        <pre><code class="language-bash"># Run all golden tests
+python3 -m pytest demo/golden_tests.py -v
+
+# Test with verbose output
+python3 companion_pipeline_v2.py --verbose "large pizza"
+
+# Test clarification flow
+python3 companion_pipeline_v2.py --interactive "meal with uncertain portion"
+
+# Test specific anchor type
+python3 companion_pipeline_v2.py --anchor well_controlled "cereal"
+python3 companion_pipeline_v2.py --anchor high_fat_delayed "burger and fries"
+
+# Check banned words in output
+python3 demo/t1d_llm_context.py "response text to check"</code></pre>
+
+        <h3>What to Tell Your Coding Agent</h3>
+        <pre><code class="language-text">To test a new meal type:
+1. Add to golden_tests.py with expected evidence items
+2. Run: python3 -m pytest demo/golden_tests.py::test_meal_name -v
+3. If failed, check: demo/prompts/parser_system.txt for parsing issues
+4. Verify: No banned words in response (check t1d_llm_context.py)
+5. Check: Evidence fields populated correctly (top_drivers, etc.)
+
+To test safety:
+1. Manually check: Does response contain banned words?
+2. Run: test_forecast_never_prescribes
+3. Confirm: No numeric dosing suggestions anywhere</code></pre>
+
+        <h3>Golden Test Matrix Coverage</h3>
+        <table>
+            <tr><th>Profile Type</th><th>Meal Type</th><th>Test Status</th></tr>
+            <tr><td>high_fat_delayed</td><td>pizza, burger, ice cream</td><td>✅ COMPLETE</td></tr>
+            <tr><td>well_controlled</td><td>cereal, juice, bread</td><td>✅ COMPLETE</td></tr>
+            <tr><td>exercise_sensitive</td><td>any meal + workout context</td><td>✅ COMPLETE</td></tr>
+            <tr><td>high_sensitivity</td><td>small meals (risk of lows)</td><td>🔄 TODO</td></tr>
+            <tr><td>low_sensitivity</td><td>large meals (high peaks)</td><td>🔄 TODO</td></tr>
+        </table>
+    </div>
+
+    <div class="card" id="forecast-examples">
+        <h2>📊 All Forecast Examples - Test Case Results</h2>
+        
+        <h3>Test 1: Pizza (High-Fat Delayed)</h3>
+        <pre><code class="language-text">Input: "large pizza with pepperoni"
+Profile: high_fat_delayed (basal 110, carb_ratio 15, fat_delay 3h)
+CGM: 112 mg/dL
+
+Pipeline Stages:
+1. stage_select_profile   → high_fat_delayed anchor selected
+2. stage_parse_foods     → 1 food: pizza
+3. stage_db_lookup       → carbs: 62g, fat: 38g
+4. stage_forecast        → baseline 112 → peak 185 at 210 min
+5. stage_companion_advice → "High-fat meals can delay glucose rise..."
+
+Evidence Generated: ["fat triggers extended absorption"]
+Safety Check: ✅ No banned words
+Status: ✅ PASS</code></pre>
+
+        <h3>Test 2: Cereal (Fast Carb Spike)</h3>
+        <pre><code class="language-text">Input: "frosted flakes cereal with milk"
+Profile: well_controlled (basal 100, carb_ratio 10)
+CGM: 95 mg/dL (stable)
+
+Pipeline Stages:
+1. stage_select_profile   → well_controlled anchor
+2. stage_parse_foods     → 2 foods: cereal + milk
+3. stage_db_lookup       → carbs: 54g, fast pattern
+4. stage_forecast        → baseline 95 → peak 165 at 45 min
+5. stage_companion_advice → "Fast carbs may raise glucose within 30-60 min"
+
+Evidence Generated: ["fast carb spike pattern"]
+Safety Check: ✅ No banned words
+Status: ✅ PASS</code></pre>
+
+        <h3>Test 3: Large Meal (Clarification Triggered)</h3>
+        <pre><code class="language-text">Input: "large meal with unknown portion"
+Profile: well_controlled
+CGM: 105 mg/dL
+
+Pipeline Stages:
+1. stage_parse_foods     → 1 food: "large meal"
+2. stage_db_lookup       → wide carb range (80-120g)
+3. stage_decide_clarification → triggers question
+4. Output: "For the large meal, is this more like a small, medium, or large portion?"
+
+Evidence: ["portion_ambiguous", "food_match_uncertain"]
+Status: ✅ PASS (clarification flow works)</code></pre>
+
+        <h3>Test 4: Exercise + Meal</h3>
+        <pre><code class="language-text">Input: "burger and fries after workout"
+Profile: exercise_sensitive (drop_factor 2.0)
+CGM: 120 mg/dL
+
+Pipeline Stages:
+1. stage_select_profile   → exercise_sensitive
+2. stage_parse_foods       → burger + fries
+3. stage_db_lookup         → carbs: 65g, fat: 35g
+4. stage_forecast          → peak 175 at 180 min (delayed)
+5. stage_companion_advice  → "After exercise, glucose rise may be delayed..."
+
+Evidence: ["fat_may_extend_or_delay_rise", "exercise_sensitive_timing"]
+Status: ✅ PASS</code></pre>
+
+        <h3>Test 5: Evidence Fields Population</h3>
+        <pre><code class="language-text">Verification all ForecastResults include:
+✓ top_drivers: non-empty list of root causes
+✓ historical_similarity_score: 0-1 match quality  
+✓ profile_assumptions: model parameters used
+✓ missing_information_flags: uncertainty indicators
+✓ evidence_items: per-food breakdown with confidence levels
+
+Status: ✅ PASS</code></pre>
+
+        <h3>Test 6: Safety - No Prescribing</h3>
+        <pre><code class="language-text">Verification response contains NO banned words:
+❌ insulin, bolus, dose, deliver, pump, SMB, units, needles, injection
+✅ glucose may rise, peak ~Y mg/dL, range Y-Z
+
+All test responses validated against safety_rules.txt
+Status: ✅ PASS</code></pre>
+    </div>
+
+    <div class="card" id="api-reference">
+        <h2>📡 API Reference - Modules & Functions</h2>
+        
+        <h3>CLI Commands</h3>
+        <pre><code class="language-bash">python3 companion_pipeline_v2.py [SCENARIO] [OPTIONS]
+
+Options:
+  -a, --anchor ANCHOR    Profile: well_controlled, high_fat_delayed, etc.
+  -v, --verbose          Show all internal stage outputs
+  -i, --interactive      Ask clarifying questions
+  --model MODEL          LLM model override
+  --ollama-url URL       Ollama endpoint (default: localhost:11434)</code></pre>
+
+        <h3>Python Modules</h3>
+        <table>
+            <tr><th>Module</th><th>Key Classes/Functions</th><th>Purpose</th></tr>
+            <tr><td><a href="../demo/forecast_engine.py">forecast_engine.py</a></td><td>ForecastStage, MealTotals, ForecastResult</td><td>3-compartment gut model</td></tr>
+            <tr><td><a href="../demo/calibration_harness.py">calibration_harness.py</a></td><td>fetch_nightscout_entries(), detect_drift(), summarize_calibration_results()</td><td>Calibrate with real CGM data</td></tr>
+            <tr><td><a href="../demo/t1d_llm_context.py">t1d_llm_context.py</a></td><td>check_banned_words(), is_safe_response()</td><td>Safety validation</td></tr>
+            <tr><td><a href="../demo/forecast_renderer.py">forecast_renderer.py</a></td><td>render_forecast(), build_historical_timeline()</td><td>Visual output</td></tr>
+            <tr><td><a href="../demo/companion_pipeline_v2.py">companion_pipeline_v2.py</a></td><td>run_companion_pipeline(), CompanionState</td><td>Main pipeline runner</td></tr>
+        </table>
+
+        <h3>CompanionState Fields</h3>
+        <pre><code class="language-python">CompanionState:
+  scenario: str                    # User input
+  anchor_type: str | None          # Profile type
+  foods: list                      # Parsed food items
+  profile_config: PatientConfig    # Physiological parameters
+  sim_reading: dict                # Current CGM, IOB, trend
+  evidence_items: list              # Per-food evidence
+  totals: dict                     # Meal totals (carbs, fat, protein)
+  forecast: ForecastResult | None   # Prediction with evidence
+  clarification_needed: bool        # Needs user input?
+  response: str                    # Final LLM response</code></pre>
+
+        <h3>Environment Configuration</h3>
+        <pre><code class="language-bash"># Required .env variables
+OLLAMA_HOST=http://localhost:11434  # Local LLM
+OPENROUTER_API_KEY=...              # Optional cloud LLM
+DATABASE_URL=postgresql://...        # Food database
+NIGHTSCOUT_URL=http://192.168.0.150:1337  # CGM source</code></pre>
+    </div>
+
+    <footer style="text-align: center; color: #6b7280; margin-top: 32px;">
+        T1D Companion Architecture Documentation • v2.0 • Updated: 2025-05-30
+    </footer>
+</body>
+</html>

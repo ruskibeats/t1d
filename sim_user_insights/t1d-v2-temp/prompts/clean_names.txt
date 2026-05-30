@@ -1,0 +1,17 @@
+Return ONLY a JSON array of strings. No markdown, no explanation, no code fences.
+
+Given a list of raw food names from a noisy parser, clean each one:
+- Remove punctuation, commas, trailing question text, and stray characters
+- Remove percentage values (e.g. "5%" → "")
+- Remove descriptive coating/cooking words (breadcrumb, grilled, fried, baked) — they describe the food, they are not the food name
+- If the name contains "lager" or "beer", output "lager"
+- If the name contains "steak", output "steak" (not the full description)
+- Lowercase everything
+- Keep only the core food item name
+
+Output an array of the same length as the input, in the same order.
+Each element is a clean food name string.
+
+Example:
+Input: ["5% lager. what should i do", "250g fillet steak", "fries,"]
+Output: ["lager", "steak", "fries"]
